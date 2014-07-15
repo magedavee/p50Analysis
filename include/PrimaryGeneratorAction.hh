@@ -8,19 +8,24 @@
 //
 // --------------------------------------------------------
 //	Version 1.01 - 2011/04/29 - A. Ho
+//  Edited for clarity 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
-#ifndef PrimaryGeneratorAction_H		// Only carries out if object is undefined
-#define PrimaryGeneratorAction_H 1		// Defines object
+#ifndef PrimaryGeneratorAction_H
+// Assure header is only loaded once during compilation
+#define PrimaryGeneratorAction_H
 
-#include "G4VUserPrimaryGeneratorAction.hh"	// Specifies base class or parent class
+// Specifies base class or parent class
+#include "G4VUserPrimaryGeneratorAction.hh"
 
-#include "G4ThreeVector.hh"			// Specifies the classes which contain structures called upon in this class
+// Specifies the classes which contain structures called upon in this class
+#include "G4ThreeVector.hh"
 #include "G4DataVector.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleGun.hh"
 
-#include <vector>				// Specifies classes defining all global parameters and variable types
+// Specifies classes defining all global parameters and variable types
+#include <vector>
 #include <map>
 #include <iomanip>
 #include <iostream>
@@ -32,9 +37,10 @@
 #include "CRYUtils.h"
 #include "RNGWrapper.hh"
 #include "Randomize.hh"
-using namespace std;
 
-class G4Event;					// Structures necessary for class definition
+//using namespace std;
+
+class G4Event;
 class G4ParticleGun;
 class G4ParticleTable;
 class G4GeneralParticleSource;
@@ -47,39 +53,39 @@ class CosmicMuonGenerator;
 
 /* -------- Class Definition --------- */
 
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inherits functions from G4VUserPrimaryGeneratorAction
-{
-  friend class PrimaryGeneratorMessenger;	// Friend classes have access to all member data and internal methods of this class
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+    
+friend class PrimaryGeneratorMessenger;
 
-  public:	// Accessible Data
+public:
+    enum Module {
+        None,
+        InverseBeta,
+        FissionAntinu,
+        CosmicNeutron,
+        CosmicMuon
+    }; // Enumeration to ease transitions of models in coding (could be inefficient but is useful)
 
-    enum Module { None,
-		  InverseBeta,
-		  FissionAntinu,
-		  CosmicNeutron,
-		  CosmicMuon };		// Enumeration to ease transitions of models in coding (could be inefficient but is useful)
-
-  public:	// Constructors and Destructors
-
-    PrimaryGeneratorAction();						// Constructor
-    virtual ~PrimaryGeneratorAction();					// Destructor
-
-  public:	// Accessible Methods
-
-    void GeneratePrimaries(G4Event* anEvent);			// Generates a particle and launches it into the geometry
-  void InputCRY();
- 
+    /// constructor
+    PrimaryGeneratorAction();
+    /// destructor
+    virtual ~PrimaryGeneratorAction();
+    
+    /// Generates a particle and launches it into the geometry
+    void GeneratePrimaries(G4Event* anEvent);
+    
+    void InputCRY();
     void UpdateCRY(std::string* MessInput);
     void CRYFromFile(G4String newValue);
-  
-  G4ParticleGun* GetParticleGun() const { return particle_gun; };				// Get functions
-  G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
+
+    G4ParticleGun* GetParticleGun() const { return particle_gun; };
+    G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
     G4String GetDistribution() const { return fDistribution; };
     std::map<G4int,G4int>* GetHistogramData() const { return Histogram; };
     std::vector<G4double>* GetEnergyTable() const { return Energy; };
     G4int GetFunction() const { return fFunction; };
-  G4bool GetFile() const { return fFile; };  
-  G4int GetCalibrationSource() const { return fCalibration; };
+    G4bool GetFile() const { return fFile; };  
+    G4int GetCalibrationSource() const { return fCalibration; };
     G4String GetRunSettings() const { return sModes; };
     G4bool GetGunSettings() const { return fGun; };
     G4int GetModuleSettings() const { return (G4int)(fModule); };
@@ -87,21 +93,21 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inh
 
     void DisplayKinematicsInfo() const;
 
-  protected:	// Internal Methods
+protected:
 
     void SetVerbosity(G4int);
 
     void GenerateUserParticleKinematics(G4int);
     void GenerateModuleParticleKinematics(G4int);
     void GenerateFunctionParticleEnergy();
-  void GenerateFileParticleEnergy();
-  void GenerateCustomParticleEnergy();
+    void GenerateFileParticleEnergy();
+    void GenerateCustomParticleEnergy();
     void GenerateCalibratedSourceEnergy();
     void GenerateEnergySpectrumWithoutSimulation(G4int n = 1);
 
-  void SetCRY(G4bool);
- void SetCRYPoint(G4bool);
- void SetCRYZOffset(G4double);
+    void SetCRY(G4bool);
+    void SetCRYPoint(G4bool value) { fCRYpoint = value; }
+    void SetCRYZOffset(G4double value) { cryZoffset = value/1000.0; }
 
     void ToggleCalibrationMode(G4bool);
     void SetCalibrationSource(G4int);
@@ -109,7 +115,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inh
     void ResetAllSourceIntensities();
 
     void SetFunctionEnergySpectrum(G4int);
-  void SetFile(G4String);
+    void SetFile(G4String);
     void SetMinimumEnergyRange(G4double);
     void SetMaximumEnergyRange(G4double);
     void SetCustomEnergySpectrum(G4String);
@@ -131,15 +137,15 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inh
     FissionAntiNuGenerator* GetAntiNuGenerator() { return fission_spec; };
     CosmicMuonGenerator* GetMuonGenerator() { return muon_generator; };
 
-  private:	// Member Data
+private:
 
-    G4int verbose;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;			// Outputs generated numbers, set with verbosity > 2
+    G4int verbose;                      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
+    G4bool RawData;                     ///< Whether to output primary event parameters to log; set when verbosity > 2
 
     G4ParticleGun* particle_gun;
-  G4ParticleTable* particleTable;
-  CRYGenerator* gen;			// Particle Gun
-    G4GeneralParticleSource* particle_source;		// GPS
+    G4ParticleTable* particleTable;
+    CRYGenerator* gen;
+    G4GeneralParticleSource* particle_source;
     DetectorConstruction* detect;
     PrimaryGeneratorMessenger* gun_messenger;
 
@@ -148,23 +154,23 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inh
     FissionAntiNuGenerator* fission_spec;
     CosmicMuonGenerator* muon_generator;
 
-    G4String fDistribution;		// Flag to determine current distribution
-    Module fModule;			// Flag to determine current module, if any
-    G4int fFunction;			// Flag to determine current spectrum function, if any
-  G4bool fFile;                          // Flag to determine whether particles are generated from an input file
-  G4bool fCry;                           // flag to determine whether particles are generated from the CRY package
-  G4bool fCRYpoint;                           // flag to determine whether particles are generated from the CRY package selectively point at the detector
-  G4bool fCustom;			// Flag to specify use of custom spectrum
+    G4String fDistribution;             ///< Flag to determine current distribution
+    Module fModule;                     ///< Flag to determine current module, if any
+    G4int fFunction;                    ///< Flag to determine current spectrum function, if any
+    G4bool fFile;                       ///< Flag to determine whether particles are generated from an input file
+    G4bool fCry;                        ///< flag to determine whether particles are generated from the CRY package
+    G4bool fCRYpoint;                   ///< flag to determine whether particles are generated from the CRY package selectively point at the detector
+    G4bool fCustom;                     ///< Flag to specify use of custom spectrum
     G4String customDist;
-    G4bool fGun;			// Flag to specify use of Particle Gun instead of default GPS
-    G4int fCalibration;			// Flag to determine which calibration source, if any
+    G4bool fGun;                        ///< Flag to specify use of Particle Gun instead of default GPS
+    G4int fCalibration;                 ///< Flag to determine which calibration source, if any
     G4String fDistStore;
-    G4int fCalFunction;			// Flag to determine which calibration function, if any
+    G4int fCalFunction;                 ///< Flag to determine which calibration function, if any
 
     std::vector<G4double>* Energy;
     std::vector<G4double>* Dist;
     std::map<G4int,G4int>* Histogram;
-  std::vector<CRYParticle*> *vect; // vector of generated particles
+    std::vector<CRYParticle*> *vect;    ///< vector of generated particles
 
     G4int numSources, calSources;
     G4double cryZoffset;
@@ -172,14 +178,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction	// Class inh
     G4double max_energy;
     G4double max_dist;
     G4double eBin_width;
-    G4double mTemp;			// Temperature for Maxwellian spectrum
-    G4String sModes;			// Used to mark output files
-  ifstream* textfile;
-  G4int InputState;
+    G4double mTemp;                     ///< Temperature for Maxwellian spectrum
+    G4String sModes;                    ///< Used to mark output files
+    std::ifstream* textfile;
+    G4int InputState;
 };
 
-/* ----------------------------------- */
-
-#endif							// End of if clause
-
-// EOF
+#endif

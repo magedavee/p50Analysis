@@ -70,7 +70,9 @@ class CosmicMuonGenerator
     void PrintAllParameters() const;
 
   protected:	// Internal Methods
-
+    
+    /// set default values for parameters
+    void setDefaults();
     void GenerateLipariPDFTable();
     void GenerateBESSPDFTable();
 

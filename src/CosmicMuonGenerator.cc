@@ -27,34 +27,36 @@
 #include <math.h>
 #include <map>
 
-	// ****** Constructor ******* //
-CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target)
-{
-  verbose = v;							// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
-  muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();	// Placed in new variable for ease of coding
+void CosmicMuonGenerator::setDefaults() {
+    RawData = (verbose>2);
+    muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();      // Placed in new variable for ease of coding
+    
+    // Defines hard limits for each energy spectrum range
+    minLipari_e = 1.0e0*GeV;
+    maxLipari_e = 1.0e6*GeV;
+    minBESS_p = 0.576*GeV;
+    maxBESS_p = 20.552*GeV;
+    
+    // Default minimum and maximum energies sampled with Lipari limits, default mono energy
+    min_val = minLipari_e;
+    max_val = maxLipari_e;
+    if(fBESS) { min_val = minBESS_p; max_val = maxBESS_p; }
+    muMono = 1.*GeV;
+    
+    // Define other default values
+    fMonoEnergy = false;
+    fPlusOnly = false;
+    fMinusOnly = false;
+    ratio = 0.0;
+    testDir = G4ThreeVector(0.,1.,0.);
+}
 
-	// Defines hard limits for each energy spectrum range
-  minLipari_e = 1.0e0*GeV;
-  maxLipari_e = 1.0e6*GeV;
-  minBESS_p = 0.576*GeV;
-  maxBESS_p = 20.552*GeV;
-
-	// Default minimum and maximum energies sampled with Lipari limits, default mono energy
-  min_val = minLipari_e;
-  max_val = maxLipari_e;
-  muMono = 1.*GeV;
-
-	// Define other default values
-  fMonoEnergy = false;
-  fPlusOnly = false;
-  fMinusOnly = false;
-  ratio = 0.0;
-  testDir = G4ThreeVector(0.,1.,0.);
-
+// ****** Constructor ******* //
+CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target): fBESS(false),  verbose(v) {
+    setDefaults();
+    
   if(verbose > 1) { G4cout << "\tEnergy-dependent ratio values are currently being used." << G4endl; }
 
-  fBESS = false;			// Default to use Lipari spectrum
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 
@@ -76,30 +78,10 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target)
          << G4endl;
 }
 
-	// ****** Overloaded Constructor ******* //
-CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int v)
-{
-  verbose = v;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
-  muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();	// Placed in new variable for ease of coding
-
-	// Defines hard limits for energy spectrum range
-  minLipari_e = 1.0e0*GeV;
-  maxLipari_e = 1.0e6*GeV;
-  minBESS_p = 0.576*GeV;
-  maxBESS_p = 20.552*GeV;
-
-	// Specifies minimum and maximum energies sampled to match chosen spectrum, default mono energy
-  if(BESS) { min_val = minBESS_p; max_val = maxBESS_p; }
-  else     { min_val = minLipari_e; max_val = maxLipari_e; }
-  muMono = 1.*GeV;
-
-	// Define other default values
-  fMonoEnergy = false;
-  fPlusOnly = false;
-  fMinusOnly = false;
-  testDir = G4ThreeVector(0.,1.,0.);
-
+// ****** Overloaded Constructor ******* //
+CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int v): fBESS(BESS), verbose(v) {
+    setDefaults();
+   
 	// Determine user-specified muon ratio
   if(PlusMinus == -1.0)		// An input of -1 in constructor uses mu+ only
   {
@@ -120,7 +102,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int 
   }
   ratio = PlusMinus;		// All other positive inputs (except 0) are accepted as user-defined muon ratios
 
-  fBESS = BESS;				// Activates BESS spectrum if specified
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 
@@ -148,29 +129,11 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int 
          << G4endl;
 }
 
-	// ****** Overloaded Constructor ****** //
-CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4int v)
-{
-  verbose = v;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
-  muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();	// Placed in new variable for ease of coding
-
-	// Defines hard limits for energy spectrum range
-  minLipari_e = 1.0e0*GeV;
-  maxLipari_e = 1.0e6*GeV;
-  minBESS_p = 0.576*GeV;
-  maxBESS_p = 20.552*GeV;
-
-	// Specifies minimum and maximum energies sampled with Lipari limits, set specified mono-energy
-  min_val = minLipari_e;
-  max_val = maxLipari_e;
-  muMono = monoE;
-
-	// Define other default values
-  fMonoEnergy = true;
-  fPlusOnly = false;
-  fMinusOnly = false;
-  testDir = G4ThreeVector(0.,1.,0.);
+// ****** Overloaded Constructor ****** //
+CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4int v): fBESS(false), verbose(v) {
+    setDefaults();
+    muMono = monoE;
+    fMonoEnergy = true;
 
 	// Determine user-specified muon ratio
   if(PlusMinus == -1.0)		// An input of -1 in constructor uses mu+ only
@@ -192,7 +155,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4i
   }
   ratio = PlusMinus;		// All other positive inputs (except 0) are accepted as user-defined muon ratios
 
-  fBESS = false;			// Default to Lipari spectrum
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 

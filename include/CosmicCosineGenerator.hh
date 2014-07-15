@@ -8,6 +8,7 @@
 //
 // --------------------------------------------------------
 //	Version 1.01 - 2011/04/29 - A. Ho
+//      Edited 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
 #ifndef CosmicCosineGenerator_H		// Only carries out if object is undefined
@@ -24,6 +25,8 @@ class G4VPhysicalVolume;			// Structures necessary for class definition
 
 /* -------- Class Definition --------- */
 
+/// Generates cosmic ray initial position/momentum distribution,
+/// from hemisphere directed towards faces of rectangular prism target volume
 class CosmicCosineGenerator
 {
   public:	// Constructors and Destructors
@@ -45,8 +48,11 @@ class CosmicCosineGenerator
 
     G4ThreeVector GeneratePositionOnDetector(const G4VSolid*);
     G4ThreeVector GenerateMomentumObserved();
+    /// determines target volume rotation relative to world volume
     G4RotationMatrix* FindTargetRotationWRTWorld();
+    /// determines target volume translation relative to world volume
     G4ThreeVector* FindTargetTranslationWRTWorld();
+    /// calculates appropriate radius for initial position hemisphere to contain target
     void CalculateSourceRadius();
     void CalculateTargetSpecs();
     G4double CalculateSourceQuadratic(G4ThreeVector,G4ThreeVector);
@@ -66,8 +72,8 @@ class CosmicCosineGenerator
     G4ThreeVector pointOne;
     G4ThreeVector pointTwo;
 
-    G4int verbose;	// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;		// Outputs generated numbers, set with verbosity > 2
+    G4int verbose;     ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
+    G4bool RawData;    ///< Outputs generated numbers, set with verbosity > 2
 };
 
 /* ----------------------------------- */

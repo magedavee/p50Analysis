@@ -8,6 +8,7 @@
 //
 // --------------------------------------------------------
 //	Version 1.01 - 2011/04/29 - A. Ho
+//  Edited for clarity 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
 #include "PrimaryGeneratorAction.hh"		// Specifies the file which contains the class structure
@@ -560,229 +561,204 @@ void PrimaryGeneratorAction::GenerateCalibratedSourceEnergy()
   }
 }
 
-	// ****** Particle Generation Protocol ****** //
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)		// Function to launch a particle into the detector geometry
-{
-  RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-  G4String pre = run_action->GetFilePrefix();
-  G4String suf = run_action->GetFileSuffix();
-  
-  G4double evEnergy = 0;
-  G4int particleID=0;
-  if(fCry)
-    {
-      if (InputState != 0) {
-	G4String* str = new G4String("CRY library was not successfully initialized");
-	//G4Exception(*str);
-	G4Exception("PrimaryGeneratorAction", "1",
-		    RunMustBeAborted, *str);
-      }
-      G4String particleName;
-      if(fCRYpoint){
-	G4double ray=0, length, px=0, py=0, pz=0;
-	length = detect->GetMaxHalfDimension();
-	Int_t found_one = 0;
-      
-	do{
-	  vect->clear();
-	  gen->genEvent(vect);
-	  
-	  //....debug output
-	  
-	  for ( unsigned j=0; j<vect->size(); j++) {
-	    particleName=CRYUtils::partName((*vect)[j]->id());
-	    //find pointing vector
-	    ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
-	    px = (*vect)[j]->x()+ray*(*vect)[j]->u();
-	    py = (*vect)[j]->y()+ray*(*vect)[j]->v();
+// ****** Particle Generation Protocol ****** //
 
-	    pz = cryZoffset+ray*(*vect)[j]->w();
-	 	    
-	    if(sqrt(px*px+py*py+pz*pz)<=(0.0015*length)){
-	      if(found_one==0){	      
-		found_one = 1;
-		Event* ev = RootIO::GetInstance()->GetEvent();
-		ev->fGenPos[0] = (*vect)[j]->x();
-		ev->fGenPos[1] = (*vect)[j]->y();
-		ev->fGenPos[2] = cryZoffset;
-		
-		ev->fGenMom[0] = (*vect)[j]->u();
-		ev->fGenMom[1] = (*vect)[j]->v();
-		ev->fGenMom[2] = (*vect)[j]->w();
-		
-		ev->fEnergy = (*vect)[j]->ke()*MeV;
-	      }
-	    
-	      particle_gun->SetParticleDefinition(particleTable->FindParticle((*vect)[j]->PDGid()));
-	      particle_gun->SetParticleEnergy((*vect)[j]->ke()*MeV);
-	      particle_gun->SetParticlePosition(G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset));
-	      particle_gun->SetParticleMomentumDirection(G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w()));
-	      particle_gun->SetParticleTime((*vect)[j]->t());
-	      particle_gun->GeneratePrimaryVertex(anEvent);
-	    }
-	    delete (*vect)[j];
-	  }
-	}while(found_one==0);
-      }
-      else{
-	vect->clear();
-	gen->genEvent(vect);
-	
-	//....debug output
-	
-	for ( unsigned j=0; j<vect->size(); j++) {
-	  particleName=CRYUtils::partName((*vect)[j]->id());
-	  
-	  if(j==0){
-	    Event* ev = RootIO::GetInstance()->GetEvent();
-	    ev->fGenPos[0] = (*vect)[j]->x();
-	    ev->fGenPos[1] = (*vect)[j]->y();
-	    ev->fGenPos[2] = cryZoffset;
-	    
-	    ev->fGenMom[0] = (*vect)[j]->u();
-	    ev->fGenMom[1] = (*vect)[j]->v();
-	    ev->fGenMom[2] = (*vect)[j]->w();
-	    
-	    ev->fEnergy = (*vect)[j]->ke()*MeV;
-	  }
-	  
-	  particle_gun->SetParticleDefinition(particleTable->FindParticle((*vect)[j]->PDGid()));
-	  particle_gun->SetParticleEnergy((*vect)[j]->ke()*MeV);
-	  particle_gun->SetParticlePosition(G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset));
-	  particle_gun->SetParticleMomentumDirection(G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w()));
-	  particle_gun->SetParticleTime((*vect)[j]->t());
-	  particle_gun->GeneratePrimaryVertex(anEvent);
-	}
-      }
-    }
-  
-  if(fCalibration)	// Check for Calibration Mode
-    {
-      if(anEvent->GetEventID() == 0)
-	{
-	  if(verbose > 0) { G4cout << "*** CAUTION: Simulation is in calibration mode. Using calibration sources. ***" << G4endl; }
-	  if(particle_source->GetCurrentSourceIndex() < numSources)
-	    {
-	      G4cout << "*** ATTENTION: Simulation set to use a GPS Source #0 or #1. Resetting GPS to last chosen calibration source. ***" << G4endl;
-	    }
-	  SetCalibrationSource(fCalibration);
-	}
-      if(fCalFunction) { GenerateCalibratedSourceEnergy(); }
-    }
-  else if(fCustom || fFunction || fFile) { GenerateUserParticleKinematics(anEvent->GetEventID()); }
-  else if(fModule != None)      { GenerateModuleParticleKinematics(anEvent->GetEventID()); }
-  if(fGun)	// If Particle Gun is specified
-    {
-      if(anEvent->GetEventID() == 0 && verbose > 0)
-	{ G4cout << "*** CAUTION: G4ParticleGun being used instead of the default G4GeneralParticleSource. ***" << G4endl; }
-      
-      // Writes individual momentums and energies into file if requested
-      if(RawData)
-	{
-	  LogSession* log = LogSession::GetLogSessionPointer();
-	  
-	  G4ThreeVector pHat = particle_gun->GetParticleMomentumDirection();
-	  log->SetOutputFileName("GeneratedSourceMomentum.txt");
-	  log->OpenFile(false,true);
-	  (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
-	  log->CloseFile();
-	  
-	  G4double energy = particle_gun->GetParticleEnergy();
-	  log->SetOutputFileName("GeneratedSourceEnergies.txt");
-	  log->OpenFile(false,true);
-	  (*log) << energy/MeV << std::endl;
-	  log->CloseFile();
-	}
-      evEnergy = particle_gun->GetParticleEnergy();
-      particleID = particle_gun->GetParticleDefinition()->GetPDGEncoding();
-      particle_gun->GeneratePrimaryVertex(anEvent);
-    }
-  else if(fModule == InverseBeta)
-    {
-      // If using Inverse Beta Module, ensure one neutron and one positron each are generated
-      if(inverse_beta->IsPositronGenerated())
-	{
-	  ResetAllSourceIntensities();
-	  particle_source->SetCurrentSourceto(1);
-	  particle_source->SetCurrentSourceIntensity(1.0);
-	  particle_source->GeneratePrimaryVertex(anEvent);
-	  evEnergy =  particle_source->GetParticleEnergy();
-	  particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
-	}
-      if(inverse_beta->IsNeutronGenerated())
-	{
-	  ResetAllSourceIntensities();
-	  particle_source->SetCurrentSourceto(0);
-	  particle_source->SetCurrentSourceIntensity(1.0);
-	  particle_source->GeneratePrimaryVertex(anEvent);
-	}
-      particle_source->SetCurrentSourceto(0);
-    }
-  else if(fModule != None) { particle_source->GeneratePrimaryVertex(anEvent);  evEnergy = particle_source->GetParticleEnergy(); particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
-  }
-  else
-    {
-      // Writes individual momentums and energies into file if requested
-      if(RawData)
-	{
-	  LogSession* log = LogSession::GetLogSessionPointer();
-	  
-	  G4ThreeVector pHat = particle_source->GetParticleMomentumDirection();
-	  log->SetOutputFileName("GeneratedSourceMomentum.txt");
-	  log->OpenFile(false,true);
-	  (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
-	  log->CloseFile();
-	  
-	  G4double energy = particle_source->GetParticleEnergy();
-	  log->SetOutputFileName("GeneratedSourceEnergies.txt");
-	  log->OpenFile(false,true);
-	  (*log) << energy/MeV << std::endl;
-	  log->CloseFile();
-	}
-      evEnergy = particle_source->GetParticleEnergy();
-      particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
-      particle_source->GeneratePrimaryVertex(anEvent);
-    }
-  if(run_action->GetLSPhotonCountRawDataOutput())
-    {
-      LogSession* log = LogSession::GetLogSessionPointer();
-      log->SetOutputFileName(pre+"EventTruth"+suf+".txt");
-      if( anEvent->GetEventID() == 0){
-	log->OpenFile(true,false);
-	(*log) << "Event Number\tPid\t #X\t#Y\t#Z\t#E" << std::endl; 
-      }
-      else{
-	log->OpenFile(false,true);
-      }
-      (*log) << run_action->GetEventNumberOffset() + anEvent->GetEventID();
-      (*log) << "\t" <<  particleID;
-      (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
-      (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
-      (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
-      (*log) << "\t" <<  evEnergy/MeV;
-      (*log) << std::endl;
-      log->CloseFile();
-    }
-  if(!fCry){ Event* ev = RootIO::GetInstance()->GetEvent();
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     
-    ev->fGenPos[0] = anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
-    ev->fGenPos[1] = anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
-    ev->fGenPos[2] = anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
+    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
+    G4String pre = run_action->GetFilePrefix();
+    G4String suf = run_action->GetFileSuffix();
+
+    G4double evEnergy = 0;
+    G4int particleID=0;
     
-    ev->fGenMom[0] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[0];
-    ev->fGenMom[1] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[1];
-    ev->fGenMom[2] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[2];
+    if(fCry) {
+        
+        // verify successful CRY initialization
+        if(InputState) {
+            G4String* str = new G4String("CRY library was not successfully initialized");
+            G4Exception("PrimaryGeneratorAction", "1",RunMustBeAborted, *str);
+        }
+
+        // loop until generating at least one primary
+        G4double length = detect->GetMaxHalfDimension();
+        Int_t n_primaries = 0;
+        do {
+            vect->clear();
+            gen->genEvent(vect);
+        
+            for ( unsigned j=0; j<vect->size(); j++) {
+                                        
+                // determine whether to process trajectory
+                bool good_point = true;
+                if(fCRYpoint) {
+                    //find pointing vector
+                    G4double ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
+                    G4double px = (*vect)[j]->x()+ray*(*vect)[j]->u();
+                    G4double py = (*vect)[j]->y()+ray*(*vect)[j]->v();
+                    G4double pz = cryZoffset+ray*(*vect)[j]->w();
+
+                    good_point = (sqrt(px*px+py*py+pz*pz)<=(0.0015*length));
+                }
+                    
+                if(good_point) {
+                    ++n_primaries;
+                        
+                    // record first primary's parameters to event output
+                    if(n_primaries == 1) {
+                        Event* ev = RootIO::GetInstance()->GetEvent();
+                        
+                        ev->fGenPos[0] = (*vect)[j]->x();
+                        ev->fGenPos[1] = (*vect)[j]->y();
+                        ev->fGenPos[2] = cryZoffset;
+                
+                        ev->fGenMom[0] = (*vect)[j]->u();
+                        ev->fGenMom[1] = (*vect)[j]->v();
+                        ev->fGenMom[2] = (*vect)[j]->w();
+                
+                        ev->fEnergy = (*vect)[j]->ke()*MeV;
+                    }
+                        
+                    // throw primary
+                    particle_gun->SetParticleDefinition(particleTable->FindParticle((*vect)[j]->PDGid()));
+                    particle_gun->SetParticleEnergy((*vect)[j]->ke()*MeV);
+                    particle_gun->SetParticlePosition(G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset));
+                    particle_gun->SetParticleMomentumDirection(G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w()));
+                    particle_gun->SetParticleTime((*vect)[j]->t());
+                    particle_gun->GeneratePrimaryVertex(anEvent);
+                }
+
+                delete (*vect)[j];
+            }
+        } while(!n_primaries);       
+    }
     
-    ev->fEventTime = anEvent->GetPrimaryVertex()->GetT0();
+    // Check for Calibration Mode
+    if(fCalibration) {
+        if(anEvent->GetEventID() == 0) {
+            if(verbose > 0) G4cout << "*** CAUTION: Simulation is in calibration mode. Using calibration sources. ***" << G4endl;
+            if(particle_source->GetCurrentSourceIndex() < numSources) {
+                G4cout << "*** ATTENTION: Simulation set to use a GPS Source #0 or #1. Resetting GPS to last chosen calibration source. ***" << G4endl;
+            }
+            SetCalibrationSource(fCalibration);
+        }
+        if(fCalFunction) { GenerateCalibratedSourceEnergy(); }
+    } else if(fCustom || fFunction || fFile) {
+        GenerateUserParticleKinematics(anEvent->GetEventID());
+    } else if(fModule != None) {
+        GenerateModuleParticleKinematics(anEvent->GetEventID());
+    }
     
-    ev->fEnergy = particle_source->GetParticleEnergy();
-    ev->fPDGcode = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
-  }
+    if(fGun) {
+        if(anEvent->GetEventID() == 0 && verbose > 0) G4cout << "*** CAUTION: G4ParticleGun being used instead of the default G4GeneralParticleSource. ***" << G4endl;
+    
+        // Writes individual momentums and energies into file if requested
+        if(RawData) {
+            LogSession* log = LogSession::GetLogSessionPointer();
+        
+            G4ThreeVector pHat = particle_gun->GetParticleMomentumDirection();
+            log->SetOutputFileName("GeneratedSourceMomentum.txt");
+            log->OpenFile(false,true);
+            (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
+            log->CloseFile();
+        
+            G4double energy = particle_gun->GetParticleEnergy();
+            log->SetOutputFileName("GeneratedSourceEnergies.txt");
+            log->OpenFile(false,true);
+            (*log) << energy/MeV << std::endl;
+            log->CloseFile();
+        }
+        
+        evEnergy = particle_gun->GetParticleEnergy();
+        particleID = particle_gun->GetParticleDefinition()->GetPDGEncoding();
+        particle_gun->GeneratePrimaryVertex(anEvent);
+    } else if(fModule == InverseBeta) {
+        // If using Inverse Beta Module, ensure one neutron and one positron each are generated
+        if(inverse_beta->IsPositronGenerated()) {
+            ResetAllSourceIntensities();
+            particle_source->SetCurrentSourceto(1);
+            particle_source->SetCurrentSourceIntensity(1.0);
+            particle_source->GeneratePrimaryVertex(anEvent);
+            evEnergy =  particle_source->GetParticleEnergy();
+            particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
+        }
+        if(inverse_beta->IsNeutronGenerated()) {
+            ResetAllSourceIntensities();
+            particle_source->SetCurrentSourceto(0);
+            particle_source->SetCurrentSourceIntensity(1.0);
+            particle_source->GeneratePrimaryVertex(anEvent);
+        }
+        particle_source->SetCurrentSourceto(0);
+    } else if(fModule != None) {        
+        particle_source->GeneratePrimaryVertex(anEvent);
+        evEnergy = particle_source->GetParticleEnergy();
+        particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
+    } else {
+        // Writes individual momentums and energies into file if requested
+        if(RawData) {
+            LogSession* log = LogSession::GetLogSessionPointer();
+        
+            G4ThreeVector pHat = particle_source->GetParticleMomentumDirection();
+            log->SetOutputFileName("GeneratedSourceMomentum.txt");
+            log->OpenFile(false,true);
+            (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
+            log->CloseFile();
+        
+            G4double energy = particle_source->GetParticleEnergy();
+            log->SetOutputFileName("GeneratedSourceEnergies.txt");
+            log->OpenFile(false,true);
+            (*log) << energy/MeV << std::endl;
+            log->CloseFile();
+        }
+        evEnergy = particle_source->GetParticleEnergy();
+        particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
+        particle_source->GeneratePrimaryVertex(anEvent);
+    }
+    
+    if(run_action->GetLSPhotonCountRawDataOutput()) {
+        LogSession* log = LogSession::GetLogSessionPointer();
+        log->SetOutputFileName(pre+"EventTruth"+suf+".txt");
+        if( anEvent->GetEventID() == 0) {
+            log->OpenFile(true,false);
+            (*log) << "Event Number\tPid\t #X\t#Y\t#Z\t#E" << std::endl; 
+        } else {
+            log->OpenFile(false,true);
+        }
+        (*log) << run_action->GetEventNumberOffset() + anEvent->GetEventID();
+        (*log) << "\t" <<  particleID;
+        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
+        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
+        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
+        (*log) << "\t" <<  evEnergy/MeV;
+        (*log) << std::endl;
+        log->CloseFile();
+    }
+    
+    if(!fCry){
+        Event* ev = RootIO::GetInstance()->GetEvent();
+    
+        ev->fGenPos[0] = anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
+        ev->fGenPos[1] = anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
+        ev->fGenPos[2] = anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
+    
+        ev->fGenMom[0] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[0];
+        ev->fGenMom[1] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[1];
+        ev->fGenMom[2] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[2];
+    
+        ev->fEventTime = anEvent->GetPrimaryVertex()->GetT0();
+    
+        ev->fEnergy = particle_source->GetParticleEnergy();
+        ev->fPDGcode = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
+    }
 }
 
+
+
+
+
 // ****** Calibration Mode Switch ****** //
-void PrimaryGeneratorAction::ToggleCalibrationMode(G4bool flipOn)
-{
+void PrimaryGeneratorAction::ToggleCalibrationMode(G4bool flipOn) {
+    
   if(flipOn)
   {
     ResetAllSourceIntensities();
@@ -937,22 +913,21 @@ void PrimaryGeneratorAction::ResetAllSourceIntensities()
   particle_source->SetCurrentSourceto(source);		// Set current source back to initial source
 }
 
-void PrimaryGeneratorAction::SetFile(G4String filename)
-{
-  G4cerr<<"set file"<<filename<<G4endl;
-  textfile = new ifstream();
-  G4cerr<<"set file"<<textfile->is_open()<<G4endl;
-  fFile=false;
-  textfile->open(filename);
-  G4cerr<<"opened file"<<filename<<G4endl;
-  if(textfile->is_open()){
-    G4cerr<<"really opened "<<filename<<G4endl;
-    fFile=true;
-    fCustom=false;
-    fCry = false;
-    fFunction=0;
-  }
-  G4cerr<<"file set "<<fFile<<G4endl;
+void PrimaryGeneratorAction::SetFile(G4String filename) {
+    G4cerr << "set file" << filename<<G4endl;
+    textfile = new std::ifstream();
+    G4cerr << "set file" << textfile->is_open() << G4endl;
+    fFile = false;
+    textfile->open(filename);
+    G4cerr << "opened file" << filename<<G4endl;
+    if(textfile->is_open()){
+        G4cerr << "really opened " << filename << G4endl;
+        fFile = true;
+        fCustom = false;
+        fCry = false;
+        fFunction = 0;
+    }
+    G4cerr << "file set " << fFile << G4endl;
 }
 
 	// ****** Specify Spectrum Function ****** //
@@ -1448,57 +1423,47 @@ void PrimaryGeneratorAction::CRYFromFile(G4String newValue)
   }
 }
 
-void PrimaryGeneratorAction::SetCRY(G4bool value)
-{
-  G4cerr<<"Setting CRY"<<G4endl;
-  // Read the cry input file
-  std::ifstream inputFile; 
-  char inputfile[100]; 
-  std::sprintf(inputfile,"");
-  inputFile.open(inputfile,std::ios::in);
-  char buffer[1000];
+void PrimaryGeneratorAction::SetCRY(G4bool value) {
+    
+    G4cerr << "Setting CRY..." << G4endl;
+    
+    // Read the cry input file
+    std::ifstream inputFile; 
+    const char* input_file_name = ""; // TODO specify input file
+    inputFile.open(input_file_name, std::ios::in);
+    char buffer[1000];
 
-  if (inputFile.fail()) {
-    if( *inputfile !=0)  //....only complain if a filename was given
-      G4cout << "PrimaryGeneratorAction: Failed to open CRY input file= " << inputfile << G4endl;
-    InputState=-1;
-  }else{
-    std::string setupString(""); 
-    while ( !inputFile.getline(buffer,1000).eof()) {
-      setupString.append(buffer);
-      setupString.append(" ");
+    if (inputFile.fail()) {
+        if(input_file_name[0] != 0)  //....only complain if a filename was given
+            G4cout << "PrimaryGeneratorAction: Failed to open CRY input file= " << input_file_name << G4endl;
+        InputState=-1;
+    } else {
+        std::string setupString(""); 
+        while ( !inputFile.getline(buffer,1000).eof()) {
+            setupString.append(buffer);
+            setupString.append(" ");
+        }
+
+        CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA")); 
+
+        gen = new CRYGenerator(setup);
+
+        // set random number generator
+        RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
+        setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
+        InputState=0;
     }
+    
+    // create a vector to store the CRY particle properties
+    vect=new std::vector<CRYParticle*>;
 
-    CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA")); 
+    // Create the table containing all particle names
+    particleTable = G4ParticleTable::GetParticleTable();
 
-    gen = new CRYGenerator(setup);
-
-    // set random number generator
-    RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
-    setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
-    InputState=0;
-  }
-  // create a vector to store the CRY particle properties
-  vect=new std::vector<CRYParticle*>;
-
-  // Create the table containing all particle names
-  particleTable = G4ParticleTable::GetParticleTable();
-
-  // Create the messenger file
-  gun_messenger = new PrimaryGeneratorMessenger(this);
-  fFile=false;
+    // Create the messenger file
+    gun_messenger = new PrimaryGeneratorMessenger(this);
+    fFile=false;
     fCustom=false;
     fCry = value;
-    G4cerr<<"CRY set"<<G4endl;
+    G4cerr << "CRY set." << G4endl;
 }
-
-void PrimaryGeneratorAction::SetCRYPoint(G4bool value)
-{
-  fCRYpoint = value;
-}
-void PrimaryGeneratorAction::SetCRYZOffset(G4double value)
-{
-  cryZoffset = value/1000.0;
-}
-
-// EOF
