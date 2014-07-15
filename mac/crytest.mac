@@ -1,0 +1,56 @@
+/control/saveHistory
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+/detector/setShield true
+/detector/setNumberSegmentsX 2
+/detector/setNumberSegmentsY 2
+/detector/setScintillatorLength 3000
+/detector/setScintillatorHeight 3000
+/detector/setScintillatorWidth 3000
+/detector/setSegmentBuffer 100
+/detector/setLeadShieldThickness 50.8
+/detector/setBPolyShieldThickness 600
+/detector/setVertical true
+/detector/setAcrylThickness 6.35
+/detector/setPMTDiameter 100
+/scint/setComposition T
+/scint/setOpticalProcesses true
+/hits/activate scintHitInner
+/hits/activate SegmentPMT
+
+
+/vis/open OGLIXm
+/vis/viewer/set/auxiliaryEdge 1
+/vis/viewer/set/upThetaPhi 0 90
+#/vis/viewer/set/viewpointThetaPhi 45 45
+/vis/viewer/set/viewpointThetaPhi 90 0
+/vis/drawVolume
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+/vis/scene/endOfEventAction accumulate -1
+/vis/scene/add/axes
+/vis/scene/add/scale
+#/vis/disable
+
+/output/setOutputDirectory ~/Analysis/ShortBaseline/MC/Data/trash/
+/output/setRootOutput ~/Analysis/ShortBaseline/MC/Data/CryMCData.root
+#/output/setRootOutput
+
+/CRY/toggleCryMode true
+/CRY/input returnNeutrons 1
+/CRY/input returnProtons 1
+/CRY/input returnGammas 1
+/CRY/input returnPions 1
+/CRY/input returnKaons 1
+/CRY/input date 7-1-2012
+/CRY/input latitude 90.0
+/CRY/input altitude 0.0
+/CRY/input subboxLength 10
+/CRY/update
+
+/run/beamOn 1
+#/run/beamOn 1000
+

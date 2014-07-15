@@ -1,0 +1,1948 @@
+// Unrestricted Use - Property of AECLf
+//
+// DetectorConstruction.cc
+// GEANT4 - geant4.9.3.p01
+//
+// Class File for Geometry, Material, and Sensitive Volume Specifications
+//      Contains definitions for functions in header file
+//
+// --------------------------------------------------------
+//      Version 1.01 - 2011/04/29 - A. Ho
+// --------------------------------------------------------
+
+#include "DetectorConstruction.hh"              // Specifies the file which contains the class structure
+
+#include "NeutronDetectionScorer.hh"            // Specifies user-defined classes which are called upon in this class
+#include "RecoilProtonScorer.hh"
+#include "IonisationScorer.hh"
+#include "PhotoMultiplierScorer.hh"
+#include "DetectorMessenger.hh"
+
+#include "G4Element.hh"                         // These are the GEANT4 classes necessary to construct the desired materials
+#include "G4Material.hh"                        //      |
+#include "G4Isotope.hh"                         //      |
+#include "G4NistManager.hh"                     //      V
+
+#include "G4Box.hh"                             // These are the GEANT4 classes necessary to construct the desired geometries
+#include "G4Tubs.hh"                            //      |
+#include "G4Para.hh"                            //      |
+#include "G4Sphere.hh"                          //      |
+#include "G4Trd.hh"                             //      |
+#include "G4Cons.hh"                            //      |
+#include "G4UnionSolid.hh"                      //      |
+#include "G4SubtractionSolid.hh"                //      |
+#include "G4IntersectionSolid.hh"               //      |
+#include "G4LogicalVolume.hh"                   //      |
+#include "G4VPhysicalVolume.hh"                 //      |
+#include "G4RotationMatrix.hh"                  //      |
+#include "G4Transform3D.hh"                     //      |
+#include "G4ThreeVector.hh"                     //      |
+#include "G4PVPlacement.hh"                     //      |
+#include "G4RunManager.hh"                      //      |
+#include "G4GeometryManager.hh"                 //      |
+#include "G4PhysicalVolumeStore.hh"             //      |
+#include "G4LogicalVolumeStore.hh"              //      |
+#include "G4SolidStore.hh"                      //      V
+
+#include "G4LogicalBorderSurface.hh"            // These are the GEANT4 classes necessary to construct the desired surfaces
+#include "G4LogicalSkinSurface.hh"              //      |
+#include "G4OpBoundaryProcess.hh"               //      V
+
+#include "G4SDManager.hh"                       // These are the GEANT4 classes necessary to create a sensitive volume
+#include "G4VSensitiveDetector.hh"              //      |
+#include "G4VPrimitiveScorer.hh"                //      |
+#include "G4MultiFunctionalDetector.hh"         //      |
+#include "G4SDParticleFilter.hh"                //      V
+
+#include "G4VisAttributes.hh"                   // These are the GEANT4 class necessary to define the visual attributes of the geometry for use in OpenGL
+#include "G4Colour.hh"                          //      V
+
+#include "G4ios.hh"                             // Specifies the classes which allow reading/writing into standard input/output
+
+#include "globals.hh"                           // Specifies class defining all global parameters and variables types (double, int, string, etc.)
+
+// ****** Constructor ****** //
+DetectorConstruction::DetectorConstruction()    // Instantiation of object and initialization of global variables, defined by corresponding header file
+{
+  det_messenger = new DetectorMessenger(this);
+  nPos_x = nPos_y = nPos_z = 0.*m;
+  nuPos_x = nuPos_y = nuPos_z = 0.*m;
+  muPos_x = muPos_y = muPos_z = 0.*m;
+
+  inner_offset = 0.*m;
+  material = "T";
+  birksPC = 0.1*mm/MeV;
+  birksPVT = 0.2*mm/MeV;
+  refl = 1.0;//0.95;
+  lobe = 0.0;
+  sigal = 0.0;
+  spike = 0.0;
+  back = 0.0;
+  efficiency=1.0;
+
+  fOptical = true;
+  fInnerActivated = true;
+  fOuterActivated = true;
+  fBPolyActivated = false;//true;
+  fShieldActivated = false;//false;
+  fCylinderActivated = false;//false;
+  fVetoActivated = false;//true;
+  fExploded = false;
+  fVertical = true;
+  modifying = false;
+ 
+  //-----------Detector definition variables--------------//
+  QE = -1;
+  NSegX = 4;    //the number of segments across (max 10)
+  NSegY = 12;   //the number of segments in height (max 10)
+  OptFinish = ground;//G4OpticalSurfaceFinish(4);
+  AirGap = 12.7*mm;//25.4*mm;             // air gap between segments
+  WrapGap = 0.0*mm; // air gap between outer wrap and acrylic
+  WrapThickness = 0.1*mm;               // Thickness of Outer Tank - approximately 1/8"
+  AcrylThickness = 6.35*mm;         // thickness of the sides of the acrylic segments
+  SegBuffer = 100.0*mm; //the ammount of buffer material(acrylic) between the PMT and scintillator
+  ScintLength = 1000.0*mm ;
+  ScintHeight =  140.0*mm;
+  ScintWidth =  140.0*mm;
+  SegLength = ScintLength + 2*SegBuffer + 2*WrapThickness;      //total length of the segment (not including PMTs) (this is defined as the z dimension)
+  SegWidth = ScintWidth + 2*AcrylThickness + 2*WrapThickness+2*WrapGap; //total width of the segment (defined as x)
+  SegHeight = ScintHeight + 2*AcrylThickness + 2*WrapThickness+2*WrapGap;       //total height of the segment (defined as y) 
+  PMTscale = 2.5;                  //PMT photocathode radius in inches
+  ShieldLead = 30.0*mm;
+  ShieldPolyLi = 100.0*mm ;
+  ShieldPolyB = 470.0*mm;
+ 
+
+  //------------------------------------------------------///  
+
+}
+
+// ****** Destructor ****** //
+DetectorConstruction::~DetectorConstruction()   // Removes any variables which may interfere with next instance of object and to save memory
+{
+  delete cath_vis;	
+  delete build_vis;	
+  delete wrapgap_vis;	
+  delete world_vis;		// Visualization attributes of various physical volumes
+  delete bg_vis;
+  delete shieldlead_vis;
+  delete shieldpolyb_vis;
+  delete shieldpolyli_vis;
+  delete shell_vis;
+  delete floor_vis;
+  delete layer_vis;
+  delete segment_vis;
+  delete end_vis;
+  delete outer_vis;
+  delete oil_vis;
+  delete optical_vis;
+  delete separator_vis;
+  delete inner_vis;
+  delete target_vis;
+  delete scint_vis;
+  delete innerwrap_vis;
+  delete gc_scint_vis;
+  delete air_vis;
+  delete borate_vis;
+  delete shield_vis;
+  delete water_vis;
+  delete panel_vis;
+  delete guide_vis;
+  delete brace_vis;
+  delete pmt_vis;
+  delete cover_vis;
+  delete base_vis;
+}
+
+// ****** Simulation Detector Creator ****** //
+G4VPhysicalVolume* DetectorConstruction::Construct()    // Generation of object function, constructs the desired geometry, etc., returns a G4VPhysicalVolume*
+{
+  ConstructMaterials();
+  ConstructMaterialProperties();
+  G4VPhysicalVolume* theWorld = ConstructDetector();
+  ConstructOpticalSurfaces();
+
+  return theWorld;      // *** IMPORTANT: This function should always return the physical World Volume! ***
+}
+
+// ****** Simulation Detector Re - Creator ****** //
+void DetectorConstruction::ReConstruct()        // Generation of object function, constructs the desired geometry, etc.
+{
+  if(!modifying){
+  G4cerr<<"Reconstructing"<<G4endl;
+
+  G4Material* Air = G4Material::GetMaterial("Air");
+  G4Material* StSteel = G4Material::GetMaterial("Stainless Steel Type 444");
+  G4Material* concrete = G4Material::GetMaterial("Concrete");
+  G4Material* MinOil = G4Material::GetMaterial("Mineral Oil CH1.1");
+  G4Material* PMMA = G4Material::GetMaterial("Plexiglass");
+  G4Material* RawPsiCumene = G4Material::GetMaterial("Pseudocumene");
+  G4Material* PsiCumeneL = G4Material::GetMaterial("PC-0.15wt%Li");
+  G4Material* PsiCumeneM = G4Material::GetMaterial("PC-0.30wt%Li");
+  G4Material* PsiCumeneT = G4Material::GetMaterial("PC-0.1wt%Gd");
+  G4Material* PsiCumeneH = G4Material::GetMaterial("PC-0.5wt%Gd");
+  G4Material* PsiCumeneG = G4Material::GetMaterial("PC-100%Gd");
+  G4Material* MuonScint = G4Material::GetMaterial("Polyvinyl Toluene");
+  G4Material* Water = G4Material::GetMaterial("Water");
+  G4Material* Polyeth = G4Material::GetMaterial("G4_POLYETHYLENE");
+  G4Material* GdPaintA = G4Material::GetMaterial("GdPaintA");
+  G4Material* GdPaintB = G4Material::GetMaterial("GdPaintB");
+  G4Material* GdPaintC = G4Material::GetMaterial("GdPaintC");
+  G4Material* Pb = G4Material::GetMaterial("G4_Pb");
+  G4Material* BPoly = G4Material::GetMaterial("5wt% Borated Polyethylene");
+  G4Material* LiPoly = G4Material::GetMaterial("5wt% Lithiated Polyethylene");
+  G4Material* Vacuum = G4Material::GetMaterial("Vacuum");
+  G4Material* Quartz = G4Material::GetMaterial("Quartz");
+
+  G4double pmtSEG_i = 0.*PMTscale*mm;    // pmt dimension parameters
+  G4double pmtedge_r = 25.4*mm;
+  G4double pmtSEG_r = pmtedge_r*PMTscale;
+  G4double pmtSEG_h = 100.*mm;
+  G4double pmtSEGbase_r = 26.4*PMTscale*mm;
+  G4double pmtSEGbase_h = 44.*mm;
+  G4double coverSEG_r = pmtSEG_r + 1.*mm;
+  G4double coverSEG_h = pmtSEG_h;
+  G4double basepinSEG_r = 17.*PMTscale*mm;
+  G4double basepinSEG_h = 20.*mm;
+  G4double angle_s = 0.*deg;
+  G4double angle_f = 360.*deg;
+
+  G4double shell_w = (SegWidth+AirGap)*NSegX;
+  G4double shell_h = (SegHeight+AirGap)*NSegY;
+  G4double shell_l = SegLength+ 2.0*(pmtSEG_h + (pmtSEGbase_h + basepinSEG_h));
+
+  G4ThreeVector shell_placement(0,0,0);
+  G4ThreeVector floor_placement(0,0,0);
+
+  G4Box* world_box = new G4Box("WorldBox", modSizeX, modSizeY, modSizeZ);
+  // Creation of logical volume using solid with material
+  world_log = new G4LogicalVolume(world_box, Air, "WorldLogical", 0,0,0);
+  // Creation of physical volume by placement of logical volume 
+  world_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), world_log, "World", build_log, false,0,false);
+
+  G4LogicalVolume* shell_mother = world_log;
+  G4LogicalVolume* scint_mother;
+  
+  if(fVertical){
+    floor_placement[2] = -shell_l/2. - 1.0*m;
+  }
+  else{
+    floor_placement[1] = -shell_h/2. - 1.0*m;
+  }
+  delete bg_phys; bg_phys=0;
+  delete innerbg_phys; innerbg_phys=0;
+  // delete shieldlead_phys; shieldlead_phys=0;
+  // delete shieldpolyb_phys; shieldpolyb_phys=0;
+  // delete shieldpolyli_phys; shieldpolyli_phys=0;
+   if(fShieldActivated){
+    if(fVertical){
+      shell_w = shell_w+1.0*mm;
+      shell_h = shell_h+1.0*mm;
+      shell_l = shell_l+0.5*mm;
+      G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm);
+      bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
+      bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0., ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.+ 0.5*mm), bg_log, "BGVolume", world_log, false,0,false);
+      //      G4cerr<<"Shield Box \tX:"<< 2*(shell_w/2.+ ShieldLead + ShieldPolyB+ ShieldPolyLi)<<"\tY: "<< 2*(shell_h/2. + ShieldLead + ShieldPolyB+ ShieldPolyLi)<<"\tZ: "<< 2*(shell_l/2.+ ShieldLead/2. + ShieldPolyB/2.+ ShieldPolyLi/2.)<<G4endl;
+      //      G4cerr<<"Detector \tX:"<< shell_w<<"\tY: "<< shell_h<<"\tZ: "<< shell_l<<G4endl;      
+
+      G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldPolyB/2.+ ShieldLead/2.+ ShieldPolyLi/2.);    
+      shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
+      shieldpolyb_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-0.5), shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+
+      G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldLead/2. + ShieldPolyLi/2.);    
+      shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
+      shieldlead_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-ShieldPolyB/2.), shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
+      
+      G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi, shell_l/2.+ ShieldPolyLi/2.);
+    
+      shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
+      shieldpolyli_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,- ShieldLead/2.), shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
+  
+      G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.5*mm, shell_l/2. + 0.5*mm);
+      innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
+      innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-ShieldPolyLi/2.), innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
+
+      //  floor_placement[2] = floor_placement[2]-(ShieldPolyLi+ShieldPolyB+ShieldLead + 1.0*mm)/4.;
+      // shell_placement[2] = shell_placement[2]-(0.25);  
+      shell_mother = innerbg_log;
+    }
+    else{
+      shell_w = shell_w+1.0*mm;
+      shell_l = shell_l+1.0*mm;
+      shell_h = shell_h+0.5*mm;
+      G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm, shell_l/2.+ ShieldLead + ShieldPolyB  + ShieldPolyLi + 1.0*mm);
+      bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
+      bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm,0.), bg_log, "BGVolume", world_log, false,0,false);
+
+      G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyB+ ShieldLead+ ShieldPolyLi);    
+      shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
+      shieldpolyb_phys = new G4PVPlacement(0, G4ThreeVector(0.,-0.5,0.), shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+      
+
+      G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldLead + ShieldPolyLi);    
+      shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
+      shieldlead_phys = new G4PVPlacement(0, G4ThreeVector(0.,-ShieldPolyB/2.,0.), shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
+      
+      G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyLi);
+    
+      shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
+      shieldpolyli_phys = new G4PVPlacement(0, G4ThreeVector(0.,- ShieldLead/2.,0.), shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
+  
+      G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.25*mm, shell_l/2. + 0.5*mm);
+      innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
+      innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,-ShieldPolyLi/2.0,0.), innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
+      //  floor_placement[1] = floor_placement[1]-(ShieldPolyLi+ShieldPolyB+ShieldLead + 1.0*mm)/4.;   
+      shell_placement[1] = shell_placement[1]-(0.25); 
+      shell_w = shell_w-1.0*mm;
+      shell_l = shell_l-1.0*mm;
+      shell_h = shell_h-0.5*mm;    
+      shell_mother = innerbg_log;
+    }
+  }
+  else{
+    G4Box* bg_box =  new G4Box("BGBox", shell_w/2 + 1.0*mm, shell_h/2. + 1.0*mm, shell_l/2. + 1.0*mm);
+    bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
+    bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), bg_log, "BGVolume", world_log, false,0,false);
+    G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.5*mm, shell_l/2. + 0.5*mm);
+    innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
+    innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), innerbg_log, "InnerBGVolume", bg_log, false,0,false);
+    shell_mother = innerbg_log;
+  }
+
+   //  delete shell_phys; shell_phys=0;
+  G4Box* shell_box = new G4Box("DetectorShellBox", shell_w/2., shell_h/2., shell_l/2.);
+  shell_log = new G4LogicalVolume(shell_box, Air, "ShellLogical", 0,0,0);
+  shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shell_mother, false,0,false);
+
+  //  delete floor_phys; floor_phys=0;
+  G4Box* floor_box;
+  if(fVertical){
+    floor_box = new G4Box("FloorBox", modSizeX, modSizeY, 1.0*m);
+  }
+  else{
+    floor_box = new G4Box("FloorBox", modSizeX, 1.0*m, modSizeZ);
+  }
+
+  floor_log = new G4LogicalVolume(floor_box, concrete, "FloorLogical", 0,0,0);
+  floor_phys = new G4PVPlacement(0,floor_placement, floor_log, "concrete floor", world_log, false,0,false);
+
+  G4Tubs* segment_cutout = new G4Tubs("Segment_cutout", pmtSEG_i, pmtSEG_r, WrapThickness/2, angle_s, angle_f); 
+  G4SubtractionSolid* segment_box;
+  G4VSolid* segment_b1;
+  G4VSolid* wrapgap_box;
+  G4VSolid* target_cyl;
+  G4VSolid* scint_cyl;
+    switch(fCylinderActivated)
+    {
+    case true: { 
+      segment_b1 = new G4Tubs("SegmentMain", 0, SegWidth/2., SegLength/2., angle_s, angle_f); 
+      wrapgap_box = new G4Tubs("WrapGapBox",0, SegWidth/2.-WrapThickness,SegLength/2.-WrapThickness, angle_s, angle_f); 
+      target_cyl = new G4Tubs("TargetTankCylinder", 0, SegWidth/2.-WrapThickness-WrapGap, SegLength/2.-WrapThickness, angle_s, angle_f); 
+      scint_cyl = new G4Tubs("ScintillatorCylinder", 0, ScintWidth/2., ScintLength/2., angle_s, angle_f); 
+      break;}
+    case false: { 
+      segment_b1 = new G4Box("SegmentMain", SegWidth/2., SegHeight/2., SegLength/2.); 
+      wrapgap_box = new G4Box("WrapGapBox", SegWidth/2.-WrapThickness, SegHeight/2-WrapThickness, SegLength/2.-WrapThickness); 
+      target_cyl = new G4Box("TargetTankCylinder", SegWidth/2.-WrapThickness-WrapGap, SegHeight/2-WrapThickness-WrapGap, SegLength/2.-WrapThickness); 
+      scint_cyl = new G4Box("ScintillatorCylinder", ScintWidth/2., ScintHeight/2., ScintLength/2.); 
+      break;}
+    }
+    segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_b1, segment_cutout, 0, G4ThreeVector(0.,0.,SegLength/2.-WrapThickness/2.));
+    segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_box, segment_cutout, 0, G4ThreeVector(0.,0.,-SegLength/2.+WrapThickness/2.));
+    
+    char scintMat = material(0);          // Switch for user-specified material selection
+    for(G4int xnum = 0; xnum<MaxSegX; xnum++){
+      for(G4int ynum = 0; ynum<MaxSegY; ynum++){
+        std::stringstream stream1; stream1 << (100*xnum+ynum); G4String id1 = stream1.str();
+       	if(WrapGap>0) wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, Air, "WrapGapLogical "+id1, 0,0,0);
+	else  wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, PMMA, "WrapGapLogical "+id1, 0,0,0);
+	target_log[xnum][ynum] = new G4LogicalVolume(target_cyl, PMMA, "TargetTankLogical "+id1, 0,0,0);
+	switch(scintMat)
+	  {
+	  case 'S': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 0;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'L': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneL, "InnerScintLogical ", 0,0,0); Scint = 1; segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  default:
+	  case 'T': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneT, "InnerScintLogical ", 0,0,0); Scint = 2;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'H': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneH, "InnerScintLogical ", 0,0,0); Scint = 3;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'M': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneM, "InnerScintLogical ", 0,0,0); Scint = 4;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'G': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneG, "InnerScintLogical ", 0,0,0); Scint = 5;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'A': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 6;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintA, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'B': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 7;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintB, "SegmentLogical "+id1, 0,0,0); break; }
+	  case 'C': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 8;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintC, "SegmentLogical "+id1, 0,0,0); break; }
+	  }
+      }
+    }
+  
+  G4Tubs* cathSEG_tube = new G4Tubs("CATHSEGTube", pmtSEG_i, pmtSEG_r, pmtSEG_h/2, angle_s, angle_f);
+  G4Tubs* pmtSEG_tube = new G4Tubs("PMTSEGTube", pmtSEG_i, pmtSEG_r-10.0*mm, pmtSEG_h/2-10.0*mm, angle_s, angle_f);
+  G4Tubs* coverSEG_tube = new G4Tubs("PMTSEGCoverTube", pmtSEG_r, coverSEG_r, coverSEG_h/2, angle_s, angle_f);
+  G4Tubs* baseSEG1_tube = new G4Tubs("PMTSEGBaseTube1", pmtSEG_i, pmtSEGbase_r, (pmtSEGbase_h - basepinSEG_h)/2, angle_s, angle_f);
+  G4Tubs* baseSEG2_tube = new G4Tubs("PMTSEGBaseTube2", pmtSEG_i, basepinSEG_r, pmtSEGbase_h/2, angle_s, angle_f);
+ 
+  G4RotationMatrix* rotBaseSEG = new G4RotationMatrix(0.,0.,0.);
+ 
+  G4ThreeVector transBaseSEG(0.,0.,basepinSEG_h/2);
+  G4UnionSolid* baseSEG_solid = new G4UnionSolid("PMTSEGBaseSolid", baseSEG1_tube, baseSEG2_tube, rotBaseSEG, transBaseSEG);
+ 
+  G4RotationMatrix* pmtFlip = new G4RotationMatrix(0.,0.,0.);
+  pmtFlip->rotateY(180.*deg);
+ 
+  cathSEG_log = new G4LogicalVolume(cathSEG_tube, Quartz, "PMTCathodeLogical", 0,0,0);
+  pmtSEG_log = new G4LogicalVolume(pmtSEG_tube, Vacuum, "PolyvinylToluenePMTLogical", 0,0,0);
+  coverSEG_log = new G4LogicalVolume(coverSEG_tube, StSteel, "PMTSEGCoverLogical", 0,0,0);
+  baseSEG_log = new G4LogicalVolume(baseSEG_solid, StSteel, "PMTSEGBaseLogical", 0,0,0);
+ 
+  G4double xpos=0;
+  G4double ypos=0;
+  
+  for(G4int xnum = 0; xnum<NSegX; xnum++){
+    xpos = (SegWidth+AirGap)*(xnum-(NSegX-1)/2.);
+    for(G4int ynum = 0; ynum<NSegY; ynum++){
+      std::stringstream stream1; stream1 << (100*xnum+ynum); G4String id1 = stream1.str();
+      ypos =  (SegHeight+AirGap)*(ynum-(NSegY-1)/2.);
+      
+      PositionX[xnum+ynum*NSegX] = xpos;
+      PositionY[xnum+ynum*NSegX] = ypos;
+
+      segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log[xnum][ynum], "Segment "+id1, shell_log, false,100*xnum+ynum,true);
+      scint_mother = segment_log[xnum][ynum];
+
+      if(WrapGap>0){
+	wrapgap_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), wrapgap_log[xnum][ynum], "Target Tank "+id1, segment_log[xnum][ynum], false,100*xnum+ynum,true);
+	scint_mother = wrapgap_log[xnum][ynum];
+        if(AcrylThickness>0){
+	  target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log[xnum][ynum], "Target Tank "+id1, wrapgap_log[xnum][ynum], false,100*xnum+ynum,true);
+	  scint_mother=target_log[xnum][ynum];
+	}
+      }
+      else if(AcrylThickness>0){
+	target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log[xnum][ynum], "Target Tank "+id1, segment_log[xnum][ynum], false,100*xnum+ynum,true);
+	scint_mother=target_log[xnum][ynum];
+      }
+     
+      scint_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), scint_log[xnum][ynum], "Target Scintillator Volume "+id1,scint_mother, false,xnum+ynum*NSegX,true);       
+
+      cathSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,SegLength/2.+pmtSEG_h/2.-WrapThickness), cathSEG_log, "Cathode PMT Number N"+id1, shell_log, false,100*xnum+ynum,true);
+      pmtSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), pmtSEG_log, "Segment PMT Number N"+id1, cathSEG_log, false,100*xnum+ynum,true);
+      coverSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,SegLength/2.+pmtSEG_h/2.-WrapThickness), coverSEG_log, "Segment PMT Cover N"+id1, shell_log, false,100*xnum+ynum,false);
+      baseSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,SegLength/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness), baseSEG_log, "Segment PMT Base N"+id1, shell_log, false,100*xnum+ynum,false);
+     
+      cathSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-SegLength/2.-pmtSEG_h/2.+WrapThickness), cathSEG_log, "Cathode PMT Number S"+id1, shell_log, false,10000+100*xnum+ynum,true);
+      pmtSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(0.,0.,0.), pmtSEG_log, "Segment PMT Number S"+id1, cathSEG_log, false,10000+100*xnum+ynum,true);
+      coverSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-SegLength/2.-pmtSEG_h/2.+WrapThickness), coverSEG_log, "Segment PMT Cover S"+id1, shell_log, false,10000+100*xnum+ynum,false);
+      baseSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-SegLength/2.-pmtSEG_h/2.- pmtSEG_h/2. - (pmtSEGbase_h - basepinSEG_h)/2+WrapThickness), baseSEG_log, "Segment PMT Base S"+id1, shell_log, false,10000+100*xnum+ynum,false);
+     
+    }  
+  }
+
+  // PMT Volume Detectors
+  const G4int nSize = 33;
+  G4double PhotonEnergy[nSize] =
+    {	2.3843*eV, 2.4075*eV, 2.4311*eV,
+	2.4551*eV, 2.4797*eV, 2.5047*eV, 
+	2.5303*eV, 2.5564*eV, 2.5830*eV,
+	2.6102*eV, 2.6380*eV, 2.6663*eV,
+	2.6953*eV, 2.7249*eV, 2.7552*eV,
+	2.7862*eV, 2.8178*eV, 2.8502*eV,
+	2.8834*eV, 2.9173*eV, 2.9520*eV,
+	2.9876*eV, 3.0240*eV, 3.0613*eV,
+	3.0996*eV, 3.1388*eV, 3.1791*eV,
+	3.2204*eV, 3.2627*eV, 3.3062*eV,
+	3.3509*eV, 3.3968*eV, 3.4440*eV  };
+  G4SDManager* sd_manager = G4SDManager::GetSDMpointer();
+  std::vector<G4double> photEnergy;
+  photEnergy.assign(PhotonEnergy,PhotonEnergy+nSize);
+ 
+  PhotoMultiplierScorer* SEGPMT = new PhotoMultiplierScorer("SegmentHitCollection");
+  std::vector<G4double> QESEG;
+  G4double QEff3[nSize] =
+    { 0.114, 0.121, 0.128, 0.135, 0.142, 0.149, 0.156, 0.163, 0.170, 0.177, 0.184,
+      0.191, 0.198, 0.205, 0.212, 0.218, 0.224, 0.230, 0.236, 0.242, 0.248, 0.254,
+      0.260, 0.265, 0.271, 0.276, 0.281, 0.285, 0.288, 0.291, 0.293, 0.294, 0.295  };
+  if(QE>=0){
+    G4cerr<<"CHANGING QE to "<<QE<<G4endl;
+    if(QE>1.0) QE=1.0;
+    for(int i=0;i<nSize;i++){
+      QEff3[i]=QE;
+    }
+  }
+  QESEG.assign(QEff3,QEff3+nSize);
+  SEGPMT->SetQuantumEfficiency(photEnergy,QESEG);
+
+  scintHitInner->clear();
+  scintHitInner->RegisterPrimitive(new NeutronDetectionScorer("NHitCollection"));
+  scintHitInner->RegisterPrimitive(new RecoilProtonScorer("PHitCollection"));
+  scintHitInner->RegisterPrimitive(new IonisationScorer("IoniseCollection"));
+  sd_manager->AddNewDetector((G4VSensitiveDetector*)(scintHitInner));
+  for(G4int xnum = 0; xnum<NSegX; xnum++){
+    for(G4int ynum = 0; ynum<NSegY; ynum++){
+      scint_log[xnum][ynum]->SetSensitiveDetector(scintHitInner);
+    }
+  }
+  SegmentPMT->clear();//RemovePrimitive(SEGPMT);
+  SegmentPMT->RegisterPrimitive(SEGPMT);
+  sd_manager->AddNewDetector((G4VSensitiveDetector*)(SegmentPMT));
+  //pmtSEG_log->SetSensitiveDetector(SegmentPMT);
+  cathSEG_log->SetSensitiveDetector(SegmentPMT);
+
+  build_vis = new G4VisAttributes(G4Colour(0.8,0.8,0.8));
+  build_vis->SetVisibility(false);
+  build_log->SetVisAttributes(build_vis);
+
+  // Visualization Attributes
+  //G4cerr<<"set vis"<<G4endl;
+  // World Volume
+  world_vis = new G4VisAttributes(G4Colour(0.0,1.0,0.0));
+  world_vis->SetVisibility(false);
+  world_log->SetVisAttributes(world_vis);
+
+  // Detector Geometry Shell
+  shell_vis = new G4VisAttributes(G4Colour(0.0,0.0,1.0));
+  //shell_vis->SetVisibility(false);
+  shell_log->SetVisAttributes(shell_vis);
+
+
+  // Lead Shield
+  bg_vis = new G4VisAttributes(G4Colour(0.5,0.1,1.0));
+  //   bg_vis->SetVisibility(false);
+  //  bg_vis->SetForceSolid(true);
+  bg_log->SetVisAttributes(bg_vis);
+
+  ibg_vis = new G4VisAttributes(G4Colour(1.0,0.1,0.5));
+  ibg_vis->SetForceSolid(true);
+  innerbg_log->SetVisAttributes(ibg_vis);
+  
+
+  if(fShieldActivated){
+ 
+    shieldlead_vis = new G4VisAttributes(G4Colour(0.0,0.5,0.5));
+    //shieldlead_vis->SetVisibility(false);
+    shieldlead_log->SetVisAttributes(shieldlead_vis);
+    
+    // Poly Shield
+    shieldpolyb_vis = new G4VisAttributes(G4Colour(0.2,0.5,0.0));
+    //shieldpoly_vis->SetVisibility(false);
+    //   shieldpolyb_vis->SetForceSolid(true);
+    shieldpolyb_log->SetVisAttributes(shieldpolyb_vis);
+
+    shieldpolyli_vis = new G4VisAttributes(G4Colour(0.5,0.3,0.0));
+    //shieldpoly_vis->SetVisibility(false);
+    shieldpolyli_log->SetVisAttributes(shieldpolyli_vis);
+  }
+
+  //Floor
+  floor_vis = new G4VisAttributes(G4Colour(0.3,0.3,0.3));
+  //floor_vis->SetForceSolid(true);
+  floor_vis->SetVisibility(false);
+  floor_log->SetVisAttributes(floor_vis);
+
+  // Outer Tank
+  segment_vis = new G4VisAttributes(G4Colour(1.0,0.0,1.0));
+  // segment_vis->SetForceSolid(true);
+  // segment_vis->SetVisibility(false);
+
+  //Wrap Gap
+  if(WrapGap>0){
+    wrapgap_vis= new G4VisAttributes(G4Colour(0.0,1.0,0.0));
+    wrapgap_vis->SetForceAuxEdgeVisible (true);
+    //wrapgap_vis->SetVisibility(false);
+    // wrapgap_vis->SetForceSolid(true);
+  
+  }
+  
+  // Target Tank
+  target_vis = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
+  target_vis->SetForceAuxEdgeVisible (true);
+  //  target_vis->SetVisibility(false);
+  //target_vis->SetForceSolid(true);
+ 
+
+  // Liquid Scintillator Volume
+  scint_vis = new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  scint_vis->SetForceAuxEdgeVisible (true);
+  //  scint_vis->SetForceSolid(true); 
+  //  scint_vis->SetVisibility(false);
+ 
+
+  for(G4int xnum = 0; xnum<NSegX; xnum++){
+    for(G4int ynum = 0; ynum<NSegY; ynum++){
+      segment_log[xnum][ynum]->SetVisAttributes(segment_vis);
+      wrapgap_log[xnum][ynum]->SetVisAttributes(wrapgap_vis);
+      target_log[xnum][ynum]->SetVisAttributes(target_vis);
+      scint_log[xnum][ynum]->SetVisAttributes(scint_vis);
+    }
+  }
+
+  // Photomultiplier Tubes (PMTs)
+  cath_vis = new G4VisAttributes(G4Colour(1.,1.,1.0));
+  //pmt_vis->SetVisibility(false);
+  cath_vis->SetForceAuxEdgeVisible(true);
+  //  cath_vis->SetForceSolid(true);
+  cathSEG_log->SetVisAttributes(cath_vis);
+
+  // Photomultiplier Tubes (PMTs)
+  pmt_vis = new G4VisAttributes(G4Colour(0.0,0.7,1.0));
+  //pmt_vis->SetVisibility(false);
+  pmt_vis->SetForceAuxEdgeVisible(true);
+  //  pmt_vis->SetForceSolid(true);
+  pmtSEG_log->SetVisAttributes(pmt_vis);
+
+  // PMT Covers
+  cover_vis = new G4VisAttributes(G4Colour(0.3,0.3,0.3));
+  // cover_vis->SetVisibility(false);
+  cover_vis->SetForceAuxEdgeVisible(true);
+  // cover_vis->SetForceSolid(true);
+  coverSEG_log->SetVisAttributes(cover_vis);
+
+  // PMT Backings
+  base_vis = new G4VisAttributes(G4Colour(0.4,0.4,0.4));
+  // base_vis->SetVisibility(false);
+  base_vis->SetForceAuxEdgeVisible(true);
+  baseSEG_log->SetVisAttributes(base_vis); 
+  ConstructOpticalSurfaces();
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  }
+}
+
+// ****** Material Specifications ****** //
+void DetectorConstruction::ConstructMaterials()
+{
+  G4double a;		// atomic mass
+  G4double z;		// atomic number
+  G4double density;	// density
+  G4double T;		// temperature
+  G4double P;		// pressure
+
+  G4NistManager* nist = G4NistManager::Instance();	// NIST Manager contains recipes for pre-defined elements/materials
+
+  G4int nComponents; nComponents = 0;		// number of component elements
+  G4int nAtoms; nAtoms = 0;			// number of atoms of component element
+  G4double massFraction; massFraction = 0.0;	// weight percent of component element
+
+  // Isotopes
+
+  // Elements
+
+  // Materials - Elemental materials defined by NIST Manager
+
+  G4Material* Air = new G4Material("Air", density= 1.204*kg/m3, nComponents= 1, kStateGas, T= 293.15*kelvin);
+  Air->AddMaterial(nist->FindOrBuildMaterial("G4_AIR", true, true), massFraction= 100.*perCent);
+
+  G4Material* Fe = nist->FindOrBuildMaterial("G4_Fe", true, true);
+  G4Material* Cr = nist->FindOrBuildMaterial("G4_Cr", true, true);
+  G4Material* Mo = nist->FindOrBuildMaterial("G4_Mo", true, true);
+
+  //concrete (from geant4 example advanced/underground_physics/src/DMXDetectorMaterial.icc
+  G4Material* H = nist->FindOrBuildMaterial("G4_H", true, true);
+  G4Material* Si = nist->FindOrBuildMaterial("G4_Si", true, true);
+  G4Material* O = nist->FindOrBuildMaterial("G4_O", true, true);
+  G4Material* Ca = nist->FindOrBuildMaterial("G4_Ca", true, true);
+  G4Material* Al = nist->FindOrBuildMaterial("G4_Al", true, true);
+  
+  G4Material* concrete = new G4Material
+    ("Concrete", density=2.3*g/cm3, nComponents=6, kStateSolid, T= 293.15*kelvin);
+  concrete->AddMaterial(Si, 0.227915);
+  concrete->AddMaterial(O, 0.60541);
+  concrete->AddMaterial(H, 0.09972);
+  concrete->AddMaterial(Ca, 0.04986);
+  concrete->AddMaterial(Al, 0.014245);
+  concrete->AddMaterial(Fe, 0.00285);
+
+ G4Material* Quartz = new G4Material
+    ("Quartz", density=2.62*g/cm3, nComponents=2, kStateSolid, T= 293.15*kelvin);
+  Quartz->AddMaterial(Si, 0.4674);
+  Quartz->AddMaterial(O, 0.5326);
+
+  // Type 444 Stainless Steel
+  G4Material* StSteel = new G4Material("Stainless Steel Type 444", density= 8.*g/cm3, nComponents= 3, kStateSolid, T= 293.15*kelvin);
+  StSteel->AddMaterial(Fe, massFraction= 80.*perCent);
+  StSteel->AddMaterial(Cr, massFraction= 18.*perCent);
+  StSteel->AddMaterial(Mo, massFraction= 2.*perCent);
+
+  G4Material* C = nist->FindOrBuildMaterial("G4_C", true);
+ 
+  G4Material* MinOil = new G4Material("Mineral Oil CH1.1", density= 0.877*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  MinOil->AddMaterial(C, massFraction= 91.53*perCent);
+  MinOil->AddMaterial(H, massFraction= 8.47*perCent);
+  
+  G4Material* PMMA = new G4Material("Plexiglass", density= 1.18*g/cm3, nComponents= 1, kStateSolid, T= 293.15*kelvin);
+  PMMA->AddMaterial(nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true), massFraction= 100.*perCent);
+
+  G4Material* Gd = nist->FindOrBuildMaterial("G4_Gd", true, true);
+
+  static G4Material *Li6 = new G4Material("Lithium6",0.463*g/cm3,1);
+  G4Isotope *isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
+  G4Element *elLi6  = new G4Element("eleLi6", "Li6", 1);
+  elLi6->AddIsotope(isoLi6,100.*perCent);
+  Li6->AddElement(elLi6,1);
+  // ******************************* Scintillator Materials - pre-defined material objects **********
+
+   G4Material* RawPsiCumene = new G4Material("Pseudocumene", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  RawPsiCumene->AddMaterial(C, massFraction= 89.945*perCent);
+  RawPsiCumene->AddMaterial(H, massFraction= 10.055*perCent);
+
+  G4Material* PsiCumeneL = new G4Material("PC-0.15wt%Li", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  PsiCumeneL->AddMaterial(RawPsiCumene, massFraction= 99.85*perCent);
+  PsiCumeneL->AddMaterial(Li6, massFraction= 0.15*perCent);
+
+  G4Material* PsiCumeneM = new G4Material("PC-0.30wt%Li", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  PsiCumeneM->AddMaterial(RawPsiCumene, massFraction= 99.70*perCent);
+  PsiCumeneM->AddMaterial(Li6, massFraction= 0.30*perCent);
+
+  G4Material* PsiCumeneT = new G4Material("PC-0.1wt%Gd", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  PsiCumeneT->AddMaterial(RawPsiCumene, massFraction= 99.90*perCent);
+  PsiCumeneT->AddMaterial(Gd, massFraction= 0.10*perCent);
+
+  G4Material* PsiCumeneH = new G4Material("PC-0.5wt%Gd", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+  PsiCumeneH->AddMaterial(RawPsiCumene, massFraction= 99.50*perCent);
+  PsiCumeneH->AddMaterial(Gd, massFraction= 0.50*perCent);
+
+  G4Material* PsiCumeneG = new G4Material("PC-100%Gd", density= 0.88*g/cm3, nComponents= 1, kStateLiquid, T= 293.15*kelvin);
+  PsiCumeneG->AddMaterial(Gd, massFraction= 100.0*perCent);
+
+  G4Material* MuonScint = new G4Material("Polyvinyl Toluene", density= 1.023*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  MuonScint->AddMaterial(C, massFraction= 91.478*perCent);
+  MuonScint->AddMaterial(H, massFraction= 8.522*perCent);
+
+  // ************************************************************************************************
+
+  G4Material* Water = new G4Material("Water", density= 1.00*g/cm3, nComponents= 1, kStateLiquid, T=293.15*kelvin);
+  Water->AddMaterial(nist->FindOrBuildMaterial("G4_WATER", true, true), massFraction= 100.*perCent);
+
+  G4Material* Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
+  
+  G4Material* GdPaintA = new G4Material("GdPaintA", density= 1.21*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  GdPaintA->AddMaterial(PMMA, massFraction= 99.5*perCent);
+  GdPaintA->AddMaterial(Gd, massFraction= 0.5*perCent);
+
+  G4Material* GdPaintB =  new G4Material("GdPaintB", density= 1.24*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  GdPaintB->AddMaterial(PMMA, massFraction= 99.0*perCent);
+  GdPaintB->AddMaterial(Gd, massFraction= 1.0*perCent);
+
+  G4Material* GdPaintC =  new G4Material("GdPaintC", density= 1.30*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  GdPaintC->AddMaterial(PMMA, massFraction= 98.0*perCent);
+  GdPaintC->AddMaterial(Gd, massFraction= 2.0*perCent);
+  
+  G4Material* Pb = nist->FindOrBuildMaterial("G4_Pb", true, true);
+  G4Material* B = nist->FindOrBuildMaterial("G4_B", true, true);
+  G4Material* Li = nist->FindOrBuildMaterial("G4_Li", true, true);
+
+  G4Material* BPoly = new G4Material("5wt% Borated Polyethylene", density= 0.92*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  BPoly->AddMaterial(Polyeth, massFraction = 95.0*perCent);
+  BPoly->AddMaterial(B, massFraction = 5.0*perCent);
+
+  G4Material* LiPoly = new G4Material("5wt% Lithiated Polyethylene", density= 0.92*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
+  LiPoly->AddMaterial(Polyeth, massFraction = 95.0*perCent);
+  LiPoly->AddMaterial(Li, massFraction = 5.0*perCent);
+
+  // Example of how to define a vacuum since pure vacuum does not exist in Geant4 library
+  G4Material* Vacuum; Vacuum = new G4Material("Vacuum", z= 2., a= 4.0026*g/mole, density= 1.e-25*g/cm3, kStateGas, T= 2.73*kelvin, P= 3.e-18*pascal);
+
+  G4cout << G4endl << *(G4Material::GetMaterialTable()) << G4endl;	// Prints a table of all materials defined above
+}
+
+// ****** Optical Specifications ****** //
+void DetectorConstruction::ConstructMaterialProperties()
+{
+  // Material Optical Properties - for Scintillation and Optical Photons
+
+  // Redefining Material Variables
+
+  G4Material* Air = G4Material::GetMaterial("Air");
+  // G4Material* StSteel = G4Material::GetMaterial("Stainless Steel Type 444");
+  G4Material* concrete = G4Material::GetMaterial("Concrete");
+  G4Material* MinOil = G4Material::GetMaterial("Mineral Oil CH1.1");
+  G4Material* PMMA = G4Material::GetMaterial("Plexiglass");
+  G4Material* RawPsiCumene = G4Material::GetMaterial("Pseudocumene");
+  G4Material* PsiCumeneL = G4Material::GetMaterial("PC-0.15wt%Li");
+  G4Material* PsiCumeneM = G4Material::GetMaterial("PC-0.30wt%Li");
+  G4Material* PsiCumeneT = G4Material::GetMaterial("PC-0.1wt%Gd");
+  G4Material* PsiCumeneH = G4Material::GetMaterial("PC-0.5wt%Gd");
+  G4Material* PsiCumeneG = G4Material::GetMaterial("PC-100%Gd");
+  G4Material* MuonScint = G4Material::GetMaterial("Polyvinyl Toluene");
+  G4Material* Vacuum = G4Material::GetMaterial("Vacuum");
+  G4Material* Quartz = G4Material::GetMaterial("Quartz");
+  /*
+  // Photon Energies (520 nm - 360 nm in 5 nm separation)
+  const G4int nEntries = 33;
+  G4double PhotonEnergy[nEntries] =
+  {	2.3843*eV, 2.4075*eV, 2.4311*eV,
+  2.4551*eV, 2.4797*eV, 2.5047*eV, 
+  2.5303*eV, 2.5564*eV, 2.5830*eV,
+  2.6102*eV, 2.6380*eV, 2.6663*eV,
+  2.6953*eV, 2.7249*eV, 2.7552*eV,
+  2.7862*eV, 2.8178*eV, 2.8502*eV,
+  2.8834*eV, 2.9173*eV, 2.9520*eV,
+  2.9876*eV, 3.0240*eV, 3.0613*eV,
+  3.0996*eV, 3.1388*eV, 3.1791*eV,
+  3.2204*eV, 3.2627*eV, 3.3062*eV,
+  3.3509*eV, 3.3968*eV, 3.4440*eV  };
+  */
+
+  // Photon Energies (520 nm - 320 nm in 2 nm separation)
+  const G4int nEntries = 81;
+  G4double PhotonEnergy[nEntries] = 
+    { 2.3843*eV, 2.3935*eV, 2.4028*eV, 2.4121*eV, 2.4216*eV, 2.4311*eV, 2.4406*eV, 2.4503*eV, 2.4600*eV,
+      2.4698*eV, 2.4797*eV, 2.4896*eV, 2.4997*eV, 2.5098*eV, 2.5200*eV, 2.5303*eV, 2.5407*eV, 2.5511*eV,
+      2.5617*eV, 2.5723*eV, 2.5830*eV, 2.5938*eV, 2.6047*eV, 2.6157*eV, 2.6268*eV, 2.6380*eV, 2.6492*eV,
+      2.6606*eV, 2.6721*eV, 2.6836*eV, 2.6953*eV, 2.7071*eV, 2.7189*eV, 2.7309*eV, 2.7430*eV, 2.7552*eV,
+      2.7675*eV, 2.7799*eV, 2.7924*eV, 2.8051*eV, 2.8178*eV, 2.8307*eV, 2.8437*eV, 2.8568*eV, 2.8700*eV,
+      2.8833*eV, 2.8968*eV, 2.9104*eV, 2.9242*eV, 2.9380*eV, 2.9520*eV, 2.9661*eV, 2.9804*eV, 2.9948*eV,
+      3.0093*eV, 3.0240*eV, 3.0388*eV, 3.0538*eV, 3.0689*eV, 3.0842*eV, 3.0996*eV, 3.1152*eV, 3.1309*eV,
+      3.1468*eV, 3.1629*eV, 3.1791*eV, 3.1955*eV, 3.2120*eV, 3.2288*eV, 3.2457*eV, 3.2627*eV, 3.2800*eV,
+      3.2974*eV, 3.3151*eV, 3.3329*eV, 3.3509*eV, 3.3691*eV, 3.3875*eV, 3.4062*eV, 3.4250*eV, 3.4440*eV  };
+
+  // Gd-Loaded Liquid Pseudocumene - BC-525
+
+  // Refractive Index
+  G4double RIndexPC[nEntries] =
+    { 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505,
+      1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505, 1.505  };
+
+  // Absorption Length
+  G4double AbsLengthPC[nEntries] =
+    { 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m, 10.*m,
+      10.*m, 10.*m, 10.*m, 9.4*m, 8.7*m, 8.0*m, 7.3*m, 6.7*m, 6.2*m,
+      5.7*m, 5.3*m, 4.9*m, 4.5*m, 4.2*m, 3.9*m, 3.7*m, 3.5*m, 3.3*m  };
+
+  /*  G4double AbsLengthPC[nEntries] =
+      { 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km, 10.*km,
+      10.*km, 10.*km, 10.*km, 9.4*km, 8.7*km, 8.0*km, 7.3*km, 6.7*km, 6.2*km,
+      5.7*km, 5.3*km, 4.9*km, 4.5*km, 4.2*km, 3.9*km, 3.7*km, 3.5*km, 3.3*km  };*/
+
+  // Scintillation - Fast Component - Double Modified Spectrum
+  G4double ScintFastPC[nEntries] =
+    { 0.036, 0.042, 0.047, 0.054, 0.062, 0.070, 0.078, 0.087, 0.096,
+      0.105, 0.115, 0.124, 0.133, 0.142, 0.152, 0.162, 0.173, 0.183,
+      0.194, 0.205, 0.218, 0.231, 0.245, 0.261, 0.281, 0.305, 0.338,
+      0.370, 0.402, 0.439, 0.469, 0.493, 0.515, 0.537, 0.559, 0.580,
+      0.602, 0.629, 0.677, 0.787, 0.885, 0.939, 0.972, 0.993, 1.004,
+      1.000, 0.984, 0.952, 0.909, 0.862, 0.801, 0.744, 0.669, 0.601,
+      0.526, 0.455, 0.401, 0.351, 0.299, 0.254, 0.208, 0.173, 0.146,
+      0.122, 0.104, 0.090, 0.079, 0.070, 0.062, 0.056, 0.051, 0.046,
+      0.041, 0.037, 0.033, 0.029, 0.026, 0.023, 0.021, 0.019, 0.018  };
+  // NOTE: The emission spectra had to be modified as it appears that the Scintillation process samples
+  //       the photon energy uniformly in photon energy, which translates to 1/x^2 in wavelength. This
+  //       was found to distort the emission spectrum when converted back to wavelengths, so a factor
+  //       of x^2 was applied to the listed distribution below to counter this effect.
+
+  /*
+  // Scintillation - Fast Component - Listed Spectrum
+  G4double ScintFastPC[nEntries] =
+  { 0.025, 0.029, 0.033, 0.038, 0.044, 0.050, 0.056, 0.063, 0.070,
+  0.077, 0.085, 0.093, 0.100, 0.108, 0.116, 0.125, 0.134, 0.143,
+  0.153, 0.163, 0.175, 0.187, 0.200, 0.215, 0.233, 0.255, 0.285,
+  0.315, 0.345, 0.380, 0.410, 0.435, 0.458, 0.482, 0.506, 0.530,
+  0.555, 0.585, 0.635, 0.745, 0.845, 0.905, 0.945, 0.975, 0.995,
+  1.000, 0.993, 0.970, 0.935, 0.895, 0.840, 0.787, 0.715, 0.648,
+  0.573, 0.500, 0.445, 0.394, 0.339, 0.291, 0.240, 0.202, 0.172,
+  0.145, 0.125, 0.110, 0.098, 0.087, 0.078, 0.071, 0.065, 0.059,
+  0.054, 0.049, 0.044, 0.040, 0.036, 0.032, 0.029, 0.027, 0.025  };
+  */
+  /*
+  // Scintillation - Fast Component
+  G4double ScintFastPC[nEntries] =
+  { 0.025, 0.035, 0.050,
+  0.065, 0.085, 0.105,
+  0.125, 0.147, 0.175,
+  0.210, 0.265, 0.330,
+  0.410, 0.470, 0.530,
+  0.600, 0.850, 0.965,
+  1.000, 0.950, 0.840,
+  0.670, 0.500, 0.355,
+  0.240, 0.150, 0.110,
+  0.085, 0.065, 0.050,
+  0.040, 0.030, 0.025  };
+  */
+  /*
+  // Scintillation - Slow Component
+  G4double ScintSlowPC[nEntries] = 
+  { 1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000,
+  1.000, 1.000, 1.000  };
+  */
+
+  // Generates new material properties table for scintillator
+  G4MaterialPropertiesTable* mptCumene = new G4MaterialPropertiesTable();
+
+  // Allows specification of properties that are constant with photon energy
+  mptCumene->AddConstProperty("FASTTIMECONSTANT", 3.8*ns);		// Fast Component Decay Time
+  //  mptCumene->AddConstProperty("SLOWTIMECONSTANT",20.0*ns);		// Slow Component Decay Time
+  mptCumene->AddConstProperty("YIELDRATIO",1.0);				// 1 = all fast, 0 = all slow, fractional yield ratio allowed
+  mptCumene->AddConstProperty("SCINTILLATIONYIELD",9000./MeV);		// Physical value for scintillation yield for Psuedocumene
+  mptCumene->AddConstProperty("RESOLUTIONSCALE",1.0);			// Standard deviation on scintillation yield number
+
+  //  mptCumene->AddConstProperty("SCINTILLATIONYIELD",1./MeV);		// Used for testing phase ONLY, not physically accurate
+
+  // Allows specification of properties that vary with photon energy - linearly interpolated
+  mptCumene->AddProperty("FASTCOMPONENT", PhotonEnergy, ScintFastPC, nEntries);		// Light Yield for Fast Component
+  //  mptCumene->AddProperty("SLOWCOMPONENT", PhotonEnergy, ScintSlowPC, nEntries);		// Light Yield for Slow Component
+  mptCumene->AddProperty("RINDEX", PhotonEnergy, RIndexPC, nEntries);			// Refractive Index of Material
+  mptCumene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPC, nEntries);		// Abosrption Length of Material
+
+  // Applies the optical property table to the material
+  RawPsiCumene->SetMaterialPropertiesTable(mptCumene);
+  RawPsiCumene->GetIonisation()->SetBirksConstant(birksPC);		// Set Birk's Constant for saturation quenching - MAKE this a user-definable variable!!!
+  PsiCumeneL->SetMaterialPropertiesTable(mptCumene);
+  PsiCumeneL->GetIonisation()->SetBirksConstant(birksPC);
+  PsiCumeneT->SetMaterialPropertiesTable(mptCumene);
+  PsiCumeneT->GetIonisation()->SetBirksConstant(birksPC);
+  PsiCumeneH->SetMaterialPropertiesTable(mptCumene);
+  PsiCumeneH->GetIonisation()->SetBirksConstant(birksPC);
+  PsiCumeneM->SetMaterialPropertiesTable(mptCumene);
+  PsiCumeneM->GetIonisation()->SetBirksConstant(birksPC);
+  PsiCumeneG->SetMaterialPropertiesTable(mptCumene);
+  PsiCumeneG->GetIonisation()->SetBirksConstant(birksPC);
+
+  // Anthracene-doped Polyvinyltoluene Plastic Scintillator - EJ-500
+
+  G4double RIndexPVT[nEntries] =
+    { 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58,
+      1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58, 1.58  };
+
+  G4double AbsLengthPVT[nEntries] =
+    { 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m,
+      5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m, 5.*m  };
+
+  // Scintillation - Fast Component - Listed Spectrum
+  G4double ScintFastPVT[nEntries] =
+    { 0.015, 0.019, 0.025, 0.031, 0.036, 0.043, 0.050, 0.058, 0.066,
+      0.074, 0.083, 0.092, 0.102, 0.112, 0.121, 0.132, 0.147, 0.161,
+      0.178, 0.201, 0.222, 0.249, 0.278, 0.312, 0.344, 0.377, 0.410,
+      0.437, 0.463, 0.483, 0.504, 0.522, 0.544, 0.564, 0.585, 0.608,
+      0.630, 0.658, 0.695, 0.743, 0.789, 0.840, 0.880, 0.924, 0.956,
+      0.983, 0.999, 1.000, 0.981, 0.932, 0.860, 0.693, 0.515, 0.406,
+      0.337, 0.273, 0.193, 0.118, 0.072, 0.040, 0.018, 0.009, 0.005,
+      0.004, 0.003, 0.002, 0.001, 0.000, 0.000, 0.000, 0.000, 0.000,
+      0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000  };
+  // NOTE: The emission spectra had to be modified as it appears that the Scintillation process samples
+  //       the photon energy uniformly in photon energy, which translates to 1/x^2 in wavelength. This
+  //       was found to distort the emission spectrum when converted back to wavelengths, so a factor
+  //       of x^2 was applied to the listed distribution below to counter this effect.
+
+  /*
+  // Scintillation - Fast Component - Listed Spectrum
+  G4double ScintFastPVT[nEntries] =
+  { 0.010, 0.013, 0.017, 0.021, 0.025, 0.030, 0.035, 0.041, 0.047,
+  0.053, 0.060, 0.067, 0.075, 0.083, 0.091, 0.100, 0.112, 0.124,
+  0.138, 0.157, 0.175, 0.198, 0.223, 0.252, 0.280, 0.310, 0.340,
+  0.365, 0.390, 0.411, 0.430, 0.452, 0.475, 0.497, 0.520, 0.545,
+  0.570, 0.600, 0.640, 0.690, 0.740, 0.795, 0.840, 0.890, 0.930,
+  0.965, 0.990, 1.000, 0.990, 0.950, 0.885, 0.720, 0.540, 0.430,
+  0.360, 0.295, 0.210, 0.130, 0.080, 0.045, 0.020, 0.010, 0.006,
+  0.004, 0.003, 0.002, 0.001, 0.000, 0.000, 0.000, 0.000, 0.000,
+  0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000  };
+  */
+  /*
+    G4double ScintFastPVT[nEntries] =
+    { 0.010, 0.020, 0.030,
+    0.045, 0.060, 0.078,
+    0.100, 0.130, 0.175,
+    0.235, 0.310, 0.380,
+    0.430, 0.485, 0.545,
+    0.620, 0.745, 0.865,
+    0.965, 1.000, 0.885,
+    0.480, 0.295, 0.105,
+    0.020, 0.005, 0.002,
+    0.000, 0.000, 0.000,
+    0.000, 0.000, 0.000  };
+  */
+  /*
+  // EJ-500
+  G4double ScintFastPVT[nEntries] =
+  { 0.010, 0.020, 0.030,
+  0.045, 0.060, 0.080,
+  0.100, 0.125, 0.175,
+  0.235, 0.310, 0.380,
+  0.430, 0.485, 0.550,
+  0.610, 0.745, 0.865,
+  0.950, 1.000, 0.875,
+  0.635, 0.420, 0.300,
+  0.210, 0.150, 0.110,
+  0.085, 0.065, 0.050,
+  0.035, 0.015, 0.005  };
+  */
+  /*
+    G4double ScintSlowPVT[nEntries] = 
+    { 1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000,
+    1.000, 1.000, 1.000  };
+  */
+  G4MaterialPropertiesTable* mptToluene = new G4MaterialPropertiesTable();	// Generates new material properties table for scintillator
+  mptToluene->AddConstProperty("FASTTIMECONSTANT", 2.1*ns);		// Fast Component Decay Time
+  //  mptToluene->AddConstProperty("SLOWTIMECONSTANT",20.0*ns);		// Slow Component Decay Time
+  mptToluene->AddConstProperty("YIELDRATIO",1.0);			// 1 = all fast, 0 = all slow, fractional yield ratio allowed
+  mptToluene->AddConstProperty("SCINTILLATIONYIELD",10000./MeV);		// Physical value for scintillation yield for Polyvinyltoluene
+  mptToluene->AddConstProperty("RESOLUTIONSCALE",1.0);			// Standard deviation on scintillation yield number
+
+  //  mptToluene->AddConstProperty("SCINTILLATIONYIELD",1./MeV);		// Used for testing phase ONLY, not physically accurate
+
+  mptToluene->AddProperty("FASTCOMPONENT", PhotonEnergy, ScintFastPVT, nEntries);		// Light Yield for Fast Component
+  //  mptToluene->AddProperty("SLOWCOMPONENT", PhotonEnergy, ScintSlowPVT, nEntries);		// Light Yield for Slow Component
+  mptToluene->AddProperty("RINDEX", PhotonEnergy, RIndexPVT, nEntries);			// Refractive Index of Material
+  mptToluene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPVT, nEntries);		// Abosrption Length of Material
+
+  MuonScint->SetMaterialPropertiesTable(mptToluene);
+  MuonScint->GetIonisation()->SetBirksConstant(birksPVT);		// Sets the Birk's Constant for saturation quenching
+   
+  // Plexiglass Windows
+
+  G4double RIndex2[nEntries] =
+    { 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492,
+      1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492, 1.492  };
+
+  G4double AbsLength2[nEntries] =
+    { 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
+      0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.4*m,
+      0.3*m, 0.2*m, 0.16*m, 0.13*m, 0.10*m, 0.075*m, 0.055*m, 0.04*m, 0.032*m,
+      0.024*m, 0.018*m, 0.014*m, 0.01*m, 8.*mm, 6.*mm, 4.*mm, 2.*mm, 0.1*mm    };
+
+  G4MaterialPropertiesTable* mptPMMA = new G4MaterialPropertiesTable();
+  mptPMMA->AddProperty("RINDEX", PhotonEnergy, RIndex2, nEntries);
+  mptPMMA->AddProperty("ABSLENGTH", PhotonEnergy, AbsLength2, nEntries);
+
+  PMMA->SetMaterialPropertiesTable(mptPMMA);
+
+  // Mineral Oil
+
+  G4double RIndex3[nEntries] =
+    { 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48,
+      1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48, 1.48  };
+
+  G4double AbsLength3[nEntries] =
+    { 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m,
+      4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m, 4.*m  };
+
+  G4MaterialPropertiesTable* mptOil = new G4MaterialPropertiesTable();
+  mptOil->AddProperty("RINDEX", PhotonEnergy, RIndex3, nEntries);
+  mptOil->AddProperty("ABSLENGTH", PhotonEnergy, AbsLength3, nEntries);
+
+  MinOil->SetMaterialPropertiesTable(mptOil);
+
+  // Air
+
+  G4double refinair = 1.000293;
+
+  G4double RIndex4[nEntries] =
+    { refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair,
+      refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair, refinair  };
+
+  G4double AbsLength4[nEntries] =
+    { 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m,
+      50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m, 50.*m  };
+
+  G4MaterialPropertiesTable* mptAir = new G4MaterialPropertiesTable();
+  mptAir->AddProperty("RINDEX", PhotonEnergy, RIndex4, nEntries);
+  mptAir->AddProperty("ABSLENGTH", PhotonEnergy, AbsLength4, nEntries);
+
+  Air->SetMaterialPropertiesTable(mptAir);
+
+  // Stainless Steel - not necessary
+
+  G4double RIndex5[nEntries] =
+    { 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+      1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00  };
+  // Vacuum - Used in PMTs
+
+  G4MaterialPropertiesTable* mptVacuum = new G4MaterialPropertiesTable();
+  mptVacuum->AddProperty("RINDEX", PhotonEnergy, RIndex5, nEntries);
+
+  Vacuum->SetMaterialPropertiesTable(mptVacuum);
+
+  G4double RIndex6[nEntries] =
+    { 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46,
+      1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46, 1.46  };
+// Absorption Length
+  G4double AbsLengthQu[nEntries] =
+    { 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm,
+      0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm, 0.001*mm  };
+  // Quartz - Used in PMTs
+
+  G4MaterialPropertiesTable* mptQuartz = new G4MaterialPropertiesTable();
+  mptQuartz->AddProperty("RINDEX", PhotonEnergy, RIndex6, nEntries);
+  mptQuartz->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthQu, nEntries);
+
+  Quartz->SetMaterialPropertiesTable(mptQuartz);
+}
+
+// ****** Geometry Specifications ****** //
+G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
+{
+
+  G4Material* concrete = G4Material::GetMaterial("Concrete");
+    // Required Dimensions
+  modSizeX = 5.*m;	// Half-Length - long edge
+  modSizeY = 5.*m;	// Half-Height
+  modSizeZ = 5.*m;	// Half-Width - short edge
+  
+  // Creation of solid with necessary dimensions
+
+  G4Box* build_box = new G4Box("BuildBox", modSizeX+2.0*m, modSizeY+2.0*m, modSizeZ+2.0*m);
+
+  // Creation of logical volume using solid with material
+  build_log = new G4LogicalVolume(build_box, concrete, "BuildLogical", 0,0,0);
+
+  // Creation of physical volume by placement of logical volume 
+  build_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), build_log, "Build", 0, false,0,false);
+
+  scintHitInner = new G4MultiFunctionalDetector("scintHitInner");
+  SegmentPMT = new G4MultiFunctionalDetector("SegmentPMT");
+
+  ReConstruct();
+  return build_phys;		// *** IMPORTANT: This function should always return the physical World Volume! ***
+}
+
+// ****** Optical Surface Specifications ****** //
+void DetectorConstruction::ConstructOpticalSurfaces()
+{
+  // Removes previously defined surfaces if they exist - not necessary
+  /*
+    G4LogicalBorderSurface::CleanSurfaceTable();
+    G4LogicalSkinSurface::CleanSurfaceTable();
+  */
+
+  const G4int num = 2;
+  G4double Ephoton[num] = { 1.5*eV, 6.0*eV };		// Photon Energies
+
+  // GC Inner Tank vs. GC Scintillator Volume
+ 
+ //changes for di-di ground back paint surface only surface only
+  //  spike =1; //only specular reflection when TIR occurs
+  //  G4double RIndex[num]        = { 1.300, 1.300 };	// Refractive index of reflector, PTFE
+ //end changes for di-di ground back paint surface only surface only
+
+  G4double Reflectivity2[num]  = { refl, refl };
+
+  G4double Efficiency2[num]    = { efficiency, efficiency };
+  G4double SpecularLobe2[num]  = { lobe, lobe };
+  G4double SpecularSpike2[num] = { spike, spike };
+  G4double Backscatter2[num]   = { back, back };
+
+  G4MaterialPropertiesTable* mst = new G4MaterialPropertiesTable();
+  //  mst->AddProperty("RINDEX", Ephoton, RIndex, num); //d-d groundback paint only
+  mst->AddProperty("REFLECTIVITY", Ephoton, Reflectivity2, num);
+  mst->AddProperty("EFFICIENCY", Ephoton, Efficiency2, num);
+  mst->AddProperty("SPECULARLOBECONSTANT", Ephoton, SpecularLobe2, num);
+  mst->AddProperty("SPECULARSPIKECONSTANT", Ephoton, SpecularSpike2, num);
+  mst->AddProperty("BACKSCATTERCONSTANT", Ephoton, Backscatter2, num);   
+  G4OpticalSurface* InnerTankSurface = new G4OpticalSurface("InnerInSurface");
+
+  InnerTankSurface->SetFinish(OptFinish);
+  if(OptFinish<6) {
+    InnerTankSurface->SetType(dielectric_metal);
+    //InnerTankSurface->SetType(dielectric_dielectric);//d-d groundback paint only
+    //InnerTankSurface->SetFinish(groundbackpainted);//d-d groundback paint only
+    InnerTankSurface->SetModel(unified);
+  }
+  else {
+    InnerTankSurface->SetType(dielectric_LUT);
+    InnerTankSurface->SetModel(LUT);
+  }
+   
+  InnerTankSurface->SetMaterialPropertiesTable(mst);
+
+  G4LogicalSkinSurface* ScintSteel[100][100];
+  for(int i=0;i<NSegX;i++){
+    for(int j=0;j<NSegY;j++){
+      std::stringstream stream1; stream1 << (100*i+j); G4String id1 = stream1.str();
+      // if(WrapGap>0) ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, wrapgap_log, InnerTankSurface); //NSB 10/14/2013
+      //      else 
+      ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, segment_log[i][j], InnerTankSurface); //NSB 10/14/2013
+    }
+  }
+  
+  // G4LogicalSkinSurface* WrapSurf = new G4LogicalSkinSurface("WrapSurface", wrapgap_log, InnerTankSurface);
+  // G4MaterialPropertiesTable* wrapfin = new G4MaterialPropertiesTable();
+  // if(WrapGap>0){  G4OpticalSurface* WrapGapSurface = new G4OpticalSurface("WrapGapSurface");
+  //   WrapGapSurface->SetType(dielectric_dielectric);
+  //   WrapGapSurface->SetFinish(polished); //NSB 10/14/2013
+  //   //WrapGapSurface->SetFinish(ground);//NSB 10/14/2013
+  //   //    WrapGapSurface->SetSigmaAlpha(sigal);//NSB 10/14/2013
+  //   WrapGapSurface->SetModel(unified);
+    
+  //   G4LogicalSkinSurface* AcrylAir = new G4LogicalSkinSurface("AcrylAir", target_log, WrapGapSurface);//NSB 10/14/2013
+  // }
+
+  G4OpticalSurface* PMTRejectSurface = new G4OpticalSurface("RejectSurface");
+  PMTRejectSurface->SetType(dielectric_dielectric);
+  PMTRejectSurface->SetFinish(groundfrontpainted);
+  PMTRejectSurface->SetModel(unified);
+    
+  G4double Reflectivity5[num] = { 0.245, 0.305 };
+    
+  G4MaterialPropertiesTable* mstReject = new G4MaterialPropertiesTable();
+  mstReject->AddProperty("REFLECTIVITY", Ephoton, Reflectivity5, num);
+  mstReject->AddProperty("EFFICIENCY", Ephoton, Efficiency2, num);
+  mstReject->AddProperty("SPECULARLOBECONSTANT", Ephoton, SpecularLobe2, num);
+  mstReject->AddProperty("SPECULARSPIKECONSTANT", Ephoton, SpecularSpike2, num);
+  mstReject->AddProperty("BACKSCATTERCONSTANT", Ephoton, Backscatter2, num);
+  PMTRejectSurface->SetMaterialPropertiesTable(mstReject);
+    
+  G4LogicalSkinSurface* AirCover; AirCover = new G4LogicalSkinSurface("CoverAirSurface", coverSEG_log, PMTRejectSurface);
+  G4LogicalSkinSurface* AirBase; AirBase = new G4LogicalSkinSurface("BaseAirSurface", baseSEG_log, PMTRejectSurface);
+    
+  
+  // Muon Veto Panel Foil Wrapping
+  
+  G4OpticalSurface* VetoFoilSurface = new G4OpticalSurface("VetoFoilSurface");
+  VetoFoilSurface->SetType(dielectric_metal);
+  VetoFoilSurface->SetFinish(polishedbackpainted);	// Dielectric-dielectric for interface with thin air layer, metallic back surface is implied with polished reflectance
+  VetoFoilSurface->SetModel(unified);
+
+  G4double RIndexFoil[num]        = { 1.000, 1.000 };	// Refractive index of air layer
+  G4double ReflectivityFoil[num]  = { 0.700, 0.700 };	// Reflectivity of foil
+  G4double SpecularLobeFoil[num]  = { 0.300, 0.300 };
+  G4double SpecularSpikeFoil[num] = { 0.500, 0.500 };
+  G4double BackscatterFoil[num]   = { 0.000, 0.000 };
+
+  G4MaterialPropertiesTable* mstVetoFoil = new G4MaterialPropertiesTable();
+  mstVetoFoil->AddProperty("RINDEX", Ephoton, RIndexFoil, num);
+  mstVetoFoil->AddProperty("REFLECTIVITY", Ephoton, ReflectivityFoil, num);
+  mstVetoFoil->AddProperty("SPECULARLOBECONSTANT", Ephoton, SpecularLobeFoil, num);
+  mstVetoFoil->AddProperty("SPECULARSPIKECONSTANT", Ephoton, SpecularSpikeFoil, num);
+  mstVetoFoil->AddProperty("BACKSCATTERCONSTANT", Ephoton, BackscatterFoil, num);
+  VetoFoilSurface->SetMaterialPropertiesTable(mstVetoFoil);
+
+  G4LogicalBorderSurface* VetoAir[33];
+  G4LogicalBorderSurface* VetoSteel[33][5];
+  for(int i = 0; i < 12; i++)
+    {
+      std::stringstream stream; stream << i; G4String id = stream.str();
+      VetoAir[i] = new G4LogicalBorderSurface("Veto"+id+"AirSurface", door_phys[i], shell_phys, VetoFoilSurface);
+      VetoSteel[i][0] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", door_phys[i], shield_phys[0][0], VetoFoilSurface);
+      VetoSteel[i][1] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", door_phys[i], shield_phys[0][1], VetoFoilSurface);
+      VetoSteel[i][2] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", door_phys[i], shield_phys[1][0], VetoFoilSurface);
+      VetoSteel[i][3] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", door_phys[i], shield_phys[1][1], VetoFoilSurface);
+      VetoSteel[i][4] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", door_phys[i], shield_phys[2][0], VetoFoilSurface);
+    }
+  for(int i = 12; i < 22; i++)
+    {
+      std::stringstream stream; stream << i; G4String id = stream.str();
+      VetoAir[i] = new G4LogicalBorderSurface("Veto"+id+"AirSurface", side_phys[i-12], shell_phys, VetoFoilSurface);
+      VetoSteel[i][0] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", side_phys[i-12], shield_phys[0][0], VetoFoilSurface);
+      VetoSteel[i][1] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", side_phys[i-12], shield_phys[0][1], VetoFoilSurface);
+      VetoSteel[i][2] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", side_phys[i-12], shield_phys[1][0], VetoFoilSurface);
+      VetoSteel[i][3] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", side_phys[i-12], shield_phys[1][1], VetoFoilSurface);
+      VetoSteel[i][4] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", side_phys[i-12], shield_phys[2][0], VetoFoilSurface);
+    }
+  for(int i = 22; i < 33; i++)
+    {
+      std::stringstream stream; stream << i; G4String id = stream.str();
+      VetoAir[i] = new G4LogicalBorderSurface("Veto"+id+"AirSurface", top_phys[i-22], shell_phys, VetoFoilSurface);
+      VetoSteel[i][0] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", top_phys[i-22], shield_phys[0][0], VetoFoilSurface);
+      VetoSteel[i][1] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", top_phys[i-22], shield_phys[0][1], VetoFoilSurface);
+      VetoSteel[i][2] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", top_phys[i-22], shield_phys[1][0], VetoFoilSurface);
+      VetoSteel[i][3] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", top_phys[i-22], shield_phys[1][1], VetoFoilSurface);
+      VetoSteel[i][4] = new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", top_phys[i-22], shield_phys[2][0], VetoFoilSurface);
+    }
+
+  /* G4LogicalBorderSurface* VetoSideVeto[16];
+     G4LogicalBorderSurface* VetoS2DVeto[10][2];
+     G4LogicalBorderSurface* VetoD2SVeto[10][2];
+     G4LogicalBorderSurface* VetoDoorVeto[20];
+     G4LogicalBorderSurface* VetoD2TVeto[12];
+     G4LogicalBorderSurface* VetoT2DVeto[12];
+     G4LogicalBorderSurface* VetoTopVeto[10];
+     G4LogicalBorderSurface* VetoTopU2LVeto[5][2];
+     G4LogicalBorderSurface* VetoTopL2UVeto[5][2];
+ 
+
+
+     // Muon Veto Light Guide Foil Wrapping
+
+     // We use the same surface defined for the muon veto panels
+     G4LogicalBorderSurface* GuideSAir[10][2];
+     G4LogicalBorderSurface* GuideTAir[11][2];
+ 
+     // Muon Veto Door Panel Extra Surfaces
+
+     G4LogicalBorderSurface* VetoCover[12][2];*/
+  
+}
+
+// ****** Optical Transport Switch ****** //
+G4bool DetectorConstruction::SetOpticalProcesses(G4bool SetOptical)
+{
+  if(fOptical == SetOptical)
+    {
+      G4cout << "Optical processes are already in the requested state." << SetOptical<<G4endl;
+      return false;
+    }
+  fOptical = SetOptical;
+  ConstructOpticalSurfaces();		// Re-establish optical surfaces between new volumes
+  return true;
+}
+
+void DetectorConstruction::SetXSegments(G4int sp)
+{
+  G4cerr<<"Changing number of X segments to "<<sp<<G4endl;
+  if(sp<=MaxSegX && sp*NSegY<=2500) {
+    NSegX = sp;
+    ReConstruct();
+  }
+  else G4cerr<<"Invalid segment number, segments must be between 0 and "<<MaxSegX<<" and total segments much be less than 2500"<<G4endl; 
+}
+
+void DetectorConstruction::SetYSegments(G4int sp)
+{
+  G4cerr<<"Changing number of Y segments to "<<sp<<G4endl;
+  if(sp<=MaxSegY && sp*NSegX<=2500) {
+    NSegY = sp;
+    ReConstruct();
+  }
+  else G4cerr<<"Invalid segment number, segments must be between 0 and "<<MaxSegY<<" and total segments much be less than 2500"<<G4endl;
+}
+
+void DetectorConstruction::SetLeadShieldThickness(G4double sp)
+{
+  if(sp!=ShieldLead){
+    if(sp>=0) {
+      ShieldLead = sp;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid lead shield thickness, thickness must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetBPolyShieldThickness(G4double sp)
+{
+  if(sp>=0) {
+    ShieldPolyB = sp;
+    ReConstruct();
+  }
+  else G4cerr<<"Invalid borated poly shield thickness, thickness must be greater than 0"<<G4endl;
+}
+
+void DetectorConstruction::SetLiPolyShieldThickness(G4double sp)
+{
+  if(sp!=ShieldPolyLi){
+    if(sp>=0) {
+      ShieldPolyLi = sp;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid Lithiated poly shield thickness, thickness must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetVertical(G4bool sp)
+{
+  if(sp!=fVertical){
+    fVertical = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::Modify()
+{
+  modifying = true;
+}
+
+void DetectorConstruction::ConstructNew()
+{
+  G4double pmtSEG_i = 0.*PMTscale*mm;    // pmt dimension parameters
+  G4double pmtedge_r = 25.4*mm;
+  G4double pmtSEG_r = pmtedge_r*PMTscale;
+  G4double pmtSEG_h = 100.*mm;
+  G4double pmtSEGbase_r = 26.4*PMTscale*mm;
+  G4double pmtSEGbase_h = 44.*mm;
+  G4double coverSEG_r = pmtSEG_r + 1.*mm;
+  G4double coverSEG_h = pmtSEG_h;
+  G4double basepinSEG_r = 17.*PMTscale*mm;
+  G4double basepinSEG_h = 20.*mm;
+  G4double angle_s = 0.*deg;
+  G4double angle_f = 360.*deg;
+  G4double shell_w = (SegWidth+AirGap)*NSegX;
+  G4double shell_h = (SegHeight+AirGap)*NSegY;
+  G4double shell_l = SegLength+ 2.0*(pmtSEG_h + (pmtSEGbase_h + basepinSEG_h));
+
+  G4cerr<<"QE:\t"<<QE<<G4endl;
+   G4cerr<<"NSegX:\t"<<  NSegX <<G4endl;
+   G4cerr<<"NSegY:\t"<< NSegY<<G4endl;
+   G4cerr<<"OptFinish:\t"<<  OptFinish<<G4endl;
+   G4cerr<<"AirGap:\t"<< AirGap<<G4endl;
+   G4cerr<<"WrapGap:\t"<<  WrapGap<<G4endl;
+   G4cerr<<"WrapThickness:\t"<<  WrapThickness<<G4endl;
+   G4cerr<<"AcrylThickness:\t"<<  AcrylThickness<<G4endl;
+   G4cerr<<"SegBuffer:\t"<< SegBuffer<<G4endl;
+  G4cerr<<"ScintLength:\t"<< ScintLength<<G4endl;
+   G4cerr<<"ScintHeight:\t"<< ScintHeight<<G4endl;
+   G4cerr<<"ScintWidth:\t"<< ScintWidth<<G4endl;
+   G4cerr<<"PMTscale:\t"<< PMTscale<<G4endl;
+   G4cerr<<"ShieldLead:\t"<< ShieldLead<<G4endl;
+   G4cerr<<"ShieldPolyLi:\t"<< ShieldPolyLi<<G4endl;
+   G4cerr<<"ShieldPolyB:\t"<< ShieldPolyB<<G4endl;
+   G4cerr<<"Shield Outer  X:\t"<< 2*(shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi)<<"\tY: "<< 2*(shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi) <<"\tZ: "<< 2*(shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.)<<G4endl;
+   G4cerr<<"Shield Inner  X:\t"<< shell_w<<"\tY: "<< shell_h <<"\tZ: "<< shell_l<<G4endl;
+  modifying = false;
+  ReConstruct();
+}
+
+void DetectorConstruction::SetSegmentLength(G4double sp)
+{
+  if(sp!=SegLength){
+    if(sp>0) {
+      SegLength = sp*mm;
+      if(sp<=2.0*(SegBuffer+WrapThickness)){
+	ScintLength = 0;
+	SegBuffer = (sp-0.1)/2.0;
+	WrapThickness = 0.1;
+      }
+      else{
+	ScintLength = SegLength-2*SegBuffer-2*WrapThickness;
+      }
+      G4cerr<<"Segment Length set to "<<SegLength<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid segment length, segment length must be greater than  0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetScintLength(G4double sp)
+{
+  if(sp!=ScintLength){
+    if(sp>0) {
+      ScintLength = sp*mm;
+      SegLength = ScintLength+2*SegBuffer+2*WrapThickness;
+      G4cerr<<"Scint Length set to "<<ScintLength<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid scintillator length, scintillator length must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetSegmentWidth(G4double sp)
+{
+  if(sp!=SegWidth){
+    if(sp>0) {
+      SegWidth = sp*mm;
+      if(sp<=2.0*(AcrylThickness + WrapThickness + WrapGap)){
+	ScintWidth = 0;
+	if(sp<=2.0*(WrapThickness + WrapGap)){
+	  AcrylThickness=0.;
+	}
+	else{
+	  AcrylThickness=(sp-2.0*(WrapThickness+ WrapGap))/2.0;
+	}
+      }
+      
+      else{
+	ScintWidth = SegWidth-2*(AcrylThickness+WrapThickness+WrapGap);
+	if(PMTscale*2>ScintWidth) PMTscale = ScintWidth/2.;
+      }
+      G4cerr<<"Segment Width set to "<<SegWidth<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid segment width, segment width must be greater than  0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetScintWidth(G4double sp)
+{
+  if(sp!=ScintWidth){
+    if(sp>0) {
+      ScintWidth = sp*mm;
+      SegWidth = ScintWidth + 2*AcrylThickness + 2*WrapThickness + 2*WrapGap;
+      if(PMTscale*2>ScintWidth) PMTscale = ScintWidth/2.;
+      G4cerr<<"Scint Width set to "<<ScintWidth<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid scintillator width, scintillator width must be greater than 0"<<G4endl;
+  }
+}
+  
+void DetectorConstruction::SetSegmentHeight(G4double sp)
+{
+  if(sp!=SegHeight){
+    if(sp>0) {
+      SegHeight = sp*mm;
+      if(sp<=2.0*(AcrylThickness + WrapThickness + WrapGap)){
+	ScintHeight = 0;
+	if(sp<=2.0*(WrapThickness + WrapGap)){
+	  AcrylThickness=0.;
+	}
+	else{
+	  AcrylThickness=(sp-2.0*(WrapThickness + WrapGap))/2.0;
+	}
+      }
+      
+      else{
+	ScintHeight = SegHeight-2*(AcrylThickness+WrapThickness + WrapGap);
+	if(PMTscale*2>ScintHeight) PMTscale = ScintHeight/2.;
+      }
+      G4cerr<<"Segment Height set to "<<SegHeight<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid segment height, segment height must be greater than  0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetScintHeight(G4double sp)
+{
+  if(sp!=ScintHeight){
+    if(sp>0) {
+      ScintHeight = sp*mm;
+      SegHeight = ScintHeight + 2*AcrylThickness + 2*WrapThickness + 2*WrapGap;
+      if(PMTscale*2>ScintHeight) PMTscale = ScintHeight/2.;
+      G4cerr<<"Scint Height set to "<<ScintHeight<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid scintillator height, scintillator height must be greater than 0"<<G4endl;
+  }
+}
+
+
+
+void DetectorConstruction::SetSegmentBuffer(G4double sp)
+{
+  if(sp!=SegBuffer){
+    if(sp>=0) {
+      SegBuffer = sp*mm;
+      SegLength = ScintLength+2*SegBuffer+2*WrapThickness;
+      G4cerr<<"Segment Buffer set to "<<SegBuffer<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid buffer length, buffer length must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetAirGap(G4double sp)
+{
+  if(sp!=AirGap){
+    if(sp>=0) {
+      AirGap = sp*mm;
+      G4cerr<<"Air Gap set to "<<AirGap<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid Air Gap, air gap must be greater than or equal to 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetWrapGap(G4double sp)
+{
+  if(sp!=WrapGap){
+    if(sp>=0) {
+      WrapGap = sp*mm;
+      SegHeight = ScintHeight + 2*AcrylThickness + 2*WrapThickness + 2*WrapGap;
+      SegWidth = ScintWidth+2*AcrylThickness+2*WrapThickness+2*WrapGap;
+      G4cerr<<"Wrap Gap set to "<<WrapGap<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid Wrap Gap, wrap gap must be greater than or equal to 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetWrapThickness(G4double sp)
+{
+  if(sp!=WrapThickness){
+    if(sp>=0) {
+      WrapThickness = sp*mm;
+      SegHeight = ScintHeight + 2*AcrylThickness + 2*WrapThickness + 2*WrapGap;
+      SegWidth = ScintWidth+2*AcrylThickness+2*WrapThickness+2*WrapGap;
+      SegLength = ScintLength+2*SegBuffer+2*WrapThickness;
+      G4cerr<<"Wrap Thickness set to "<<WrapThickness<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid outer wrap thickness, outer wrap thickness must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetAcrylThickness(G4double sp)
+{
+  if(sp!=AcrylThickness){
+    if(sp>=0) {
+      AcrylThickness = sp*mm;
+      SegWidth = ScintWidth+2*AcrylThickness+2*WrapThickness+2*WrapGap;
+      SegHeight = ScintHeight+2*AcrylThickness+2*WrapThickness+2*WrapGap;
+      G4cerr<<"Acrylic Thickness set to "<<AcrylThickness<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid Acrylic thickness, acrylic thickness must be greater than 0"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetPMTDiameter(G4double sp)
+{
+  if(sp!=PMTscale*2){
+    if(sp>0 && sp<ScintHeight && sp<ScintWidth) {
+      PMTscale = sp/2.;
+      G4cerr<<"PMT Diameter set to "<<PMTscale*2<<G4endl;
+      ReConstruct();
+    }
+    else G4cerr<<"Invalid PMT diameter, PMT Diameter must be greater than 0 and les than the scintillator height and width"<<G4endl;
+  }
+}
+
+void DetectorConstruction::SetSpecularLobeConstant(G4double sp)
+{
+  if(sp!=lobe){
+    if(sp<0) lobe = 0;
+    else if (sp>1.0) lobe = 1;
+    else lobe = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::SetSigmaAlpha(G4double sp)
+{
+  if(sp!=sigal){
+    if(sp<0) sigal = 0;
+    else if (sp>3.14159) sigal = 3.14159;
+    else sigal = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::SetSpecularSpikeConstant(G4double sp)
+{
+  if(sp!=spike){
+    if(sp<0) spike = 0;
+    else if (sp>1.0) spike = 1;
+    else spike = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::SetBackScatterConstant(G4double sp)
+{
+  if(sp!=back){
+    if(sp<0) back = 0;
+    else if (sp>1.0) back = 1;
+    else back = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::SetReflectivityConstant(G4double sp)
+{
+  if(sp!=refl){
+    if(sp<0) refl = 0;
+    else if (sp>1.0) refl = 1;
+    else refl = sp;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::SetEfficiency(G4double sp)
+{
+  if(sp!=efficiency){
+    if(sp<0) efficiency = 0;
+    else if (sp>1.0) efficiency = 1;
+    else efficiency = sp;
+    ReConstruct();
+  }
+}
+
+// ****** Change Liquid Scintillator Birks Quenching Constant ****** //
+void DetectorConstruction::SetScintillatorBirksConstant(G4double birks)
+{
+  if(birks >= 0.)
+    {
+      birksPC = birks;
+      G4Material::GetMaterial("Pseudocumene")->GetIonisation()->SetBirksConstant(birksPC);
+      G4Material::GetMaterial("PC-0.15wt%Li")->GetIonisation()->SetBirksConstant(birksPC);
+      G4Material::GetMaterial("PC-0.30wt%Li")->GetIonisation()->SetBirksConstant(birksPC);
+      G4Material::GetMaterial("PC-0.1wt%Gd")->GetIonisation()->SetBirksConstant(birksPC);
+      G4Material::GetMaterial("PC-0.5wt%Gd")->GetIonisation()->SetBirksConstant(birksPC);
+      G4Material::GetMaterial("PC-100%Gd")->GetIonisation()->SetBirksConstant(birksPC);
+      G4cout << "Inner Scintillator Birks Constant set to " << birksPC/(mm/MeV) << " mm/MeV." << G4endl;
+    }
+  else
+    { G4cout << "*** ATTENTION: Birks Constant must be a positive number. Parameter not registered into the scintillator material. ***" << G4endl; return; }
+  if(!fOptical) { G4cout << "*** CAUTION: Optical processes have not been activated. Birks Constant parameter will not apply to simulation as is. ***" << G4endl; }
+}
+
+// ****** Change Plastic Scintillator Birks Quenching Constant ****** //
+void DetectorConstruction::SetVetoBirksConstant(G4double birks)
+{
+}
+
+// ****** Change Liquid Scintillator Gadolinium Concentration ****** //
+void DetectorConstruction::SetScintillatorComposition(G4String identifier)
+{
+  // Respecify material variables
+  G4Material* RawPsiCumene = G4Material::GetMaterial("Pseudocumene");
+  G4Material* PsiCumeneL = G4Material::GetMaterial("PC-0.15wt%Li");
+  G4Material* PsiCumeneM = G4Material::GetMaterial("PC-0.30wt%Li");
+  G4Material* PsiCumeneT = G4Material::GetMaterial("PC-0.1wt%Gd");
+  G4Material* PsiCumeneH = G4Material::GetMaterial("PC-0.5wt%Gd");
+  G4Material* PsiCumeneG = G4Material::GetMaterial("PC-100%Gd");
+  G4Material* GdPaintA = G4Material::GetMaterial("GdPaintA");
+  G4Material* GdPaintB = G4Material::GetMaterial("GdPaintB");
+  G4Material* GdPaintC = G4Material::GetMaterial("GdPaintC");
+  G4String previous = material;		// Used to reset the material identifier in case of switch failure
+  material = identifier;
+  for(G4int xnum = 0; xnum<NSegX; xnum++){
+    for(G4int ynum = 0; ynum<NSegY; ynum++){
+      if(identifier == "S")       { G4cout << "Scintillator composition set to Raw Pseudocumene." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); Scint = 0;}
+      else if(identifier == "L")  { G4cout << "Scintillator composition set to PC-0.15wt%Li." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneL); Scint = 1;}
+      else if(identifier == "T")  { G4cout << "Scintillator composition set to PC-0.1wt%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneT);Scint = 2; }
+      else if(identifier == "H")  { G4cout << "Scintillator composition set to PC-0.5wt%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneH); Scint = 3;}
+      else if(identifier == "M")  { G4cout << "Scintillator composition set to PC-0.30wt%Li." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneM); Scint = 4;}
+      else if(identifier == "G")  { G4cout << "Scintillator composition set to PC-100%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneG); Scint = 5;}
+      else if(identifier == "A")  { G4cout << "Scintillator composition set to Raw Pseudocumene with 0.5wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintA);Scint = 6;}
+      else if(identifier == "B")  { G4cout << "Scintillator composition set to Raw Pseudocumene with 1.0wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintB);Scint = 7;}
+      else if(identifier == "C")  { G4cout << "Scintillator composition set to Raw Pseudocumene with 2.0wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintC);Scint = 8;}
+
+      else
+	{
+	  material = previous;
+	  G4cout << "*** ATTENTION: Specified material identifier has not been programmed in DetectorConstruction.cc. Material selection not applied. ***" << G4endl;
+	  return;
+	}
+    }
+  }
+  //  ConstructOpticalSurfaces();		// Re-establish optical surfaces between new volumes
+
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();		// Flag geometry for reconstruction
+}
+
+// ****** Inner Tank Geometry Switch ****** //
+void DetectorConstruction::SetInnerTankGeometry(G4bool flag, G4bool verb)
+{
+}
+
+// ****** Outer Tank Geometry Switch ****** //
+void DetectorConstruction::SetOuterTankGeometry(G4bool flag, G4bool verb)
+{
+ 		
+}
+
+// ****** Borated Polyehtylene Switch ****** //
+void DetectorConstruction::SetBoratedPolyLayer(G4bool flag, G4bool verb)
+{
+ 
+}
+
+// ****** Water Shield Tank Switch ****** //
+void DetectorConstruction::SetShieldLayer(G4bool flag, G4bool verb)
+{
+  fShieldActivated=flag;
+  ReConstruct();
+}
+// ****** Clyindrical segment switch Switch ****** //
+void DetectorConstruction::SetCylinder(G4bool flag, G4bool verb)
+{
+  fCylinderActivated=flag;
+  ReConstruct();
+}
+
+// ****** Muon Veto Panel Switch ****** //
+void DetectorConstruction::SetMuonVetoLayer(G4bool flag, G4bool verb)
+{
+	
+}
+
+// ****** Exploded View Switch ****** //
+void DetectorConstruction::SetExplodedView(G4bool SetExploded)
+{
+
+}
+
+void DetectorConstruction::SetQE(G4double qeval)
+{
+  if(qeval!=QE){
+     if(qeval>0){
+      if(qeval<=1){
+	QE=qeval;
+      }
+      else QE=1.0;
+    }
+    else QE=0;
+    ReConstruct();
+  }
+}
+
+void DetectorConstruction::PrintPhysicalVolumes() const
+{
+  G4cout << "Physical Volume Names:" << G4endl;
+  std::vector<G4VPhysicalVolume*>* volumes = G4PhysicalVolumeStore::GetInstance();
+  std::vector<G4VPhysicalVolume*>::iterator itr = volumes->begin();
+  for( ; itr != volumes->end(); itr++)
+    {
+      G4cout << (*itr)->GetName() << G4endl;
+    }
+}
+
+G4double DetectorConstruction::GetMaxHalfDimension(){
+  G4double shell_w = (SegWidth+AirGap)*NSegX;
+  G4double shell_h = (SegHeight+AirGap)*NSegY;
+  G4double pmtSEG_h = 100.*mm;
+  G4double pmtSEGbase_h = 44.*mm;
+  G4double basepinSEG_h = 20.*mm;
+  G4double shell_l = SegLength+ 2.0*(pmtSEG_h + (pmtSEGbase_h + basepinSEG_h));
+  G4double dx,dy,dz;
+  if(fShieldActivated){
+    if(fVertical){
+      dx = shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi;
+      dy = shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi;
+      dz = shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.;
+    }
+    else{
+      dx = shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi;
+      dy = shell_h/2. + ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.;
+      dz = shell_l/2.+ ShieldLead + ShieldPolyB  + ShieldPolyLi;
+    }
+  }
+  else{
+    dx = shell_w/2;
+    dy = shell_h/2.;
+    dz =  shell_l/2.;
+  }
+  G4double length = dx;
+  if (dy>length) length = dy;
+  if (dz>length) length = dz;
+  return length;
+}
+
+void DetectorConstruction::SetOpticalFinish(int optfin)
+{
+  switch(optfin){
+  case 0: OptFinish=polished; break;                    // smooth perfectly polished surface
+  case 1: OptFinish=polishedfrontpainted; break;        // smooth top-layer (front) paint
+  case 2: OptFinish=polishedbackpainted; break;         // same is 'polished' but with a back-paint
+  
+  case 3: OptFinish=ground; break;                      // rough surface
+  case 4: OptFinish=groundfrontpainted; break;          // rough top-layer (front) paint
+  case 5: OptFinish=groundbackpainted; break;           // same as 'ground' but with a back-paint
+ 
+  case 6: OptFinish=polishedlumirrorair; break;         // mechanically polished surface, with lumirror
+  case 7: OptFinish=polishedlumirrorglue; break;        // mechanically polished surface, with lumirror & meltmount
+  case 8: OptFinish=polishedair; break;                 // mechanically polished surface
+  case 9: OptFinish=polishedteflonair; break;           // mechanically polished surface, with teflon
+  case 10: OptFinish=polishedtioair; break;              // mechanically polished surface, with tio paint
+  case 11: OptFinish=polishedtyvekair; break;            // mechanically polished surface, with tyvek
+  case 12: OptFinish=polishedvm2000air; break;           // mechanically polished surface, with esr film
+  case 13: OptFinish=polishedvm2000glue; break;          // mechanically polished surface, with esr film & meltmount
+  
+  case 14: OptFinish=etchedlumirrorair; break;           // chemically etched surface, with lumirror
+  case 15: OptFinish=etchedlumirrorglue; break;          // chemically etched surface, with lumirror & meltmount
+  case 16: OptFinish=etchedair; break;                   // chemically etched surface
+  case 17: OptFinish=etchedteflonair; break;             // chemically etched surface, with teflon
+  case 18: OptFinish=etchedtioair; break;                // chemically etched surface, with tio paint
+  case 19: OptFinish=etchedtyvekair; break;              // chemically etched surface, with tyvek
+  case 20: OptFinish=etchedvm2000air; break;             // chemically etched surface, with esr film
+  case 21: OptFinish=etchedvm2000glue; break;            // chemically etched surface, with esr film & meltmount
+  
+  case 22: OptFinish=groundlumirrorair; break;           // rough-cut surface, with lumirror
+  case 23: OptFinish=groundlumirrorglue; break;          // rough-cut surface, with lumirror & meltmount
+  case 24: OptFinish=groundair; break;                   // rough-cut surface
+  case 25: OptFinish=groundteflonair; break;             // rough-cut surface, with teflon
+  case 26: OptFinish=groundtioair; break;                // rough-cut surface, with tio paint
+  case 27: OptFinish=groundtyvekair; break;              // rough-cut surface, with tyvek
+  case 28: OptFinish=groundvm2000air; break;             // rough-cut surface, with esr film
+  case 29: OptFinish=groundvm2000glue; break;             // rough-cut surface, with esr film & meltmount
+  }
+  ReConstruct();
+}
+
+// EOF

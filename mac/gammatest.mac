@@ -1,0 +1,41 @@
+/control/saveHistory
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+/detector/setNumberSegmentsX 4
+/detector/setNumberSegmentsY 4
+/scint/setComposition T
+/scint/setOpticalProcesses true
+/hits/activate scintHitInner
+/hits/activate opticalPMT
+
+/vis/open OGLIX
+#/vis/viewer/set/auxiliaryEdge 1
+/vis/viewer/set/viewpointThetaPhi 45 45
+/vis/drawVolume
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+/vis/scene/endOfEventAction accumulate -1
+
+/output/setOutputDirectory ~/Analysis/ShortBaseline/MC/Data/
+/output/setRootOutput ~/Analysis/ShortBaseline/MC/Data/MCData.root
+
+/gps/ang/type iso
+#/gps/pos/type Point
+/gps/pos/type Volume
+/gps/pos/shape Para
+/gps/pos/centre 0 0 0 cm
+#/gps/pos/rot1 0 0 1
+#/gps/pos/rot2 0 1 0
+/gps/pos/halfx 500 cm
+/gps/pos/halfy 500 cm
+/gps/pos/halfz 500 cm
+#/gps/pos/confine inner_box
+/gps/ene/mono 2.0 MeV
+/gps/particle gamma
+
+/random/setSeeds 97913 11512
+#/run/beamOn 1
+/run/beamOn 200

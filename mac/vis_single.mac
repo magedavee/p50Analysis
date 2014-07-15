@@ -1,0 +1,81 @@
+# Visualization Macro (without run)
+#
+# Set up the visualization scheme
+
+/detector/modify
+/detector/setShield true
+/detector/setNumberSegmentsX 10
+/detector/setNumberSegmentsY 4
+/detector/setScintillatorLength 100
+/detector/setSegmentBuffer 100
+/detector/setLeadShieldThickness 50.4
+/detector/setBPolyShieldThickness 500
+/detector/setLiPolyShieldThickness 100
+/detector/setVertical true
+/detector/setAcrylThickness 6.35
+/detector/setQE 1
+/scint/setComposition T
+/scint/setOpticalProcesses true
+/hits/activate scintHitInner
+/hits/activate SegmentPMT
+/detector/construct
+
+#/vis/open OGLIX
+/vis/open OGLIXm
+#/vis/viewer/set/auxiliaryEdge 1
+/vis/viewer/set/upThetaPhi 0 90
+/vis/viewer/zoom 1
+/vis/viewer/pan 0 1		      
+/vis/viewer/set/viewpointThetaPhi 45 45
+/vis/drawVolume
+
+
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+/vis/scene/endOfEventAction accumulate -1
+#
+# Set up trajectory colours
+#/vis/modeling/trajectories/create/drawByParticleID 
+#/vis/modeling/trajectories/drawByParticleID-0/set neutron green
+#/vis/modeling/trajectories/drawByParticleID-0/set gamma white
+#/vis/modeling/trajectories/drawByParticleID-0/set anti_nu_e red
+#/vis/modeling/trajectories/drawByParticleID-0/setRGBA opticalphoton 1.0 0.5 0.0 1.0
+#/vis/modeling/trajectories/drawByParticleID-0/set e- yellow
+#/vis/modeling/trajectories/drawByParticleID-0/set e+ blue
+#/vis/modeling/trajectories/drawByParticleID-0/set mu- magenta
+#/vis/modeling/trajectories/drawByParticleID-0/set mu+ cyan
+#
+# Set up filters
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add neutron
+#/vis/filtering/trajectories/particleFilter-0/add gamma
+#/vis/filtering/trajectories/particleFilter-0/add anti_nu_e
+#/vis/filtering/trajectories/particleFilter-0/add opticalphoton
+#/vis/filtering/trajectories/particleFilter-0/add e-
+#/vis/filtering/trajectories/particleFilter-0/add e+
+#/vis/filtering/trajectories/particleFilter-0/add mu-
+#/vis/filtering/trajectories/particleFilter-0/add mu+
+
+
+/output/setOutputDirectory ~/Analysis/ShortBaseline/MC/Data/
+/output/setRootOutput ~/Analysis/ShortBaseline/MC/Data/MCData.root
+/output/setRecordLevel -1
+
+
+/gps/ang/type iso
+/gps/pos/type Point
+#/gps/pos/type Volume
+#/gps/pos/shape Para
+/gps/pos/centre 0 0 0 mm
+/gps/pos/rot1 0 0 1
+/gps/pos/rot2 0 1 0
+#/gps/pos/halfx 800 mm
+#/gps/pos/halfy 800 mm
+#/gps/pos/halfz 460 mm
+#/gps/pos/confine inner_box
+/gps/ene/mono 1.0 MeV
+/gps/particle gamma
+
+/random/setSeeds 97963 72512
+#/run/beamOn 1
+/run/beamOn 1
