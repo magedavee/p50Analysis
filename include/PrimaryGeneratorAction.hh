@@ -38,8 +38,6 @@
 #include "RNGWrapper.hh"
 #include "Randomize.hh"
 
-//using namespace std;
-
 class G4Event;
 class G4ParticleGun;
 class G4ParticleTable;
@@ -51,8 +49,7 @@ class InverseBetaKinematics;
 class FissionAntiNuGenerator;
 class CosmicMuonGenerator;
 
-/* -------- Class Definition --------- */
-
+/// Class for generating primary particles for event
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
     
 friend class PrimaryGeneratorMessenger;
