@@ -7,15 +7,15 @@
 /detector/setShield true
 /detector/setNumberSegmentsX 2
 /detector/setNumberSegmentsY 2
-/detector/setScintillatorLength 3000
-/detector/setScintillatorHeight 3000
-/detector/setScintillatorWidth 3000
-/detector/setSegmentBuffer 100
-/detector/setLeadShieldThickness 50.8
-/detector/setBPolyShieldThickness 600
+/detector/setScintillatorLength 3 m
+/detector/setScintillatorHeight 3 m
+/detector/setScintillatorWidth 3 m
+/detector/setSegmentBuffer 100 mm
+/detector/setLeadShieldThickness 50.8 mm
+/detector/setBPolyShieldThickness 600 mm
 /detector/setVertical true
-/detector/setAcrylThickness 6.35
-/detector/setPMTDiameter 100
+/detector/setAcrylThickness 6.35 mm
+/detector/setPMTDiameter 100 mm
 /scint/setComposition T
 /scint/setOpticalProcesses true
 /hits/activate scintHitInner

@@ -103,14 +103,14 @@ G4bool NeutronDetectionScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         G4double totGammaE = 0.0;
         for( ; itrTrack != secondaries->end(); itrTrack++)
         {
-	  //	  G4cerr<<"Ncap secondaries:\t"<<aStep->GetTrack()->GetDefinition()->GetParticleName()<<"\t"<<(*itrTrack)->GetDefinition()->GetParticleName()<<"\t"<<(*itrTrack)->GetDefinition()->GetAtomicNumber()<<G4endl;
+	  //	  G4cerr << "Ncap secondaries:\t" <<aStep->GetTrack()->GetDefinition()->GetParticleName()<< "\t" <<(*itrTrack)->GetDefinition()->GetParticleName()<< "\t" <<(*itrTrack)->GetDefinition()->GetAtomicNumber()<< G4endl;
 	  if((*itrTrack)->GetDefinition()->GetAtomicNumber()==64)  {
 	    RootIO::GetInstance()->GetEvent()->fNcap = 64;
-	    //  G4cerr<<"NCAP 64"<<endl;
+	    //  G4cerr << "NCAP 64" <<endl;
 	  }
 	  if((*itrTrack)->GetDefinition()->GetAtomicNumber()==1)  {
 	    RootIO::GetInstance()->GetEvent()->fNcap = 1;
-	    //	    G4cerr<<"NCAP 1"<<endl;
+	    //	    G4cerr << "NCAP 1" <<endl;
 	  }
           if((*itrTrack)->GetDefinition() == G4Gamma::GammaDefinition()) { stream << (*itrTrack)->GetKineticEnergy() << std::endl; totGammaE += (*itrTrack)->GetKineticEnergy(); nGamma++; }
         }

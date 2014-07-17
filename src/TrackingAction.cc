@@ -61,7 +61,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     fpTrackingManager->SetUserTrackInformation(new TrackInformation());
   }
   else{
-    //      if(aTrack->GetParentID()!=0) G4cerr<<"Process:\t"<< aTrack->GetParentID()<<"\t"<< aTrack->GetDefinition()->GetPDGEncoding()<<"\t"<<aTrack->GetCreatorProcess()->GetProcessName()<<G4endl; 
+    //      if(aTrack->GetParentID()!=0) G4cerr << "Process:\t" << aTrack->GetParentID()<< "\t" << aTrack->GetDefinition()->GetPDGEncoding()<< "\t" <<aTrack->GetCreatorProcess()->GetProcessName()<< G4endl; 
     RootIO::GetInstance()->AddTrack(aTrack->GetTrackID());
     Track* tr =  RootIO::GetInstance()->GetTrack(aTrack->GetTrackID());
     tr->tStep = aTrack->GetCurrentStepNumber();
@@ -83,7 +83,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 	Event* ev = RootIO::GetInstance()->GetEvent();
 	if(ev->fNcap==0) {
 	  ev->fNcap=3;
-	  //  G4cerr<<"NCAP 3"<<G4endl;
+	  //  G4cerr << "NCAP 3" << G4endl;
 	}
       }
       for(int i=0;i<3;i++){

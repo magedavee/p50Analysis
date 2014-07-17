@@ -4,51 +4,50 @@
 // GEANT4 - geant4.9.3.p01
 //
 // Header File for Ionizing Radiation Scorer
-//	Contains class functions/variables
+//      Contains class functions/variables
 //
 // --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
+//      Version 1.01 - 2011/04/29 - A. Ho
+//      Edited for clarity 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
-#ifndef IonisationScorer_H		// Only creates if object is not yet defined
-#define IonisationScorer_H 1		// Defines object
+#ifndef IonisationScorer_H
+/// Assure header file is only loaded once
+#define IonisationScorer_H
 
-#include "G4VPrimitiveScorer.hh"	// Specifies the base or parent class
+#include "G4VPrimitiveScorer.hh"
 
-#include "IonisationHit.hh"		// Specifies user-defined classes which are called upon in this class
+#include "IonisationHit.hh"
 
-#include "G4THitsMap.hh"		// Specifies the classes which contain structures called upon in this class
+#include "G4THitsMap.hh"
 
-#include "globals.hh"			// Specifies class defining all global parameters and variable types
+#include "globals.hh"
 
-class G4Step;				// Structures necessary for class definition
+class G4Step;
 
-/* -------- Class Definition --------- */
+/// PrimitiveScorer associates an amount of ionization with each detector volume
+class IonisationScorer : public G4VPrimitiveScorer {
+public:
+    
+    /// Constructor - name is VERY important in activating the detector, know naming conventions!
+    IonisationScorer(G4String);
+    /// Destructor
+    ~IonisationScorer();
 
-class IonisationScorer : public G4VPrimitiveScorer
-{
-  public:	// Constructors and Destructors
-
-    IonisationScorer(G4String);		// Constructor - name is VERY important in activating the detector, know naming conventions!
-    ~IonisationScorer();			// Destructor
-
-  public:	// Accesible Methods
-
-    void Initialize(G4HCofThisEvent* HCE);					// Initializes detector, creates hits collection of detector which is permanent until end of run
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ro_hist);		// This function defines what a "hit" consists of and what data to store when a "hit" occurs
-    void EndOfEvent(G4HCofThisEvent*);						// Some processing to be done when an event is finished, as new event will erase old event data
+    /// Initializes detector, creates hits collection of detector which is permanent until end of run
+    void Initialize(G4HCofThisEvent* HCE);
+    /// Called each step to determine what qualifies as a "hit"
+    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*);
+    /// Some processing to be done when an event is finished, as new event will erase old event data
+    void EndOfEvent(G4HCofThisEvent*);
 
     G4int GetHCID() const { return HCIDIon; };
     IonisationHitsCollection* GetCollection() { return ionise_collection; };
 
-  private:	// Member Data
+private:
 
     IonisationHitsCollection* ionise_collection;
     G4int HCIDIon;
 };
 
-/* ----------------------------------- */
-
-#endif						// End of the if clause
-
-// EOF
+#endif

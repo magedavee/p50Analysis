@@ -373,7 +373,7 @@ void PrimaryGeneratorAction::GenerateFileParticleEnergy()
   G4ThreeVector mom;
   G4double E=0, T=0;
   char *line = new char[200];
-  G4cerr<<"generating a file event"<<G4endl;
+  G4cerr << "generating a file event" << G4endl;
   if(textfile->getline(line,200)){
     //>>pdg>>E>>pos[0]>>pos[1]>>pos[2]>>mom[0]>>mom[1]>>mom[2]>>T;
     pdg = atoi(strtok(line," \t"));
@@ -914,12 +914,12 @@ void PrimaryGeneratorAction::ResetAllSourceIntensities()
 }
 
 void PrimaryGeneratorAction::SetFile(G4String filename) {
-    G4cerr << "set file" << filename<<G4endl;
+    G4cerr << "set file" << filename<< G4endl;
     textfile = new std::ifstream();
     G4cerr << "set file" << textfile->is_open() << G4endl;
     fFile = false;
     textfile->open(filename);
-    G4cerr << "opened file" << filename<<G4endl;
+    G4cerr << "opened file" << filename<< G4endl;
     if(textfile->is_open()){
         G4cerr << "really opened " << filename << G4endl;
         fFile = true;
@@ -1381,7 +1381,7 @@ void PrimaryGeneratorAction::InputCRY()
 //----------------------------------------------------------------------------//
 void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput)
 {
-  G4cerr<<"updating cry"<<G4endl;
+  G4cerr << "updating cry" << G4endl;
   CRYSetup *setup=new CRYSetup(*MessInput,getenv("CRYDATA"));
 
   gen = new CRYGenerator(setup);

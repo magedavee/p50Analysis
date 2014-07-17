@@ -219,8 +219,8 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     /* --------------- Photon Statistics ---------------- */
     if(PMTPhotHitHCE && PMTPhotHitHCE->entries()) {
         G4int n = PMTPhotHitHCE->entries();		// Counter for photon population in sensitive volume
-        //     G4cerr<<"n = "<<n<<G4endl;
-        //      G4cerr<<"<><>><><><><><><><><>    PMTPhotHitHCE->entries(): "<<n<<"<><>><><><><><><><><>"<<G4endl;
+        //     G4cerr << "n = " <<n<< G4endl;
+        //      G4cerr << "<><>><><><><><><><><>    PMTPhotHitHCE->entries(): " <<n<< "<><>><><><><><><><><>" << G4endl;
       
 #ifdef G4VIS_USE
         for(int i = 0; i < n; i++) // activates visualization process for photon sensitive volumes (code located in OpticalHit.cc)

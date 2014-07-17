@@ -268,7 +268,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
 {
 //  G4UImanager* UI = G4UImanager::GetUIpointer();
  if( command == cryInputCmd ) { 
-     G4cerr<<"CRY INPUT COMMAND "<<newValue<<G4endl;
+     G4cerr << "CRY INPUT COMMAND " <<newValue<< G4endl;
      generator->InputCRY();
      (*MessInput).append(newValue);
      (*MessInput).append(" ");

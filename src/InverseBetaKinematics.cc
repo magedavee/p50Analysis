@@ -69,7 +69,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 	// Establish initial target volume - defaults to world volume
   worldVolume = G4PhysicalVolumeStore::GetInstance()->at(0);
   targetName = target;
-  G4cerr<<"TARGET IS "<<target<<"   "<<targetName<<G4endl;
+  G4cerr << "TARGET IS " <<target<< "   " <<targetName<< G4endl;
   if(!(targetName == "")) { targetVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume(target); }
   else                    { targetVolume = 0; }
   if(!targetVolume)
@@ -84,7 +84,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   {
     DToWRotation = FindTargetRotationWRTWorld();
     DToWTranslation = FindTargetTranslationWRTWorld();
-    G4cout<< " Target input is "<<target<<"."<<G4endl;
+    G4cout<< " Target input is " <<target<< "." << G4endl;
     G4cout << "Inverse Beta Target set to " << targetName << "." << G4endl;
   }
 
@@ -100,9 +100,9 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
          << "\t   Plutonium-241-Content:	" << 100*(fission_gen->GetPlutonium241Content(true)) << "%" << "\n"
          << "\t   Antineutrino Flux Direction:	" << "x = " << antiNuDir.x() << ", y = " << antiNuDir.y() << ", z = " << antiNuDir.z() << "\n"
          << "\t   Target Volume Name:		" << targetName << "\n"
-	 <<"\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() <<"\tY: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() <<"\tZ: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() <<"\n"
+	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() << "\tY: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() << "\tZ: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() << "\n"
 	 << "*************************************************************************************\n"
          << G4endl;
 }
@@ -421,9 +421,9 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const
          << "\t   Plutonium-241-Content:	" << 100*(fission_gen->GetPlutonium241Content(true)) << "%" << "\n" ;}
   (*log) << "\t   Antineutrino Flux Direction:	" << "x = " << antiNuDir.x() << ", y = " << antiNuDir.y() << ", z = " << antiNuDir.z() << "\n"
          << "\t   Target Volume Name:		" << targetName << "\n"
-	 <<"\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() <<"\tY: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() <<"\tZ: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() <<"\n"
+	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() << "\tY: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() << "\tZ: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() << "\n"
          << std::endl;
 
 	// Then prints the positron energy histogram
@@ -727,9 +727,9 @@ void InverseBetaKinematics::PrintAllParameters() const
          << "\t   Plutonium-241-Content:	" << 100*(fission_gen->GetPlutonium241Content(true)) << "%" << "\n" ;}
   G4cout << "\t   Antineutrino Flux Direction:	" << "x = " << antiNuDir.x() << ", y = " << antiNuDir.y() << ", z = " << antiNuDir.z() << "\n"
          << "\t   Target Volume Name:		" << targetName << "\n"
-	 <<"\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmin() <<"\tY: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmin() <<"\tZ: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmin() <<"\n"
+	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmin() << "\tY: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmin() << "\tZ: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmin() << "\n"
          << "*************************************************************************************\n"
          << G4endl;
 }

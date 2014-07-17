@@ -46,12 +46,12 @@ void RootIO::WriteFile()
     
     std::cout << "writing " << stevt << std::endl;
     dataTree->Write();
-    std::cout << "closing "<<std::endl;
+    std::cout << "closing " <<std::endl;
     outfile->Write();
     outfile->Close();
-    std::cout << "closed "<<std::endl;
+    std::cout << "closed " <<std::endl;
     delete outfile;
-    std::cout << "deleted "<<std::endl;
+    std::cout << "deleted " <<std::endl;
   }
 }
 
@@ -91,7 +91,7 @@ Track* RootIO::GetTrack(Int_t tn){
     }
     count++;
   }
-  G4cerr<<"ERROR: track not found "<<tn<<"\t"<<mctrack.size()<<G4endl;
+  G4cerr << "ERROR: track not found " <<tn<< "\t" <<mctrack.size()<< G4endl;
   return 0; 
 }
 
@@ -102,7 +102,7 @@ void RootIO::SetFileName(G4String fname)
  mcevent = new Event(detector->GetNSegX(),detector->GetNSegY());
  mcevent->Clear();
   if(run_action->GetRecordLevel()>=0){
-    G4cerr<<"ROOTIO: setting filename to "<<fname<<G4endl;
+    G4cerr << "ROOTIO: setting filename to " <<fname<< G4endl;
     filename = fname;
     G4cerr << "Root output files is set to " << filename << G4endl;
     TSystem ts;

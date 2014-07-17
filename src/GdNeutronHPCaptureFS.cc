@@ -159,8 +159,8 @@ void GdNeutronHPCaptureFS::UpdateNucleus( const G4Fragment* gamma , G4double eGa
   
   G4double newExcitation = p4Nucleus.mag() - Mass - eGamma;
   
-  // G4cout<<" Egamma = "<<eGamma<<G4endl;
-//   G4cout<<" NEW EXCITATION ENERGY = "<< newExcitation <<G4endl;
+  // G4cout << " Egamma = " <<eGamma<< G4endl;
+//   G4cout << " NEW EXCITATION ENERGY = " << newExcitation << G4endl;
   
   if(newExcitation < 0)
     newExcitation = 0;
@@ -174,7 +174,7 @@ void GdNeutronHPCaptureFS::UpdateNucleus( const G4Fragment* gamma , G4double eGa
   
   nucleus->SetMomentum(p4Residual);
 
-  //  G4cout<<"nucleus excitation energy = "<<nucleus->GetExcitationEnergy() <<G4endl;  
+  //  G4cout << "nucleus excitation energy = " <<nucleus->GetExcitationEnergy() << G4endl;  
 
   return;
 }

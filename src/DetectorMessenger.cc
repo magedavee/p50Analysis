@@ -176,14 +176,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* det_const): detector(
     vertCmd->SetParameterName("vert",false);
     vertCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
 
-    modCmd = new G4UIcommand("/detector/modify",this);
-    modCmd->SetGuidance("Modify detector values (must use /detector/construct when done)");
-    modCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-
-    conCmd = new G4UIcommand("/detector/construct",this);
-    conCmd->SetGuidance("construct the detector with the new dimensions");
-    conCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-
     innerCmd = new G4UIcmdWithABool("/detector/setInnerTankGeometry",this);
     innerCmd->SetGuidance("Enable/disable the inner tank geometry and associated volumes of simulation geometry");
     innerCmd->SetParameterName("Inner",false);
@@ -270,13 +262,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* det_const): detector(
     vetoVCmd->SetParameterName("VetoV",false);
     vetoVCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
 
-    explodeCmd = new G4UIcmdWithABool("/detector/setExplodedView",this);
-    explodeCmd->SetGuidance("Toggle the exploded view option of geometry visualization");
-    explodeCmd->SetGuidance("  Running simulation particles with this activated will give flawed data!");
-    explodeCmd->SetParameterName("explode",true);
-    explodeCmd->SetDefaultValue(true);
-    explodeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-
     printCmd = new G4UIcmdWithoutParameter("/detector/list",this);
     printCmd->SetGuidance("Lists all active geometry (physical) volumes");
     printCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed);
@@ -296,8 +281,6 @@ DetectorMessenger::~DetectorMessenger() {
     delete scintCompCmd;
     delete innerCmd;
     delete vertCmd;
-    delete modCmd;
-    delete conCmd;
     delete outerCmd;
     delete polyCmd;
     delete optSurfCmd;
@@ -309,7 +292,6 @@ DetectorMessenger::~DetectorMessenger() {
     delete polyVCmd;
     delete shieldVCmd;
     delete vetoVCmd;
-    delete explodeCmd;
     delete printCmd;
     delete segXCmd;
     delete QECmd;
@@ -341,7 +323,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
             if(!setting) {
                 UI->ApplyCommand("/process/inactivate Scintillation");
                 UI->ApplyCommand("/process/inactivate Cerenkov");
-                G4cerr<<"optical generation turned off"<<G4endl;
+                G4cerr << "optical generation turned off" << G4endl;
             } else {
                 UI->ApplyCommand("/process/activate Scintillation");
                 UI->ApplyCommand("/process/activate Cerenkov");
@@ -374,8 +356,6 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
     else if(command == reflCmd) detector->SetReflectivityConstant(reflCmd->GetNewDoubleValue(newValue));
     else if(command == scintCompCmd) detector->SetScintillatorComposition(newValue);
     else if(command == vertCmd) detector->SetVertical(vertCmd->GetNewBoolValue(newValue));
-    else if(command == modCmd) detector->Modify();
-    else if(command == conCmd) detector->ConstructNew();
     else if(command == innerCmd) detector->SetInnerTankGeometry(innerCmd->GetNewBoolValue(newValue));
     else if(command == outerCmd) detector->SetOuterTankGeometry(outerCmd->GetNewBoolValue(newValue));
     else if(command == polyCmd) detector->SetBoratedPolyLayer(polyCmd->GetNewBoolValue(newValue));
@@ -516,8 +496,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
             }
         }
 #endif
-    } else if(command == explodeCmd) detector->SetExplodedView(explodeCmd->GetNewBoolValue(newValue));
-    else if(command == printCmd) detector->PrintPhysicalVolumes();
+    } else if(command == printCmd) detector->PrintPhysicalVolumes();
     else G4cout << "Command not found." << G4endl;
 }
 

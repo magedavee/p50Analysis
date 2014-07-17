@@ -88,9 +88,6 @@ private:
     G4UIcmdWithABool* shieldVCmd;
     G4UIcmdWithABool* vetoVCmd;
     G4UIcmdWithABool* vertCmd;
-    G4UIcommand* modCmd;
-    G4UIcommand* conCmd;
-    G4UIcmdWithABool* explodeCmd;
     G4UIcmdWithoutParameter* printCmd;
     G4UIcmdWithAString *optSurfCmd;
 };

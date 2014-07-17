@@ -735,21 +735,21 @@ void RunMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
       G4Tokenizer next(newValue);		// Tokenizer splits input string into delimited sections
       G4int rnum = StoI(next()); 
       run->SetRunNumber(rnum); 
-      G4cout <<"Run number is "<<rnum<<G4endl;
+      G4cout << "Run number is " <<rnum<< G4endl;
     }
   else if(command == evNumCmd)
     {
       G4Tokenizer next(newValue);		// Tokenizer splits input string into delimited sections
       G4int rnum = StoI(next()); 
       run->SetEventNumberOffset(rnum); 
-      G4cout <<"Event number offset is "<<rnum<<G4endl;
+      G4cout << "Event number offset is " <<rnum<< G4endl;
     }
   else if(command == recLevCmd)
     {
       G4Tokenizer next(newValue);		// Tokenizer splits input string into delimited sections
       G4int recL = StoI(next()); 
       run->SetRecordLevel(recL); 
-      G4cout <<"Record Level is "<<recL<<G4endl;
+      G4cout << "Record Level is " <<recL<< G4endl;
     }
   else if(command == outSetCmd)
     {

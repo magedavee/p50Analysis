@@ -14,7 +14,7 @@ ClassImp(Track)
 
 Event::Event()
 {
-  cerr<<"new Event"<<endl;
+  cerr<< "new Event" <<endl;
   fTracks = new TClonesArray("Track",1000);
   fNSeg = 2500;
   fNpmt = new Int_t[fNSeg];
@@ -31,7 +31,7 @@ Event::Event()
 
 Event::Event(Int_t xx, Int_t yy)
 {
-  cerr<<"new event 2"<<endl;
+  cerr<< "new event 2" <<endl;
   fTracks = new TClonesArray("Track",1000);
   fNSeg = xx*yy;
   fNpmt = new Int_t[fNSeg];
@@ -48,7 +48,7 @@ Event::Event(Int_t xx, Int_t yy)
 
 Event::~Event()
 {
-  cerr<<"Event destructor"<<endl;
+  cerr<< "Event destructor" <<endl;
   delete fTracks;
   delete[] fNpmt;
   delete[] fSpmt;
@@ -58,11 +58,11 @@ Event::~Event()
 void Event::Clear(Option_t * /*option*/)
 {
   fTracks->Clear("C"); //will also call Track::Clear
-  // cerr<<"delete"<<endl;
+  // cerr<< "delete" <<endl;
   //  delete[] fNpmt;
   // delete[] fSpmt;
   //delete[] fSegEdep;
-  // cerr<<"deleted"<<endl;
+  // cerr<< "deleted" <<endl;
   fNtrack=0;
   for(int i=0;i<3;i++){
     fGenPos[i]=0;

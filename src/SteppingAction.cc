@@ -105,9 +105,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     boundaryStatus=boundary->GetStatus();
     if(aStep->GetPostStepPoint()->GetStepStatus()==fGeomBoundary){
       // switch(boundaryStatus){
-      // case TotalInternalReflection: G4cerr<<"TIR:\t"<< boundary->GetIncidentAngle()<< G4endl;
+      // case TotalInternalReflection: G4cerr << "TIR:\t" << boundary->GetIncidentAngle()<< G4endl;
       //   if(boundaryStatus==TotalInternalReflection){
-	//	G4cerr<<"TIR:\t"<< boundary->GetIncidentAngle()*180/3.149<< G4endl;
+	//	G4cerr << "TIR:\t" << boundary->GetIncidentAngle()*180/3.149<< G4endl;
       //  }
     }
     }*/
