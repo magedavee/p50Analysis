@@ -18,11 +18,13 @@
 /detector/setPMTDiameter 100 mm
 /scint/setComposition T
 /scint/setOpticalProcesses true
+
+/run/initialize
 /hits/activate scintHitInner
 /hits/activate SegmentPMT
 
-
 /vis/open OGLIXm
+/vis/open HepRepFile
 /vis/viewer/set/auxiliaryEdge 1
 /vis/viewer/set/upThetaPhi 0 90
 #/vis/viewer/set/viewpointThetaPhi 45 45

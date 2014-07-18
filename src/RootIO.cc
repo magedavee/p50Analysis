@@ -136,7 +136,7 @@ void RootIO::SetFileName(G4String fname)
     mcrun->ShieldPolyB = detector->GetShieldPolyB();
     mcrun->ShieldPolyLi = detector->GetShieldPolyLi();
     mcrun->Vertical = detector->GetVertical();
-    mcrun->Scint = detector->GetScint();
+    // mcrun->Scint = detector->GetScint();
     mcrun->Shielded = detector->GetShieldInclusion();
     mcrun->Reflectivity = detector->GetReflectivity();
     mcrun->Write("RunInfo");

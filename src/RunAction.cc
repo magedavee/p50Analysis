@@ -167,8 +167,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
   fFirstNCPos = true;
   fFirstNEPos = true;
 
-	// Obtain run modifiers
-  scint = detector->GetScintillatorComposition();
+    // Obtain run modifiers
   prefix = gen->GetRunSettings();
 
   std::stringstream runID; runID << (aRun->GetRunID()+1);
@@ -183,15 +182,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
   if(detector->GetBPolyInclusion())       { geomB = "Active"; }
   if(detector->GetShieldInclusion()) { geomW = "Active"; }
   if(detector->GetMuonVetoInclusion())    { geomV = "Active"; }
-  prefix += scint;
-
-  if(scint == "N")      { scint = "N/A"; }
-  else if(scint == "S") { scint = "LAB Gd0.00%"; }
-  else if(scint == "L") { scint = "LAB Gd0.01%"; }
-  else if(scint == "T") { scint = "LAB Gd0.10%"; }
-  else if(scint == "H") { scint = "LAB Gd1.00%"; }
-  else if(scint == "M") { scint = "LAB Gd2.00%"; }
-  else if(scint == "G") { scint = "LAB Gd100%"; }
 
  
   if(nEnergy)	// Neutron capture energy

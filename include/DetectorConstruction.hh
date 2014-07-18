@@ -61,7 +61,6 @@ public:
     G4double GetScintVolumeOffset() const { return scint_offset; }
     G4double GetReflectivity() const { return refl;}
     G4double GetMaxHalfDimension();
-    G4String GetScintillatorComposition() const { return material; }
     G4bool IsOpticalTransported() const { return fOptical; }
 
     G4bool GetInnerTankInclusion() const { return fInnerActivated; }
@@ -96,7 +95,7 @@ public:
     double GetShieldPolyB() const { return ShieldPolyB; }
     double GetShieldPolyLi() const { return ShieldPolyLi; }
     bool GetVertical() const { return fVertical; }
-    int GetScint() const { return Scint; }
+    //int GetScint() const { return Scint; }
     G4LogicalVolume* GetScintLog(G4int x, G4int y) { if(y<NSegY && x<NSegX) return scint_log[x][y]; else return scint_log[0][0]; }
 
     void PrintPhysicalVolumes() const;
@@ -195,7 +194,6 @@ private:
     G4double ShieldLead;
     G4double ShieldPolyB;
     G4double ShieldPolyLi;
-    G4int Scint;
 
     // Source Positions
     G4double nPos_x, nPos_y, nPos_z;
@@ -204,8 +202,8 @@ private:
     G4double inner_offset, scint_offset;
     
     // Materials
-    /// load previously defined materials
-    void LoadMaterials();
+    G4Material** MainScintMat;  ///< main scintillator material; set to one of the variants below
+    G4Material** ScintSegMat;   ///< scintillator volumes segmentation material
     G4Material* Air;
     G4Material* StSteel;        ///< Type 444 Stainless Steel
     G4Material* concrete;       ///< concrete
@@ -365,7 +363,6 @@ private:
 
     // Extra Stuffs
     DetectorMessenger* det_messenger;
-    G4String material;              ///< Material modifier
     G4double birksPC, birksPVT;     ///< Birks constants modifier
     G4double lobe, spike, refl,back, diff, efficiency, sigal;   ///< optical surface parameters
     G4bool fOptical;                ///< Flag to specify optical processes

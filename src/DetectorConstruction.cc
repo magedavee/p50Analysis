@@ -58,11 +58,20 @@
 #include "G4VisAttributes.hh"                   // These are the GEANT4 class necessary to define the visual attributes of the geometry for use in OpenGL
 #include "G4Colour.hh"                          //      V
 
+#include "G4UnitsTable.hh"
 #include "G4ios.hh"                             // Specifies the classes which allow reading/writing into standard input/output
 
 #include "globals.hh"                           // Specifies class defining all global parameters and variables types (double, int, string, etc.)
 
 #include <math.h>
+
+/// utility function for converting to string
+template<typename T>
+std::string to_str(T x) {
+    std::stringstream ss;
+    ss << x;
+    return ss.str();
+}
 
 DetectorConstruction::DetectorConstruction() {
     
@@ -73,7 +82,6 @@ DetectorConstruction::DetectorConstruction() {
     muPos_x = muPos_y = muPos_z = 0.*m;
     
     inner_offset = 0.*m;
-    material = "T";
     birksPC = 0.1*mm/MeV;
     birksPVT = 0.2*mm/MeV;
     refl = 1.0;
@@ -92,6 +100,10 @@ DetectorConstruction::DetectorConstruction() {
     fVetoActivated = false;
     fVertical = true;
     
+    modSizeX = 5.*m;    // Half-Length - long edge
+    modSizeY = 5.*m;    // Half-Height
+    modSizeZ = 5.*m;    // Half-Width - short edge
+    
     QE = -1;
     NSegX = 4;
     NSegY = 12;
@@ -109,6 +121,10 @@ DetectorConstruction::DetectorConstruction() {
     ShieldLead = 30.0*mm;
     ShieldPolyLi = 100.0*mm;
     ShieldPolyB = 470.0*mm;
+    
+    MainScintMat = &PsiCumeneT;
+    ScintSegMat = &Polyeth;
+    
 }
 
 DetectorConstruction::~DetectorConstruction() {
@@ -163,9 +179,6 @@ void DetectorConstruction::ConstructGeometry() {
     
     ///////////////////////////////////
     // concrete building "World" volume
-    modSizeX = 5.*m;    // Half-Length - long edge
-    modSizeY = 5.*m;    // Half-Height
-    modSizeZ = 5.*m;    // Half-Width - short edge
     G4Box* build_box = new G4Box("BuildBox", modSizeX+2.0*m, modSizeY+2.0*m, modSizeZ+2.0*m);    
     build_log = new G4LogicalVolume(build_box, concrete, "BuildLogical", 0,0,0);
     build_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), build_log, "Build", 0, false,0,false);
@@ -201,25 +214,16 @@ void DetectorConstruction::ConstructGeometry() {
     G4LogicalVolume* shell_mother = hall_log;
     G4LogicalVolume* scint_mother;
     
-    if(fVertical){
-        floor_placement[2] = -shell_l/2. - 1.0*m;
-    } else {
-        floor_placement[1] = -shell_h/2. - 1.0*m;
-    }
+    if(fVertical) floor_placement[2] = -shell_l/2. - 1.0*m;
+    else floor_placement[1] = -shell_h/2. - 1.0*m;
     
-    delete bg_phys; bg_phys=0;
-    delete innerbg_phys; innerbg_phys=0;
-    // delete shieldlead_phys; shieldlead_phys=0;
-    // delete shieldpolyb_phys; shieldpolyb_phys=0;
-    // delete shieldpolyli_phys; shieldpolyli_phys=0;
-    
-    if(fShieldActivated){
+    if(fShieldActivated) {
         
         shell_w += 1.0*mm;
         shell_h += 1.0*mm;
         shell_l += 0.5*mm;
         
-        if(fVertical){
+        if(fVertical) {
             
             G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm);
             bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
@@ -294,7 +298,6 @@ void DetectorConstruction::ConstructGeometry() {
     // Detector shell
     G4Box* shell_box = new G4Box("DetectorShellBox", shell_w/2., shell_h/2., shell_l/2.);
     shell_log = new G4LogicalVolume(shell_box, Air, "ShellLogical", 0,0,0);
-    //  delete shell_phys; shell_phys=0;
     shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shell_mother, false,0,false);
     
     ////////
@@ -306,7 +309,6 @@ void DetectorConstruction::ConstructGeometry() {
         floor_box = new G4Box("FloorBox", modSizeX, 1.0*m, modSizeZ);
     }
     floor_log = new G4LogicalVolume(floor_box, concrete, "FloorLogical", 0,0,0);
-    //  delete floor_phys; floor_phys=0;
     floor_phys = new G4PVPlacement(0,floor_placement, floor_log, "concrete floor", hall_log, false,0,false);
     
     G4Tubs* segment_cutout = new G4Tubs("Segment_cutout", pmtSEG_i, pmtSEG_r, WrapThickness/2, angle_s, angle_f); 
@@ -334,25 +336,16 @@ void DetectorConstruction::ConstructGeometry() {
     segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_b1, segment_cutout, 0, G4ThreeVector(0.,0.,GetSegLength()/2.-WrapThickness/2.));
     segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_box, segment_cutout, 0, G4ThreeVector(0.,0.,-GetSegLength()/2.+WrapThickness/2.));
     
-    char scintMat = material(0);          // Switch for user-specified material selection
     for(G4int xnum = 0; xnum<MaxSegX; xnum++){
         for(G4int ynum = 0; ynum<MaxSegY; ynum++){
-            std::stringstream stream1; stream1 << (100*xnum+ynum); G4String id1 = stream1.str();
+            G4String id1 = to_str(100*xnum+ynum);
             if(WrapGap>0) wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, Air, "WrapGapLogical "+id1, 0,0,0);
             else  wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, PMMA, "WrapGapLogical "+id1, 0,0,0);
             target_log[xnum][ynum] = new G4LogicalVolume(target_cyl, PMMA, "TargetTankLogical "+id1, 0,0,0);
-            switch(scintMat) {
-                case 'S': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 0;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'L': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneL, "InnerScintLogical ", 0,0,0); Scint = 1; segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                default:
-                case 'T': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneT, "InnerScintLogical ", 0,0,0); Scint = 2;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'H': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneH, "InnerScintLogical ", 0,0,0); Scint = 3;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'M': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneM, "InnerScintLogical ", 0,0,0); Scint = 4;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'G': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, PsiCumeneG, "InnerScintLogical ", 0,0,0); Scint = 5;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, Polyeth, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'A': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 6;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintA, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'B': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 7;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintB, "SegmentLogical "+id1, 0,0,0); break; }
-                case 'C': { scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, RawPsiCumene, "InnerScintLogical ", 0,0,0); Scint = 8;  segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, GdPaintC, "SegmentLogical "+id1, 0,0,0); break; }
-            }
+            
+            assert(MainScintMat && ScintSegMat);
+            scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, *MainScintMat, "InnerScintLogical ", 0,0,0);
+            segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, *ScintSegMat, "SegmentLogical "+id1, 0,0,0);
         }
     }
     
@@ -387,7 +380,7 @@ void DetectorConstruction::ConstructGeometry() {
     for(G4int xnum = 0; xnum<NSegX; xnum++){
         xpos = (GetSegWidth()+AirGap)*(xnum-(NSegX-1)/2.);
         for(G4int ynum = 0; ynum<NSegY; ynum++){
-            std::stringstream stream1; stream1 << (100*xnum+ynum); G4String id1 = stream1.str();
+            G4String id1 = to_str(100*xnum+ynum);
             ypos =  (GetSegHeight()+AirGap)*(ynum-(NSegY-1)/2.);
             
             PositionX[xnum+ynum*NSegX] = xpos;
@@ -426,6 +419,8 @@ void DetectorConstruction::ConstructGeometry() {
 }
 
 void DetectorConstruction::ConstructSDs() {
+    
+    G4cerr << "Setting up sensitive detectors..." << G4endl;
     
     scintHitInner = new G4MultiFunctionalDetector("scintHitInner");
     SegmentPMT = new G4MultiFunctionalDetector("SegmentPMT");
@@ -479,7 +474,7 @@ void DetectorConstruction::ConstructSDs() {
 
 void DetectorConstruction::SetupVisualization() {
     
-    //G4cerr << "set vis" << G4endl;
+    G4cerr << "Setting visualization attributes..." << G4endl;
     
     // Building volume
     build_vis = new G4VisAttributes(G4Colour(0.8,0.8,0.8));
@@ -600,6 +595,8 @@ void DetectorConstruction::SetupVisualization() {
 }
                         
 void DetectorConstruction::ConstructMaterials() {
+    
+    G4cerr << "Initializing materials..." << G4endl;
     
     G4double a;         // atomic mass
     G4double z;         // atomic number
@@ -1007,12 +1004,10 @@ void DetectorConstruction::ConstructMaterialProperties() {
     Air->SetMaterialPropertiesTable(mptAir);
     
     // Stainless Steel - not necessary
-    
-    G4double RIndex5[nEntries];
-    for(int i = 0; i < nEntries; i++) RIndex5[i] = 1.00;
 
     // Vacuum - Used in PMTs
-    
+    G4double RIndex5[nEntries];
+    for(int i = 0; i < nEntries; i++) RIndex5[i] = 1.00;
     G4MaterialPropertiesTable* mptVacuum = new G4MaterialPropertiesTable();
     mptVacuum->AddProperty("RINDEX", PhotonEnergy, RIndex5, nEntries);
     
@@ -1075,7 +1070,7 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
     // scintillator steel cladding optical surface
     for(int i=0; i<NSegX; i++) {
         for(int j=0; j<NSegY; j++) {
-            std::stringstream stream1; stream1 << (100*i+j); G4String id1 = stream1.str();
+            G4String id1 = to_str(100*i+j);
             // if(WrapGap>0) ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, wrapgap_log, InnerTankSurface); //NSB 10/14/2013
             //      else 
             new G4LogicalSkinSurface("ScintSteelSurface"+id1, segment_log[i][j], InnerTankSurface); //NSB 10/14/2013
@@ -1136,7 +1131,7 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
     
     // veto air and steel
     for(int i = 0; i < 12; i++) {
-        std::stringstream stream; stream << i; G4String id = stream.str();
+        G4String id = to_str(i);
         new G4LogicalBorderSurface("Veto"+id+"AirSurface", door_phys[i], shell_phys, VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", door_phys[i], shield_phys[0][0], VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", door_phys[i], shield_phys[0][1], VetoFoilSurface);
@@ -1145,7 +1140,7 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", door_phys[i], shield_phys[2][0], VetoFoilSurface);
     }
     for(int i = 12; i < 22; i++) {
-        std::stringstream stream; stream << i; G4String id = stream.str();
+        G4String id = to_str(i);
         new G4LogicalBorderSurface("Veto"+id+"AirSurface", side_phys[i-12], shell_phys, VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", side_phys[i-12], shield_phys[0][0], VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", side_phys[i-12], shield_phys[0][1], VetoFoilSurface);
@@ -1154,7 +1149,7 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", side_phys[i-12], shield_phys[2][0], VetoFoilSurface);
     }
     for(int i = 22; i < 33; i++) {
-        std::stringstream stream; stream << i; G4String id = stream.str();
+        G4String id = to_str(i);
         new G4LogicalBorderSurface("Veto"+id+"AirSurface", top_phys[i-22], shell_phys, VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", top_phys[i-22], shield_phys[0][0], VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", top_phys[i-22], shield_phys[0][1], VetoFoilSurface);
@@ -1234,14 +1229,14 @@ void DetectorConstruction::SetSegmentLength(G4double sp) {
         } else {
             ScintLength = GetSegLength()-2*SegBuffer-2*WrapThickness;
         }
-        G4cerr << "Segment Length set to " << GetSegLength() << G4endl;
+        G4cerr << "Segment Length set to " << G4BestUnit(GetSegLength(),"Length") << G4endl;
     } else G4cerr << "Invalid segment length, segment length must be greater than  0" << G4endl;
 }
 
 void DetectorConstruction::SetScintLength(G4double sp) {
     if(sp > 0) {
         ScintLength = sp;
-        G4cerr << "Scint Length set to " << ScintLength << G4endl;
+        G4cerr << "Scint Length set to " << G4BestUnit(ScintLength,"Length") << G4endl;
     } else G4cerr << "Invalid scintillator length, scintillator length must be greater than 0" << G4endl;
 }
 
@@ -1263,7 +1258,7 @@ void DetectorConstruction::SetScintWidth(G4double sp) {
     if(sp > 0) {
         ScintWidth = sp;
         if(PMTscale*2 > ScintWidth) PMTscale = ScintWidth/2.;
-        G4cerr << "Scint Width set to " << ScintWidth << G4endl;
+        G4cerr << "Scint Width set to " << G4BestUnit(ScintWidth,"Length") << G4endl;
     } else G4cerr << "Invalid scintillator width, scintillator width must be greater than 0" << G4endl;
 }
 
@@ -1277,7 +1272,7 @@ void DetectorConstruction::SetSegmentHeight(G4double sp) {
             ScintHeight = GetSegHeight()-2*(AcrylThickness + WrapThickness + WrapGap);
             if(PMTscale*2>ScintHeight) PMTscale = ScintHeight/2.;
         }
-        G4cerr << "Segment Height set to " << GetSegHeight() << G4endl;
+        G4cerr << "Segment Height set to " << G4BestUnit(GetSegHeight(),"Length") << G4endl;
     } else G4cerr << "Invalid segment height, segment height must be greater than  0" << G4endl;
 }
 
@@ -1285,49 +1280,49 @@ void DetectorConstruction::SetScintHeight(G4double sp) {
     if(sp > 0) {
         ScintHeight = sp;
         if(PMTscale*2>ScintHeight) PMTscale = ScintHeight/2.;
-        G4cerr << "Scint Height set to " << ScintHeight << G4endl;
+        G4cerr << "Scint Height set to " << G4BestUnit(ScintHeight,"Length") << G4endl;
     } else G4cerr << "Invalid scintillator height, scintillator height must be greater than 0" << G4endl;
 }
 
 void DetectorConstruction::SetSegmentBuffer(G4double sp) {
     if(sp >= 0) {
         SegBuffer = sp;
-        G4cerr << "Segment Buffer set to " << SegBuffer << G4endl;
+        G4cerr << "Segment Buffer set to " << G4BestUnit(SegBuffer,"Length") << G4endl;
     } else G4cerr << "Invalid buffer length, buffer length must be greater than 0" << G4endl;
 }
 
 void DetectorConstruction::SetAirGap(G4double sp) {
     if(sp >= 0) {
         AirGap = sp;
-        G4cerr << "Air Gap set to " << AirGap << G4endl;
+        G4cerr << "Air Gap set to " << G4BestUnit(AirGap,"Length") << G4endl;
     } else G4cerr << "Invalid Air Gap, air gap must be greater than or equal to 0" << G4endl;
 }
 
 void DetectorConstruction::SetWrapGap(G4double sp) {
     if(sp >= 0) {
         WrapGap = sp;
-        G4cerr << "Wrap Gap set to " << WrapGap << G4endl;
+        G4cerr << "Wrap Gap set to " << G4BestUnit(WrapGap,"Length") << G4endl;
     } else G4cerr << "Invalid Wrap Gap, wrap gap must be greater than or equal to 0" << G4endl;
 }
 
 void DetectorConstruction::SetWrapThickness(G4double sp) {
     if(sp >= 0) {
         WrapThickness = sp;
-        G4cerr << "Wrap Thickness set to " << WrapThickness << G4endl;
+        G4cerr << "Wrap Thickness set to " << G4BestUnit(WrapThickness,"Length") << G4endl;
     } else G4cerr << "Invalid outer wrap thickness, outer wrap thickness must be greater than 0" << G4endl;
 }
 
 void DetectorConstruction::SetAcrylThickness(G4double sp) {
     if(sp >= 0) {
         AcrylThickness = sp;
-        G4cerr << "Acrylic Thickness set to " << AcrylThickness << G4endl;
+        G4cerr << "Acrylic Thickness set to " << G4BestUnit(AcrylThickness,"Length") << G4endl;
     } else G4cerr << "Invalid Acrylic thickness, acrylic thickness must be greater than 0" << G4endl;
 }
 
 void DetectorConstruction::SetPMTDiameter(G4double sp) {
     if(sp > 0 && sp < ScintHeight && sp < ScintWidth) {
         PMTscale = sp/2.;
-        G4cerr << "PMT Diameter set to " << PMTscale*2 << G4endl;
+        G4cerr << "PMT Diameter set to " << G4BestUnit(PMTscale*2,"Length") << G4endl;
     } else G4cerr << "Invalid PMT diameter, PMT Diameter must be greater than 0 and les than the scintillator height and width" << G4endl;
 }
 
@@ -1352,36 +1347,19 @@ void DetectorConstruction::SetScintillatorBirksConstant(G4double birks) {
         G4cout << "*** CAUTION: Optical processes have not been activated. Birks Constant parameter will not apply to simulation as is. ***" << G4endl;
 }
 
-// ****** Change Liquid Scintillator Gadolinium Concentration ****** //
 void DetectorConstruction::SetScintillatorComposition(G4String identifier) {
-    
-    G4String previous = material; // Used to reset the material identifier in case of switch failure
-    material = identifier;
-    
-    for(G4int xnum = 0; xnum<NSegX; xnum++) {
-        for(G4int ynum = 0; ynum<NSegY; ynum++) {
-            char c = identifier(0);
-            switch(c) {
-                case 'S': { G4cout << "Scintillator composition set to Raw Pseudocumene." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene);  Scint = 0; break; }
-                case 'L': { G4cout << "Scintillator composition set to PC-0.15wt%Li." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneL);        Scint = 1; break; }
-                case 'T': { G4cout << "Scintillator composition set to PC-0.1wt%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneT);         Scint = 2; break; }
-                case 'H': { G4cout << "Scintillator composition set to PC-0.5wt%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneH);         Scint = 3; break; }
-                case 'M': { G4cout << "Scintillator composition set to PC-0.30wt%Li." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneM);        Scint = 4; break; }
-                case 'G': { G4cout << "Scintillator composition set to PC-100%Gd." << G4endl; scint_log[xnum][ynum]->SetMaterial(PsiCumeneG);           Scint = 5; break; }
-                case 'A': { G4cout << "Scintillator composition set to Raw Pseudocumene with 0.5wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintA); Scint = 6; break; }
-                case 'B': { G4cout << "Scintillator composition set to Raw Pseudocumene with 1.0wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintB); Scint = 7; break; }
-                case 'C': { G4cout << "Scintillator composition set to Raw Pseudocumene with 2.0wt% Gd in the reflector." << G4endl; scint_log[xnum][ynum]->SetMaterial(RawPsiCumene); segment_log[xnum][ynum]->SetMaterial(GdPaintC); Scint = 8; break; }
-                default: {
-                    material = previous;
-                    G4cout << "*** ATTENTION: Specified material identifier has not been programmed in DetectorConstruction.cc. Material selection not applied. ***" << G4endl;
-                    return;
-                }
-            }
-        }
+    switch(identifier(0)) {
+        case 'S': { G4cout << "Scintillator composition set to Raw Pseudocumene." << G4endl;    MainScintMat = &RawPsiCumene;   break; }
+        case 'L': { G4cout << "Scintillator composition set to PC-0.15wt%Li." << G4endl;        MainScintMat = &PsiCumeneL;     break; }
+        case 'T': { G4cout << "Scintillator composition set to PC-0.1wt%Gd." << G4endl;         MainScintMat = &PsiCumeneT;     break; }
+        case 'H': { G4cout << "Scintillator composition set to PC-0.5wt%Gd." << G4endl;         MainScintMat = &PsiCumeneH;     break; }
+        case 'M': { G4cout << "Scintillator composition set to PC-0.30wt%Li." << G4endl;        MainScintMat = &PsiCumeneM;     break; }
+        case 'G': { G4cout << "Scintillator composition set to PC-100%Gd." << G4endl;           MainScintMat = &PsiCumeneG;     break; }
+        case 'A': { G4cout << "Scintillator composition set to Raw Pseudocumene with 0.5wt% Gd in the reflector." << G4endl; MainScintMat = &RawPsiCumene; ScintSegMat = &GdPaintA; break; }
+        case 'B': { G4cout << "Scintillator composition set to Raw Pseudocumene with 1.0wt% Gd in the reflector." << G4endl; MainScintMat = &RawPsiCumene; ScintSegMat = &GdPaintB; break; }
+        case 'C': { G4cout << "Scintillator composition set to Raw Pseudocumene with 2.0wt% Gd in the reflector." << G4endl; MainScintMat = &RawPsiCumene; ScintSegMat = &GdPaintC; break; }
+        default:  G4cout << "*** ATTENTION: Specified material identifier has not been programmed in DetectorConstruction.cc. Material selection not applied. ***" << G4endl;
     }
-    //  ConstructOpticalSurfaces();		// Re-establish optical surfaces between new volumes
-    
-    G4RunManager::GetRunManager()->GeometryHasBeenModified();		// Flag geometry for reconstruction
 }
 
 void DetectorConstruction::PrintPhysicalVolumes() const {
