@@ -163,12 +163,17 @@ DetectorConstruction::~DetectorConstruction() {
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
+    
+    G4cerr << "Starting detector construction..." << G4endl;
+    
     ConstructMaterials();
     ConstructMaterialProperties();
     ConstructGeometry();
     ConstructOpticalSurfaces();
     ConstructSDs();
     SetupVisualization();
+    
+    G4cerr << "Detector construction complete." << G4endl;
     
     return build_phys;      // *** IMPORTANT: This function should always return the physical World Volume! ***
 }
@@ -227,55 +232,60 @@ void DetectorConstruction::ConstructGeometry() {
             
             G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm);
             bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
-            bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0., ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.+ 0.5*mm), bg_log, "BGVolume", hall_log, false,0,false);
-            //      G4cerr << "Shield Box \tX:" << 2*(shell_w/2.+ ShieldLead + ShieldPolyB+ ShieldPolyLi)<< "\tY: " << 2*(shell_h/2. + ShieldLead + ShieldPolyB+ ShieldPolyLi)<< "\tZ: " << 2*(shell_l/2.+ ShieldLead/2. + ShieldPolyB/2.+ ShieldPolyLi/2.)<< G4endl;
-            //      G4cerr << "Detector \tX:" << shell_w<< "\tY: " << shell_h<< "\tZ: " << shell_l<< G4endl;      
-            
+            bg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0., ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.+ 0.5*mm),
+                                        bg_log, "BGVolume", hall_log, false,0,false);   
+
             G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldPolyB/2.+ ShieldLead/2.+ ShieldPolyLi/2.);    
             shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
-            shieldpolyb_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-0.5), shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+            shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-0.5),
+                                                 shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
             
             G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldLead/2. + ShieldPolyLi/2.);    
             shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
-            shieldlead_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-ShieldPolyB/2.), shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
+            shieldlead_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-ShieldPolyB/2.),
+                                                shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
             
             G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi, shell_l/2.+ ShieldPolyLi/2.);
-            
             shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
-            shieldpolyli_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,- ShieldLead/2.), shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
+            shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,- ShieldLead/2.),
+                                                  shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
             
             G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.5*mm, shell_l/2. + 0.5*mm);
             innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
-            innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,-ShieldPolyLi/2.), innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
+            innerbg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-ShieldPolyLi/2.),
+                                             innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
             
-            //  floor_placement[2] = floor_placement[2]-(ShieldPolyLi+ShieldPolyB+ShieldLead + 1.0*mm)/4.;
             // shell_placement[2] = shell_placement[2]-(0.25);  
             shell_mother = innerbg_log;
             
-        } else {
+        } else { // !fVertical:
             
             G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm, shell_l/2.+ ShieldLead + ShieldPolyB  + ShieldPolyLi + 1.0*mm);
             bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
-            bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm,0.), bg_log, "BGVolume", hall_log, false,0,false);
+            bg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm,0.),
+                                        bg_log, "BGVolume", hall_log, false,0,false);
             
             G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyB+ ShieldLead+ ShieldPolyLi);    
             shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
-            shieldpolyb_phys = new G4PVPlacement(0, G4ThreeVector(0.,-0.5,0.), shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+            shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-0.5,0.),
+                                                 shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
             
             
             G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldLead + ShieldPolyLi);    
             shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
-            shieldlead_phys = new G4PVPlacement(0, G4ThreeVector(0.,-ShieldPolyB/2.,0.), shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
+            shieldlead_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-ShieldPolyB/2.,0.),
+                                                shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
             
             G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyLi);
-            
             shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
-            shieldpolyli_phys = new G4PVPlacement(0, G4ThreeVector(0.,- ShieldLead/2.,0.), shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
+            shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,- ShieldLead/2.,0.),
+                                                  shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
             
             G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.25*mm, shell_l/2. + 0.5*mm);
             innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
-            innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,-ShieldPolyLi/2.0,0.), innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
-            //  floor_placement[1] = floor_placement[1]-(ShieldPolyLi+ShieldPolyB+ShieldLead + 1.0*mm)/4.;   
+            innerbg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-ShieldPolyLi/2.0,0.),
+                                             innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
+            
             shell_placement[1] -= 0.25; 
             shell_mother = innerbg_log;
             
@@ -284,7 +294,8 @@ void DetectorConstruction::ConstructGeometry() {
             shell_h -= 0.5*mm;
         }
         
-    } else {
+    } else { // !fShieldActivated:
+        
         G4Box* bg_box =  new G4Box("BGBox", shell_w/2 + 1.0*mm, shell_h/2. + 1.0*mm, shell_l/2. + 1.0*mm);
         bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
         bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), bg_log, "BGVolume", hall_log, false,0,false);
@@ -292,6 +303,7 @@ void DetectorConstruction::ConstructGeometry() {
         innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
         innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), innerbg_log, "InnerBGVolume", bg_log, false,0,false);
         shell_mother = innerbg_log;
+    
     }
     
     /////////////////
@@ -300,17 +312,9 @@ void DetectorConstruction::ConstructGeometry() {
     shell_log = new G4LogicalVolume(shell_box, Air, "ShellLogical", 0,0,0);
     shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shell_mother, false,0,false);
     
-    ////////
-    // Floor
-    G4Box* floor_box;
-    if(fVertical){
-        floor_box = new G4Box("FloorBox", modSizeX, modSizeY, 1.0*m);
-    } else {
-        floor_box = new G4Box("FloorBox", modSizeX, 1.0*m, modSizeZ);
-    }
-    floor_log = new G4LogicalVolume(floor_box, concrete, "FloorLogical", 0,0,0);
-    floor_phys = new G4PVPlacement(0,floor_placement, floor_log, "concrete floor", hall_log, false,0,false);
     
+    ////////////////////////
+    // scintillator segments
     G4Tubs* segment_cutout = new G4Tubs("Segment_cutout", pmtSEG_i, pmtSEG_r, WrapThickness/2, angle_s, angle_f); 
     G4SubtractionSolid* segment_box;
     G4VSolid* segment_b1;
@@ -336,18 +340,14 @@ void DetectorConstruction::ConstructGeometry() {
     segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_b1, segment_cutout, 0, G4ThreeVector(0.,0.,GetSegLength()/2.-WrapThickness/2.));
     segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_box, segment_cutout, 0, G4ThreeVector(0.,0.,-GetSegLength()/2.+WrapThickness/2.));
     
-    for(G4int xnum = 0; xnum<MaxSegX; xnum++){
-        for(G4int ynum = 0; ynum<MaxSegY; ynum++){
-            G4String id1 = to_str(100*xnum+ynum);
-            if(WrapGap>0) wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, Air, "WrapGapLogical "+id1, 0,0,0);
-            else  wrapgap_log[xnum][ynum] = new G4LogicalVolume(wrapgap_box, PMMA, "WrapGapLogical "+id1, 0,0,0);
-            target_log[xnum][ynum] = new G4LogicalVolume(target_cyl, PMMA, "TargetTankLogical "+id1, 0,0,0);
+    if(WrapGap>0) wrapgap_log = new G4LogicalVolume(wrapgap_box, Air, "WrapGapLogical", 0,0,0);
+    else  wrapgap_log = new G4LogicalVolume(wrapgap_box, PMMA, "WrapGapLogical", 0,0,0);
+    
+    target_log = new G4LogicalVolume(target_cyl, PMMA, "TargetTankLogical", 0,0,0);
             
-            assert(MainScintMat && ScintSegMat);
-            scint_log[xnum][ynum] = new G4LogicalVolume(scint_cyl, *MainScintMat, "InnerScintLogical ", 0,0,0);
-            segment_log[xnum][ynum] = new G4LogicalVolume(segment_box, *ScintSegMat, "SegmentLogical "+id1, 0,0,0);
-        }
-    }
+    assert(MainScintMat && ScintSegMat);
+    scint_log = new G4LogicalVolume(scint_cyl, *MainScintMat, "InnerScintLogical", 0,0,0);
+    segment_log = new G4LogicalVolume(segment_box, *ScintSegMat, "SegmentLogical", 0,0,0);
     
     ///////////////
     // PMT geometry
@@ -377,43 +377,58 @@ void DetectorConstruction::ConstructGeometry() {
     G4double xpos=0;
     G4double ypos=0;
     
-    for(G4int xnum = 0; xnum<NSegX; xnum++){
+    for(G4int xnum = 0; xnum < NSegX; xnum++){
         xpos = (GetSegWidth()+AirGap)*(xnum-(NSegX-1)/2.);
         for(G4int ynum = 0; ynum<NSegY; ynum++){
-            G4String id1 = to_str(100*xnum+ynum);
             ypos =  (GetSegHeight()+AirGap)*(ynum-(NSegY-1)/2.);
+            
+            G4String id1 = to_str(100*xnum+ynum);
             
             PositionX[xnum+ynum*NSegX] = xpos;
             PositionY[xnum+ynum*NSegX] = ypos;
             
-            segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log[xnum][ynum], "Segment "+id1, shell_log, false,100*xnum+ynum,true);
-            scint_mother = segment_log[xnum][ynum];
+            segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log,
+                                                         "Segment "+id1, shell_log, false,100*xnum+ynum,true);
+            scint_mother = segment_log;
             
-            if(WrapGap>0){
-                wrapgap_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), wrapgap_log[xnum][ynum], "Target Tank "+id1, segment_log[xnum][ynum], false,100*xnum+ynum,true);
-                scint_mother = wrapgap_log[xnum][ynum];
+            if(WrapGap>0) {
+                wrapgap_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), wrapgap_log,
+                                                             "Target Tank "+id1, segment_log, false,100*xnum+ynum,true);
+                scint_mother = wrapgap_log;
                 if(AcrylThickness>0){
-                    target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log[xnum][ynum], "Target Tank "+id1, wrapgap_log[xnum][ynum], false,100*xnum+ynum,true);
-                    scint_mother=target_log[xnum][ynum];
+                    target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
+                                                                "Target Tank "+id1, wrapgap_log, false,100*xnum+ynum,true);
+                    scint_mother=target_log;
                 }
+            } else if(AcrylThickness>0) {
+                target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
+                                                            "Target Tank "+id1, segment_log, false,100*xnum+ynum,true);
+                scint_mother = target_log;
             }
-            else if(AcrylThickness>0){
-                target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log[xnum][ynum], "Target Tank "+id1, segment_log[xnum][ynum], false,100*xnum+ynum,true);
-                scint_mother=target_log[xnum][ynum];
+            
+            scint_phys[xnum][ynum] = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), scint_log,
+                                                       "Target Scintillator Volume "+id1,scint_mother, false,xnum+ynum*NSegX,true);       
+            
+            // place PMTs on each side of each segment
+            for(uint i=0; i<=1; i++) {
+                int copynum = 10000*i + 100*xnum + ynum;
+                std::string idname = (i? "S" : "N") + id1;
+                int s = i? -1 : 1;
+                G4RotationMatrix* doFlip = i? pmtFlip : NULL;
+                
+                cathSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
+                                                                G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
+                                                                cathSEG_log, "PMT Cathode "+idname, shell_log, false, copynum, true);
+                pmtSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
+                                                               G4ThreeVector(0.,0.,0.),
+                                                               pmtSEG_log, "PMT "+idname, cathSEG_log, false, copynum, true);
+                coverSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
+                                                                 G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
+                                                                 coverSEG_log, "PMT Cover "+idname, shell_log, false, copynum, false);
+                baseSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
+                                                                G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness)),
+                                                                baseSEG_log, "PMT Base "+idname, shell_log, false, copynum, false);
             }
-            
-            scint_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), scint_log[xnum][ynum], "Target Scintillator Volume "+id1,scint_mother, false,xnum+ynum*NSegX,true);       
-            
-            cathSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,GetSegLength()/2.+pmtSEG_h/2.-WrapThickness), cathSEG_log, "Cathode PMT Number N"+id1, shell_log, false,100*xnum+ynum,true);
-            pmtSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), pmtSEG_log, "Segment PMT Number N"+id1, cathSEG_log, false,100*xnum+ynum,true);
-            coverSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,GetSegLength()/2.+pmtSEG_h/2.-WrapThickness), coverSEG_log, "Segment PMT Cover N"+id1, shell_log, false,100*xnum+ynum,false);
-            baseSEG_physN[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,GetSegLength()/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness), baseSEG_log, "Segment PMT Base N"+id1, shell_log, false,100*xnum+ynum,false);
-            
-            cathSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-GetSegLength()/2.-pmtSEG_h/2.+WrapThickness), cathSEG_log, "Cathode PMT Number S"+id1, shell_log, false,10000+100*xnum+ynum,true);
-            pmtSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(0.,0.,0.), pmtSEG_log, "Segment PMT Number S"+id1, cathSEG_log, false,10000+100*xnum+ynum,true);
-            coverSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-GetSegLength()/2.-pmtSEG_h/2.+WrapThickness), coverSEG_log, "Segment PMT Cover S"+id1, shell_log, false,10000+100*xnum+ynum,false);
-            baseSEG_physS[xnum][ynum] = new G4PVPlacement(pmtFlip, G4ThreeVector(xpos,ypos,-GetSegLength()/2.-pmtSEG_h/2.- pmtSEG_h/2. - (pmtSEGbase_h - basepinSEG_h)/2+WrapThickness), baseSEG_log, "Segment PMT Base S"+id1, shell_log, false,10000+100*xnum+ynum,false);
-            
         }  
     }
 }
@@ -466,9 +481,7 @@ void DetectorConstruction::ConstructSDs() {
     scintHitInner->RegisterPrimitive(new RecoilProtonScorer("PHitCollection"));
     scintHitInner->RegisterPrimitive(new IonisationScorer("IoniseCollection"));
     sd_manager->AddNewDetector((G4VSensitiveDetector*)(scintHitInner));
-    for(G4int xnum = 0; xnum < NSegX; xnum++)
-        for(G4int ynum = 0; ynum < NSegY; ynum++)
-            scint_log[xnum][ynum]->SetSensitiveDetector(scintHitInner);
+    scint_log->SetSensitiveDetector(scintHitInner);
 }
 
 
@@ -502,7 +515,6 @@ void DetectorConstruction::SetupVisualization() {
     ibg_vis->SetForceSolid(true);
     innerbg_log->SetVisAttributes(ibg_vis);
     
-    
     if(fShieldActivated){
         
         shieldlead_vis = new G4VisAttributes(G4Colour(0.0,0.5,0.5));
@@ -520,48 +532,34 @@ void DetectorConstruction::SetupVisualization() {
         shieldpolyli_log->SetVisAttributes(shieldpolyli_vis);
     }
     
-    //Floor
-    floor_vis = new G4VisAttributes(G4Colour(0.3,0.3,0.3));
-    //floor_vis->SetForceSolid(true);
-    floor_vis->SetVisibility(false);
-    floor_log->SetVisAttributes(floor_vis);
-    
     // Outer Tank
     segment_vis = new G4VisAttributes(G4Colour(1.0,0.0,1.0));
     // segment_vis->SetForceSolid(true);
     // segment_vis->SetVisibility(false);
+    segment_log->SetVisAttributes(segment_vis);
     
-    //Wrap Gap
-    if(WrapGap>0){
+    // Wrap Gap
+    if(WrapGap > 0){
         wrapgap_vis= new G4VisAttributes(G4Colour(0.0,1.0,0.0));
         wrapgap_vis->SetForceAuxEdgeVisible (true);
         //wrapgap_vis->SetVisibility(false);
         // wrapgap_vis->SetForceSolid(true);
-        
+        wrapgap_log->SetVisAttributes(wrapgap_vis);
     }
-    
+
     // Target Tank
     target_vis = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
     target_vis->SetForceAuxEdgeVisible (true);
     //  target_vis->SetVisibility(false);
     //target_vis->SetForceSolid(true);
-    
+    target_log->SetVisAttributes(target_vis);
     
     // Liquid Scintillator Volume
     scint_vis = new G4VisAttributes(G4Colour(1.0,1.0,0.0));
     scint_vis->SetForceAuxEdgeVisible (true);
     //  scint_vis->SetForceSolid(true); 
     //  scint_vis->SetVisibility(false);
-    
-    
-    for(G4int xnum = 0; xnum<NSegX; xnum++){
-        for(G4int ynum = 0; ynum<NSegY; ynum++){
-            segment_log[xnum][ynum]->SetVisAttributes(segment_vis);
-            wrapgap_log[xnum][ynum]->SetVisAttributes(wrapgap_vis);
-            target_log[xnum][ynum]->SetVisAttributes(target_vis);
-            scint_log[xnum][ynum]->SetVisAttributes(scint_vis);
-        }
-    }
+    scint_log->SetVisAttributes(scint_vis);
     
     // Photomultiplier Tubes (PMTs)
     cath_vis = new G4VisAttributes(G4Colour(1.,1.,1.0));
@@ -588,10 +586,7 @@ void DetectorConstruction::SetupVisualization() {
     base_vis = new G4VisAttributes(G4Colour(0.4,0.4,0.4));
     // base_vis->SetVisibility(false);
     base_vis->SetForceAuxEdgeVisible(true);
-    baseSEG_log->SetVisAttributes(base_vis); 
-    ConstructOpticalSurfaces();
-    G4RunManager::GetRunManager()->GeometryHasBeenModified();
-    
+    baseSEG_log->SetVisAttributes(base_vis);
 }
                         
 void DetectorConstruction::ConstructMaterials() {
@@ -731,6 +726,8 @@ void DetectorConstruction::ConstructMaterials() {
 }
 
 void DetectorConstruction::ConstructMaterialProperties() {
+    
+    G4cerr << "Setting material optical properties..." << G4endl;
     
     // Photon Energies (520 nm - 360 nm in 2 nm separation)
     const G4int nEntries = 81;
@@ -1028,6 +1025,8 @@ void DetectorConstruction::ConstructMaterialProperties() {
 
 void DetectorConstruction::ConstructOpticalSurfaces() {
     
+    G4cerr << "Constructing optical surfaces..." << G4endl;
+    
     const G4int num = 2;
     G4double Ephoton[num] = { 1.5*eV, 6.0*eV };		// Photon Energies
     
@@ -1068,14 +1067,9 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
     InnerTankSurface->SetMaterialPropertiesTable(mst);
     
     // scintillator steel cladding optical surface
-    for(int i=0; i<NSegX; i++) {
-        for(int j=0; j<NSegY; j++) {
-            G4String id1 = to_str(100*i+j);
-            // if(WrapGap>0) ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, wrapgap_log, InnerTankSurface); //NSB 10/14/2013
-            //      else 
-            new G4LogicalSkinSurface("ScintSteelSurface"+id1, segment_log[i][j], InnerTankSurface); //NSB 10/14/2013
-        }
-    }
+    // if(WrapGap>0) ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, wrapgap_log, InnerTankSurface); //NSB 10/14/2013
+    //      else 
+    new G4LogicalSkinSurface("ScintSteelSurface", segment_log, InnerTankSurface); //NSB 10/14/2013
     
     // G4LogicalSkinSurface* WrapSurf = new G4LogicalSkinSurface("WrapSurface", wrapgap_log, InnerTankSurface);
     // G4MaterialPropertiesTable* wrapfin = new G4MaterialPropertiesTable();
@@ -1157,29 +1151,6 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", top_phys[i-22], shield_phys[1][1], VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", top_phys[i-22], shield_phys[2][0], VetoFoilSurface);
     }
-    
-    /* G4LogicalBorderSurface* VetoSideVeto[16];
-     *     G4LogicalBorderSurface* VetoS2DVeto[10][2];
-     *     G4LogicalBorderSurface* VetoD2SVeto[10][2];
-     *     G4LogicalBorderSurface* VetoDoorVeto[20];
-     *     G4LogicalBorderSurface* VetoD2TVeto[12];
-     *     G4LogicalBorderSurface* VetoT2DVeto[12];
-     *     G4LogicalBorderSurface* VetoTopVeto[10];
-     *     G4LogicalBorderSurface* VetoTopU2LVeto[5][2];
-     *     G4LogicalBorderSurface* VetoTopL2UVeto[5][2];
-     * 
-     * 
-     * 
-     *     // Muon Veto Light Guide Foil Wrapping
-     * 
-     *     // We use the same surface defined for the muon veto panels
-     *     G4LogicalBorderSurface* GuideSAir[10][2];
-     *     G4LogicalBorderSurface* GuideTAir[11][2];
-     * 
-     *     // Muon Veto Door Panel Extra Surfaces
-     * 
-     *     G4LogicalBorderSurface* VetoCover[12][2];*/
-    
 }
 
 // ****** Optical Transport Switch ****** //

@@ -94,15 +94,12 @@ void OpticalTrajectory::DrawTrajectory(G4int i_mode) const
     if(markersRequired) { stepPoints.push_back(pos); }
   }
 
-	// Draws the trajectory line if requested
-  if(lineRequired)
-  {
-    G4VisAttributes* line_vis;
-    if(isHit) line_vis = new G4VisAttributes(G4Colour(1.0,0.5,0.0));
-    //    else line_vis = new G4VisAttributes(G4Colour(0.0,1.0,0.5));   //visualize missed photons
-    trajLine.SetVisAttributes(line_vis);
-    vis_manager->Draw(trajLine);
-  }
+    // Draws the trajectory line if requested
+    if(lineRequired) {
+        if(isHit) trajLine.SetVisAttributes(new G4VisAttributes(G4Colour(1.0,0.5,0.0)));
+        //    else line_vis = new G4VisAttributes(G4Colour(0.0,1.0,0.5));   //visualize missed photons
+        vis_manager->Draw(trajLine);
+    }
 
 	// Draws the markers at trajectory changes if requested
   if(markersRequired)

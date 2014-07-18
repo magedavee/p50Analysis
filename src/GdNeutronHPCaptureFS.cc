@@ -85,9 +85,6 @@
     
 // add them to the final state
 
-    G4int nParticles = nPhotons;
-    if(1==nPhotons) nParticles = 2;
-
        // back to lab system
     for(i=0; i<nPhotons; i++)
       {

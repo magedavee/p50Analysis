@@ -4,39 +4,32 @@
 // GEANT4 - geant4.9.3.p01
 //
 // Header File for Custom Step Controller and Processing
-//	Contains class functions/variables
+//      Contains class functions/variables
 //
 // --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
+//      Version 1.01 - 2011/04/29 - A. Ho
+//      Edited for clarity 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
-#ifndef SteppingAction_H		// Only carries out if object is undefined
-#define SteppingAction_H 1		// Defines object
+#ifndef SteppingAction_H
+/// Assure header is only loaded once
+#define SteppingAction_H
 
-#include "G4UserSteppingAction.hh"	// Specifies base class or parent class
+#include "G4UserSteppingAction.hh"
 
-#include <iostream>			// Specifies the classes which allow reading/writing to standard input/output
+#include <iostream>
 #include <fstream>
 
-#include <map>				// Specifies classes defining all global parameters and variable types
+#include <map>
 #include "globals.hh"
 
-/* -------- Class Definition --------- */
+class SteppingAction : public G4UserSteppingAction {
+  public:
+    /// constructor
+    SteppingAction() {}
 
-class SteppingAction : public G4UserSteppingAction	// This class inherits functions from G4UserSteppingAction
-{
-  public:	// Constructors and Destructors
-
-    SteppingAction();				// Constructor
-    virtual ~SteppingAction();			// Destructor
-
-  public: 	// Accessible Methods
-
-    void UserSteppingAction(const G4Step*);		// Processing to be done at every step - stores track lengths in this simulation
+    /// Processing to be done at every step - stores track lengths in this simulation
+    void UserSteppingAction(const G4Step*);
 };
 
-/* ----------------------------------- */
-
-#endif					// End of the if clause
-
-// EOF
+#endif

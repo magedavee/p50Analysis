@@ -190,45 +190,12 @@ void Track::Clear(Option_t * /*option*/)
   tSegment.resize(0);
 }
 
-void Event::AddTrack(Track* tr)
-{
+void Event::AddTrack(Track* tr) {
   TClonesArray &tracks = *fTracks;
-  Track *track = new(tracks[fNtrack++]) Track(*tr);
-   //Save reference to last Track in the collection of Tracks
-  //   return track;
-  
+  new(tracks[fNtrack++]) Track(*tr);
 }
 
-Run::Run()
-{
-   AirGap=0;
-   WrapGap=0;
-   WrapThickness=0;	
-   AcrylThickness=0;        
-   SegBuffer=0;
-   ScintLength=0;
-   ScintHeight=0;
-   ScintWidth=0;
-   SegLength=0;
-   SegWidth=0;
-   SegHeight=0;	
-   PMTscale=0;               
-   ShieldLead=0;
-   ShieldPolyB=0;
-   ShieldPolyLi=0;
-   Vertical=0;
-   Shielded=0;
-   Reflectivity=0;
-   Scint=0;
-}
-
-Run::~Run()
-{
- 
-}
-
-void Run::Clear(Option_t * /*option*/)
-{
+void Run::Clear(Option_t*) {
    AirGap=0;
    WrapGap=0;
    WrapThickness=0;	

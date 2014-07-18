@@ -65,7 +65,7 @@ void RootIO::FillTree(){
       mcevent->fNph+=mcevent->fNpmt[i];
       mcevent->fSph+=mcevent->fSpmt[i];
     }
-    Int_t dummy = dataTree->Fill(); 
+    dataTree->Fill(); 
     if(run_action->GetRecordLevel()==3) fill=1;
     else fill=0;
     writecount++;
@@ -84,14 +84,11 @@ Event* RootIO::GetEvent(){
 }
 
 Track* RootIO::GetTrack(Int_t tn){
-  int count = 0;
-  while(count < mctrack.size()){
-    if(mctrack[count]->tID == tn){
+  for(uint count = 0; count < mctrack.size(); count++) {
+    if(mctrack[count]->tID == tn)
       return mctrack[count];
-    }
-    count++;
   }
-  G4cerr << "ERROR: track not found " <<tn<< "\t" <<mctrack.size()<< G4endl;
+  G4cerr << "ERROR: track not found " << tn << "\t" << mctrack.size() << G4endl;
   return 0; 
 }
 

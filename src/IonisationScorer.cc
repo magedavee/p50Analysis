@@ -50,9 +50,7 @@ void IonisationScorer::Initialize(G4HCofThisEvent* HCE) {
 
 // ****** Process Event Hit ****** //
 G4bool IonisationScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
-    
-    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-    
+        
     if( aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0
         || aStep->GetTrack()->GetDefinition() == G4Neutron::NeutronDefinition()
         || aStep->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition()) {

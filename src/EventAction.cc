@@ -111,10 +111,6 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
         }
         (*EventTime)[999.*s] = 0;
     }
-
-    PrimaryGeneratorAction* pga =(PrimaryGeneratorAction*)(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction ());
-    G4ParticleGun* particle_gun = pga->GetParticleGun();
-    G4GeneralParticleSource* particle_source = pga->GetParticleSource();
 }
 
 // ****** Post-Event Processing ****** //
@@ -148,7 +144,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     }
   
     /* --------------- Neutron Statistics ---------------- */
-    G4bool IsCaptured = false;
     if(InnerNHitHCE && InnerNHitHCE->entries()) {
         G4int nCountInner = InnerNHitHCE->entries(); // Counter for neutron population in sensitive volume
         G4int nCapCountInner = nCountInner;
@@ -160,7 +155,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
         
             // Determines if neutron was captured
             if((*InnerNHitHCE)[i]->GetCaptured()) {
-                IsCaptured = (*InnerNHitHCE)[i]->GetCaptured();
             
                 // Record initial neutron energy and start tracking track time (entry into tank)
                 G4int nGammas = (*InnerNHitHCE)[i]->GetGammasGenerated();
@@ -214,7 +208,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
         run_action->AddNCapCount(nCapCountInner);   // Records neutron capture count
     }
   
-    IsCaptured = false;
   
     /* --------------- Photon Statistics ---------------- */
     if(PMTPhotHitHCE && PMTPhotHitHCE->entries()) {
@@ -230,7 +223,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
         // Retrieve photon separation parameter specified by user
         G4double EvtSeparationBin = run_action->GetLSPhotonCountEventCut();
         std::map<G4int,G4int>* copyPhotons = new std::map<G4int,G4int>();
-        std::map<G4int,G4double>* copyEdep = new std::map<G4int,G4double>();
         G4int numPhotons = 0;
         G4int EvtSeparationCount = 0;
         // This loop used to record photon statistics
@@ -258,7 +250,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
         
         if(numPhotons) {
             run_action->PassPhotonCount(numPhotons,EvtSeparationCount);
-            LogSession* log = LogSession::GetLogSessionPointer();
             Event* ev = RootIO::GetInstance()->GetEvent();
 
             ev->fEventNumber =  run_action->GetEventNumberOffset() + anEvent->GetEventID();

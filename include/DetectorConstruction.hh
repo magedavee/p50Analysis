@@ -96,7 +96,7 @@ public:
     double GetShieldPolyLi() const { return ShieldPolyLi; }
     bool GetVertical() const { return fVertical; }
     //int GetScint() const { return Scint; }
-    G4LogicalVolume* GetScintLog(G4int x, G4int y) { if(y<NSegY && x<NSegX) return scint_log[x][y]; else return scint_log[0][0]; }
+    G4LogicalVolume* GetScintLog() { return scint_log; }
 
     void PrintPhysicalVolumes() const;
 
@@ -229,7 +229,7 @@ private:
     
     // Logical Volumes
     G4LogicalVolume* build_log;
-    G4LogicalVolume* wrapgap_log[MaxSegX][MaxSegY];
+    G4LogicalVolume* wrapgap_log;
     G4LogicalVolume* hall_log;
     G4LogicalVolume* bg_log;
     G4LogicalVolume* innerbg_log;
@@ -237,87 +237,40 @@ private:
     G4LogicalVolume* shieldpolyb_log;
     G4LogicalVolume* shieldpolyli_log;
     G4LogicalVolume* shell_log;
-    G4LogicalVolume* floor_log;
     G4LogicalVolume* layer_log;
-    G4LogicalVolume* outer_log;
-    G4LogicalVolume* oil_log;
-    G4LogicalVolume* optical_log;
-    G4LogicalVolume* segment_log[MaxSegX][MaxSegY];
-    G4LogicalVolume* end_log;
-    G4LogicalVolume* separator_log1;
-    G4LogicalVolume* separator_log2;	
-    G4LogicalVolume* inner_log;
-    G4LogicalVolume* target_log[MaxSegX][MaxSegY];
+    G4LogicalVolume* segment_log;
+    G4LogicalVolume* target_log;
     G4LogicalVolume* innerwrap_log;
-    G4LogicalVolume* scint_log[MaxSegX][MaxSegY];
-    G4LogicalVolume* gc_scint_log;
-    G4LogicalVolume* air_log;
-    G4LogicalVolume* borate_log[2];
-    G4LogicalVolume* shield_log[3];
-    G4LogicalVolume* water_log[3];
-    G4LogicalVolume* panel_log[4];
-    G4LogicalVolume* guide_log[3];
-    G4LogicalVolume* pmtPVT_log;
-    G4LogicalVolume* coverPVT_log;
-    G4LogicalVolume* basePVT_log;
+    G4LogicalVolume* scint_log;
     G4LogicalVolume* cathSEG_log;
     G4LogicalVolume* pmtSEG_log;
     G4LogicalVolume* coverSEG_log;
     G4LogicalVolume* baseSEG_log;
-    G4LogicalVolume* brace_log;
-    G4LogicalVolume* pmtPC_log;
-    G4LogicalVolume* coverPC_log;
-    G4LogicalVolume* basePC_log;
 
     // Physical Volumes
-    G4VPhysicalVolume* build_phys;
-    G4VPhysicalVolume* hall_phys;
-    G4VPhysicalVolume* bg_phys;
+    G4VPhysicalVolume* build_phys;              ///< concrete-walled building ("world" volume)
+    G4VPhysicalVolume* hall_phys;               ///< experimental hall air volume
+    G4VPhysicalVolume* bg_phys;                 
     G4VPhysicalVolume* innerbg_phys;
-    G4VPhysicalVolume* shieldlead_phys;
-    G4VPhysicalVolume* shieldpolyb_phys;
-    G4VPhysicalVolume* shieldpolyli_phys;
-    G4VPhysicalVolume* shell_phys;
-    G4VPhysicalVolume* floor_phys;
-    G4VPhysicalVolume* layer_phys;
-    G4VPhysicalVolume* outer_phys;
+    G4VPhysicalVolume* shieldlead_phys;         ///< lead shield layer
+    G4VPhysicalVolume* shieldpolyb_phys;        ///< borated poly shield layer
+    G4VPhysicalVolume* shieldpolyli_phys;       ///< 6Li poly shield layer
+    G4VPhysicalVolume* shell_phys;              ///< detector housing shell (air)
     G4VPhysicalVolume* segment_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* wrapgap_phys[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* oil_physN;
-    G4VPhysicalVolume* oil_physS;
     G4VPhysicalVolume* optical_physN[MaxSegX][MaxSegY];
     G4VPhysicalVolume* optical_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* inner_phys;
     G4VPhysicalVolume* target_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* scint_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* innerwrap_phys[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* gc_scint_phys;
-    G4VPhysicalVolume* air_phys;
-    G4VPhysicalVolume* borate_phys[6];
     G4VPhysicalVolume* shield_phys[3][2];
-    G4VPhysicalVolume* water_phys[3];
     G4VPhysicalVolume* door_phys[12];
     G4VPhysicalVolume* side_phys[10];
     G4VPhysicalVolume* top_phys[11];
-    G4VPhysicalVolume* sideG_phys[10][2];
-    G4VPhysicalVolume* topG_phys[11][2];
-    G4VPhysicalVolume* pmtPVT_phys[66];
-    G4VPhysicalVolume* coverPVT_phys[66];
-    G4VPhysicalVolume* cap_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* cap_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* cathSEG_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* baseSEG_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* pmtSEG_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* coverSEG_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* cathSEG_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* baseSEG_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* pmtSEG_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* coverSEG_physS[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* basePVT_phys[66];
-    G4VPhysicalVolume* brace_phys[2];
-    G4VPhysicalVolume* pmtPC_phys[32];
-    G4VPhysicalVolume* coverPC_phys[32];
-    G4VPhysicalVolume* basePC_phys[32];
+    G4VPhysicalVolume* cathSEG_phys[2][MaxSegX][MaxSegY];
+    G4VPhysicalVolume* baseSEG_phys[2][MaxSegX][MaxSegY];
+    G4VPhysicalVolume* pmtSEG_phys[2][MaxSegX][MaxSegY];
+    G4VPhysicalVolume* coverSEG_phys[2][MaxSegX][MaxSegY];
 
     // Detectors
     G4MultiFunctionalDetector* scintHitInner;

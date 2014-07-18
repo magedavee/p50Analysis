@@ -34,15 +34,7 @@
 
 #include "globals.hh"			// Specifies class defining all global constants and variable types
 
-	// ****** Constructor ****** //
-SteppingAction::SteppingAction()
-{;}
-
-	// ****** Destructor ****** //
-SteppingAction::~SteppingAction()
-{;}
-
-	// ****** Post-Step Processing ****** //
+// ****** Post-Step Processing ****** //
 void SteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
@@ -52,9 +44,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     }
   }
   DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-  if(aStep->GetPostStepPoint()->GetStepStatus()!=1){
-    if (aStep->GetTrack()->GetDynamicParticle()->GetCharge()!=0){ 
-      if(aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()==detector->GetScintLog(0,0)->GetName() || aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()==detector->GetScintLog(0,0)->GetName()){
+  if(aStep->GetPostStepPoint()->GetStepStatus() != 1){
+    if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0){ 
+      if(aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()
+          || aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()){
 
 	RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tEdep += aStep->GetTotalEnergyDeposit();
 	RootIO::GetInstance()->GetEvent()->fEdep += aStep->GetTotalEnergyDeposit();
@@ -82,8 +75,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     }
   }
 
-  G4OpBoundaryProcessStatus boundaryStatus=Undefined;
-  static G4OpBoundaryProcess* boundary=NULL;
+  static G4OpBoundaryProcess* boundary = NULL;
   
   //find the boundary process only once
   if(!boundary){
@@ -99,9 +91,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
       }
     }
   }
-  G4ParticleDefinition* particleType = aStep->GetTrack()->GetDefinition();
-  
-  /*  if(particleType==G4OpticalPhoton::OpticalPhotonDefinition()){
+ 
+ /*G4ParticleDefinition* particleType = aStep->GetTrack()->GetDefinition();
+  G4OpBoundaryProcessStatus boundaryStatus=Undefined;
+    if(particleType==G4OpticalPhoton::OpticalPhotonDefinition()){
     boundaryStatus=boundary->GetStatus();
     if(aStep->GetPostStepPoint()->GetStepStatus()==fGeomBoundary){
       // switch(boundaryStatus){

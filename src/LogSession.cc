@@ -156,20 +156,15 @@ void LogSession::OpenFile(G4bool first,G4bool keep)
 }
 
 	// ****** Close File ****** //
-void LogSession::CloseFile(G4bool reset)
-{
-	// Close stream object if it is open
-  if(this->is_open());
-  {
-    this->close();
-  }
+void LogSession::CloseFile(G4bool reset) {
+    // Close stream object if it is open
+    if(this->is_open()) this->close();
 
-	// If 'reset' is specified, destroy memory of previous output file
-  if(reset)
-  {
-    if(initname.empty()) { fLogSession = 0; }
-    else { filename.clear(); copyNo.clear(); }
-  }
+    // If 'reset' is specified, destroy memory of previous output file
+    if(reset) {
+        if(initname.empty()) fLogSession = 0;
+        else { filename.clear(); copyNo.clear(); }
+    }
 }
 
 	// ****** Generate Unique File Label ****** //

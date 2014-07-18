@@ -60,9 +60,7 @@ void PhotoMultiplierScorer::Initialize(G4HCofThisEvent* HCE)
 }
 
 	// ****** Process Event Hit ****** //
-G4bool PhotoMultiplierScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*)
-{
-  RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
+G4bool PhotoMultiplierScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   
   // Specifies criteria for what will be counted as a hit for a collection, called per step
   if(aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
