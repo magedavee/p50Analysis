@@ -60,8 +60,8 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen
   cryPointCmd->SetParameterName("cryPoint",false);
   cryPointCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
 
-  cryZCmd = new G4UIcmdWithADouble("/CRY/setCRYZOffset",this);
-  cryZCmd->SetGuidance("sets the Z offset for the CRY generator in mm (default is world maximum Z)");
+  cryZCmd = new G4UIcmdWithADoubleAndUnit("/CRY/setCRYZOffset",this);
+  cryZCmd->SetGuidance("sets the Z offset for the CRY generator (default is world maximum Z)");
   cryZCmd->SetParameterName("cryZ",false);
   cryZCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
    

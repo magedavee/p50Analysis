@@ -45,9 +45,12 @@ public:
     /// Assembles geometry of the simulation, returns world volume
     G4VPhysicalVolume* Construct();
 
-    G4double GetWorldSizeX() const { return modSizeX+2.0*m; }
-    G4double GetWorldSizeY() const { return modSizeY+2.0*m; }
-    G4double GetWorldSizeZ() const { return modSizeZ+2.0*m; }
+    /// return world volume half-x
+    G4double GetWorldSizeX() const { return modSizeX+buildingWall; }
+    /// return world volume half-y
+    G4double GetWorldSizeY() const { return modSizeY+buildingWall; }
+    /// return world volume half-z
+    G4double GetWorldSizeZ() const { return modSizeZ+buildingWall; }
     G4double GetReflectivity() const { return refl;}
     G4double GetMaxHalfDimension();
     G4bool IsOpticalTransported() const { return fOptical; }
@@ -90,8 +93,9 @@ public:
     void PrintPhysicalVolumes() const;
 
 protected:
-
-    G4bool SetOpticalProcesses(G4bool);
+    /// enable/disable optical process computations
+    void SetOpticalProcesses(G4bool o) { fOptical = o; }
+    /// set detector vertical orientation
     void SetVertical(G4bool sp) { fVertical = sp; }
     /// Change Liquid Scintillator Birks Quenching Constant
     void SetScintillatorBirksConstant(G4double);
@@ -155,9 +159,10 @@ private:
     void SetupVisualization();
     
     // World Sizes
-    G4double modSizeX;
-    G4double modSizeY;
-    G4double modSizeZ;
+    G4double buildingWall;      ///< building concrete wall thickness
+    G4double modSizeX;          ///< hall half-x dimension
+    G4double modSizeY;          ///< hall half-y dimension
+    G4double modSizeZ;          ///< hall half-z dimension
     static const G4int MaxSegX = 100;
     static const G4int MaxSegY = 100;
     static const G4int MaxSeg = 2500;

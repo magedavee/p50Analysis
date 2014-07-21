@@ -77,10 +77,12 @@ DetectorConstruction::DetectorConstruction() {
     
     det_messenger = new DetectorMessenger(this);
     
-    // "world" building size
-    modSizeX = 5.*m;    // Half-Length - long edge
-    modSizeY = 3.*m;   // Half-Height
-    modSizeZ = 5.*m;    // Half-Width - short edge
+    buildingWall = 0.75*m;
+    
+    // Experimental hall size
+    modSizeX = 3.*m; // Half-Length - long edge
+    modSizeY = 3.*m; // Half-Width - short edge
+    modSizeZ = 1.75*m; // Half-Height
     
     // scintillator light production and transport
     birksPC = 0.1*mm/MeV;
@@ -124,6 +126,7 @@ DetectorConstruction::DetectorConstruction() {
 }
 
 DetectorConstruction::~DetectorConstruction() {
+ /*
     delete cath_vis;
     delete build_vis;
     delete hall_vis;
@@ -140,6 +143,7 @@ DetectorConstruction::~DetectorConstruction() {
     delete cover_vis;
     delete cath_vis;
     delete base_vis;
+*/
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
@@ -147,9 +151,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cerr << "Starting detector construction..." << G4endl;
     
     ConstructMaterials();
-    ConstructMaterialProperties();
+    if(fOptical) ConstructMaterialProperties();
     ConstructGeometry();
-    ConstructOpticalSurfaces();
+    if(fOptical) ConstructOpticalSurfaces();
     ConstructSDs();
     SetupVisualization();
     
@@ -164,7 +168,7 @@ void DetectorConstruction::ConstructGeometry() {
     
     ///////////////////////////////////
     // concrete building "World" volume
-    G4Box* build_box = new G4Box("BuildBox", modSizeX+2.0*m, modSizeY+2.0*m, modSizeZ+2.0*m);    
+    G4Box* build_box = new G4Box("BuildBox", modSizeX+buildingWall, modSizeY+buildingWall, modSizeZ+buildingWall);    
     build_log = new G4LogicalVolume(build_box, concrete, "BuildLogical", 0,0,0);
     build_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), build_log, "Build", 0, false,0,false);
     
@@ -1078,17 +1082,6 @@ void DetectorConstruction::ConstructOpticalSurfaces() {
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", top_phys[i-22], shield_phys[1][1], VetoFoilSurface);
         new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", top_phys[i-22], shield_phys[2][0], VetoFoilSurface);
     }
-}
-
-// ****** Optical Transport Switch ****** //
-G4bool DetectorConstruction::SetOpticalProcesses(G4bool SetOptical) {
-    if(fOptical == SetOptical) {
-        G4cout << "Optical processes are already in the requested state." << SetOptical<< G4endl;
-        return false;
-    }
-    fOptical = SetOptical;
-    ConstructOpticalSurfaces();		// Re-establish optical surfaces between new volumes
-    return true;
 }
 
 void DetectorConstruction::SetXSegments(G4int sp) {

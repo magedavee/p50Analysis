@@ -319,15 +319,14 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
     
     if(command == opticalCmd) {
         G4bool setting = opticalCmd->GetNewBoolValue(newValue);
-        if(detector->SetOpticalProcesses(setting)) {
-            if(!setting) {
-                UI->ApplyCommand("/process/inactivate Scintillation");
-                UI->ApplyCommand("/process/inactivate Cerenkov");
-                G4cerr << "optical generation turned off" << G4endl;
-            } else {
-                UI->ApplyCommand("/process/activate Scintillation");
-                UI->ApplyCommand("/process/activate Cerenkov");
-            }
+        detector->SetOpticalProcesses(setting);
+        if(!setting) {
+            UI->ApplyCommand("/process/inactivate Scintillation");
+            UI->ApplyCommand("/process/inactivate Cerenkov");
+            G4cerr << "optical generation turned off" << G4endl;
+        } else {
+            UI->ApplyCommand("/process/activate Scintillation");
+            UI->ApplyCommand("/process/activate Cerenkov");
         }
     } else if(command == birksCmd) detector->SetScintillatorBirksConstant(birksCmd->GetNewDoubleValue(newValue)*mm/MeV);
     else if(command == spikeCmd) detector->SetSpecularSpikeConstant(spikeCmd->GetNewDoubleValue(newValue));

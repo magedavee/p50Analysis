@@ -49,6 +49,16 @@ class InverseBetaKinematics;
 class FissionAntiNuGenerator;
 class CosmicMuonGenerator;
 
+/// Specification for a primary particle to throw
+struct primaryPtcl {
+    int PDGid;  ///< PDG particle ID enumeration
+    double KE;  ///< particle kinetic energy
+    G4ThreeVector pos;  ///< vertex position
+    G4ThreeVector mom;  ///< momentum direction
+    double t;           ///< particle time
+};
+
+
 /// Class for generating primary particles for event
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
     
@@ -104,7 +114,7 @@ protected:
 
     void SetCRY(G4bool);
     void SetCRYPoint(G4bool value) { fCRYpoint = value; }
-    void SetCRYZOffset(G4double value) { cryZoffset = value/1000.0; }
+    void SetCRYZOffset(G4double value) { cryZoffset = value; }
 
     void ToggleCalibrationMode(G4bool);
     void SetCalibrationSource(G4int);
@@ -135,7 +145,10 @@ protected:
     CosmicMuonGenerator* GetMuonGenerator() { return muon_generator; };
 
 private:
-
+    
+    /// throw listed primaries
+    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
+    
     G4int verbose;                      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
     G4bool RawData;                     ///< Whether to output primary event parameters to log; set when verbosity > 2
 
@@ -170,7 +183,7 @@ private:
     std::vector<CRYParticle*> *vect;    ///< vector of generated particles
 
     G4int numSources, calSources;
-    G4double cryZoffset;
+    G4double cryZoffset;                ///< z offset in world volume for CRY event plane
     G4double min_energy;
     G4double max_energy;
     G4double max_dist;
