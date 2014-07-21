@@ -48,17 +48,6 @@ public:
     G4double GetWorldSizeX() const { return modSizeX+2.0*m; }
     G4double GetWorldSizeY() const { return modSizeY+2.0*m; }
     G4double GetWorldSizeZ() const { return modSizeZ+2.0*m; }
-    G4double GetNeutronPositionX() const { return nPos_x; }
-    G4double GetNeutronPositionY() const { return nPos_y; }
-    G4double GetNeutronPositionZ() const { return nPos_z; }
-    G4double GetAntiNeutrinoPositionX() const { return nuPos_x; }
-    G4double GetAntiNeutrinoPositionY() const { return nuPos_y; }
-    G4double GetAntiNeutrinoPositionZ() const { return nuPos_z; }
-    G4double GetMuonPositionX() const { return muPos_x; }
-    G4double GetMuonPositionY() const { return muPos_y; }
-    G4double GetMuonPositionZ() const { return muPos_z; }
-    G4double GetInnerChamberOffset() const { return inner_offset; }
-    G4double GetScintVolumeOffset() const { return scint_offset; }
     G4double GetReflectivity() const { return refl;}
     G4double GetMaxHalfDimension();
     G4bool IsOpticalTransported() const { return fOptical; }
@@ -104,7 +93,6 @@ protected:
 
     G4bool SetOpticalProcesses(G4bool);
     void SetVertical(G4bool sp) { fVertical = sp; }
-    
     /// Change Liquid Scintillator Birks Quenching Constant
     void SetScintillatorBirksConstant(G4double);
     /// Change Plastic Scintillator Birks Quenching Constant TODO
@@ -176,8 +164,8 @@ private:
     G4double QE;
     
     // Segment Variables
-    G4int NSegX;                ///< the number of segments across (max 10)
-    G4int NSegY;                ///< the number of segments in height (max 10)
+    G4int NSegX;                ///< the number of segments across
+    G4int NSegY;                ///< the number of segments in height
     G4double PositionX[MaxSeg];
     G4double PositionY[MaxSeg];
     G4OpticalSurfaceFinish OptFinish;  ///< G4OpticalSurfaceFinish(4)
@@ -194,12 +182,6 @@ private:
     G4double ShieldLead;
     G4double ShieldPolyB;
     G4double ShieldPolyLi;
-
-    // Source Positions
-    G4double nPos_x, nPos_y, nPos_z;
-    G4double nuPos_x, nuPos_y, nuPos_z;
-    G4double muPos_x, muPos_y, muPos_z;
-    G4double inner_offset, scint_offset;
     
     // Materials
     G4Material** MainScintMat;  ///< main scintillator material; set to one of the variants below
@@ -231,8 +213,6 @@ private:
     G4LogicalVolume* build_log;
     G4LogicalVolume* wrapgap_log;
     G4LogicalVolume* hall_log;
-    G4LogicalVolume* bg_log;
-    G4LogicalVolume* innerbg_log;
     G4LogicalVolume* shieldlead_log;
     G4LogicalVolume* shieldpolyb_log;
     G4LogicalVolume* shieldpolyli_log;
@@ -240,7 +220,6 @@ private:
     G4LogicalVolume* layer_log;
     G4LogicalVolume* segment_log;
     G4LogicalVolume* target_log;
-    G4LogicalVolume* innerwrap_log;
     G4LogicalVolume* scint_log;
     G4LogicalVolume* cathSEG_log;
     G4LogicalVolume* pmtSEG_log;
@@ -250,19 +229,14 @@ private:
     // Physical Volumes
     G4VPhysicalVolume* build_phys;              ///< concrete-walled building ("world" volume)
     G4VPhysicalVolume* hall_phys;               ///< experimental hall air volume
-    G4VPhysicalVolume* bg_phys;                 
-    G4VPhysicalVolume* innerbg_phys;
     G4VPhysicalVolume* shieldlead_phys;         ///< lead shield layer
     G4VPhysicalVolume* shieldpolyb_phys;        ///< borated poly shield layer
     G4VPhysicalVolume* shieldpolyli_phys;       ///< 6Li poly shield layer
     G4VPhysicalVolume* shell_phys;              ///< detector housing shell (air)
     G4VPhysicalVolume* segment_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* wrapgap_phys[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* optical_physN[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* optical_physS[MaxSegX][MaxSegY];
     G4VPhysicalVolume* target_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* scint_phys[MaxSegX][MaxSegY];
-    G4VPhysicalVolume* innerwrap_phys[MaxSegX][MaxSegY];
     G4VPhysicalVolume* shield_phys[3][2];
     G4VPhysicalVolume* door_phys[12];
     G4VPhysicalVolume* side_phys[10];
@@ -280,52 +254,34 @@ private:
     G4MultiFunctionalDetector* SegmentPMT;
 
     // Visualization
-    G4VisAttributes* cath_vis;
     G4VisAttributes* build_vis;
-    G4VisAttributes* wrapgap_vis;
-    G4VisAttributes* world_vis;
-    G4VisAttributes* bg_vis;
-    G4VisAttributes* ibg_vis;
+    G4VisAttributes* hall_vis;
     G4VisAttributes* shieldlead_vis;
     G4VisAttributes* shieldpolyb_vis;
     G4VisAttributes* shieldpolyli_vis;
     G4VisAttributes* shell_vis;
-    G4VisAttributes* floor_vis;
-    G4VisAttributes* layer_vis;
     G4VisAttributes* segment_vis;
-    G4VisAttributes* end_vis;
-    G4VisAttributes* outer_vis;
-    G4VisAttributes* oil_vis;
-    G4VisAttributes* optical_vis;
-    G4VisAttributes* separator_vis;
-    G4VisAttributes* inner_vis;
+    G4VisAttributes* wrapgap_vis;
     G4VisAttributes* target_vis;
     G4VisAttributes* scint_vis;
-    G4VisAttributes* innerwrap_vis;
-    G4VisAttributes* gc_scint_vis;
-    G4VisAttributes* air_vis;
-    G4VisAttributes* borate_vis;
     G4VisAttributes* shield_vis;
-    G4VisAttributes* water_vis;
-    G4VisAttributes* panel_vis;
-    G4VisAttributes* guide_vis;
-    G4VisAttributes* brace_vis;
     G4VisAttributes* pmt_vis;
     G4VisAttributes* cover_vis;
+    G4VisAttributes* cath_vis;
     G4VisAttributes* base_vis;
 
     // Extra Stuffs
-    DetectorMessenger* det_messenger;
-    G4double birksPC, birksPVT;     ///< Birks constants modifier
+    DetectorMessenger* det_messenger;   ///< UI for detector construction control
+    G4double birksPC, birksPVT;         ///< Birks constants modifier
     G4double lobe, spike, refl,back, diff, efficiency, sigal;   ///< optical surface parameters
-    G4bool fOptical;                ///< Flag to specify optical processes
-    G4bool fInnerActivated;         ///< Flag to specify inner tank geometry
-    G4bool fOuterActivated;         ///< Flag to specify outer tank geometry
-    G4bool fBPolyActivated;         ///< Flag to specify polyethylene layer
-    G4bool fShieldActivated;        ///< Flag to specify water shield tanks
-    G4bool fCylinderActivated;      ///< Flag to specify cyllindrical segments
-    G4bool fVetoActivated;          ///< Flag to specify veto panel layer
-    G4bool fVertical;               ///< Flag to specify vertical segments
+    G4bool fOptical;                    ///< Flag to specify optical processes
+    G4bool fInnerActivated;             ///< Flag to specify inner tank geometry
+    G4bool fOuterActivated;             ///< Flag to specify outer tank geometry
+    G4bool fBPolyActivated;             ///< Flag to specify polyethylene layer
+    G4bool fShieldActivated;            ///< Flag to specify water shield tanks
+    G4bool fCylinderActivated;          ///< Flag to specify cyllindrical segments
+    G4bool fVetoActivated;              ///< Flag to specify veto panel layer
+    G4bool fVertical;                   ///< Flag to specify vertical segments
 };
 
 #endif

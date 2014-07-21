@@ -5,36 +5,41 @@
 /tracking/verbose 0
 
 /detector/setShield true
-/detector/setNumberSegmentsX 2
-/detector/setNumberSegmentsY 2
-/detector/setScintillatorLength 3 m
-/detector/setScintillatorHeight 3 m
-/detector/setScintillatorWidth 3 m
-/detector/setSegmentBuffer 100 mm
-/detector/setLeadShieldThickness 50.8 mm
-/detector/setBPolyShieldThickness 600 mm
-/detector/setVertical true
-/detector/setAcrylThickness 6.35 mm
-/detector/setPMTDiameter 100 mm
-/scint/setComposition T
-/scint/setOpticalProcesses true
+#/detector/setNumberSegmentsX 2
+#/detector/setNumberSegmentsY 2
+#/detector/setScintillatorLength 3 m
+#/detector/setScintillatorHeight 3 m
+#/detector/setScintillatorWidth 3 m
+#/detector/setSegmentBuffer 100 mm
+#/detector/setLeadShieldThickness 50.8 mm
+#/detector/setBPolyShieldThickness 600 mm
+#/detector/setVertical true
+#/detector/setAcrylThickness 6.35 mm
+#/detector/setPMTDiameter 100 mm
+#/scint/setComposition T
+/scint/setOpticalProcesses false
 
 /run/initialize
 /hits/activate scintHitInner
 /hits/activate SegmentPMT
 
-/vis/open OGLIXm
-/vis/open HepRepFile
+#/vis/open OGLIXm
+/vis/open OGLSXm
+#/vis/open HepRepFile
+/vis/viewer/set/style     wireframe
+/vis/viewer/set/culling   global false
 /vis/viewer/set/auxiliaryEdge 1
 /vis/viewer/set/upThetaPhi 0 90
 #/vis/viewer/set/viewpointThetaPhi 45 45
 /vis/viewer/set/viewpointThetaPhi 90 0
 /vis/drawVolume
+/vis/scene/add/axes
+/vis/scene/add/scale
+
 /vis/scene/add/trajectories
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
-/vis/scene/add/axes
-/vis/scene/add/scale
+
 #/vis/disable
 
 /output/setOutputDirectory ~/Analysis/ShortBaseline/MC/Data/trash/

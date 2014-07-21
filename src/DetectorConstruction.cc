@@ -77,11 +77,12 @@ DetectorConstruction::DetectorConstruction() {
     
     det_messenger = new DetectorMessenger(this);
     
-    nPos_x = nPos_y = nPos_z = 0.*m;
-    nuPos_x = nuPos_y = nuPos_z = 0.*m;
-    muPos_x = muPos_y = muPos_z = 0.*m;
+    // "world" building size
+    modSizeX = 5.*m;    // Half-Length - long edge
+    modSizeY = 3.*m;   // Half-Height
+    modSizeZ = 5.*m;    // Half-Width - short edge
     
-    inner_offset = 0.*m;
+    // scintillator light production and transport
     birksPC = 0.1*mm/MeV;
     birksPVT = 0.2*mm/MeV;
     refl = 1.0;
@@ -90,6 +91,7 @@ DetectorConstruction::DetectorConstruction() {
     spike = 0.0;
     back = 0.0;
     efficiency=1.0;
+    OptFinish = ground;
     
     fOptical = true;
     fInnerActivated = true;
@@ -100,14 +102,9 @@ DetectorConstruction::DetectorConstruction() {
     fVetoActivated = false;
     fVertical = true;
     
-    modSizeX = 5.*m;    // Half-Length - long edge
-    modSizeY = 5.*m;    // Half-Height
-    modSizeZ = 5.*m;    // Half-Width - short edge
-    
     QE = -1;
     NSegX = 4;
     NSegY = 12;
-    OptFinish = ground;         
     AirGap = 12.7*mm;           
     WrapGap = 0.0*mm;
     WrapThickness = 0.1*mm;     
@@ -124,41 +121,24 @@ DetectorConstruction::DetectorConstruction() {
     
     MainScintMat = &PsiCumeneT;
     ScintSegMat = &Polyeth;
-    
 }
 
 DetectorConstruction::~DetectorConstruction() {
     delete cath_vis;
     delete build_vis;
-    delete wrapgap_vis;
-    delete world_vis;
-    delete bg_vis;
+    delete hall_vis;
     delete shieldlead_vis;
     delete shieldpolyb_vis;
     delete shieldpolyli_vis;
     delete shell_vis;
-    delete floor_vis;
-    delete layer_vis;
     delete segment_vis;
-    delete end_vis;
-    delete outer_vis;
-    delete oil_vis;
-    delete optical_vis;
-    delete separator_vis;
-    delete inner_vis;
+    delete wrapgap_vis;
     delete target_vis;
     delete scint_vis;
-    delete innerwrap_vis;
-    delete gc_scint_vis;
-    delete air_vis;
-    delete borate_vis;
     delete shield_vis;
-    delete water_vis;
-    delete panel_vis;
-    delete guide_vis;
-    delete brace_vis;
     delete pmt_vis;
     delete cover_vis;
+    delete cath_vis;
     delete base_vis;
 }
 
@@ -208,7 +188,6 @@ void DetectorConstruction::ConstructGeometry() {
     G4double shell_l = GetSegLength() + 2.0*(pmtSEG_h + (pmtSEGbase_h + basepinSEG_h));
     
     G4ThreeVector shell_placement(0,0,0);
-    G4ThreeVector floor_placement(0,0,0);
     
     ///////////////////////////////
     // Experimental hall air volume
@@ -216,11 +195,7 @@ void DetectorConstruction::ConstructGeometry() {
     hall_log = new G4LogicalVolume(hall_box, Air, "HallLogical", 0,0,0);
     hall_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), hall_log, "Hall", build_log, false,0,false);
     
-    G4LogicalVolume* shell_mother = hall_log;
     G4LogicalVolume* scint_mother;
-    
-    if(fVertical) floor_placement[2] = -shell_l/2. - 1.0*m;
-    else floor_placement[1] = -shell_h/2. - 1.0*m;
     
     if(fShieldActivated) {
         
@@ -228,17 +203,12 @@ void DetectorConstruction::ConstructGeometry() {
         shell_h += 1.0*mm;
         shell_l += 0.5*mm;
         
-        if(fVertical) {
-            
-            G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_l/2.+ ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm);
-            bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
-            bg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0., ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2.+ 0.5*mm),
-                                        bg_log, "BGVolume", hall_log, false,0,false);   
+        if(fVertical) {  
 
             G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldPolyB/2.+ ShieldLead/2.+ ShieldPolyLi/2.);    
             shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
             shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-0.5),
-                                                 shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+                                                 shieldpolyb_log, "PolyShieldB", hall_log, false,0,false);
             
             G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldLead/2. + ShieldPolyLi/2.);    
             shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
@@ -249,26 +219,12 @@ void DetectorConstruction::ConstructGeometry() {
             shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
             shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,- ShieldLead/2.),
                                                   shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
-            
-            G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.5*mm, shell_l/2. + 0.5*mm);
-            innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
-            innerbg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-ShieldPolyLi/2.),
-                                             innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
-            
-            // shell_placement[2] = shell_placement[2]-(0.25);  
-            shell_mother = innerbg_log;
-            
         } else { // !fVertical:
-            
-            G4Box* bg_box =  new G4Box("BGBox", shell_w/2.+ ShieldLead + ShieldPolyB + ShieldPolyLi + 1.0*mm, shell_h/2. + ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm, shell_l/2.+ ShieldLead + ShieldPolyB  + ShieldPolyLi + 1.0*mm);
-            bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
-            bg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,ShieldLead/2. + ShieldPolyB/2. + ShieldPolyLi/2. + 0.5*mm,0.),
-                                        bg_log, "BGVolume", hall_log, false,0,false);
             
             G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyB+ ShieldLead+ ShieldPolyLi);    
             shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
             shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-0.5,0.),
-                                                 shieldpolyb_log, "PolyShieldB", bg_log, false,0,false);
+                                                 shieldpolyb_log, "PolyShieldB", hall_log, false,0,false);
             
             
             G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldLead + ShieldPolyLi);    
@@ -281,13 +237,7 @@ void DetectorConstruction::ConstructGeometry() {
             shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,- ShieldLead/2.,0.),
                                                   shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
             
-            G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.25*mm, shell_l/2. + 0.5*mm);
-            innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
-            innerbg_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-ShieldPolyLi/2.0,0.),
-                                             innerbg_log, "InnerBGVolume", shieldpolyli_log, false,0,false);
-            
             shell_placement[1] -= 0.25; 
-            shell_mother = innerbg_log;
             
             shell_w -= 1.0*mm;
             shell_l -= 1.0*mm;
@@ -295,22 +245,14 @@ void DetectorConstruction::ConstructGeometry() {
         }
         
     } else { // !fShieldActivated:
-        
-        G4Box* bg_box =  new G4Box("BGBox", shell_w/2 + 1.0*mm, shell_h/2. + 1.0*mm, shell_l/2. + 1.0*mm);
-        bg_log = new G4LogicalVolume(bg_box, Air, "BGLogical", 0,0,0);
-        bg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), bg_log, "BGVolume", hall_log, false,0,false);
-        G4Box* innerbg_box =  new G4Box("InnerBGBox", shell_w/2 + 0.5*mm, shell_h/2. + 0.5*mm, shell_l/2. + 0.5*mm);
-        innerbg_log = new G4LogicalVolume(innerbg_box, Air, "InnerBGLogical", 0,0,0);
-        innerbg_phys = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), innerbg_log, "InnerBGVolume", bg_log, false,0,false);
-        shell_mother = innerbg_log;
-    
+        assert(false);
     }
     
     /////////////////
     // Detector shell
     G4Box* shell_box = new G4Box("DetectorShellBox", shell_w/2., shell_h/2., shell_l/2.);
     shell_log = new G4LogicalVolume(shell_box, Air, "ShellLogical", 0,0,0);
-    shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shell_mother, false,0,false);
+    shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shieldpolyli_log, false,0,false);
     
     
     ////////////////////////
@@ -488,105 +430,90 @@ void DetectorConstruction::ConstructSDs() {
 void DetectorConstruction::SetupVisualization() {
     
     G4cerr << "Setting visualization attributes..." << G4endl;
-    
-    // Building volume
-    build_vis = new G4VisAttributes(G4Colour(0.8,0.8,0.8));
-    build_vis->SetVisibility(false);
-    build_log->SetVisAttributes(build_vis);
-    
-    // World Volume
-    world_vis = new G4VisAttributes(G4Colour(0.0,1.0,0.0));
-    world_vis->SetVisibility(false);
-    hall_log->SetVisAttributes(world_vis);
-    
-    // Detector Geometry Shell
-    shell_vis = new G4VisAttributes(G4Colour(0.0,0.0,1.0));
-    //shell_vis->SetVisibility(false);
-    shell_log->SetVisAttributes(shell_vis);
-    
-    
-    // Lead Shield
-    bg_vis = new G4VisAttributes(G4Colour(0.5,0.1,1.0));
-    //bg_vis->SetVisibility(false);
-    //bg_vis->SetForceSolid(true);
-    bg_log->SetVisAttributes(bg_vis);
-    
-    ibg_vis = new G4VisAttributes(G4Colour(1.0,0.1,0.5));
-    ibg_vis->SetForceSolid(true);
-    innerbg_log->SetVisAttributes(ibg_vis);
-    
-    if(fShieldActivated){
-        
-        shieldlead_vis = new G4VisAttributes(G4Colour(0.0,0.5,0.5));
-        //shieldlead_vis->SetVisibility(false);
-        shieldlead_log->SetVisAttributes(shieldlead_vis);
-        
-        // Poly Shield
-        shieldpolyb_vis = new G4VisAttributes(G4Colour(0.2,0.5,0.0));
-        //shieldpoly_vis->SetVisibility(false);
-        //shieldpolyb_vis->SetForceSolid(true);
-        shieldpolyb_log->SetVisAttributes(shieldpolyb_vis);
-        
-        shieldpolyli_vis = new G4VisAttributes(G4Colour(0.5,0.3,0.0));
-        //shieldpoly_vis->SetVisibility(false);
-        shieldpolyli_log->SetVisAttributes(shieldpolyli_vis);
-    }
-    
-    // Outer Tank
-    segment_vis = new G4VisAttributes(G4Colour(1.0,0.0,1.0));
     // segment_vis->SetForceSolid(true);
     // segment_vis->SetVisibility(false);
-    segment_log->SetVisAttributes(segment_vis);
+    
+    
+    // Building volume
+    build_vis = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
+    build_log->SetVisAttributes(build_vis);
+    G4cerr << "Gray:\tbuilding" << G4endl;
+    
+    // Experiment hall air
+    hall_vis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+    hall_log->SetVisAttributes(hall_vis);
+    G4cerr << "Green:\thall air" << G4endl;
+            
+    if(fShieldActivated){
+        // Borated poly shield
+        shieldpolyb_vis = new G4VisAttributes(G4Colour(0.0, 0.5, 0.0));
+        shieldpolyb_log->SetVisAttributes(shieldpolyb_vis);
+        G4cerr << "Dark green:\tborated poly" << G4endl;
+        
+        // Lead shield
+        shieldlead_vis = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0));
+        shieldlead_log->SetVisAttributes(shieldlead_vis);
+        G4cerr << "Cyan:\tlead shield" << G4endl;
+        
+        // 6Li poly shield
+        shieldpolyli_vis = new G4VisAttributes(G4Colour(0.7, 0.5, 0.0));
+        shieldpolyli_log->SetVisAttributes(shieldpolyli_vis);
+        G4cerr << "Orange: \t6Li poly" << G4endl;
+    }
+    
+    // Detector Shell
+    shell_vis = new G4VisAttributes(G4Colour(0.0,0.0,1.0));
+    shell_log->SetVisAttributes(shell_vis);
+    G4cerr << "Blue:\tdetector shell air volume" << G4endl;
     
     // Wrap Gap
-    if(WrapGap > 0){
+    if(WrapGap > 0) {
         wrapgap_vis= new G4VisAttributes(G4Colour(0.0,1.0,0.0));
         wrapgap_vis->SetForceAuxEdgeVisible (true);
-        //wrapgap_vis->SetVisibility(false);
-        // wrapgap_vis->SetForceSolid(true);
         wrapgap_log->SetVisAttributes(wrapgap_vis);
+        G4cerr << "Green:\twrap gap" << G4endl;
     }
 
     // Target Tank
     target_vis = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
     target_vis->SetForceAuxEdgeVisible (true);
-    //  target_vis->SetVisibility(false);
-    //target_vis->SetForceSolid(true);
     target_log->SetVisAttributes(target_vis);
+    G4cerr << "Gray:\ttarget tank" << G4endl;
+    
+    // Scintillator segment
+    segment_vis = new G4VisAttributes(G4Colour(1.0,0.0,0.0));
+    segment_log->SetVisAttributes(segment_vis);
+    G4cerr << "Red:\tdetector segment" << G4endl;
     
     // Liquid Scintillator Volume
-    scint_vis = new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+    scint_vis = new G4VisAttributes(G4Colour(1.,1.,0.));
     scint_vis->SetForceAuxEdgeVisible (true);
-    //  scint_vis->SetForceSolid(true); 
-    //  scint_vis->SetVisibility(false);
     scint_log->SetVisAttributes(scint_vis);
+    G4cerr << "Yellow:\tscintillator volume" << G4endl;
     
     // Photomultiplier Tubes (PMTs)
-    cath_vis = new G4VisAttributes(G4Colour(1.,1.,1.0));
-    //pmt_vis->SetVisibility(false);
+    cath_vis = new G4VisAttributes(G4Colour(1.,1.,1.));
     cath_vis->SetForceAuxEdgeVisible(true);
-    //  cath_vis->SetForceSolid(true);
     cathSEG_log->SetVisAttributes(cath_vis);
+    G4cerr << "White:\tPMT photocathode" << G4endl;
     
     // Photomultiplier Tubes (PMTs)
     pmt_vis = new G4VisAttributes(G4Colour(0.0,0.7,1.0));
-    //pmt_vis->SetVisibility(false);
     pmt_vis->SetForceAuxEdgeVisible(true);
-    //  pmt_vis->SetForceSolid(true);
     pmtSEG_log->SetVisAttributes(pmt_vis);
+    G4cerr << "Cyan:\tPMT segment" << G4endl;
     
     // PMT Covers
-    cover_vis = new G4VisAttributes(G4Colour(0.3,0.3,0.3));
-    // cover_vis->SetVisibility(false);
+    cover_vis = new G4VisAttributes(G4Colour(0.7,0.7,0.7));
     cover_vis->SetForceAuxEdgeVisible(true);
-    // cover_vis->SetForceSolid(true);
     coverSEG_log->SetVisAttributes(cover_vis);
+    G4cerr << "Gray:\tPMT cover" << G4endl;
     
     // PMT Backings
-    base_vis = new G4VisAttributes(G4Colour(0.4,0.4,0.4));
-    // base_vis->SetVisibility(false);
+    base_vis = new G4VisAttributes(G4Colour(0.2,0.2,0.2));
     base_vis->SetForceAuxEdgeVisible(true);
     baseSEG_log->SetVisAttributes(base_vis);
+    G4cerr << "Dark gray:\tPMT base" << G4endl;
 }
                         
 void DetectorConstruction::ConstructMaterials() {
