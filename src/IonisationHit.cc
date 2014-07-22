@@ -32,41 +32,13 @@
 #include "globals.hh"
 #include <vector>
 
-G4Allocator<IonisationHit> IonisationHitAllocator;	// Creates an allocator for the NeutronHit class - allocates memory according to size of data to be stored
+G4Allocator<IonisationHit> IonisationHit::IonisationHitAllocator;
 
 IonisationHit::IonisationHit() {
     volName = "";
     copyNo = -1;
     totEDep = 0.*MeV;
     totEEsc = 0.*MeV;
-    trackIDs = new std::vector<G4int>();
-    left = new std::vector<G4int>();
-}
-
-IonisationHit::~IonisationHit() {
-    delete trackIDs;
-    delete left;
-}
-
-IonisationHit::IonisationHit(const IonisationHit &right): G4VHit() {
-    volName = right.volName;
-    copyNo = right.copyNo;
-    totEDep = right.totEDep;
-    totEEsc = right.totEEsc;
-    *trackIDs = *(right.trackIDs);
-    *left = *(right.left);
-}
-
-// The following are functions called when an operator is applied to an object of this class
-
-const IonisationHit& IonisationHit::operator=(const IonisationHit &right) {
-    volName = right.volName;
-    copyNo = right.copyNo;
-    totEDep = right.totEDep;
-    totEEsc = right.totEEsc;
-    *trackIDs = *(right.trackIDs);
-    *left = *(right.left);
-    return *this;
 }
 
 void IonisationHit::operator+=(const IonisationHit &right) {
@@ -74,22 +46,22 @@ void IonisationHit::operator+=(const IonisationHit &right) {
     totEEsc += right.totEEsc;
     
     G4bool IsNew = true;
-    for(std::vector<G4int>::iterator itr = trackIDs->begin(); itr != trackIDs->end(); itr++) {
-        if((*itr) == (*(right.trackIDs))[0]) {
+    for(std::vector<G4int>::iterator itr = trackIDs.begin(); itr != trackIDs.end(); itr++) {
+        if((*itr) == right.trackIDs[0]) {
             IsNew = false;
             break;
         }
     }
     
-    for(std::vector<G4int>::iterator itr = left->begin(); itr != left->end(); itr++) {
-        if((*itr) == (*(right.trackIDs))[0]) {
-            left->erase(itr);
+    for(std::vector<G4int>::iterator itr = left.begin(); itr != left.end(); itr++) {
+        if((*itr) == right.trackIDs[0]) {
+            left.erase(itr);
             break;
         }
     }
 
-    if(IsNew) trackIDs->push_back((*(right.trackIDs))[0]);
-    if(!((right.left)->empty())) left->push_back((*(right.left))[0]);
+    if(IsNew) trackIDs.push_back(right.trackIDs[0]);
+    if(!right.left.empty()) left.push_back(right.left[0]);
 }
 
 // The following functions specify and assemble the memory allocations required/variables stored for an object of this class
@@ -136,7 +108,8 @@ std::vector<G4AttValue>* IonisationHit::CreateAttValues() const {
 void IonisationHit::SetVolume(G4String volume) {
     volName = volume;
     G4VPhysicalVolume* detVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume(volName);
-    G4int numCopy = -1;
-    if(detVolume) numCopy = detVolume->GetCopyNo();
-    if(numCopy >= 0) copyNo = numCopy;
+    if(detVolume) {
+        G4int numCopy = detVolume->GetCopyNo();
+        if(numCopy >= 0) copyNo = numCopy;
+    }
 }

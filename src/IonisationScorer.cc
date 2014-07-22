@@ -40,7 +40,6 @@ IonisationScorer::~IonisationScorer() {
     if(ionise_collection) delete ionise_collection;
 }
 
-// ****** Initialize Event ****** //
 void IonisationScorer::Initialize(G4HCofThisEvent* HCE) {
     G4String name = GetMultiFunctionalDetector()->GetName();
     ionise_collection = new IonisationHitsCollection(name,primitiveName);
@@ -48,7 +47,6 @@ void IonisationScorer::Initialize(G4HCofThisEvent* HCE) {
     HCE->AddHitsCollection(HCIDIon,ionise_collection);
 }
 
-// ****** Process Event Hit ****** //
 G4bool IonisationScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
         
     if( aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0

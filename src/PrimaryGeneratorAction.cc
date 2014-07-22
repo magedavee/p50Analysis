@@ -542,6 +542,80 @@ void PrimaryGeneratorAction::throwPrimaries(const std::vector<primaryPtcl>& v, G
     }
 }
 
+void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
+    
+    // verify successful CRY initialization
+    if(InputState) {
+        G4String* str = new G4String("CRY library was not successfully initialized");
+        G4Exception("PrimaryGeneratorAction", "1",RunMustBeAborted, *str);
+    }
+    
+    // loop until generating at least one primary
+    //G4double length = detect->GetMaxHalfDimension();
+    std::vector<primaryPtcl> v;
+    do {
+        vect->clear();
+        gen->genEvent(vect);
+        
+        uint n_muons = 0;
+        uint n_neutrons = 0;
+        
+        for ( unsigned j=0; j<vect->size(); j++) {
+            
+            // determine whether to process trajectory
+            bool good_point = true;
+            /*
+             i f(fCRYpoint) {    *
+             //find pointing vector
+             G4double ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
+        G4double px = (*vect)[j]->x()+ray*(*vect)[j]->u();
+        G4double py = (*vect)[j]->y()+ray*(*vect)[j]->v();
+        G4double pz = cryZoffset+ray*(*vect)[j]->w();
+        
+        good_point = (sqrt(px*px+py*py+pz*pz)<=(0.0015*length));
+        }
+        */
+            
+            if(good_point) {
+                
+                // record first primary's parameters to event output
+                if(!v.size()) {
+                    Event* ev = RootIO::GetInstance()->GetEvent();
+                    
+                    ev->fGenPos[0] = (*vect)[j]->x();
+                    ev->fGenPos[1] = (*vect)[j]->y();
+                    ev->fGenPos[2] = cryZoffset;
+                    
+                    ev->fGenMom[0] = (*vect)[j]->u();
+                    ev->fGenMom[1] = (*vect)[j]->v();
+                    ev->fGenMom[2] = (*vect)[j]->w();
+                    
+                    ev->fEnergy = (*vect)[j]->ke()*MeV;
+                }
+                
+                primaryPtcl p;
+                p.PDGid = (*vect)[j]->PDGid();
+                p.KE = (*vect)[j]->ke()*MeV;
+                p.pos = G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset);
+                p.mom = G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w());
+                p.t = (*vect)[j]->t()*s;
+                v.push_back(p);
+                
+                n_muons += (abs(p.PDGid) == 13);
+                n_neutrons += (p.PDGid == 2112);
+            }
+
+            delete (*vect)[j];
+        }
+        
+        //if(!n_muons && !n_neutrons) v.clear();
+        
+    } while(!v.size());
+    
+    double cosrayTime = gen->timeSimulated();
+    G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
+    throwPrimaries(v, anEvent);
+}
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     
@@ -552,73 +626,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     G4double evEnergy = 0;
     G4int particleID=0;
     
-    if(fCry) {
-        
-        // verify successful CRY initialization
-        if(InputState) {
-            G4String* str = new G4String("CRY library was not successfully initialized");
-            G4Exception("PrimaryGeneratorAction", "1",RunMustBeAborted, *str);
-        }
-        
-        // loop until generating at least one primary
-        //G4double length = detect->GetMaxHalfDimension();
-        Int_t n_primaries = 0;
-        std::vector<primaryPtcl> v;
-        do {
-            vect->clear();
-            gen->genEvent(vect);
-            
-            for ( unsigned j=0; j<vect->size(); j++) {
-                
-                // determine whether to process trajectory
-                bool good_point = true;
-                /*
-                if(fCRYpoint) {
-                    //find pointing vector
-                    G4double ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
-                    G4double px = (*vect)[j]->x()+ray*(*vect)[j]->u();
-                    G4double py = (*vect)[j]->y()+ray*(*vect)[j]->v();
-                    G4double pz = cryZoffset+ray*(*vect)[j]->w();
-                    
-                    good_point = (sqrt(px*px+py*py+pz*pz)<=(0.0015*length));
-                }
-                */
-                
-                if(good_point) {
-                    ++n_primaries;
-                    
-                    // record first primary's parameters to event output
-                    if(n_primaries == 1) {
-                        Event* ev = RootIO::GetInstance()->GetEvent();
-                        
-                        ev->fGenPos[0] = (*vect)[j]->x();
-                        ev->fGenPos[1] = (*vect)[j]->y();
-                        ev->fGenPos[2] = cryZoffset;
-                        
-                        ev->fGenMom[0] = (*vect)[j]->u();
-                        ev->fGenMom[1] = (*vect)[j]->v();
-                        ev->fGenMom[2] = (*vect)[j]->w();
-                        
-                        ev->fEnergy = (*vect)[j]->ke()*MeV;
-                    }
-                    
-                    primaryPtcl p;
-                    p.PDGid = (*vect)[j]->PDGid();
-                    p.KE = (*vect)[j]->ke()*MeV;
-                    p.pos = G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset);
-                    p.mom = G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w());
-                    p.t = (*vect)[j]->t()*s;
-                    v.push_back(p);
-                }
-                
-                delete (*vect)[j];
-            }
-        } while(!n_primaries);
-        
-        double cosrayTime = gen->timeSimulated();
-        G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
-        throwPrimaries(v, anEvent);
-    }
+    if(fCry) Generate_CRY_Primaries(anEvent);
     
     // Check for Calibration Mode
     if(fCalibration) {

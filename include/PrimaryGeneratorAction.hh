@@ -148,6 +148,8 @@ private:
     
     /// throw listed primaries
     void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
+    /// thow event from CRY cosmic ray generator
+    void Generate_CRY_Primaries(G4Event* anEvent);
     
     G4int verbose;                      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
     G4bool RawData;                     ///< Whether to output primary event parameters to log; set when verbosity > 2

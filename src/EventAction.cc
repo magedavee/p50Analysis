@@ -271,7 +271,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
             RootIO::GetInstance()->FillTree(); 
         }
         
-    } else if(RootIO::GetInstance()->GetFill()==1 || run_action->GetRecordLevel()==3) {
+    } else if(RootIO::GetInstance()->GetFill() || run_action->GetRecordLevel()==3) {
         Event* ev = RootIO::GetInstance()->GetEvent();
         ev->fEventNumber =  run_action->GetEventNumberOffset() + anEvent->GetEventID();	
         RootIO::GetInstance()->FillTree(); 

@@ -80,10 +80,9 @@ class RunAction : public G4UserRunAction	// This class inherits functions from G
     G4double GetPhotonTravelTimeLowerRef() const { return travelRef; };
     G4double GetPhotonTravelTimeBinCount() const { return travelNum; };
 
-  G4int GetRunNumber(){return nRunNumber ;};
-  G4int GetEventNumberOffset(){return nEvNumOffset ;};
-  G4int GetRecordLevel(){return nRecLev ;};
-
+    G4int GetRunNumber() const {return nRunNumber; }
+    G4int GetEventNumberOffset() const { return nEvNumOffset; }
+    G4int GetRecordLevel() const { return nRecLev; }
 
     void PrintCurrentData();				// Data output functions
     void PrintOutputList() const;
@@ -114,9 +113,9 @@ class RunAction : public G4UserRunAction	// This class inherits functions from G
 
 	// The following functions modify the output tables to display data with desired resolution
 
-  void SetRunNumber(G4int rnum){nRunNumber = rnum;};
-  void SetEventNumberOffset(G4int rnum){nEvNumOffset = rnum;};
-  void SetRecordLevel(G4int rnum){nRecLev = rnum;};
+    void SetRunNumber(G4int rnum) {nRunNumber = rnum; }
+    void SetEventNumberOffset(G4int rnum) { nEvNumOffset = rnum; }
+    void SetRecordLevel(G4int rnum) { nRecLev = rnum; }
 
     void SetNeutronCaptureEnergyBinWidth(G4double bin) { nEnergyBin = bin; };
     void SetNeutronCaptureEnergyLowerRef(G4double ref) { nEnergyRef = ref; };
