@@ -1,3 +1,4 @@
+/*
 // Unrestricted Use - Property of AECL
 //
 // MuonPhysics.cc
@@ -79,3 +80,4 @@ void MuonPhysics::ConstructProcess()			// Sets up the necessary process for the 
 }
 
 // EOF
+*/

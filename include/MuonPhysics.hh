@@ -1,3 +1,4 @@
+/*
 // Unrestricted Use - property of AECL
 //
 // MuonPhysics.hh
@@ -25,7 +26,6 @@
 
 #include "globals.hh"			// Specifies class defining all global parameters and variable types
 
-/* -------- Class Definition --------- */
 
 class MuonPhysics : public G4VPhysicsConstructor	// This class inherits functions from G4VPhysicsConstructor
 {
@@ -40,8 +40,6 @@ class MuonPhysics : public G4VPhysicsConstructor	// This class inherits function
     virtual void ConstructProcess();			// Function which defines the neutron-related processes in this simulation
 };
 
-/* ----------------------------------- */
 
-#endif					// End of the if clause
-
-// EOF
+#endif
+*/

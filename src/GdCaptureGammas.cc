@@ -1,4 +1,4 @@
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //                 Spectrum of radiative neutron capture by Gadolinium            
 //                                    version 1.0.0                                
@@ -252,7 +252,7 @@ void  GdCaptureGammas::intc()
       xint[3][i]=aux[6];
     } 
 }
-
+*/
 
 
 

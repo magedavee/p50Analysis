@@ -1,3 +1,4 @@
+/*
 // Unrestricted Use - Property of AECL
 //
 // HadronPhysics.cc
@@ -108,3 +109,4 @@ void HadronPhysics::ConstructProcess()			// Sets up the necessary process for th
 }
 
 // EOF
+*/

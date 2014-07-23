@@ -13,8 +13,6 @@
 /output/setRecordLevel 2
 
 /run/initialize
-/hits/activate scintHitInner
-/hits/activate SegmentPMT
 
 #/vis/open OGLSXm
 #/vis/open HepRepFile
@@ -35,7 +33,6 @@
 /vis/disable
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
-#/output/setRootOutput
 
 /CRY/toggleCryMode true
 /CRY/input returnNeutrons 1
@@ -49,5 +46,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 1000
+/run/beamOn 10000
 

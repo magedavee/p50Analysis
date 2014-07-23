@@ -60,8 +60,8 @@ G4bool IonisationSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     //if(aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0)
     aHit->E = aStep->GetTotalEnergyDeposit();
     aHit->t = aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime();
-    G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition() + aStep->GetPostStepPoint()->GetPosition();
-    for(uint i=0; i<3; i++) aHit->x[i] = 0.5*pos[i];
+    G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition();
+    for(uint i=0; i<3; i++) aHit->x[i] = pos[i];
     
     /* TODO: Need to implement direct energy deposit by gamma in case of high production threshold for e- */
     

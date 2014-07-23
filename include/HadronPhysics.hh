@@ -1,3 +1,4 @@
+/*
 // Unrestricted Use - property of AECL
 //
 // HadronPhysics.hh
@@ -15,7 +16,7 @@
 
 #include "G4VPhysicsConstructor.hh"	// Specifies base class or parent class
 
-#include "G4UHadronElasticProcess.hh"	// Specifies classes which contain structures called upon in this class
+//#include "G4UHadronElasticProcess.hh"
 #include "G4HadronFissionProcess.hh"
 #include "G4HadronCaptureProcess.hh"
 #include "G4HadronElastic.hh"
@@ -43,7 +44,6 @@
 
 class HadronPhysicsQGSP_BERT_HP;	// Structures necessary for class definition
 
-/* -------- Class Definition --------- */
 
 class HadronPhysics : public G4VPhysicsConstructor	// This class inherits functions from G4VPhysicsConstructor
 {
@@ -62,8 +62,8 @@ class HadronPhysics : public G4VPhysicsConstructor	// This class inherits functi
     HadronPhysicsQGSP_BERT_HP* qgsp;
 };
 
-/* ----------------------------------- */
 
 #endif						// End of the if clause
 
 // EOF
+*/

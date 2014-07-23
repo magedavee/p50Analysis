@@ -1,4 +1,4 @@
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //                   Spectrum of radiative neutron capture by Gadolinium            
 //                                    version 1.0.0                                
@@ -99,3 +99,4 @@ G4HadFinalState * GdNeutronHPCapture::ApplyYourself(const G4HadProjectile& aTrac
     }
     return theCapture[index].ApplyYourself(aTrack);
 }
+*/

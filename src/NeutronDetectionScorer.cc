@@ -28,6 +28,7 @@
 #include "G4ios.hh"
 
 #include "globals.hh"
+#include <cassert>
 
 NeutronDetectionScorer::NeutronDetectionScorer(G4String HCname): G4VPrimitiveScorer(HCname) {
     HCIDNeut = -1;
@@ -79,7 +80,7 @@ G4bool NeutronDetectionScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
         aHit->SetFinalPosition(aStep->GetPostStepPoint()->GetPosition());
         
         // Record capture gamma production if the capture event produces secondary gamma particles
-        G4TrackVector* secondaries = aStep->GetSecondary();
+        G4TrackVector* secondaries = NULL; assert(false); // = aStep->GetSecondary(); TODO
         if(!secondaries->empty()) {
             G4int nGamma = 0;           // number of gammas produced
             G4double totGammaE = 0.0;   // total energy of gammas produced

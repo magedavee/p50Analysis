@@ -17,12 +17,6 @@
 #include "RunAction.hh"
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "InverseBetaKinematics.hh"
-#include "NeutronHit.hh"
-#include "OpticalHit.hh"
-#include "IonisationSD.hh"
-#include "ProtonHit.hh"
-#include "LogSession.hh"
 #include "RootIO.hh"
 #include "Event.hh"
 
@@ -60,12 +54,14 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     // Initialize HC pointers at the start of every event
     G4SDManager* sd_manager = G4SDManager::GetSDMpointerIfExist();
     if(sd_manager) {
-        InnerHCIDEDep = sd_manager->GetCollectionID("scintHitInner/IoniseCollection");
+        //InnerHCIDEDep = sd_manager->GetCollectionID("scintHitInner/IoniseCollection");
     }
+    
+    RootIO::GetInstance()->GetEvent().N = eventNumber;
 }
 
 // ****** Post-Event Processing ****** //
-void EventAction::EndOfEventAction(const G4Event* anEvent) {
+void EventAction::EndOfEventAction(const G4Event*) {
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();

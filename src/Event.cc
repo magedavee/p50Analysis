@@ -13,23 +13,35 @@ ClassImp(Event)
 ClassImp(Run)
 
 Event::~Event() {
-    if(myIoniClusts) delete myIoniClusts;
-    if(myPrimaries) delete myPrimaries;
+    if(iEvts) delete iEvts;
+    if(Primaries) delete Primaries;
 }
 
 void Event::Clear(Option_t*) {
     
-    if(!myIoniClusts) myIoniClusts = new TClonesArray("EventIoniCluster",1000);
-    if(!myPrimaries) myPrimaries = new TClonesArray("EventPrimaryPtcl",100);
+    if(!iEvts) iEvts = new TClonesArray("EventIoniCluster",1000);
+    if(!Primaries) Primaries = new TClonesArray("EventPrimaryPtcl",100);
     
     N = 0;
     
     // "C" option recursively calls "Clear" on sub-objects
-    myPrimaries->Clear("C");
+    Primaries->Clear("C");
     nPrimaries = 0;
     
-    myIoniClusts->Clear("C");
+    iEvts->Clear("C");
     nIoniClusts = 0;
+    EIoni = 0;
+}
+
+void Event::AddPrimary(const EventPrimaryPtcl& P) {
+    assert(Primaries);
+    new((*Primaries)[nPrimaries++]) EventPrimaryPtcl(P);
+}
+
+void Event::AddIoniCluster(const EventIoniCluster& tr) {
+    assert(iEvts);
+    new((*iEvts)[nIoniClusts++]) EventIoniCluster(tr);
+    EIoni += tr.E;
 }
 
 ////////////////////////////////////////////

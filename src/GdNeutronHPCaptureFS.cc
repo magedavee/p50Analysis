@@ -1,4 +1,4 @@
-
+/*
 
 ///////////////////////////////////////////////////////////////////////////////
 //                   Spectrum of radiative neutron capture by Gadolinium           
@@ -203,4 +203,4 @@ void GdNeutronHPCaptureFS::UpdateNucleus( const G4Fragment* gamma , G4double eGa
     theData.close();
   }
 
-
+*/

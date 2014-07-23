@@ -34,6 +34,8 @@
 #include "G4UIExecutive.hh"
 #endif
 
+#include <G4PhysListFactory.hh>
+
 #include <iostream>
 #include <fstream>
 #include "globals.hh"
@@ -58,9 +60,11 @@ int main(int argc,char** argv) {
     DetectorConstruction* detector = new DetectorConstruction();
     run_manager->SetUserInitialization(detector);
     
-    G4VUserPhysicsList* physics = new PhysicsList();	// G4VUser type class is used to initialize here because there are no unique functions defined belonging only to this user-defined class
-    run_manager->SetUserInitialization(physics);
-    
+    //G4VUserPhysicsList* physics = new PhysicsList_495(false);
+    G4PhysListFactory factory;
+    G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP");
+    run_manager->SetUserInitialization(physList);
+
     // Set mandatory user action classes
     PrimaryGeneratorAction* generator = new PrimaryGeneratorAction();
     run_manager->SetUserAction(generator); 

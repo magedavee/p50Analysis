@@ -39,13 +39,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     
   RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
   
+  /*
   DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
   if(aStep->GetPostStepPoint()->GetStepStatus() != 1){
     if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0){ 
       if(aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()
           || aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()){
 
-        /*
 	RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tEdep += aStep->GetTotalEnergyDeposit();
 	//RootIO::GetInstance()->GetEvent()->fEdep += aStep->GetTotalEnergyDeposit();
 	G4int cono = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
@@ -66,7 +66,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 	  RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tSegment.push_back(cono);
 	  RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tSegEdep.push_back(aStep->GetTotalEnergyDeposit());
 	}
-        */
         
       }
     }
@@ -76,8 +75,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   
   //find the boundary process only once
   if(!boundary){
-    G4ProcessManager* pm 
-      = aStep->GetTrack()->GetDefinition()->GetProcessManager();
+    G4ProcessManager* pm = aStep->GetTrack()->GetDefinition()->GetProcessManager();
     G4int nprocesses = pm->GetProcessListLength();
     G4ProcessVector* pv = pm->GetProcessList();
     G4int i;
@@ -88,7 +86,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       }
     }
   }
- 
+ */
+  
  /*G4ParticleDefinition* particleType = aStep->GetTrack()->GetDefinition();
   G4OpBoundaryProcessStatus boundaryStatus=Undefined;
     if(particleType==G4OpticalPhoton::OpticalPhotonDefinition()){
@@ -133,5 +132,3 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 */
  
 }
-
-// EOF

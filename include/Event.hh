@@ -45,24 +45,26 @@ class Event : public TObject {
 public:
     
     /// Constructor
-    Event(): N(0), nPrimaries(0), myPrimaries(NULL), nIoniClusts(0), myIoniClusts(NULL)  { }
+    Event(): N(0), nPrimaries(0), Primaries(NULL), nIoniClusts(0), iEvts(NULL)  { }
     /// Destructor
     ~Event();
     
     Int_t N;                    ///< event number
     Double_t t;                 ///< event time
-    Double_t Edep;              ///< total scintillator deposited energy 
+    
     Int_t nPrimaries;           ///< number of primaries
-    TClonesArray* myPrimaries;  ///< array of event primary particles
+    TClonesArray* Primaries;  ///< array of event primary particles
+    
     Int_t nIoniClusts;          ///< number of ionization events
-    TClonesArray* myIoniClusts; ///< array of event ionization clusters
+    TClonesArray* iEvts;        ///< array of event ionization events
+    Double_t EIoni;             ///< total ionization deposited energy
     
     /// Clear data for new event
     void Clear(Option_t *option ="");
-    /// Add new ionization data
-    void AddIoniCluster(const EventIoniCluster& tr) { assert(myIoniClusts); new((*myIoniClusts)[nIoniClusts++]) EventIoniCluster(tr); }
     /// Add new primary data
-    void AddPrimary(const EventPrimaryPtcl& P) { assert(myPrimaries); new((*myPrimaries)[nPrimaries++]) EventPrimaryPtcl(P); }
+    void AddPrimary(const EventPrimaryPtcl& P);
+    /// Add new ionization cluster
+    void AddIoniCluster(const EventIoniCluster& tr);
     
     ClassDef(Event,1);
 };
