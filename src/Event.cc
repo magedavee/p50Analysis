@@ -12,8 +12,6 @@ ClassImp(EventPrimaryPtcl)
 ClassImp(Event)
 ClassImp(Run)
 
-Event::Event(): N(0), nPrimaries(0), myPrimaries(NULL), nIoniClusts(0), myIoniClusts(NULL)  { }
-
 Event::~Event() {
     if(myIoniClusts) delete myIoniClusts;
     if(myPrimaries) delete myPrimaries;
@@ -31,7 +29,7 @@ void Event::Clear(Option_t*) {
     nPrimaries = 0;
     
     myIoniClusts->Clear("C");
-    myIoniClusts = 0;
+    nIoniClusts = 0;
 }
 
 ////////////////////////////////////////////

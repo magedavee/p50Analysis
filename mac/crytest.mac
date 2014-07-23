@@ -5,21 +5,12 @@
 /tracking/verbose 0
 
 /detector/setShield true
-#/detector/setNumberSegmentsX 4
-#/detector/setNumberSegmentsY 4
-#/detector/setScintillatorLength 3 m
-#/detector/setScintillatorHeight 3 m
-#/detector/setScintillatorWidth 3 m
-#/detector/setSegmentBuffer 100 mm
 #/detector/setLeadShieldThickness 50.8 mm
 #/detector/setBPolyShieldThickness 600 mm
-#/detector/setVertical true
-#/detector/setAcrylThickness 6.35 mm
-#/detector/setPMTDiameter 100 mm
 #/scint/setComposition T
 /scint/setOpticalProcesses false
 
-/output/setRecordLevel 3
+/output/setRecordLevel 2
 
 /run/initialize
 /hits/activate scintHitInner

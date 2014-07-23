@@ -5,6 +5,7 @@
 #include "TClonesArray.h"
 #include <cstdlib>
 #include <vector>
+#include <cassert>
 
 using namespace std;
 class TCollection;
@@ -40,11 +41,11 @@ public:
     ClassDef(EventIoniCluster,1);
 };
 
-class Event : public TObject {    
+class Event : public TObject {
 public:
     
     /// Constructor
-    Event();
+    Event(): N(0), nPrimaries(0), myPrimaries(NULL), nIoniClusts(0), myIoniClusts(NULL)  { }
     /// Destructor
     ~Event();
     
@@ -59,9 +60,9 @@ public:
     /// Clear data for new event
     void Clear(Option_t *option ="");
     /// Add new ionization data
-    void AddIoniCluster(const EventIoniCluster& tr) { new((*myIoniClusts)[nIoniClusts++]) EventIoniCluster(tr); }
+    void AddIoniCluster(const EventIoniCluster& tr) { assert(myIoniClusts); new((*myIoniClusts)[nIoniClusts++]) EventIoniCluster(tr); }
     /// Add new primary data
-    void AddPrimary(const EventPrimaryPtcl& P) { new((*myPrimaries)[nPrimaries++]) EventPrimaryPtcl(P); }
+    void AddPrimary(const EventPrimaryPtcl& P) { assert(myPrimaries); new((*myPrimaries)[nPrimaries++]) EventPrimaryPtcl(P); }
     
     ClassDef(Event,1);
 };

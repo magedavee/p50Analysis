@@ -20,8 +20,7 @@
 #include "InverseBetaKinematics.hh"
 #include "NeutronHit.hh"
 #include "OpticalHit.hh"
-#include "IonisationHit.hh"
-#include "IonisationScorer.hh"
+#include "IonisationSD.hh"
 #include "ProtonHit.hh"
 #include "LogSession.hh"
 #include "RootIO.hh"
@@ -67,29 +66,8 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
 
 // ****** Post-Event Processing ****** //
 void EventAction::EndOfEventAction(const G4Event* anEvent) {
-    // useful pointers
-    DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    G4HCofThisEvent* HCE = anEvent->GetHCofThisEvent();
-    G4SDManager* sd_manager = G4SDManager::GetSDMpointerIfExist();
-    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-    
-    // Initialize hit collection pointers for event analysis
-    IonisationHitsCollection* InnerEDepHCE = NULL;
-    
-    // Acquire hit collections from event processing
-    if(HCE && sd_manager) {
-        InnerEDepHCE = (IonisationHitsCollection*)(HCE->GetHC(InnerHCIDEDep));
-    }
- 
-    /* ------------- Ionisation Statistics -------------- */
-    // Scintillator Volume
-    if(InnerEDepHCE && InnerEDepHCE->entries()) {
-        // Coded for a single entry only - no loop required
-        G4double energy_deposit = (*InnerEDepHCE)[0]->GetEnergyDeposit();
-        G4double energy_escaped = (*InnerEDepHCE)[0]->GetEnergyEscaped();
-    }
-    
     // Save event data
+    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
     Event& evt = RootIO::GetInstance()->GetEvent();
     if(reclevel >= 3 || (reclevel >= 2 && evt.nIoniClusts > 0))

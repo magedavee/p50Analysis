@@ -31,6 +31,7 @@ class G4VisAttributes;
 class G4Material;
 class DetectorMessenger;
 class G4MultiFunctionalDetector;
+class IonisationSD;
 
 class DetectorConstruction: public G4VUserDetectorConstruction {
     
@@ -249,11 +250,10 @@ private:
 
     // Detectors
     G4MultiFunctionalDetector* scintHitInner;
-    // G4MultiFunctionalDetector* scintHitVeto;
     G4MultiFunctionalDetector* opticalPMT;
-    // G4MultiFunctionalDetector* vetoPMT;
     G4MultiFunctionalDetector* SegmentPMT;
-
+    IonisationSD* scintIoniSD;
+    
     // Visualization
     G4VisAttributes* build_vis;
     G4VisAttributes* hall_vis;

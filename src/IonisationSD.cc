@@ -1,6 +1,6 @@
 // Unrestricted Use - Property of AECL
 //
-// IonisationScorer.cc
+// IonisationSD.cc
 // GEANT4 - geant4.9.3.p01
 //
 // Class File for Ionizing Radiation Scorer
@@ -11,51 +11,39 @@
 //      Edited for clarity 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
-#include "IonisationScorer.hh"
+#include "IonisationSD.hh"
 
-#include "IonisationHit.hh"
 #include "LogSession.hh"
 #include "RootIO.hh"
+#include "RunAction.hh"
 
 #include "G4UnitsTable.hh"
 #include "G4Track.hh"
 #include "G4Step.hh"
 #include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4THitsMap.hh"
 #include "G4ParticleTypes.hh"
 #include "G4VSolid.hh"
 #include "G4RunManager.hh"	
-#include "RunAction.hh"
 #include "G4TouchableHandle.hh"
-
 
 #include "G4ios.hh"
 
 #include "globals.hh"
 
-IonisationScorer::IonisationScorer(G4String HCname): G4VPrimitiveScorer(HCname), time_gap(20*ns), edep_threshold(100*keV), nclusters(0) {
-    HCIDIon = -1;
-    ionise_collection = NULL;
+void IonisationHit::Display() const {
+    G4cerr << "Hit E=" << G4BestUnit(sum_w,"Energy") 
+    << " at t=" << G4BestUnit(GetTime(),"Time") << "( " << G4BestUnit(GetDTime(),"Time")
+    << ")\tx=[ " << G4BestUnit(GetPos(),"Length") << "] { " << G4BestUnit(GetDPos(),"Length") << "}" << G4endl;
 }
-
-IonisationScorer::~IonisationScorer() {
-    if(ionise_collection) delete ionise_collection;
-}
-
-void IonisationScorer::Initialize(G4HCofThisEvent* HCE) {
     
-    // initialize new hits collection for this event
-    G4String name = GetMultiFunctionalDetector()->GetName();
-    ionise_collection = new IonisationHitsCollection(name,primitiveName);
-    if(HCIDIon<0) HCIDIon = G4SDManager::GetSDMpointer()->GetCollectionID(ionise_collection);
-    HCE->AddHitsCollection(HCIDIon,ionise_collection);
-    
+////////////////////////////////////////////////////////////////   
+
+void IonisationSD::Initialize(G4HCofThisEvent*) {    
     hit_history.clear();
     nclusters = 0;
 }
 
-G4bool IonisationScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+G4bool IonisationSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     
     // check whether this is ionizing process
     if(!(   aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0
@@ -94,9 +82,24 @@ G4bool IonisationScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     return true;
 }
 
+
+void IonisationSD::RegisterHit(IonisationHit* h) {
+    h->Display();
+    nclusters++;
+    
+    // add to ROOT output
+    EventIoniCluster c;
+    c.E = h->GetEnergyDeposit();
+    c.t = h->GetTime();
+    c.dt = h->GetDTime();
+    for(uint i=0; i<3; i++) { c.x[i] = h->GetPos()[i]; c.dx[i] = h->GetDPos()[i]; }
+    c.vol = h->GetVolume();
+    RootIO::GetInstance()->GetEvent().AddIoniCluster(c);
+}
+
 bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return a->GetTime() < b->GetTime(); }
 
-void IonisationScorer::EndOfEvent(G4HCofThisEvent*) {
+void IonisationSD::EndOfEvent(G4HCofThisEvent*) {
     
     G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
     for(std::map< G4int, std::vector<IonisationHit*> >::iterator it = hit_history.begin(); it != hit_history.end(); it++) {
@@ -111,26 +114,17 @@ void IonisationScorer::EndOfEvent(G4HCofThisEvent*) {
         uint nclusters = 0;
         for(; ihit != it->second.end(); ihit++) {
             if((*ihit)->GetTime() > prevHit->GetTime() + time_gap) {
-                if(prevHit->GetEnergyDeposit() > edep_threshold) {
-                    ionise_collection->insert(prevHit);
-                    prevHit->Display();
-                    nclusters++;
-                } else delete prevHit;
+                if(prevHit->GetEnergyDeposit() > edep_threshold) RegisterHit(prevHit);
+                else delete prevHit;
                 prevHit = *ihit;
             } else {
                 *prevHit += **ihit;
                 delete *ihit;
             }
         }
-        if(prevHit->GetEnergyDeposit() > edep_threshold) {
-            ionise_collection->insert(prevHit);
-            prevHit->Display();
-            nclusters++;
-        } else delete prevHit;
+        if(prevHit->GetEnergyDeposit() > edep_threshold) RegisterHit(prevHit);
+        else delete prevHit;
         G4cerr << "\t" << it->second.size() << " hits in " << nclusters << " clusters." << G4endl;
     }
-    
-    HCIDIon = -1;
-    ionise_collection = NULL;
 }
 

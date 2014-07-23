@@ -23,6 +23,7 @@ RootIO* RootIO::GetInstance() {
     if (instance == NULL) {
         G4cerr << "Instantiating ROOT output instance" << G4endl;
         instance = new RootIO();
+        instance->GetEvent().Clear();
     }
     return instance;
 }
