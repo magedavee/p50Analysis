@@ -95,12 +95,10 @@ void OpticalPhysics::ConstructProcess()				// Sets up the necessary process for 
 
   theParticleIterator->reset();
 
-  while((*theParticleIterator)())
-  {
+  while((*theParticleIterator)()) {
     G4ParticleDefinition* particle = theParticleIterator->value();
     process_manager = particle->GetProcessManager();
-    if(cerenkovProcess->IsApplicable(*particle))
-    {
+    if(cerenkovProcess->IsApplicable(*particle)) {
       process_manager->AddProcess(cerenkovProcess);
       process_manager->SetProcessOrdering(cerenkovProcess,idxPostStep);
     }

@@ -53,6 +53,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     verbose = 0;
     RawData = false;
     
+    CRY_generator = NULL;
+    
     // Particle Gun - not really used
     G4int n_particle = 1;
     particle_gun = new G4ParticleGun(n_particle);
@@ -539,13 +541,24 @@ void PrimaryGeneratorAction::throwPrimaries(const std::vector<primaryPtcl>& v, G
         particle_gun->SetParticleMomentumDirection(it->mom);
         particle_gun->SetParticleTime(it->t);
         particle_gun->GeneratePrimaryVertex(anEvent);
+        
+        // record primary to ROOT output
+        EventPrimaryPtcl p;
+        for(uint i=0; i<3; i++) {
+            p.x[i] = it->pos[i];
+            p.p[i] = it->mom[i];
+        }
+        p.t = it->t;
+        p.E = it->KE;
+        p.PID = it->PDGid;
+        RootIO::GetInstance()->GetEvent().AddPrimary(p);
     }
 }
 
 void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
     
     // verify successful CRY initialization
-    if(InputState) {
+    if(InputState || !CRY_generator) {
         G4String* str = new G4String("CRY library was not successfully initialized");
         G4Exception("PrimaryGeneratorAction", "1",RunMustBeAborted, *str);
     }
@@ -555,7 +568,7 @@ void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
     std::vector<primaryPtcl> v;
     do {
         vect->clear();
-        gen->genEvent(vect);
+        CRY_generator->genEvent(vect);
         
         uint n_muons = 0;
         uint n_neutrons = 0;
@@ -579,7 +592,8 @@ void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
             if(good_point) {
                 
                 // record first primary's parameters to event output
-                if(!v.size()) {
+               /*
+               if(!v.size()) {
                     Event* ev = RootIO::GetInstance()->GetEvent();
                     
                     ev->fGenPos[0] = (*vect)[j]->x();
@@ -592,7 +606,8 @@ void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
                     
                     ev->fEnergy = (*vect)[j]->ke()*MeV;
                 }
-                
+                */
+               
                 primaryPtcl p;
                 p.PDGid = (*vect)[j]->PDGid();
                 p.KE = (*vect)[j]->ke()*MeV;
@@ -607,24 +622,14 @@ void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
 
             delete (*vect)[j];
         }
-        
-        //if(!n_muons && !n_neutrons) v.clear();
-        
     } while(!v.size());
     
-    double cosrayTime = gen->timeSimulated();
+    double cosrayTime = CRY_generator->timeSimulated();
     G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
     throwPrimaries(v, anEvent);
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-    
-    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-    G4String pre = run_action->GetFilePrefix();
-    G4String suf = run_action->GetFileSuffix();
-    
-    G4double evEnergy = 0;
-    G4int particleID=0;
     
     if(fCry) Generate_CRY_Primaries(anEvent);
     
@@ -664,8 +669,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
             log->CloseFile();
         }
         
-        evEnergy = particle_gun->GetParticleEnergy();
-        particleID = particle_gun->GetParticleDefinition()->GetPDGEncoding();
         particle_gun->GeneratePrimaryVertex(anEvent);
     } else if(fModule == InverseBeta) {
         // If using Inverse Beta Module, ensure one neutron and one positron each are generated
@@ -674,8 +677,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
             particle_source->SetCurrentSourceto(1);
             particle_source->SetCurrentSourceIntensity(1.0);
             particle_source->GeneratePrimaryVertex(anEvent);
-            evEnergy =  particle_source->GetParticleEnergy();
-            particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
         }
         if(inverse_beta->IsNeutronGenerated()) {
             ResetAllSourceIntensities();
@@ -686,8 +687,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         particle_source->SetCurrentSourceto(0);
     } else if(fModule != None) {        
         particle_source->GeneratePrimaryVertex(anEvent);
-        evEnergy = particle_source->GetParticleEnergy();
-        particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
     } else {
         // Writes individual momentums and energies into file if requested
         if(RawData) {
@@ -705,31 +704,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
             (*log) << energy/MeV << std::endl;
             log->CloseFile();
         }
-        evEnergy = particle_source->GetParticleEnergy();
-        particleID = particle_source->GetParticleDefinition()->GetPDGEncoding();
         particle_source->GeneratePrimaryVertex(anEvent);
     }
     
-    if(run_action->GetLSPhotonCountRawDataOutput()) {
-        LogSession* log = LogSession::GetLogSessionPointer();
-        log->SetOutputFileName(pre+"EventTruth"+suf+".txt");
-        if( anEvent->GetEventID() == 0) {
-            log->OpenFile(true,false);
-            (*log) << "Event Number\tPid\t #X\t#Y\t#Z\t#E" << std::endl; 
-        } else {
-            log->OpenFile(false,true);
-        }
-        (*log) << run_action->GetEventNumberOffset() + anEvent->GetEventID();
-        (*log) << "\t" <<  particleID;
-        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
-        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
-        (*log) << "\t" << anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
-        (*log) << "\t" <<  evEnergy/MeV;
-        (*log) << std::endl;
-        log->CloseFile();
-    }
-    
     if(!fCry){
+        /*
         Event* ev = RootIO::GetInstance()->GetEvent();
         
         ev->fGenPos[0] = anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
@@ -744,6 +723,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         
         ev->fEnergy = particle_source->GetParticleEnergy();
         ev->fPDGcode = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
+        */
     }
 }
 
@@ -1374,23 +1354,22 @@ void PrimaryGeneratorAction::InputCRY()
 }
 
 //----------------------------------------------------------------------------//
-void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput)
-{
+
+void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput) {
     G4cerr << "updating cry" << G4endl;
     CRYSetup *setup=new CRYSetup(*MessInput,getenv("CRYDATA"));
       
-      gen = new CRYGenerator(setup);
+    CRY_generator = new CRYGenerator(setup);
       
       // set random number generator
       RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
       setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
       InputState=0;
-      
 }
 
 //----------------------------------------------------------------------------//
-void PrimaryGeneratorAction::CRYFromFile(G4String newValue)
-{
+
+void PrimaryGeneratorAction::CRYFromFile(G4String newValue) {
     // Read the cry input file
     std::ifstream inputFile;
     inputFile.open(newValue,std::ios::in);
@@ -1409,7 +1388,7 @@ void PrimaryGeneratorAction::CRYFromFile(G4String newValue)
         
         CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA"));
       
-      gen = new CRYGenerator(setup);
+        CRY_generator = new CRYGenerator(setup);
       
       // set random number generator
       RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
@@ -1441,7 +1420,7 @@ void PrimaryGeneratorAction::SetCRY(G4bool value) {
         
         CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA")); 
         
-        gen = new CRYGenerator(setup);
+        CRY_generator = new CRYGenerator(setup);
         
         // set random number generator
         RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);

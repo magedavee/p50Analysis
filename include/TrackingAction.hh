@@ -8,36 +8,29 @@
 //
 // --------------------------------------------------------
 //	Version 1.01  - 2011/04/29 - A. Ho
+//      Edited 201407 M. P. Mendenhall
 // --------------------------------------------------------
 
-#ifndef TrackingAction_H		// Only carries out if object is undefined
-#define TrackingAction_H 1		// Defines object
+#ifndef TrackingAction_H
+/// Assure header is loaded only once
+#define TrackingAction_H
 
-#include "G4UserTrackingAction.hh"	// Specifies base class or parent class
+#include "G4UserTrackingAction.hh"
 
-#include <iostream>			// Specifies the classes which allow reading/writing to standard input/output
+#include <iostream>
 #include <fstream>
 
-#include <map>				// Specifies classes defining all global parameters and variable types
+#include <map>
 #include "globals.hh"
 
-/* -------- Class Definition --------- */
-
-class TrackingAction : public G4UserTrackingAction	// This class inherits functions from G4UserTrackingAction
-{
-  public:	// Constructors and Destructors
-
-    TrackingAction();				// Constructor
-    virtual ~TrackingAction();			// Destructor
-
-  public: 	// Accessible Methods
-
-    void PreUserTrackingAction(const G4Track*);		// Function called at start of every track
-    void PostUserTrackingAction(const G4Track*);	// Function called at end of every track
+class TrackingAction : public G4UserTrackingAction {
+public:
+    /// Constructor
+    TrackingAction() { }
+    /// called at start of every track
+    void PreUserTrackingAction(const G4Track*);
+    /// called at end of every track
+    void PostUserTrackingAction(const G4Track*);
 };
 
-/* ----------------------------------- */
-
-#endif					// End of the if clause
-
-// EOF
+#endif

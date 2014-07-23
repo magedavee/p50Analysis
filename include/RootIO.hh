@@ -11,6 +11,7 @@
 #include "G4ios.hh"
 #include "G4String.hh"
 #include <vector>
+#include <cassert>
 
 using namespace std;
 
@@ -27,14 +28,11 @@ public:
     static RootIO* GetInstance();
     void WriteFile();
     void FillTree();
-    Event* GetEvent();
-    void AddTrack(Int_t);
-    void Clear() { mctrack.clear(); mcevent->Clear(); }
-    Track* GetTrack(Int_t);
+    Event& GetEvent() { return mcevent; }
+    
+    void Clear() { mcevent.Clear(); }
     void SetFileName(G4String);
     G4String GetFileName() const { return filename; }
-    bool GetFill() const { return fill; }
-    void SetFill(bool f){ fill=f; }
 
 protected:
     /// Constructor; protected for singleton instantiation
@@ -44,13 +42,12 @@ private:
     int writecount;
     TFile* outfile;
     TTree* dataTree;
-    Event* mcevent;
-    vector<Track*> mctrack;
+    Event mcevent;      ///< event data fill point
+    Event* pmcevent;    ///< pointer to mcevent, for TTree setup
     Run* mcrun;
     int Nevents;
     int Ntracks;
     G4String filename;
-    bool fill;
 };
 
 

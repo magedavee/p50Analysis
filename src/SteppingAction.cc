@@ -35,24 +35,21 @@
 #include "globals.hh"			// Specifies class defining all global constants and variable types
 
 // ****** Post-Step Processing ****** //
-void SteppingAction::UserSteppingAction(const G4Step* aStep)
-{
+void SteppingAction::UserSteppingAction(const G4Step* aStep) {
+    
   RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-  if(run_action->GetRecordLevel() == 2){ 
-    if(aStep->GetTrack()->GetParentID()==0 && (aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetName() == "LeadShield" || aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetName() == "PolyShieldB" ||aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetName() == "PolyShieldLi")){
-      RootIO::GetInstance()->SetFill(1);
-    }
-  }
+  
   DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
   if(aStep->GetPostStepPoint()->GetStepStatus() != 1){
     if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0){ 
       if(aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()
           || aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() == detector->GetScintLog()->GetName()){
 
+        /*
 	RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tEdep += aStep->GetTotalEnergyDeposit();
-	RootIO::GetInstance()->GetEvent()->fEdep += aStep->GetTotalEnergyDeposit();
+	//RootIO::GetInstance()->GetEvent()->fEdep += aStep->GetTotalEnergyDeposit();
 	G4int cono = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-	RootIO::GetInstance()->GetEvent()->fSegEdep[cono] += aStep->GetTotalEnergyDeposit();
+	//RootIO::GetInstance()->GetEvent()->fSegEdep[cono] += aStep->GetTotalEnergyDeposit();
 
 	//track level segment energy depositions
 	int count = 0, found = 0;
@@ -69,8 +66,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 	  RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tSegment.push_back(cono);
 	  RootIO::GetInstance()->GetTrack(aStep->GetTrack()->GetTrackID())->tSegEdep.push_back(aStep->GetTotalEnergyDeposit());
 	}
-
-	if(run_action->GetRecordLevel() == 1) RootIO::GetInstance()->SetFill(1);
+        */
+        
       }
     }
   }

@@ -330,9 +330,6 @@ void DetectorConstruction::ConstructGeometry() {
             
             G4String id1 = to_str(100*xnum+ynum);
             
-            PositionX[xnum+ynum*NSegX] = xpos;
-            PositionY[xnum+ynum*NSegX] = ypos;
-            
             segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log,
                                                          "Segment "+id1, shell_log, false,100*xnum+ynum,true);
             scint_mother = segment_log;

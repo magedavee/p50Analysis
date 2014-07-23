@@ -16,59 +16,63 @@
 #define IonisationHit_H
 
 #include "G4VHit.hh"
+#include "WeightAverager.hh"
 
+#include "G4UnitsTable.hh"
 #include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
 #include "G4ThreeVector.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4TouchableHandle.hh"
 
 #include <vector>
 #include <map>
+#include <set>
 #include "globals.hh"
 
 class G4AttDef;
 class G4AttValue;
 
-class IonisationHit : public G4VHit {
+class IonisationHit : public G4VHit, public WeightAverager<4> {
 public:
     /// Constructor
-    IonisationHit();
+    IonisationHit(): t(x_in[0]), x(x_in+1), VID(-1) { }
     
-    /// equality operator
-    int operator==(const IonisationHit &right) const { return copyNo == right.copyNo && volName == right.volName; }
-    /// In-place addition operator
-    void operator+=(const IonisationHit &right);
-
+    double& t;          ///< time input
+    double* x;          ///< position input
+    double E;           ///< deposited energy input
+    
+    /// record contents
+    void record() { fill_with_weight(E); }
+    
     /// Called when 'new' operator is used
     void* operator new(size_t) { return IonisationHitAllocator.MallocSingle(); }
     /// called when 'delete' operator is used
     void operator delete(void* aHit) { IonisationHitAllocator.FreeSingle((IonisationHit*) aHit); }
-
-    virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;      ///< Used to store incoming data
+    
+    virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;
     virtual std::vector<G4AttValue>* CreateAttValues() const;
 
-    void SetVolume(G4String);
-    void SetEnergyDeposit(G4double E) { totEDep = E; }
-    void SetEnergyEscaped(G4double Esc) { totEEsc = Esc; }
-    void SetTrackID(G4int id) { trackIDs.push_back(id); }
-    void SetLeft(G4bool l) { left.push_back(l); }
-    G4int GetCopyNumber() const { return copyNo; }
+    void SetVolume(G4int i) { VID = i; }
     
-    G4String GetVolumeName() const { return volName; }
-    G4double GetEnergyDeposit() const { return totEDep; }
-    G4double GetEnergyEscaped() const { return totEEsc; }
+    G4int GetVolume() const { return VID; }
+    G4double GetTime() const { return get_avg(0); }
+    G4double GetDTime() const { return get_rms(0); }
+    G4ThreeVector GetPos() const { return G4ThreeVector(get_avg(1), get_avg(2), get_avg(3)); }
+    G4ThreeVector GetDPos() const { return G4ThreeVector(get_rms(1), get_rms(2), get_rms(3)); }
+    G4double GetEnergyDeposit() const { return sum_w; }
+    G4double GetEnergyEscaped() const { return 0; }
 
+    void Display() const {
+        G4cerr << "Hit E=" << G4BestUnit(sum_w,"Energy") 
+        << " at t=" << G4BestUnit(GetTime(),"Time") << "( " << G4BestUnit(GetDTime(),"Time")
+        << ")\tx=[ " << G4BestUnit(GetPos(),"Length") << "] { " << G4BestUnit(GetDPos(),"Length") << "}" << G4endl; }
+    
 private:
 
-    G4String volName;
-    G4int copyNo;
-    G4double totEDep;
-    G4double totEEsc;
-    std::vector<G4int> trackIDs;
-    std::vector<G4int> left;
+    G4int VID;                                                  ///< identifier for hit volume
     
-    static G4Allocator<IonisationHit> IonisationHitAllocator;           ///< specialized allocator for IonizationHits
+    static G4Allocator<IonisationHit> IonisationHitAllocator;   ///< specialized allocator for IonisationHits
 };
-
-typedef G4THitsCollection<IonisationHit> IonisationHitsCollection;      ///< Provides the type definition to create a hit collection
 
 #endif

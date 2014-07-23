@@ -19,7 +19,7 @@
 #/scint/setComposition T
 /scint/setOpticalProcesses false
 
-/output/setRecordLevel 1
+/output/setRecordLevel 3
 
 /run/initialize
 /hits/activate scintHitInner
@@ -43,8 +43,7 @@
 
 /vis/disable
 
-/output/setOutputDirectory ~/Analysis/ShortBaseline/MC/Data/trash/
-/output/setRootOutput ~/Analysis/ShortBaseline/MC/Data/CryMCData.root
+/output/filename ~/Analysis/ShortBaseline/CryMCData.root
 #/output/setRootOutput
 
 /CRY/toggleCryMode true

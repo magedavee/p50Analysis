@@ -156,7 +156,7 @@ private:
 
     G4ParticleGun* particle_gun;
     G4ParticleTable* particleTable;
-    CRYGenerator* gen;
+    CRYGenerator* CRY_generator;
     G4GeneralParticleSource* particle_source;
     DetectorConstruction* detect;
     PrimaryGeneratorMessenger* gun_messenger;

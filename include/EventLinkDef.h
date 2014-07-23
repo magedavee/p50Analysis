@@ -4,10 +4,9 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-//#pragma link C++ class EventHeader+;
+#pragma link C++ class EventPrimaryPtcl+;
+#pragma link C++ class EventIoniCluster+;
 #pragma link C++ class Event+;
-		     //#pragma link C++ class HistogramManager+;
-#pragma link C++ class Track+;
 #pragma link C++ class Run+;
 #include <vector>
 #ifdef __MAKECINT__

@@ -9,77 +9,76 @@
 using namespace std;
 class TCollection;
 
-class Track : public TObject {
-
+/// Primary particle specification for ROOT output
+class EventPrimaryPtcl: public TObject {
 public:
-  Double_t      tP[3];           //initial particle momentum
-  Int_t         tID;      //track ID
-  Int_t         tPhot;           //optical photons created by this track in scintillator
-  Double_t      tPosi[3];        //coordinates of the first point
-  Double_t      tPosf[3];        //coordinates of the last point
-  Double_t      tEi;             //initial energy of the track
-  Double_t      tEf;             //final energy of the track
-  Short_t       tPrimary;        //is 1 if the particle is the primary, 0 otherwise
-  Short_t       tSecondary;      //is 1 if the particle is a secondary, 0 otherwise
-  Int_t         tParent;         // particles parent
-  Int_t         tStep;         // particles parenttrack step;
-  Int_t         tPDGcode;         //PDG code of the particle
-  Double_t      tTime;           // creation time of particle
-  Double_t      tEdep;           // energydeposited by particle in scintillator
-  Int_t tSegHit;
-  vector<Double_t> tSegEdep;
-  vector<Int_t> tSegment;
-  Track();
-  Track(const Track& orig);
-  virtual ~Track() {Clear();}
-  Track &operator=(const Track &orig);
-  void Clear(Option_t *option="");
-  ClassDef(Track,1)  //A track segment
+    /// constructor
+    EventPrimaryPtcl(): PID(0), E(0), t(0) {}
+    
+    Int_t PID;          ///< PDG particle ID code
+    Double_t x[3];      ///< vertex position
+    Double_t p[3];      ///< momentum direction
+    Double_t E;         ///< kinetic energy
+    Double_t t;         ///< initial time
+    
+    ClassDef(EventPrimaryPtcl,1);
 };
 
-class Event : public TObject {
-private: 
-
+/// Ionization energy deposition in event
+class EventIoniCluster: public TObject {
 public:
-  Int_t fEventNumber;
-  Double_t fEventTime;
-  Double_t fGenPos[3];
-  Double_t fGenMom[3];
-  Double_t fEnergy;
-  Int_t fPDGcode;
-  Int_t fNSeg;
-  Int_t *fNpmt;//[fNSeg]
-  Int_t *fSpmt;//[fNSeg] 
-  Double_t *fSegEdep;//[fNSeg]
-  Int_t fSph;
-  Int_t fNph;
-  Int_t fNtrack; 
-  Double_t fEdep; 
-  Int_t fNcap;         
-  TClonesArray* fTracks;
-
-  Event();
-  Event(Int_t, Int_t);
-  ~Event();
-  void Clear(Option_t *option ="");
-  void AddTrack(Track* tr);
-  
-  ClassDef(Event,1)  //Simple event class
+    /// constructor
+    EventIoniCluster(): E(0.), t(0.), dt(0.), vol(0) {}
+    
+    Double_t E;         ///< deposited energy
+    Double_t t;         ///< average time
+    Double_t dt;        ///< RMS timing spread
+    Double_t x[3];      ///< average position
+    Double_t dx[3];     ///< RMS position spread
+    Int_t vol;          ///< volume ID number
+    
+    ClassDef(EventIoniCluster,1);
 };
 
-/// Record of information about simulation run
+class Event : public TObject {    
+public:
+    
+    /// Constructor
+    Event();
+    /// Destructor
+    ~Event();
+    
+    Int_t N;                    ///< event number
+    Double_t t;                 ///< event time
+    Double_t Edep;              ///< total scintillator deposited energy 
+    Int_t nPrimaries;           ///< number of primaries
+    TClonesArray* myPrimaries;  ///< array of event primary particles
+    Int_t nIoniClusts;          ///< number of ionization events
+    TClonesArray* myIoniClusts; ///< array of event ionization clusters
+    
+    /// Clear data for new event
+    void Clear(Option_t *option ="");
+    /// Add new ionization data
+    void AddIoniCluster(const EventIoniCluster& tr) { new((*myIoniClusts)[nIoniClusts++]) EventIoniCluster(tr); }
+    /// Add new primary data
+    void AddPrimary(const EventPrimaryPtcl& P) { new((*myPrimaries)[nPrimaries++]) EventPrimaryPtcl(P); }
+    
+    ClassDef(Event,1);
+};
+
+/// Information about detector geometry for simulation run
 class Run : public TObject {
 public:
     
     /// constructor
     Run() { Clear(); }
+    
     /// reset all values to 0
     void Clear(Option_t *option ="");
     
-    Int_t NSegX;                  ///< the number of segments across (max 80)
-    Int_t NSegY;                  ///< the number of segments in height (max 80)
-    Double_t PositionX[2500];     ///< x position of each segment
-    Double_t PositionY[2500];     ///< y position of each segment
+    Int_t NSegX;                  ///< the number of segments in x direction
+    Int_t NSegY;                  ///< the number of segments in y direction
+
     Double_t AirGap;              ///< air gap between segments
     Double_t WrapThickness;       ///< Thickness of Outer Tank - approximately 1/8"
     Double_t WrapGap;

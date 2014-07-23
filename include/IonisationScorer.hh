@@ -23,7 +23,11 @@
 
 #include "globals.hh"
 
+#include <map>
+
 class G4Step;
+
+typedef G4THitsCollection<IonisationHit> IonisationHitsCollection;      ///< typedef for a hit collection
 
 /// PrimitiveScorer associates an amount of ionization with each detector volume
 class IonisationScorer : public G4VPrimitiveScorer {
@@ -44,10 +48,14 @@ public:
     G4int GetHCID() const { return HCIDIon; };
     IonisationHitsCollection* GetCollection() { return ionise_collection; };
 
+    G4double time_gap;          ///< time gap for separating event clusters
+    G4double edep_threshold;    ///< threshold for registering deposited energy hit
 private:
 
-    IonisationHitsCollection* ionise_collection;
-    G4int HCIDIon;
+    IonisationHitsCollection* ionise_collection;                ///< accumulated ionization hits for event
+    G4int HCIDIon;                                              ///< collection ID number
+    std::map< G4int, std::vector<IonisationHit*> > hit_history; ///< hits collection by detector
+    uint nclusters;                                             ///< number of time-grouped event clusters
 };
 
 #endif

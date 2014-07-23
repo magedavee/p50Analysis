@@ -63,8 +63,6 @@ public:
 
     int GetNSegX() const { return NSegX; }
     int GetNSegY() const { return NSegY; }
-    double GetPositionX(int i) { return PositionX[i]; }
-    double GetPositionY(int i) { return PositionY[i]; }
     int GetFinish() const { return OptFinish; }
     double GetAirGap() const { return AirGap; }
     double GetWrapGap() const { return WrapGap; }
@@ -171,8 +169,6 @@ private:
     // Segment Variables
     G4int NSegX;                ///< the number of segments across
     G4int NSegY;                ///< the number of segments in height
-    G4double PositionX[MaxSeg];
-    G4double PositionY[MaxSeg];
     G4OpticalSurfaceFinish OptFinish;  ///< G4OpticalSurfaceFinish(4)
 
     G4double ScintLength;
