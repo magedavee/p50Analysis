@@ -93,15 +93,13 @@ void InputSession::OpenFile()
 void InputSession::CloseFile(G4bool reset)
 {
 	// Close and destroy memory of previous input file
-  if(this->is_open());
-  {
+  if(this->is_open()) {
     this->close();
     this->clear();
   }
 
 	// If 'reset' specified, retain previous input file name until manual override
-  if(reset)
-  {
+  if(reset) {
     filename.clear();
   }
 }
