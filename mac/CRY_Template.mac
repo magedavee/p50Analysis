@@ -1,0 +1,30 @@
+/output/setRunNum %(run_num)i
+
+/detector/setShield true
+#/detector/setLeadShieldThickness 50.8 mm
+#/detector/setBPolyShieldThickness 600 mm
+#/scint/setComposition T
+/scint/setOpticalProcesses false
+
+/vis/disable
+
+/output/setRecordLevel 2
+
+/run/initialize
+
+/CRY/toggleCryMode true
+/CRY/input returnNeutrons 1
+/CRY/input returnProtons 1
+/CRY/input returnGammas 1
+/CRY/input returnPions 1
+/CRY/input returnKaons 1
+/CRY/input date 7-1-2012
+/CRY/input latitude 90.0
+/CRY/input altitude 0.0
+/CRY/input subboxLength 5
+/CRY/update
+
+/output/filename %(outfile)s
+
+/run/beamOn %(nevents)i
+

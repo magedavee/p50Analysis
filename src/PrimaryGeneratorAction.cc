@@ -1361,10 +1361,10 @@ void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput) {
       
     CRY_generator = new CRYGenerator(setup);
       
-      // set random number generator
-      RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
-      setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
-      InputState=0;
+    // set random number generator
+    RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
+    setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
+    InputState=0;
 }
 
 //----------------------------------------------------------------------------//
@@ -1379,7 +1379,7 @@ void PrimaryGeneratorAction::CRYFromFile(G4String newValue) {
         G4cout << "Failed to open input file " << newValue << G4endl;
         G4cout << "Make sure to define the cry library on the command line" << G4endl;
         InputState=-1;
-    }else{
+    } else {
         std::string setupString("");
         while ( !inputFile.getline(buffer,1000).eof()) {
             setupString.append(buffer);
