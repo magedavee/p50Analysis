@@ -50,7 +50,6 @@ G4bool IonisationSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     //    || aStep->GetTrack()->GetDefinition() == G4Neutron::NeutronDefinition()
         || aStep->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition() ) ) return false;
     
-    // Generate new hit and initialize basic values
     IonisationHit* aHit = new IonisationHit();
     G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
     aHit->SetVolume(hitVol->GetCopyNumber(2));
@@ -58,10 +57,9 @@ G4bool IonisationSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     
     // Record total energy deposit if particle is charged (e-, e+, etc.)
     //if(aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0)
-    aHit->E = aStep->GetTotalEnergyDeposit();
-    aHit->t = aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime();
-    G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition();
-    for(uint i=0; i<3; i++) aHit->x[i] = pos[i];
+    aHit->SetEnergy(aStep->GetTotalEnergyDeposit());
+    aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime());
+    aHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
     
     /* TODO: Need to implement direct energy deposit by gamma in case of high production threshold for e- */
     
@@ -84,7 +82,7 @@ G4bool IonisationSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 
 
 void IonisationSD::RegisterHit(IonisationHit* h) {
-    h->Display();
+    //h->Display();
     nclusters++;
     
     // add to ROOT output
@@ -101,17 +99,17 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 
 void IonisationSD::EndOfEvent(G4HCofThisEvent*) {
     
-    if(hit_history.size()) G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
+    if(false && hit_history.size()) G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
     for(std::map< G4int, std::vector<IonisationHit*> >::iterator it = hit_history.begin(); it != hit_history.end(); it++) {
         
         // time-order hit events
         std::sort(it->second.begin(), it->second.end(), compare_hit_times);
         
         // group into timing clusters
+        nclusters = 0;
         std::vector<IonisationHit*>::iterator ihit = it->second.begin();
         IonisationHit* prevHit = *ihit;
         ihit++;
-        uint nclusters = 0;
         for(; ihit != it->second.end(); ihit++) {
             if((*ihit)->GetTime() > prevHit->GetTime() + time_gap) {
                 if(prevHit->GetEnergyDeposit() > edep_threshold) RegisterHit(prevHit);
@@ -124,7 +122,7 @@ void IonisationSD::EndOfEvent(G4HCofThisEvent*) {
         }
         if(prevHit->GetEnergyDeposit() > edep_threshold) RegisterHit(prevHit);
         else delete prevHit;
-        G4cerr << "\t" << it->second.size() << " hits in " << nclusters << " clusters." << G4endl;
+        //G4cerr << "\t" << it->second.size() << " hits in " << nclusters << " clusters." << G4endl;
     }
 }
 

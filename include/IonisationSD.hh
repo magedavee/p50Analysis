@@ -31,17 +31,16 @@ class G4Step;
 class IonisationHit: public WeightAverager<4> {
 public:
     /// Constructor
-    IonisationHit(): t(x_in[0]), x(x_in+1), VID(-1) { }
-    
-    double& t;          ///< time input
-    double* x;          ///< position input
-    double E;           ///< deposited energy input
+    IonisationHit(): E(0), VID(-1) { }
     
     /// record contents
     void record() { fill_with_weight(E); }
     
     void SetVolume(G4int i) { VID = i; }
-    
+    void SetTime(G4double tt) { x_in[0] = tt; }
+    void SetPos(G4ThreeVector v) { for(uint i=0; i<3; i++) x_in[i+1] = v[i]; }
+    void SetEnergy(G4double e) { E = e; }
+        
     G4int GetVolume() const { return VID; }
     G4double GetTime() const { return get_avg(0); }
     G4double GetDTime() const { return get_rms(0); }
@@ -52,8 +51,8 @@ public:
     
     void Display() const;
         
-private:
-    
+protected:
+    double E;   ///< deposited energy input
     G4int VID;  ///< identifier for hit volume
 };
 
