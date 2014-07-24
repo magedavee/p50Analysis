@@ -39,6 +39,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 #include "globals.hh"
 
@@ -57,10 +58,32 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
         //InnerHCIDEDep = sd_manager->GetCollectionID("scintHitInner/IoniseCollection");
     }
     
-    RootIO::GetInstance()->GetEvent().N = eventNumber;
+    // Clear prior event data
+    Event& evt =  RootIO::GetInstance()->GetEvent();
+    evt.Clear();
+    
+    // record event primaries information
+    evt.N = eventNumber;
+    for(G4int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
+        const G4PrimaryVertex* v = anEvent->GetPrimaryVertex(i); 
+        assert(v);
+        EventPrimaryPtcl p;
+        for(uint j=0; j<3; j++) p.x[j] = v->GetPosition()[j];
+        p.t = v->GetT0();
+        for(G4int pn = 0; pn < v->GetNumberOfParticle(); pn++) {
+            const G4PrimaryParticle* pp = v->GetPrimary(pn);
+            assert(pp);
+            G4ThreeVector mom = pp->GetMomentum();
+            G4double m = pp->GetMass();
+            p.E = sqrt(mom.mag2()+m*m)-m;
+            mom = mom.unit();
+            for(uint j=0; j<3; j++) p.p[j] = mom[j];
+            p.PID = pp->GetPDGcode();
+            evt.AddPrimary(p);
+        }
+    }
 }
 
-// ****** Post-Event Processing ****** //
 void EventAction::EndOfEventAction(const G4Event*) {
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
@@ -68,6 +91,4 @@ void EventAction::EndOfEventAction(const G4Event*) {
     Event& evt = RootIO::GetInstance()->GetEvent();
     if(reclevel >= 3 || (reclevel >= 2 && evt.nIoniClusts > 0))
         RootIO::GetInstance()->FillTree();
-    // Clear event output for next event
-    evt.Clear();
 }

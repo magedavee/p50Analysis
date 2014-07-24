@@ -76,7 +76,7 @@ double CRYModule::getElapsedTime() const {
     return CRY_generator->timeSimulated()*s;
 }
 
-std::vector<primaryPtcl> CRYModule::gen() {
+void CRYModule::GeneratePrimaries(G4Event* anEvent) {
     
     // verify successful CRY initialization
     if(inputState || !CRY_generator) {
@@ -131,7 +131,7 @@ std::vector<primaryPtcl> CRYModule::gen() {
     
     if(myPGA->GetVerbosity() >= 2) G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(getElapsedTime(),"Time") << G4endl;
     
-    return v;
+    throwPrimaries(v, anEvent);
 }
 
 void CRYModule::initCRY(const std::string& S) {

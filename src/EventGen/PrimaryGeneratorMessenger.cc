@@ -247,9 +247,6 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
         if      (newValue == "cf252")   { generator->SetFunctionEnergySpectrum(1); }
         else if (newValue == "maxwell") { generator->SetFunctionEnergySpectrum(2); }
         InitializeSpectrumCommands();
-    } else if(command == fileCmd) {
-        generator->SetFile(newValue); 
-        InitializeSpectrumCommands();
     } else if(command == functMinECmd) generator->SetMinimumEnergyRange(functMinECmd->GetNewDoubleValue(newValue));
     else if(command == functMaxECmd) generator->SetMaximumEnergyRange(functMaxECmd->GetNewDoubleValue(newValue));
     else if(command == functTempCmd) generator->SetMaxwellianTemperature(functTempCmd->GetNewDoubleValue(newValue));

@@ -13,6 +13,7 @@ class G4UIcmdWithoutParameter;
 class CRYGenerator;
 class CRYParticle;
 
+/// Event generator module with interface to CRY cosmic ray shower generator
 class CRYModule: public PrimaryGeneratorModule, public G4UImessenger {
 public:
     /// Constructor
@@ -20,8 +21,8 @@ public:
     /// Destructor
     ~CRYModule();
     
-    /// generate list of particles to throw in event
-    std::vector<primaryPtcl> gen();
+    /// throw event particles
+    virtual void GeneratePrimaries(G4Event* anEvent);
 
     /// UI response
     void SetNewValue(G4UIcommand*,G4String);
@@ -40,11 +41,11 @@ protected:
     G4bool primpoint;                   ///< flag to determine whether particles are generated from the CRY package selectively point at the detector
     std::vector<CRYParticle*> vect;     ///< vector of generated particles
     
-    G4UIdirectory* CRYDir; 
-    G4UIcmdWithABool* cryPointCmd;
-    G4UIcmdWithADoubleAndUnit* cryZCmd;
-    G4UIcmdWithAString* cryInputCmd;
-    G4UIcmdWithoutParameter* cryUpdateCmd;
+    G4UIdirectory* CRYDir;              ///< UI directory for CRY-related commands
+    G4UIcmdWithABool* cryPointCmd;      ///< UI command for limiting primaries to those aimed at detector
+    G4UIcmdWithADoubleAndUnit* cryZCmd; ///< UI command for setting height of event vertex plane
+    G4UIcmdWithAString* cryInputCmd;    ///< UI command for direct commands to CRY
+    G4UIcmdWithoutParameter* cryUpdateCmd;      ///< UI command for executing cached CRY commands
 };
 
 #endif

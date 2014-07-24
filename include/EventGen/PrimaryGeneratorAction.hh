@@ -65,10 +65,13 @@ public:
     /// Destructor
     virtual ~PrimaryGeneratorModule() { }
     
-    /// generate list of particles to throw in event
-    virtual std::vector<primaryPtcl> gen() = 0;
+    /// throw event particles
+    virtual void GeneratePrimaries(G4Event* anEvent) = 0;
     
 protected:
+    
+    /// convenience function for throwing listed primaries
+    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
     
     PrimaryGeneratorAction* myPGA;      ///< PrimaryGeneratorAction this module runs for
 };
@@ -97,14 +100,11 @@ public:
     void GeneratePrimaries(G4Event* anEvent);
 
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
-    G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
     G4String GetDistribution() const { return fDistribution; };
     std::map<G4int,G4int>* GetHistogramData() const { return Histogram; };
     std::vector<G4double>* GetEnergyTable() const { return Energy; };
     G4int GetFunction() const { return fFunction; };
-    G4bool GetFile() const { return fFile; };  
     G4int GetCalibrationSource() const { return fCalibration; };
-    G4String GetRunSettings() const { return sModes; };
     G4bool GetGunSettings() const { return fGun; };
     G4int GetModuleSettings() const { return (G4int)(fModule); };
     G4int GetVerbosity() const { return verbose; }
@@ -116,9 +116,6 @@ public:
     
 protected:
     
-    /// throw listed primaries
-    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
-    
     void SetVerbosity(G4int);
     
     PrimaryGeneratorModule* genModule;  ///< generator module currently in use
@@ -128,7 +125,6 @@ protected:
     void GenerateUserParticleKinematics(G4int);
     void GenerateModuleParticleKinematics(G4int);
     void GenerateFunctionParticleEnergy();
-    void GenerateFileParticleEnergy();
     void GenerateCustomParticleEnergy();
     void GenerateCalibratedSourceEnergy();
     void GenerateEnergySpectrumWithoutSimulation(G4int n = 1);
@@ -139,7 +135,6 @@ protected:
     void ResetAllSourceIntensities();
 
     void SetFunctionEnergySpectrum(G4int);
-    void SetFile(G4String);
     void SetMinimumEnergyRange(G4double);
     void SetMaximumEnergyRange(G4double);
     void SetCustomEnergySpectrum(G4String);
@@ -163,8 +158,8 @@ protected:
 
 private:
 
-    G4int verbose;                      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;                     ///< Whether to output primary event parameters to log; set when verbosity > 2
+    G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
+    G4bool RawData;     ///< Whether to output primary event parameters to log; set when verbosity > 2
 
     G4ParticleGun* particle_gun;
     G4GeneralParticleSource* particle_source;
@@ -179,7 +174,6 @@ private:
     G4String fDistribution;             ///< Flag to determine current distribution
     Module fModule;                     ///< Flag to determine current module, if any
     G4int fFunction;                    ///< Flag to determine current spectrum function, if any
-    G4bool fFile;                       ///< Flag to determine whether particles are generated from an input file
     G4bool fCustom;                     ///< Flag to specify use of custom spectrum
     G4String customDist;
     G4bool fGun;                        ///< Flag to specify use of Particle Gun instead of default GPS
@@ -197,7 +191,6 @@ private:
     G4double max_dist;
     G4double eBin_width;
     G4double mTemp;                     ///< Temperature for Maxwellian spectrum
-    G4String sModes;                    ///< Used to mark output files
     std::ifstream* textfile;
 };
 
