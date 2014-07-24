@@ -532,9 +532,9 @@ void PrimaryGeneratorAction::GenerateCalibratedSourceEnergy()
 
 
 void PrimaryGeneratorAction::throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent) {
-    G4cerr << "Throwing " << v.size() << " particles:" << G4endl;
+    if(verbose >= 2) G4cerr << "Throwing " << v.size() << " particles:" << G4endl;
     for(std::vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
-        G4cerr << "\t" << it->PDGid << " KE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
+        if(verbose >= 2) G4cerr << "\t" << it->PDGid << " KE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
         particle_gun->SetParticleDefinition(particleTable->FindParticle(it->PDGid));
         particle_gun->SetParticleEnergy(it->KE);
         particle_gun->SetParticlePosition(it->pos);
@@ -625,7 +625,7 @@ void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
     } while(!v.size());
     
     double cosrayTime = CRY_generator->timeSimulated();
-    G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
+    if(verbose >= 2) G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
     throwPrimaries(v, anEvent);
 }
 
@@ -1356,7 +1356,7 @@ void PrimaryGeneratorAction::InputCRY()
 //----------------------------------------------------------------------------//
 
 void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput) {
-    G4cerr << "updating cry" << G4endl;
+    if(verbose >= 1) G4cerr << "updating cry" << G4endl;
     CRYSetup *setup=new CRYSetup(*MessInput,getenv("CRYDATA"));
       
     CRY_generator = new CRYGenerator(setup);
@@ -1399,7 +1399,7 @@ void PrimaryGeneratorAction::CRYFromFile(G4String newValue) {
 
 void PrimaryGeneratorAction::SetCRY(G4bool value) {
     
-    G4cerr << "Setting CRY..." << G4endl;
+    if(verbose >= 1) G4cerr << "Setting CRY..." << G4endl;
     
     // Read the cry input file
     std::ifstream inputFile; 
@@ -1439,5 +1439,5 @@ void PrimaryGeneratorAction::SetCRY(G4bool value) {
     fFile=false;
     fCustom=false;
     fCry = value;
-    G4cerr << "CRY set." << G4endl;
+    if(verbose >= 1) G4cerr << "CRY set." << G4endl;
 }

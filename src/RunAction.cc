@@ -39,6 +39,12 @@ RunAction::~RunAction() {
    delete run_messenger;
 }
 
+void RunAction::SetRunNumber(G4int rnum) {
+    nRunNumber = rnum;
+    G4RunManager* runManager = G4RunManager::GetRunManager();
+    runManager->SetRunIDCounter(nRunNumber);
+}
+
 void RunAction::BeginOfRunAction(const G4Run* aRun) {
     G4cerr << "~~~~~ Run Number " << aRun->GetRunID() << " Initiated ~~~~~\n" << G4endl;
     if(!gen) gen = (PrimaryGeneratorAction*)G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction();

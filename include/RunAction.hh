@@ -46,7 +46,7 @@ public:
     
 protected:
 
-    void SetRunNumber(G4int rnum) {nRunNumber = rnum; }
+    void SetRunNumber(G4int rnum);
     void SetRecordLevel(G4int rnum) { nRecLev = rnum; }
     
 private:

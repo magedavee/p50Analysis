@@ -101,7 +101,7 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 
 void IonisationSD::EndOfEvent(G4HCofThisEvent*) {
     
-    G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
+    if(hit_history.size()) G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
     for(std::map< G4int, std::vector<IonisationHit*> >::iterator it = hit_history.begin(); it != hit_history.end(); it++) {
         
         // time-order hit events
