@@ -12,9 +12,14 @@ project(ShortBaselineG4MC)
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*/*.cc )
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/*/*.hh)
 include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${PROJECT_SOURCE_DIR}/include/Physics
+                    ${PROJECT_SOURCE_DIR}/include/Geometry
+                    ${PROJECT_SOURCE_DIR}/include/EventGen
+                    ${PROJECT_SOURCE_DIR}/include/Output
+                    ${PROJECT_SOURCE_DIR}/include/Tracking
                     ${PROJECT_SOURCE_DIR}/cry_v1.7/src)
 link_directories(/home/mpmendenhall/Applications/cry_v1.7/lib)
 
@@ -53,10 +58,10 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 # TObject subclasses dictionary & ROOT objects shared library
 ###############
 
-set(SB_G4_LINKDEF ${PROJECT_SOURCE_DIR}/include/EventLinkDef.h)
+set(SB_G4_LINKDEF ${PROJECT_SOURCE_DIR}/include/Output/EventLinkDef.h)
 set(SB_G4_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/SB_G4_Dict.cxx)
 MESSAGE("Generating dictionary ${SB_G4_DICTIONARY}")
-set(DICTFILES "${PROJECT_SOURCE_DIR}/include/Event.hh")
+set(DICTFILES "${PROJECT_SOURCE_DIR}/include/Output/Event.hh")
 ROOT_GENERATE_DICTIONARY("${DICTFILES}" "${SB_G4_LINKDEF}" "${SB_G4_DICTIONARY}" "")
 LIST(APPEND sources ${SB_G4_DICTIONARY})
 

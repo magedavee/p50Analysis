@@ -89,15 +89,21 @@ void InputSession::OpenFile()
   }
 }
 
-// ****** Close File ****** //
-void InputSession::CloseFile(G4bool reset) {
-    // Close and destroy memory of previous input file
-    if(is_open()) {
-        close();
-        clear();
-    }
-    // If 'reset' specified, retain previous input file name until manual override
-    if(reset) filename.clear();
+	// ****** Close File ****** //
+void InputSession::CloseFile(G4bool reset)
+{
+	// Close and destroy memory of previous input file
+  if(this->is_open());
+  {
+    this->close();
+    this->clear();
+  }
+
+	// If 'reset' specified, retain previous input file name until manual override
+  if(reset)
+  {
+    filename.clear();
+  }
 }
 
 // EOF
