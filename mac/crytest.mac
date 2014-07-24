@@ -34,7 +34,8 @@
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
 
-/CRY/toggleCryMode true
+/generator/verbose 2
+/generator/module_CRY
 /CRY/input returnNeutrons 1
 /CRY/input returnProtons 1
 /CRY/input returnGammas 1
@@ -46,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 10000
+/run/beamOn 100
 

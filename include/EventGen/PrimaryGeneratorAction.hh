@@ -31,11 +31,6 @@
 #include <iostream>
 #include <fstream>
 #include "globals.hh"
-#include "CRYSetup.h"
-#include "CRYGenerator.h"
-#include "CRYParticle.h"
-#include "CRYUtils.h"
-#include "RNGWrapper.hh"
 #include "Randomize.hh"
 
 class G4Event;
@@ -49,6 +44,8 @@ class InverseBetaKinematics;
 class FissionAntiNuGenerator;
 class CosmicMuonGenerator;
 
+class CRYModule;
+
 /// Specification for a primary particle to throw
 struct primaryPtcl {
     int PDGid;  ///< PDG particle ID enumeration
@@ -58,6 +55,24 @@ struct primaryPtcl {
     double t;           ///< particle time
 };
 
+class PrimaryGeneratorAction;
+
+/// Base class interface for alternate generator modules
+class PrimaryGeneratorModule {
+public:
+    /// Constructor
+    PrimaryGeneratorModule(PrimaryGeneratorAction* P): myPGA(P) { }
+    /// Destructor
+    virtual ~PrimaryGeneratorModule() { }
+    
+    /// generate list of particles to throw in event
+    virtual std::vector<primaryPtcl> gen() = 0;
+    
+protected:
+    
+    PrimaryGeneratorAction* myPGA;      ///< PrimaryGeneratorAction this module runs for
+};
+
 
 /// Class for generating primary particles for event
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
@@ -65,25 +80,21 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 friend class PrimaryGeneratorMessenger;
 
 public:
+    /// constructor
+    PrimaryGeneratorAction();
+    /// destructor
+    virtual ~PrimaryGeneratorAction();
+    
     enum Module {
         None,
         InverseBeta,
         FissionAntinu,
         CosmicNeutron,
         CosmicMuon
-    }; // Enumeration to ease transitions of models in coding (could be inefficient but is useful)
+    };
 
-    /// constructor
-    PrimaryGeneratorAction();
-    /// destructor
-    virtual ~PrimaryGeneratorAction();
-    
     /// Generates a particle and launches it into the geometry
     void GeneratePrimaries(G4Event* anEvent);
-    
-    void InputCRY();
-    void UpdateCRY(std::string* MessInput);
-    void CRYFromFile(G4String newValue);
 
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
     G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
@@ -99,11 +110,21 @@ public:
     G4int GetVerbosity() const { return verbose; }
 
     void DisplayKinematicsInfo() const;
-
+    
+    /// load CRY as current generator
+    void loadCRYModule();              
+    
 protected:
-
+    
+    /// throw listed primaries
+    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
+    
     void SetVerbosity(G4int);
-
+    
+    PrimaryGeneratorModule* genModule;  ///< generator module currently in use
+    CRYModule* myCRYModule;             ///< CRY generator module
+   
+    
     void GenerateUserParticleKinematics(G4int);
     void GenerateModuleParticleKinematics(G4int);
     void GenerateFunctionParticleEnergy();
@@ -111,10 +132,6 @@ protected:
     void GenerateCustomParticleEnergy();
     void GenerateCalibratedSourceEnergy();
     void GenerateEnergySpectrumWithoutSimulation(G4int n = 1);
-
-    void SetCRY(G4bool);
-    void SetCRYPoint(G4bool value) { fCRYpoint = value; }
-    void SetCRYZOffset(G4double value) { cryZoffset = value; }
 
     void ToggleCalibrationMode(G4bool);
     void SetCalibrationSource(G4int);
@@ -145,18 +162,11 @@ protected:
     CosmicMuonGenerator* GetMuonGenerator() { return muon_generator; };
 
 private:
-    
-    /// throw listed primaries
-    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
-    /// thow event from CRY cosmic ray generator
-    void Generate_CRY_Primaries(G4Event* anEvent);
-    
+
     G4int verbose;                      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
     G4bool RawData;                     ///< Whether to output primary event parameters to log; set when verbosity > 2
 
     G4ParticleGun* particle_gun;
-    G4ParticleTable* particleTable;
-    CRYGenerator* CRY_generator;
     G4GeneralParticleSource* particle_source;
     DetectorConstruction* detect;
     PrimaryGeneratorMessenger* gun_messenger;
@@ -170,8 +180,6 @@ private:
     Module fModule;                     ///< Flag to determine current module, if any
     G4int fFunction;                    ///< Flag to determine current spectrum function, if any
     G4bool fFile;                       ///< Flag to determine whether particles are generated from an input file
-    G4bool fCry;                        ///< flag to determine whether particles are generated from the CRY package
-    G4bool fCRYpoint;                   ///< flag to determine whether particles are generated from the CRY package selectively point at the detector
     G4bool fCustom;                     ///< Flag to specify use of custom spectrum
     G4String customDist;
     G4bool fGun;                        ///< Flag to specify use of Particle Gun instead of default GPS
@@ -182,10 +190,8 @@ private:
     std::vector<G4double>* Energy;
     std::vector<G4double>* Dist;
     std::map<G4int,G4int>* Histogram;
-    std::vector<CRYParticle*> *vect;    ///< vector of generated particles
 
     G4int numSources, calSources;
-    G4double cryZoffset;                ///< z offset in world volume for CRY event plane
     G4double min_energy;
     G4double max_energy;
     G4double max_dist;
@@ -193,7 +199,6 @@ private:
     G4double mTemp;                     ///< Temperature for Maxwellian spectrum
     G4String sModes;                    ///< Used to mark output files
     std::ifstream* textfile;
-    G4int InputState;
 };
 
 #endif

@@ -57,7 +57,8 @@ private:
     G4UIdirectory* gunDir;
     G4UIdirectory* spectDir;
     G4UIdirectory* moduleDir;
-    G4UIdirectory* CRYDir;
+    
+    G4UIcmdWithoutParameter* moduleCRYcmd;
     
     G4UIcmdWithABool* calibOnCmd;
     G4UIcmdWithAnInteger* verbCmd;
@@ -74,13 +75,6 @@ private:
     G4UIcmdWithABool* energyInactivateCmd;
     G4UIcmdWithAString* moduleCmd;
     G4UIcmdWithoutParameter* moduleResetCmd;
-    G4UIcmdWithABool* cryOnCmd;
-    G4UIcmdWithABool* cryPointCmd;
-    G4UIcmdWithADoubleAndUnit* cryZCmd;
-    G4UIcmdWithAString* cryFileCmd; 
-    G4UIcmdWithAString* cryInputCmd;
-    G4UIcmdWithoutParameter* cryUpdateCmd;
-    std::string* MessInput;
 };
 
 #endif

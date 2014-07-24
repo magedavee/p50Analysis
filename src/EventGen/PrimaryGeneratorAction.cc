@@ -17,6 +17,7 @@
 #include "DetectorConstruction.hh"
 #include "LogSession.hh"
 #include "InputSession.hh"
+#include "CRYModule.hh"
 #include "CosmicNeutronGenerator.hh"
 #include "InverseBetaKinematics.hh"
 #include "FissionAntiNuGenerator.hh"
@@ -24,16 +25,16 @@
 #include "RunAction.hh"
 #include "RootIO.hh"
 
-#include "G4Event.hh"				// Specifies all the classes which contain structures called upon in this class
-#include "G4GeneralParticleSource.hh"
-#include "G4ParticleGun.hh"
-#include "G4ParticleTable.hh"
-#include "G4ParticleTypes.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4UnitsTable.hh"
+#include <G4Event.hh>
+#include <G4GeneralParticleSource.hh>
+#include <G4ParticleGun.hh>
+#include <G4ParticleTable.hh>
+#include <G4ParticleTypes.hh>
+#include <G4ParticleDefinition.hh>
+#include <G4UnitsTable.hh>
 #include "Randomize.hh"
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
+#include <G4RunManager.hh>
+#include <G4UImanager.hh>
 
 #include "G4DistributionGenerator.hh"		// Keep this around for future use, it may be handy for more complicated distributions
 
@@ -48,14 +49,13 @@
 
 using namespace std;
 // ****** Constructor ****** //
-PrimaryGeneratorAction::PrimaryGeneratorAction()
-{
+PrimaryGeneratorAction::PrimaryGeneratorAction() {
+    
     verbose = 0;
+    genModule = NULL;
     RawData = false;
     
-    CRY_generator = NULL;
-    
-    // Particle Gun - not really used
+    // Particle Gun
     G4int n_particle = 1;
     particle_gun = new G4ParticleGun(n_particle);
     particle_gun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
@@ -99,8 +99,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     fCustom = false;
     fFile = false;
     fGun = false;
-    fCry = false;
-    fCRYpoint = false;
     
     // Initialize global pointers
     detect = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
@@ -109,8 +107,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     inverse_beta = 0;
     fission_spec = 0;
     muon_generator = 0;
-    
-    cryZoffset = detect->GetWorldSizeZ();
 }
 
 
@@ -118,6 +114,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     delete particle_gun;
     delete particle_source;
     delete gun_messenger;
+    
+    if(myCRYModule) delete myCRYModule;
     if(neutron_generator) delete neutron_generator;
     if(inverse_beta) delete inverse_beta;
     if(fission_spec) delete fission_spec;
@@ -126,6 +124,12 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     delete Energy;
     delete Dist;
     delete Histogram;
+}
+
+void PrimaryGeneratorAction::loadCRYModule() {
+    if(!myCRYModule) myCRYModule = new CRYModule(this);
+    G4cerr << "Using CRY event generator module; remember to provide setup!" << G4endl; 
+    genModule = myCRYModule;
 }
 
 // ****** Generate User-Specified Particle Kinematics ****** //
@@ -332,7 +336,6 @@ void PrimaryGeneratorAction::GenerateCustomParticleEnergy() {
     {
         G4cout << "*** WARNING: Spectrum settings are flawed. Continuing without any energy spectrum data. ***" << G4endl;
         fCustom = false;
-        fCry = false;
     }
 }
 
@@ -534,8 +537,10 @@ void PrimaryGeneratorAction::GenerateCalibratedSourceEnergy()
 void PrimaryGeneratorAction::throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent) {
     if(verbose >= 2) G4cerr << "Throwing " << v.size() << " particles:" << G4endl;
     for(std::vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
-        if(verbose >= 2) G4cerr << "\t" << it->PDGid << " KE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
-        particle_gun->SetParticleDefinition(particleTable->FindParticle(it->PDGid));
+        if(verbose >= 2) G4cerr << "\tPDG ID " << it->PDGid << "\tKE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
+        
+        assert(particle_gun);
+        particle_gun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
         particle_gun->SetParticleEnergy(it->KE);
         particle_gun->SetParticlePosition(it->pos);
         particle_gun->SetParticleMomentumDirection(it->mom);
@@ -555,83 +560,13 @@ void PrimaryGeneratorAction::throwPrimaries(const std::vector<primaryPtcl>& v, G
     }
 }
 
-void PrimaryGeneratorAction::Generate_CRY_Primaries(G4Event* anEvent) {
-    
-    // verify successful CRY initialization
-    if(InputState || !CRY_generator) {
-        G4String* str = new G4String("CRY library was not successfully initialized");
-        G4Exception("PrimaryGeneratorAction", "1",RunMustBeAborted, *str);
-    }
-    
-    // loop until generating at least one primary
-    //G4double length = detect->GetMaxHalfDimension();
-    std::vector<primaryPtcl> v;
-    do {
-        vect->clear();
-        CRY_generator->genEvent(vect);
-        
-        uint n_muons = 0;
-        uint n_neutrons = 0;
-        
-        for ( unsigned j=0; j<vect->size(); j++) {
-            
-            // determine whether to process trajectory
-            bool good_point = true;
-            /*
-             i f(fCRYpoint) {    *
-             //find pointing vector
-             G4double ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
-        G4double px = (*vect)[j]->x()+ray*(*vect)[j]->u();
-        G4double py = (*vect)[j]->y()+ray*(*vect)[j]->v();
-        G4double pz = cryZoffset+ray*(*vect)[j]->w();
-        
-        good_point = (sqrt(px*px+py*py+pz*pz)<=(0.0015*length));
-        }
-        */
-            
-            if(good_point) {
-                
-                // record first primary's parameters to event output
-               /*
-               if(!v.size()) {
-                    Event* ev = RootIO::GetInstance()->GetEvent();
-                    
-                    ev->fGenPos[0] = (*vect)[j]->x();
-                    ev->fGenPos[1] = (*vect)[j]->y();
-                    ev->fGenPos[2] = cryZoffset;
-                    
-                    ev->fGenMom[0] = (*vect)[j]->u();
-                    ev->fGenMom[1] = (*vect)[j]->v();
-                    ev->fGenMom[2] = (*vect)[j]->w();
-                    
-                    ev->fEnergy = (*vect)[j]->ke()*MeV;
-                }
-                */
-               
-                primaryPtcl p;
-                p.PDGid = (*vect)[j]->PDGid();
-                p.KE = (*vect)[j]->ke()*MeV;
-                p.pos = G4ThreeVector((*vect)[j]->x()*m, (*vect)[j]->y()*m, cryZoffset);
-                p.mom = G4ThreeVector((*vect)[j]->u(), (*vect)[j]->v(), (*vect)[j]->w());
-                p.t = (*vect)[j]->t()*s;
-                v.push_back(p);
-                
-                n_muons += (abs(p.PDGid) == 13);
-                n_neutrons += (p.PDGid == 2112);
-            }
-
-            delete (*vect)[j];
-        }
-    } while(!v.size());
-    
-    double cosrayTime = CRY_generator->timeSimulated();
-    if(verbose >= 2) G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(cosrayTime*s,"Time") << G4endl;
-    throwPrimaries(v, anEvent);
-}
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     
-    if(fCry) Generate_CRY_Primaries(anEvent);
+    if(genModule) {
+        throwPrimaries(genModule->gen(), anEvent);
+        return;
+    }
     
     // Check for Calibration Mode
     if(fCalibration) {
@@ -707,7 +642,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         particle_source->GeneratePrimaryVertex(anEvent);
     }
     
-    if(!fCry){
         /*
         Event* ev = RootIO::GetInstance()->GetEvent();
         
@@ -724,7 +658,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         ev->fEnergy = particle_source->GetParticleEnergy();
         ev->fPDGcode = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
         */
-    }
 }
 
 
@@ -899,7 +832,6 @@ void PrimaryGeneratorAction::SetFile(G4String filename) {
         G4cerr << "really opened " << filename << G4endl;
         fFile = true;
         fCustom = false;
-        fCry = false;
         fFunction = 0;
     }
     G4cerr << "file set " << fFile << G4endl;
@@ -1029,7 +961,6 @@ void PrimaryGeneratorAction::SetCustomEnergySpectrum(G4String custom)		// Called
         max_energy = Energy->back();
         fCustom = true;
         fFile = false;
-        fCry = false;
     }
     else
     {
@@ -1348,96 +1279,8 @@ G4bool PrimaryGeneratorAction::MaxwellFunction(G4double xSeed, G4double ySeed)	/
     return accept;
 }
 
-void PrimaryGeneratorAction::InputCRY()
-{
-    InputState=1;
-}
-
 //----------------------------------------------------------------------------//
 
-void PrimaryGeneratorAction::UpdateCRY(std::string* MessInput) {
-    if(verbose >= 1) G4cerr << "updating cry" << G4endl;
-    CRYSetup *setup=new CRYSetup(*MessInput,getenv("CRYDATA"));
-      
-    CRY_generator = new CRYGenerator(setup);
-      
-    // set random number generator
-    RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
-    setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
-    InputState=0;
-}
 
-//----------------------------------------------------------------------------//
 
-void PrimaryGeneratorAction::CRYFromFile(G4String newValue) {
-    // Read the cry input file
-    std::ifstream inputFile;
-    inputFile.open(newValue,std::ios::in);
-    char buffer[1000];
-    
-    if (inputFile.fail()) {
-        G4cout << "Failed to open input file " << newValue << G4endl;
-        G4cout << "Make sure to define the cry library on the command line" << G4endl;
-        InputState=-1;
-    } else {
-        std::string setupString("");
-        while ( !inputFile.getline(buffer,1000).eof()) {
-            setupString.append(buffer);
-            setupString.append(" ");
-        }
-        
-        CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA"));
-      
-        CRY_generator = new CRYGenerator(setup);
-      
-      // set random number generator
-      RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
-      setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
-      InputState=0;
-    }
-}
 
-void PrimaryGeneratorAction::SetCRY(G4bool value) {
-    
-    if(verbose >= 1) G4cerr << "Setting CRY..." << G4endl;
-    
-    // Read the cry input file
-    std::ifstream inputFile; 
-    const char* input_file_name = ""; // TODO specify input file
-    inputFile.open(input_file_name, std::ios::in);
-    char buffer[1000];
-    
-    if (inputFile.fail()) {
-        if(input_file_name[0] != 0)  //....only complain if a filename was given
-            G4cout << "PrimaryGeneratorAction: Failed to open CRY input file= " << input_file_name << G4endl;
-        InputState=-1;
-    } else {
-        std::string setupString(""); 
-        while ( !inputFile.getline(buffer,1000).eof()) {
-            setupString.append(buffer);
-            setupString.append(" ");
-        }
-        
-        CRYSetup *setup=new CRYSetup(setupString,getenv("CRYDATA")); 
-        
-        CRY_generator = new CRYGenerator(setup);
-        
-        // set random number generator
-        RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
-        setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
-        InputState=0;
-    }
-    
-    // create a vector to store the CRY particle properties
-    vect=new std::vector<CRYParticle*>;
-    
-    // Create the table containing all particle names
-    particleTable = G4ParticleTable::GetParticleTable();
-    
-    // Create the messenger file
-    gun_messenger = new PrimaryGeneratorMessenger(this);
-    fFile=false;
-    fCustom=false;
-    fCry = value;
-    if(verbose >= 1) G4cerr << "CRY set." << G4endl;
-}

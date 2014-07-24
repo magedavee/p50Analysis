@@ -40,45 +40,7 @@
 
 // ****** Constructor ****** //
 PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen_action): generator(gen_action) {
-    // Specifies all commands available for PrimaryGeneratorAction.cc
-    CRYDir = new G4UIdirectory("/CRY/");
-    CRYDir->SetGuidance("CRY initialization");
-    
-    cryOnCmd = new G4UIcmdWithABool("/CRY/toggleCryMode",this);
-    cryOnCmd->SetGuidance("Toggles the detector CRY mode, disables all other functions.");
-    cryOnCmd->SetGuidance("   true: Enable CRY mode");
-    cryOnCmd->SetGuidance("  false: Disable CRY mode");
-    cryOnCmd->SetParameterName("cryMode",false);
-    cryOnCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-    
-    cryPointCmd = new G4UIcmdWithABool("/CRY/toggleCryPointing",this);
-    cryPointCmd->SetGuidance("Toggles ehether CRY preselwects particles pointing towards the detector");
-    cryPointCmd->SetGuidance("  true: Enable CRY pointing");
-    cryPointCmd->SetGuidance("  false: Disable CRY pointing");
-    cryPointCmd->SetParameterName("cryPoint",false);
-    cryPointCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-    
-    cryZCmd = new G4UIcmdWithADoubleAndUnit("/CRY/setCRYZOffset",this);
-    cryZCmd->SetGuidance("sets the Z offset for the CRY generator (default is world maximum Z)");
-    cryZCmd->SetParameterName("cryZ",false);
-    cryZCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-    
-    cryFileCmd = new G4UIcmdWithAString("/CRY/file",this);
-    cryFileCmd->SetGuidance("This reads the CRY definition from a file");
-    cryFileCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-    
-    cryInputCmd = new G4UIcmdWithAString("/CRY/input",this);
-    cryInputCmd->SetGuidance("CRY input lines");
-    cryInputCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-    
-    cryUpdateCmd = new G4UIcmdWithoutParameter("/CRY/update",this);
-    cryUpdateCmd->SetGuidance("Update CRY definition.");
-    cryUpdateCmd->SetGuidance("This command MUST be applied before \"beamOn\" ");
-    cryUpdateCmd->SetGuidance("if you changed the CRY definition.");
-    cryUpdateCmd->AvailableForStates(G4State_Idle);
-    
-    MessInput = new std::string;
-    
+        
     genDir = new G4UIdirectory("/generator/");
     genDir->SetGuidance("Custom simulation settings.");
     
@@ -97,6 +59,10 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen
     verbCmd->SetParameterName("v",false);
     verbCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
     
+    moduleCRYcmd = new G4UIcmdWithoutParameter("/generator/module_CRY",this);
+    moduleCRYcmd->SetGuidance("Use CRY event generator");
+    moduleCRYcmd->AvailableForStates(G4State_Idle);
+    
     InitializeBasicCommands();
     
     calibDir = 0;
@@ -111,10 +77,6 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen
 // ****** Destructor ****** //
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
     delete genDir;
-    delete CRYDir;
-    delete cryInputCmd;
-    delete cryUpdateCmd;
-    delete cryFileCmd;
     if(calibDir) { delete calibDir; }
     if(gunDir) { delete gunDir; }
     if(spectDir) { delete spectDir; }
@@ -123,6 +85,8 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
     delete calibOnCmd;
     if(calSourceCmd) { delete calSourceCmd; }
     if(calPosCmd) { delete calPosCmd; }
+    
+    delete moduleCRYcmd;
     
     delete verbCmd;
     if(testCmd) { delete testCmd; }
@@ -258,25 +222,13 @@ void PrimaryGeneratorMessenger::InitializeSpectrumCommands() {
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
     //  G4UImanager* UI = G4UImanager::GetUIpointer();
-    if( command == cryInputCmd ) { 
-        G4cerr << "CRY INPUT COMMAND " <<newValue<< G4endl;
-        generator->InputCRY();
-        (*MessInput).append(newValue);
-        (*MessInput).append(" ");
-    } else if( command == cryUpdateCmd ) { 
-        generator->UpdateCRY(MessInput); 
-        *MessInput = "";
-    } else if( command == cryFileCmd ) {
-        generator->CRYFromFile(newValue);
-    } else if(command == testCmd) {
+    if(command == testCmd) {
         generator->GenerateEnergySpectrumWithoutSimulation(testCmd->GetNewIntValue(newValue));
     } else if(command == calibOnCmd) {
         ToggleCalibrationMode(calibOnCmd->GetNewBoolValue(newValue));
         generator->ToggleCalibrationMode(calibOnCmd->GetNewBoolValue(newValue));
-    } else if(command == cryOnCmd) generator->SetCRY(cryOnCmd->GetNewBoolValue(newValue));
-    else if(command == cryPointCmd) generator->SetCRYPoint(cryPointCmd->GetNewBoolValue(newValue));
-    else if(command == cryZCmd) generator->SetCRYZOffset(cryZCmd->GetNewDoubleValue(newValue));
-    else if(command == verbCmd) generator->SetVerbosity(verbCmd->GetNewIntValue(newValue));
+    } else if(command == verbCmd) generator->SetVerbosity(verbCmd->GetNewIntValue(newValue));
+    else if(command == moduleCRYcmd) generator->loadCRYModule();
     else if(command == calSourceCmd) {
         G4int source = 0;
         if      (newValue == "none")  { source = 0; }
