@@ -78,9 +78,9 @@ DetectorConstruction::DetectorConstruction() {
     buildingWall = 0.75*m;
     
     // Experimental hall size
-    modSizeX = 3.*m; // Half-Length - long edge
-    modSizeY = 3.*m; // Half-Width - short edge
-    modSizeZ = 1.75*m; // Half-Height
+    modSizeX = 3.*m;    // Half-Length - long edge
+    modSizeY = 3.*m;    // Half-Width - short edge
+    modSizeZ = 1.3*m;   // Half-Height
     
     // scintillator light production and transport
     birksPC = 0.1*mm/MeV;
@@ -103,23 +103,23 @@ DetectorConstruction::DetectorConstruction() {
     fVertical = false;
     
     QE = -1;
-    NSegX = 4;
-    NSegY = 12;
+    NSegX = 8;
+    NSegY = 4;  // actually in Z direction in HFIR configuration
     AirGap = 12.7*mm;           
     WrapGap = 0.0*mm;
     WrapThickness = 0.1*mm;     
     AcrylThickness = 6.35*mm;
     SegBuffer = 100.0*mm;
-    ScintLength = 1000.0*mm ;
-    ScintHeight =  140.0*mm;
-    ScintWidth =  140.0*mm;
+    ScintLength = 65.*cm;
+    ScintHeight = 25.*cm;
+    ScintWidth =  25.*cm;
     
-    PMTscale = 2.5*25.4*mm;
-    ShieldLead = 30.0*mm;
-    ShieldPolyLi = 100.0*mm;
-    ShieldPolyB = 470.0*mm;
+    PMTscale = 4*25.4*mm;
+    ShieldLead = 30.*mm;
+    ShieldPolyLi = 100.*mm;
+    ShieldPolyB = 470.*mm;
     
-    MainScintMat = &PsiCumeneT;
+    MainScintMat = &PsiCumeneN;
     ScintSegMat = &Polyeth;
 }
 
@@ -223,9 +223,12 @@ void DetectorConstruction::ConstructGeometry() {
                                                   shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
         } else { // !fVertical:
             
+            G4RotationMatrix* rotateAssembly = new G4RotationMatrix(0.,0.,0.);
+            rotateAssembly->rotateX(-90.*deg);
+
             G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyB+ ShieldLead+ ShieldPolyLi);    
             shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
-            shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-0.5,0.),
+            shieldpolyb_phys = new G4PVPlacement(rotateAssembly, G4ThreeVector(0.,-0.5,0.),
                                                  shieldpolyb_log, "PolyShieldB", hall_log, false,0,false);
             
             
@@ -600,6 +603,14 @@ void DetectorConstruction::ConstructMaterials() {
     PsiCumeneM = new G4Material("PC-0.30wt%Li", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
     PsiCumeneM->AddMaterial(RawPsiCumene, massFraction= 99.70*perCent);
     PsiCumeneM->AddMaterial(Li6, massFraction= 0.30*perCent);
+    
+    PsiCumeneN = new G4Material("PC-0.70wt%Li", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+    PsiCumeneN->AddMaterial(RawPsiCumene, massFraction= 99.30*perCent);
+    PsiCumeneN->AddMaterial(Li6, massFraction= 0.70*perCent);
+    
+    PsiCumeneO = new G4Material("PC-1.20wt%Li", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
+    PsiCumeneO->AddMaterial(RawPsiCumene, massFraction= 98.80*perCent);
+    PsiCumeneO->AddMaterial(Li6, massFraction= 1.20*perCent);
     
     PsiCumeneT = new G4Material("PC-0.1wt%Gd", density= 0.88*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
     PsiCumeneT->AddMaterial(RawPsiCumene, massFraction= 99.90*perCent);
@@ -1238,6 +1249,8 @@ void DetectorConstruction::SetScintillatorComposition(G4String identifier) {
         case 'T': { G4cout << "Scintillator composition set to PC-0.1wt%Gd." << G4endl;         MainScintMat = &PsiCumeneT;     break; }
         case 'H': { G4cout << "Scintillator composition set to PC-0.5wt%Gd." << G4endl;         MainScintMat = &PsiCumeneH;     break; }
         case 'M': { G4cout << "Scintillator composition set to PC-0.30wt%Li." << G4endl;        MainScintMat = &PsiCumeneM;     break; }
+        case 'N': { G4cout << "Scintillator composition set to PC-0.70wt%Li." << G4endl;        MainScintMat = &PsiCumeneN;     break; }
+        case 'O': { G4cout << "Scintillator composition set to PC-1.20wt%Li." << G4endl;        MainScintMat = &PsiCumeneO;     break; }
         case 'G': { G4cout << "Scintillator composition set to PC-100%Gd." << G4endl;           MainScintMat = &PsiCumeneG;     break; }
         case 'A': { G4cout << "Scintillator composition set to Raw Pseudocumene with 0.5wt% Gd in the reflector." << G4endl; MainScintMat = &RawPsiCumene; ScintSegMat = &GdPaintA; break; }
         case 'B': { G4cout << "Scintillator composition set to Raw Pseudocumene with 1.0wt% Gd in the reflector." << G4endl; MainScintMat = &RawPsiCumene; ScintSegMat = &GdPaintB; break; }

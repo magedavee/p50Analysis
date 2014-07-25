@@ -197,6 +197,8 @@ private:
     G4Material* RawPsiCumene;
     G4Material* PsiCumeneL;
     G4Material* PsiCumeneM;
+    G4Material* PsiCumeneN;
+    G4Material* PsiCumeneO;
     G4Material* PsiCumeneT;
     G4Material* PsiCumeneH;
     G4Material* PsiCumeneG;

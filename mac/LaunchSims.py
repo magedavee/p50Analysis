@@ -64,5 +64,5 @@ if __name__=="__main__":
 
     if options.cry:
         L = SB_MC_Launcher("CRY_nCapt", 1e5)
-        L.launch_sims(120)
+        L.launch_sims(4*6*60)
         

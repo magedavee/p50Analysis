@@ -14,7 +14,7 @@
 
 /run/initialize
 
-#/vis/open OGLSXm
+/vis/open OGLSXm
 #/vis/open HepRepFile
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
@@ -26,11 +26,11 @@
 /vis/scene/add/axes
 /vis/scene/add/scale
 
-#/vis/scene/add/trajectories
-#/vis/scene/add/hits
-#/vis/scene/endOfEventAction accumulate -1
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+/vis/scene/endOfEventAction accumulate -1
 
-/vis/disable
+#/vis/disable
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
 
@@ -47,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 1000
+/run/beamOn 1
 

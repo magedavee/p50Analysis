@@ -66,6 +66,8 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* det_const): detector(
     scintCompCmd->SetGuidance("     S = Pure pseudocumene (C9H12)");
     scintCompCmd->SetGuidance("     L = 0.15wt% Li in pseudocumene");
     scintCompCmd->SetGuidance("     M = 0.30wt% Li in pseudocumene");
+    scintCompCmd->SetGuidance("     N = 0.70wt% Li in pseudocumene");
+    scintCompCmd->SetGuidance("     O = 0.70wt% Li in pseudocumene");
     scintCompCmd->SetGuidance("     T = 0.1wt% Gd in pseudocumene");
     scintCompCmd->SetGuidance("     H = 0.5wt% Gd in pseudocumene");
     scintCompCmd->SetGuidance("     G = 100% Gd with density of pseudocumene");
@@ -73,8 +75,8 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* det_const): detector(
     scintCompCmd->SetGuidance("     B = Pure pseudocumene scintillator, 1.0wt% Gd in reflector");
     scintCompCmd->SetGuidance("     C = Pure pseudocumene scintillator, 2.0wt% Gd in reflector");
     scintCompCmd->SetParameterName("composition",true);
-    scintCompCmd->SetDefaultValue("T");
-    scintCompCmd->SetCandidates("S L T H M G A B C");
+    scintCompCmd->SetDefaultValue("N");
+    scintCompCmd->SetCandidates("S L T H M N O G A B C");
     scintCompCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
 
     detectDir = new G4UIdirectory("/detector/");
