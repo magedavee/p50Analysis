@@ -7,7 +7,6 @@
 #include <vector>
 #include <cassert>
 
-using namespace std;
 class TCollection;
 
 /// Primary particle specification for ROOT output
@@ -41,11 +40,32 @@ public:
     ClassDef(EventIoniCluster,1);
 };
 
+/// Neutron capture in event
+class EventNCapt: public TObject {
+public:
+    /// constructor
+    EventNCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), capt_A(0), capt_Z(0), vol(0) { }
+    
+    Double_t t;         ///< time of capture
+    Double_t E;         ///< kinetic energy at capture
+    Double_t x[3];      ///< position of capture
+    Int_t Ngamma;       ///< number of gammas produced
+    Double_t Egamma;    ///< total energy of gammas produced
+    Int_t capt_A;       ///< capture nucleus A
+    Int_t capt_Z;       ///< capture nucleus Z
+    Int_t vol;          ///< volume ID number
+    
+    ClassDef(EventNCapt,1);
+};
+
 class Event : public TObject {
 public:
     
     /// Constructor
-    Event(): N(0), nPrimaries(0), Primaries(NULL), nIoniClusts(0), iEvts(NULL)  { }
+    Event(): N(0), nPrimaries(0), Primaries(NULL),
+    nIoniClusts(0), iEvts(NULL),
+    nNCapts(0), nCapts(NULL) { }
+    
     /// Destructor
     ~Event();
     
@@ -53,11 +73,14 @@ public:
     Double_t t;                 ///< event time
     
     Int_t nPrimaries;           ///< number of primaries
-    TClonesArray* Primaries;  ///< array of event primary particles
+    TClonesArray* Primaries;    ///< array of event primary particles
     
     Int_t nIoniClusts;          ///< number of ionization events
     TClonesArray* iEvts;        ///< array of event ionization events
     Double_t EIoni;             ///< total ionization deposited energy
+    
+    Int_t nNCapts;              ///< number of neutron captures
+    TClonesArray* nCapts;       ///< array of neutron capture events
     
     /// Clear data for new event
     void Clear(Option_t *option ="");
@@ -65,8 +88,10 @@ public:
     void AddPrimary(const EventPrimaryPtcl& P);
     /// Add new ionization cluster
     void AddIoniCluster(const EventIoniCluster& tr);
+    /// Add new neutron capture
+    void AddNCapt(const EventNCapt& n);
     
-    ClassDef(Event,1);
+    ClassDef(Event,2);
 };
 
 /// Information about detector geometry for simulation run

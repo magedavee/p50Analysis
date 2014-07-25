@@ -89,6 +89,6 @@ void EventAction::EndOfEventAction(const G4Event*) {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
     Event& evt = RootIO::GetInstance()->GetEvent();
-    if(reclevel >= 3 || (reclevel >= 2 && evt.nIoniClusts > 0))
+    if(reclevel >= 3 || (reclevel >= 2 && evt.nNCapts + evt.nIoniClusts > 0))
         RootIO::GetInstance()->FillTree();
 }

@@ -31,7 +31,8 @@ class G4VisAttributes;
 class G4Material;
 class DetectorMessenger;
 class G4MultiFunctionalDetector;
-class IonisationSD;
+
+class ScintSD;
 
 class DetectorConstruction: public G4VUserDetectorConstruction {
     
@@ -52,7 +53,7 @@ public:
     G4double GetWorldSizeY() const { return modSizeY+buildingWall; }
     /// return world volume half-z
     G4double GetWorldSizeZ() const { return modSizeZ+buildingWall; }
-    G4double GetReflectivity() const { return refl;}
+    G4double GetReflectivity() const { return refl; }
     G4double GetMaxHalfDimension();
     G4bool IsOpticalTransported() const { return fOptical; }
 
@@ -252,7 +253,7 @@ private:
     G4MultiFunctionalDetector* scintHitInner;
     G4MultiFunctionalDetector* opticalPMT;
     G4MultiFunctionalDetector* SegmentPMT;
-    IonisationSD* scintIoniSD;
+    ScintSD* myScintSD;
     
     // Visualization
     G4VisAttributes* build_vis;

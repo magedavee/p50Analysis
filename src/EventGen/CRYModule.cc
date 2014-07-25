@@ -126,6 +126,8 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
             delete vect[j];
         }
         
+        //if(!n_neutrons) v.clear(); // only keep neutron events
+        
     } while(!v.size());
     
     

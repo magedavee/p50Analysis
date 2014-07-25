@@ -1,27 +1,9 @@
-// Unrestricted Use - Property of AECL
-//
-// IonisationSD.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Ionizing Radiation Scorer
-//      Contains class functions/variables
-//
-// --------------------------------------------------------
-//      Version 1.01 - 2011/04/29 - A. Ho
-//      Edited for clarity 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
-
-#ifndef IonisationSD_H
+#ifndef SCINTSD_HH
 /// Assure header file is only loaded once
-#define IonisationSD_H
+#define SCINTSD_HH
 
 #include "G4VSensitiveDetector.hh"
-
 #include "WeightAverager.hh"
-
-#include "G4THitsMap.hh"
-
-#include "globals.hh"
 
 #include <map>
 
@@ -58,16 +40,16 @@ protected:
 
 
 /// Sensitive detector for tracking ionizing energy deposition
-class IonisationSD : public G4VSensitiveDetector {
+class ScintSD : public G4VSensitiveDetector {
 public:
     
     /// Constructor
-    IonisationSD(G4String name): G4VSensitiveDetector(name), time_gap(20*ns), edep_threshold(100*keV), nclusters(0) { }
+    ScintSD(G4String name): G4VSensitiveDetector(name), time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0) { }
 
     /// Initializes detector at start of event
     void Initialize(G4HCofThisEvent*);
     /// Called each step to determine what qualifies as a "hit"
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*);
+    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* H);
     /// Some processing to be done when an event is finished, as new event will erase old event data
     void EndOfEvent(G4HCofThisEvent*);
 
@@ -76,11 +58,16 @@ public:
     
 private:
     
-    /// Save and output a completed hit object
-    void RegisterHit(IonisationHit* h);
+    /// process ionizing tracks
+    G4bool ProcessIoniHits(G4Step* aStep, G4TouchableHistory*);
+    /// process neutron capture events
+    G4bool ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*);
+    /// Save and output a completed ionization cluster
+    void RegisterIoniHit(IonisationHit* h);
     
-    std::map< G4int, std::vector<IonisationHit*> > hit_history; ///< hits collection by detector
-    uint nclusters;                                             ///< number of time-grouped event clusters
+    G4int verbose;                                              ///< output verbosity level
+    std::map< G4int, std::vector<IonisationHit*> > hit_history; ///< ionization hits collection by detector
+    uint nclusters;                                             ///< number of time-grouped ionization event clusters
 };
 
 #endif

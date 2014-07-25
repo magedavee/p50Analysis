@@ -13,8 +13,6 @@
 #include <vector>
 #include <cassert>
 
-using namespace std;
-
 /** @class rootio rootio.hh include/rootio.hh
  *   
  *

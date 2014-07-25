@@ -1,6 +1,6 @@
 /control/saveHistory
 /control/verbose 0
-/run/verbose 0
+/run/verbose 2
 /event/verbose 0
 /tracking/verbose 0
 
@@ -47,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 100
+/run/beamOn 1000
 

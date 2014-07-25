@@ -13,9 +13,7 @@
 
 #include "DetectorConstruction.hh"              // Specifies the file which contains the class structure
 
-#include "NeutronDetectionScorer.hh"            // Specifies user-defined classes which are called upon in this class
-#include "RecoilProtonScorer.hh"
-#include "IonisationSD.hh"
+#include "ScintSD.hh"
 #include "PhotoMultiplierScorer.hh"
 #include "DetectorMessenger.hh"
 
@@ -419,17 +417,10 @@ void DetectorConstruction::ConstructSDs() {
     cathSEG_log->SetSensitiveDetector(SegmentPMT);
     
     ///////////////////
-    // scintillator SDs
-    scintHitInner->clear();
-    scintHitInner->RegisterPrimitive(new NeutronDetectionScorer("NHitCollection"));
-    scintHitInner->RegisterPrimitive(new RecoilProtonScorer("PHitCollection"));
-    //scintHitInner->RegisterPrimitive(new IonisationSD("IoniseCollection"));
-    sd_manager->AddNewDetector((G4VSensitiveDetector*)(scintHitInner));
-    scint_log->SetSensitiveDetector(scintHitInner);
-    
-    scintIoniSD = new IonisationSD("ScintIoniSD");
-    sd_manager->AddNewDetector(scintIoniSD);
-    scint_log->SetSensitiveDetector(scintIoniSD);
+    // scintillator SDs    
+    myScintSD = new ScintSD("ScintSD");
+    sd_manager->AddNewDetector(myScintSD);
+    scint_log->SetSensitiveDetector(myScintSD);
 }
 
 

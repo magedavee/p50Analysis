@@ -9,6 +9,7 @@
 /vis/disable
 
 /output/setRecordLevel 2
+/run/verbose 0
 
 /run/initialize
 

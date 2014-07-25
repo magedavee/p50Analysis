@@ -5,10 +5,10 @@ import os
 
 class SB_MC_Launcher:
     
-    def __init__(self):
-        self.settings = {"nevents":10000, "run_num":0}
+    def __init__(self, simname, nevt):
+        self.settings = {"nevents":nevt, "run_num":0}
         self.n_parallel = 4
-        self.settings["simName"] = "CRY"
+        self.settings["simName"] = simname
         
     def set_dirs(self):
         self.bin_name = os.environ["SBMC_BIN"]
@@ -63,7 +63,6 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher()
-        L.settings["nevents"] = 1e5
+        L = SB_MC_Launcher("CRY_nCapt", 1e5)
         L.launch_sims(120)
         
