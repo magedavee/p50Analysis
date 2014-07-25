@@ -4,26 +4,28 @@
 // GEANT4 - geant4.9.3.p01
 //
 // Class File for Source and Initial Kinematics Specifications
-//	Contains definitions for functions in header file
+//      Contains definitions for functions in header file
 //
 // --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-//  Edited for clarity 2014/07 M. P. Mendenhall
+//      Version 1.01 - 2011/04/29 - A. Ho
+//      Edited 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
 #include "PrimaryGeneratorAction.hh"		// Specifies the file which contains the class structure
 
-#include "PrimaryGeneratorMessenger.hh"		// Specifies user-defined classes which are called upon in this class 
+#include "PrimaryGeneratorMessenger.hh" 
 #include "DetectorConstruction.hh"
-#include "LogSession.hh"
-#include "InputSession.hh"
-#include "CRYModule.hh"
-#include "CosmicNeutronGenerator.hh"
-#include "InverseBetaKinematics.hh"
-#include "FissionAntiNuGenerator.hh"
-#include "CosmicMuonGenerator.hh"
 #include "RunAction.hh"
 #include "RootIO.hh"
+
+#include "LogSession.hh"
+#include "InputSession.hh"
+
+#include "CRYModule.hh"
+#include "IBDModule.hh"
+#include "FissionAntiNuModule.hh"
+#include "CosmicMuonModule.hh"
+#include "CosmicNeutronModule.hh"
 
 #include <G4Event.hh>
 #include <G4GeneralParticleSource.hh>
@@ -32,15 +34,13 @@
 #include <G4ParticleTypes.hh>
 #include <G4ParticleDefinition.hh>
 #include <G4UnitsTable.hh>
-#include "Randomize.hh"
+#include <Randomize.hh>
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
 
-#include "G4DistributionGenerator.hh"		// Keep this around for future use, it may be handy for more complicated distributions
+#include <G4ios.hh>
 
-#include "G4ios.hh"				// Specifies classes which allow reading/writing to standard input/output
-
-#include "globals.hh"				// Specifies classes defining all global parameters and variable types
+#include "globals.hh"
 #include <math.h>
 #include <string>
 #include <iomanip>
@@ -54,43 +54,28 @@ void PrimaryGeneratorModule::throwPrimaries(const std::vector<primaryPtcl>& v, G
     for(std::vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
         if(myPGA->GetVerbosity() >= 2) G4cerr << "\tPDG ID " << it->PDGid << "\tKE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
         
-        assert(myPGA->GetParticleGun());
-        myPGA->GetParticleGun()->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
-        myPGA->GetParticleGun()->SetParticleEnergy(it->KE);
-        myPGA->GetParticleGun()->SetParticlePosition(it->pos);
-        myPGA->GetParticleGun()->SetParticleMomentumDirection(it->mom);
-        myPGA->GetParticleGun()->SetParticleTime(it->t);
-        myPGA->GetParticleGun()->GeneratePrimaryVertex(anEvent);
+        G4ParticleGun* g = myPGA->GetParticleGun();
+        assert(g);
+        g->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
+        g->SetParticleEnergy(it->KE);
+        g->SetParticlePosition(it->pos);
+        g->SetParticleMomentumDirection(it->mom);
+        g->SetParticleTime(it->t);
+        g->GeneratePrimaryVertex(anEvent);
     }
 }
 
 ////////////////////////////////////////
 
-using namespace std;
-// ****** Constructor ****** //
-PrimaryGeneratorAction::PrimaryGeneratorAction() {
+PrimaryGeneratorAction::PrimaryGeneratorAction():
+genModule(NULL), myCRYModule(NULL), myIBDModule(NULL),
+myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL) {
     
     verbose = 0;
-    genModule = NULL;
-    RawData = false;
     
     // Particle Gun
-    G4int n_particle = 1;
-    particle_gun = new G4ParticleGun(n_particle);
+    particle_gun = new G4ParticleGun(1);
     particle_gun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-    
-    // Particle Source
-    // Geantino (Default) Source
-    particle_source = new G4GeneralParticleSource();
-    particle_source->SetNumberOfParticles(n_particle);
-    particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-    
-    // Positron Source for Inverse Beta Module
-    particle_source->AddaSource(0.0);
-    particle_source->SetParticleDefinition(G4Positron::PositronDefinition());
-    
-    // Set source to default
-    particle_source->SetCurrentSourceto(0);
     
     // Source-related constants
     numSources = 2;
@@ -112,32 +97,24 @@ PrimaryGeneratorAction::PrimaryGeneratorAction() {
     fDistribution = "No Distribution";
     fDistStore = "";
     customDist = "No Distribution";
-    fModule = None;
     fFunction = 0;
     fCustom = false;
-//     fGun = false;
     
     // Initialize global pointers
     detect = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     gun_messenger = new PrimaryGeneratorMessenger(this);
-    neutron_generator = 0;
-    inverse_beta = 0;
-    fission_spec = 0;
-    muon_generator = 0;
 }
 
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     delete particle_gun;
-    delete particle_source;
     delete gun_messenger;
     
     if(myCRYModule) delete myCRYModule;
-    
-    if(neutron_generator) delete neutron_generator;
-    if(inverse_beta) delete inverse_beta;
-    if(fission_spec) delete fission_spec;
-    if(muon_generator) delete muon_generator;
+    if(myIBDModule) delete myIBDModule;
+    if(myFisAntNuModule) delete myFisAntNuModule;
+    if(myCosmicMuonModule) delete myCosmicMuonModule;
+    if(myCosmicNeutronModule) delete myCosmicNeutronModule;
     
     delete Energy;
     delete Dist;
@@ -150,6 +127,31 @@ void PrimaryGeneratorAction::loadCRYModule() {
     genModule = myCRYModule;
 }
 
+void PrimaryGeneratorAction::loadIBDModule() {
+    if(!myIBDModule) myIBDModule = new IBDModule(this);
+    G4cerr << "Using Inverse Beta Decay event generator." << G4endl; 
+    genModule = myIBDModule;
+}
+
+void PrimaryGeneratorAction::loadFisAntNuModule() {
+    if(!myFisAntNuModule) myFisAntNuModule = new FissionAntiNuModule(this);
+    G4cerr << "Using Fission Anti-neutrino event generator." << G4endl; 
+    genModule = myFisAntNuModule;
+}
+
+void PrimaryGeneratorAction::loadCosmicMuonModule() {
+    if(!myCosmicMuonModule) myCosmicMuonModule = new CosmicMuonModule(this);
+    G4cerr << "Using cosmic muon event generator." << G4endl; 
+    genModule = myCosmicMuonModule;
+}
+
+void PrimaryGeneratorAction::loadCosmicNeutronModule() {
+    if(!myCosmicNeutronModule) myCosmicNeutronModule = new CosmicNeutronModule(this);
+    G4cerr << "Using cosmic neutron event generator." << G4endl; 
+    genModule = myCosmicNeutronModule;
+}
+
+
 // ****** Generate User-Specified Particle Kinematics ****** //
 void PrimaryGeneratorAction::GenerateUserParticleKinematics(G4int evtNo) {
     // Sets the kinematics of the particle every event according to user-defined distributions
@@ -157,12 +159,12 @@ void PrimaryGeneratorAction::GenerateUserParticleKinematics(G4int evtNo) {
     if(fCustom) {       // User-defined spectrum table
       if(!evtNo && fFunction) {
           if(verbose > 0) { G4cout << "*** CAUTION: Specified custom distribution is replacing function distribution. ***" << G4endl; }
-      } else if(!evtNo && fModule != None) {
+      } else if(!evtNo) {
           if(verbose > 0) { G4cout << "*** CAUTION: Specified custom distribution is replacing module distribution. ***" << G4endl; }
       }
       GenerateCustomParticleEnergy();
   } else if(fFunction) {        // Function-defined spectrum
-      if(!evtNo && fModule != None) {
+      if(!evtNo) {
           if(verbose > 0) { G4cout << "*** CAUTION: Specified function distribution is replacing module distribution. ***" << G4endl; }
       }
       GenerateFunctionParticleEnergy();
@@ -171,159 +173,7 @@ void PrimaryGeneratorAction::GenerateUserParticleKinematics(G4int evtNo) {
 
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {
     verbose = v;
-    if(verbose > 1) { G4cout << "PrimaryGeneratorAction verbosity set to " << v << "." << G4endl; }
-    if(verbose > 2) { RawData = true; G4cout << "*** CAUTION: PrimaryGeneratorAction raw data will now be output. ***" << G4endl; }
-    else            { RawData = false; }
-    if(neutron_generator) { neutron_generator->SetVerbosity(verbose); }
-    if(inverse_beta) { inverse_beta->SetVerbosity(verbose); }
-    if(fission_spec) { fission_spec->SetVerbosity(verbose); }
-    if(muon_generator) { muon_generator->SetVerbosity(verbose); }
-}
-
-// ****** Generate Module-Specified Particle Kinematics ****** //
-void PrimaryGeneratorAction::GenerateModuleParticleKinematics(G4int evtNo) {
-    // Sets the kinematics of the particle every event according to module-defined distributions
-    
-    switch(fModule) {
-        case InverseBeta: {
-            if(evtNo == 0) {
-                particle_source->SetCurrentSourceto(0);
-                if(!(particle_source->GetParticleDefinition() == G4Neutron::NeutronDefinition())) {
-                    particle_source->SetParticleDefinition(G4Neutron::NeutronDefinition());
-                    G4cout << "*** WARNING: GPS Source #0 was not specified to fire neutrons. The correct particle definition has now been assigned to Source #0. ***" << G4endl;
-                }
-                particle_source->SetCurrentSourceto(1);
-                if(!(particle_source->GetParticleDefinition() == G4Positron::PositronDefinition())) {
-                    particle_source->SetParticleDefinition(G4Positron::PositronDefinition());
-                    G4cout << "*** WARNING: GPS Source #1 was not specified to fire positrons. The correct particle definition has now been assigned to Source #1. ***" << G4endl;
-                }
-                if(!(particle_gun->GetParticleDefinition() == G4Neutron::NeutronDefinition())) {
-                    particle_gun->SetParticleDefinition(G4Neutron::NeutronDefinition());
-                    if(fGun) { G4cout << "*** WARNING: G4ParticleGun was not specified to fire neutrons. The correct particle definition has now been assigned to G4ParticleGun. ***" << G4endl; }
-                }
-            }
-            
-            G4ThreeVector position = inverse_beta->GenerateReactionPosition();
-            std::vector<G4double>* kinematics = inverse_beta->GenerateReactionKinematics();
-            G4ThreeVector positronMomentum((*kinematics)[1],(*kinematics)[2],(*kinematics)[3]);
-            G4ThreeVector neutronMomentum((*kinematics)[5],(*kinematics)[6],(*kinematics)[7]);
-            
-            // Specify positron kinematics
-            particle_source->SetCurrentSourceto(1);
-            particle_source->GetCurrentSource()->GetPosDist()->SetCentreCoords(position);
-            particle_source->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(positronMomentum);
-            particle_source->GetCurrentSource()->GetEneDist()->SetMonoEnergy((*kinematics)[0]);
-            
-            // Specify neutron kinematics
-            particle_source->SetCurrentSourceto(0);
-            particle_source->GetCurrentSource()->GetPosDist()->SetCentreCoords(position);
-            particle_source->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(neutronMomentum);
-            particle_source->GetCurrentSource()->GetEneDist()->SetMonoEnergy((*kinematics)[4]);
-            
-            // Particle Gun will fire neutrons with correct kinematics - NOT positron
-            particle_gun->SetParticleDefinition(G4Neutron::NeutronDefinition());
-            particle_gun->SetParticlePosition(position);
-            particle_gun->SetParticleMomentumDirection(neutronMomentum);
-            particle_gun->SetParticleEnergy((*kinematics)[4]);
-            
-            break;
-        }
-        case FissionAntinu: {
-            if(evtNo == 0) {
-                particle_source->SetCurrentSourceto(0);
-                if(!(particle_source->GetParticleDefinition() == G4AntiNeutrinoE::AntiNeutrinoEDefinition()))
-                {
-                    particle_source->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
-                    if(!fGun) { G4cout << "*** WARNING: GPS Source #0 was not specified to fire antineutrinos. The correct particle definition has now been assigned to Source #0. ***" << G4endl; }
-                }
-                if(!(particle_gun->GetParticleDefinition() == G4AntiNeutrinoE::AntiNeutrinoEDefinition()))
-                {
-                    particle_gun->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
-                    if(fGun) { G4cout << "*** WARNING: G4ParticleGun was not specified to fire antineutrinos. The correct particle definition has now been assigned to G4ParticleGun. ***" << G4endl; }
-                }
-            }
-            
-            G4double energy = fission_spec->GenerateAntiNeutrinoEnergy();
-            
-            G4double positionZ = -(detect->GetWorldSizeZ());
-            G4double positionX = 2.0*(detect->GetWorldSizeX())*(G4UniformRand()-0.5);
-            G4double positionY = 2.0*(detect->GetWorldSizeY())*(G4UniformRand()-0.5);
-            
-            particle_gun->SetParticlePosition(G4ThreeVector(positionX,positionY,positionZ));		// Gun placement at random places on xy-plane
-            particle_gun->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));			// Momentum along positive z-axis
-            particle_gun->SetParticleEnergy(energy);
-            
-            particle_source->GetCurrentSource()->GetPosDist()->SetCentreCoords(G4ThreeVector(positionX,positionY,positionZ));	// Source placement at random places on xy-plane
-            particle_source->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));		// Momentum along positive z-axis
-            particle_source->GetCurrentSource()->GetEneDist()->SetMonoEnergy(energy);
-            
-            break;
-        }
-        case CosmicNeutron: {
-            if(evtNo == 0) {
-                particle_source->SetCurrentSourceto(0);
-                if(!(particle_source->GetParticleDefinition() == G4Neutron::NeutronDefinition()))
-                {
-                    particle_source->SetParticleDefinition(G4Neutron::NeutronDefinition());
-                    if(!fGun) { G4cout << "*** WARNING: GPS Source #0 was not specified to fire neutrons. The correct particle definition has now been assigned to Source #0. ***" << G4endl; }
-                }
-                if(!(particle_gun->GetParticleDefinition() == G4Neutron::NeutronDefinition()))
-                {
-                    particle_gun->SetParticleDefinition(G4Neutron::NeutronDefinition());
-                    if(fGun) { G4cout << "*** WARNING: G4ParticleGun was not specified to fire neutrons. The correct particle definition has now been assigned to G4ParticleGun. ***" << G4endl; }
-                }
-            }
-            
-            std::vector<G4double>* location = neutron_generator->GenerateSourceLocation();
-            G4ThreeVector nCosmicPosition((*location)[0],(*location)[1],(*location)[2]);
-            G4ThreeVector nCosmicMomentum((*location)[3],(*location)[4],(*location)[5]);
-            G4double theEnergy = neutron_generator->GenerateNeutronEnergy();
-            //    G4double theEnergy = neutron_generator->GenerateNeutronEnergyWithCDF();		// Quicker generation, but slightly less accurate
-            
-            particle_gun->SetParticlePosition(nCosmicPosition);
-            particle_gun->SetParticleMomentumDirection(nCosmicMomentum);
-            particle_gun->SetParticleEnergy(theEnergy);
-            
-            particle_source->GetCurrentSource()->GetPosDist()->SetCentreCoords(nCosmicPosition);
-            particle_source->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(nCosmicMomentum);
-            particle_source->GetCurrentSource()->GetEneDist()->SetMonoEnergy(theEnergy);
-            
-            break;
-        }
-        case CosmicMuon: {
-            std::vector<G4double>* location = muon_generator->GenerateSourceLocation();
-            G4ThreeVector muCosmicPosition((*location)[0],(*location)[1],(*location)[2]);
-            G4ThreeVector muCosmicMomentum((*location)[3],(*location)[4],(*location)[5]);
-            G4double theEnergy = muon_generator->GenerateMuonEnergy();
-            G4int type = muon_generator->GenerateMuonType(theEnergy);
-            
-            if(type) {
-                // Change to mu- source
-                particle_gun->SetParticleDefinition(G4MuonMinus::MuonMinusDefinition());
-                particle_source->SetParticleDefinition(G4MuonMinus::MuonMinusDefinition());
-            } else {
-                // Change to mu+ source
-                particle_gun->SetParticleDefinition(G4MuonPlus::MuonPlusDefinition());
-                particle_source->SetParticleDefinition(G4MuonPlus::MuonPlusDefinition());
-            }
-            
-            particle_gun->SetParticlePosition(muCosmicPosition);
-            particle_gun->SetParticleMomentumDirection(muCosmicMomentum);
-            particle_gun->SetParticleEnergy(theEnergy);
-            
-            particle_source->GetCurrentSource()->GetPosDist()->SetCentreCoords(muCosmicPosition);
-            particle_source->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(muCosmicMomentum);
-            particle_source->GetCurrentSource()->GetEneDist()->SetMonoEnergy(theEnergy);
-            
-            break;
-        }
-        default: break;
-    }
-}
-
-// ****** Display Current Particle Kinematics ****** //
-void PrimaryGeneratorAction::DisplayKinematicsInfo() const {
-    G4cout << "*** WARNING: No model selected. Shooting isotropically with 10 MeV geantinos uniformly over inner tank. ***" << G4endl;
+    if(verbose > 1) G4cout << "PrimaryGeneratorAction verbosity set to " << v << "." << G4endl;
 }
 
 // ****** Generate Energy from Custom Spectrum Table ****** //
@@ -404,13 +254,9 @@ void PrimaryGeneratorAction::GenerateFunctionParticleEnergy() {
        
        // Store sampled energy in histogram by locating correct bin
        G4int index = (G4int)(seedX / eBin_width);
-       std::map<G4int,G4int>::iterator itr = Histogram->begin();
-       if(Histogram->find(index) != Histogram->end())
-       {
+       if(Histogram->find(index) != Histogram->end()) {
            (*Histogram)[index]++;
-       }
-       else
-       {
+       } else {
            (*Histogram)[index] = 1;
        }
        break;
@@ -435,13 +281,9 @@ void PrimaryGeneratorAction::GenerateFunctionParticleEnergy() {
        
        // Store sampled energy in histogram by locating correct bin
        G4int index = (G4int)(seedX / eBin_width);
-       std::map<G4int,G4int>::iterator itr = Histogram->begin();
-       if(Histogram->find(index) != Histogram->end())
-       {
+       if(Histogram->find(index) != Histogram->end()) {
            (*Histogram)[index]++;
-       }
-       else
-       {
+       } else {
            (*Histogram)[index] = 1;
        }
        break;
@@ -515,84 +357,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         if(fCalFunction) { GenerateCalibratedSourceEnergy(); }
     } else if(fCustom || fFunction) {
         GenerateUserParticleKinematics(anEvent->GetEventID());
-    } else if(fModule != None) {
-        GenerateModuleParticleKinematics(anEvent->GetEventID());
     }
     
     if(fGun) {
         if(anEvent->GetEventID() == 0 && verbose > 0) G4cout << "*** CAUTION: G4ParticleGun being used instead of the default G4GeneralParticleSource. ***" << G4endl;
-           
-           // Writes individual momentums and energies into file if requested
-        if(RawData) {
-            LogSession* log = LogSession::GetLogSessionPointer();
-            
-            G4ThreeVector pHat = particle_gun->GetParticleMomentumDirection();
-            log->SetOutputFileName("GeneratedSourceMomentum.txt");
-            log->OpenFile(false,true);
-            (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
-            log->CloseFile();
-            
-            G4double energy = particle_gun->GetParticleEnergy();
-            log->SetOutputFileName("GeneratedSourceEnergies.txt");
-            log->OpenFile(false,true);
-            (*log) << energy/MeV << std::endl;
-            log->CloseFile();
-        }
-        
         particle_gun->GeneratePrimaryVertex(anEvent);
-    } else if(fModule == InverseBeta) {
-        // If using Inverse Beta Module, ensure one neutron and one positron each are generated
-        if(inverse_beta->IsPositronGenerated()) {
-            ResetAllSourceIntensities();
-            particle_source->SetCurrentSourceto(1);
-            particle_source->SetCurrentSourceIntensity(1.0);
-            particle_source->GeneratePrimaryVertex(anEvent);
-        }
-        if(inverse_beta->IsNeutronGenerated()) {
-            ResetAllSourceIntensities();
-            particle_source->SetCurrentSourceto(0);
-            particle_source->SetCurrentSourceIntensity(1.0);
-            particle_source->GeneratePrimaryVertex(anEvent);
-        }
-        particle_source->SetCurrentSourceto(0);
-    } else if(fModule != None) {        
-        particle_source->GeneratePrimaryVertex(anEvent);
     } else {
-        // Writes individual momentums and energies into file if requested
-        if(RawData) {
-            LogSession* log = LogSession::GetLogSessionPointer();
-            
-            G4ThreeVector pHat = particle_source->GetParticleMomentumDirection();
-            log->SetOutputFileName("GeneratedSourceMomentum.txt");
-            log->OpenFile(false,true);
-            (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << std::endl;
-            log->CloseFile();
-            
-            G4double energy = particle_source->GetParticleEnergy();
-            log->SetOutputFileName("GeneratedSourceEnergies.txt");
-            log->OpenFile(false,true);
-            (*log) << energy/MeV << std::endl;
-            log->CloseFile();
-        }
         particle_source->GeneratePrimaryVertex(anEvent);
     }
-    
-        /*
-        Event* ev = RootIO::GetInstance()->GetEvent();
-        
-        ev->fGenPos[0] = anEvent->GetPrimaryVertex()->GetPosition()[0]/cm;
-        ev->fGenPos[1] = anEvent->GetPrimaryVertex()->GetPosition()[1]/cm;
-        ev->fGenPos[2] = anEvent->GetPrimaryVertex()->GetPosition()[2]/cm;
-        
-        ev->fGenMom[0] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[0];
-        ev->fGenMom[1] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[1];
-        ev->fGenMom[2] = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum()[2];
-        
-        ev->fEventTime = anEvent->GetPrimaryVertex()->GetT0();
-        
-        ev->fEnergy = particle_source->GetParticleEnergy();
-        ev->fPDGcode = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
-        */
 }
 
 
@@ -890,213 +662,16 @@ void PrimaryGeneratorAction::SetMaxwellianTemperature(G4double T)
 }
 
 // ****** Destroy Custom or Function Energy Spectrum ****** //
-void PrimaryGeneratorAction::InactivateUserEnergySpectrum(G4bool reset)
-{
-    delete Energy; Energy = 0;
-    delete Dist; Dist = 0;
-    delete Histogram; Histogram = 0;
-    if(reset)
-    {
-        switch(fModule)
-        {
-            case InverseBeta:   { fDistribution = "Inverse Beta Product Spectrum"; break; }
-            case FissionAntinu: { fDistribution = "Fission Antinuetrino Spectrum"; break; }
-            case CosmicNeutron: { fDistribution = "Cosmic Neutron Energy Spectrum"; break; }
-            case CosmicMuon:    { fDistribution = "Cosmic Muon Energy Spectrum"; break; }
-            default:            { fDistribution = "No Distribution"; break; }
-        }
-    }
+void PrimaryGeneratorAction::InactivateUserEnergySpectrum(G4bool) {
+    delete Energy; Energy = NULL;
+    delete Dist; Dist = NULL;
+    delete Histogram; Histogram = NULL;
+    fDistribution = "No Distribution";
     fFunction = 0;
     customDist = "No Distribution";
     fCustom = false;
 }
 
-// The following functions are called by the Messenger class to switch the kinematics module being used. 
-
-// ****** Cosmic Neutron Module Switch ****** //
-void PrimaryGeneratorAction::SetCosmicNeutronFlag(G4bool flag)
-{
-    if(flag)
-    {
-        neutron_generator = new CosmicNeutronGenerator(verbose,"Outer Tank");
-        fDistribution = "Cosmic Neutron Energy Spectrum";
-        particle_gun->SetParticleDefinition(G4Neutron::NeutronDefinition());
-        particle_source->SetParticleDefinition(G4Neutron::NeutronDefinition());
-    }
-    else
-    {
-        delete neutron_generator; neutron_generator = 0;
-        fDistribution = "No Distribution";
-        particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-        G4cout << "\tCosmicNeutronGenerator destroyed. Previously stored values erased and reset to default." << G4endl;
-    }
-    if(fFunction == 1) { fDistribution = "Cf-252 Spontaneous Fission Neutron Spectrum"; }
-    if(fFunction == 2) { fDistribution = "Temperature-Dependent Maxwellian Spectrum"; }
-    if(fCustom) { fDistribution = customDist; }
-    fModule = CosmicNeutron;
-}
-
-// ****** Inverse Beta Module Switch ****** //
-void PrimaryGeneratorAction::SetInverseBetaFlag(G4bool flag)
-{
-    if(flag)
-    {
-        inverse_beta = new InverseBetaKinematics(verbose,"Scintillator Volume");
-        fDistribution = "Inverse Beta Product Spectrum";
-        particle_gun->SetParticleDefinition(G4Neutron::NeutronDefinition());
-        particle_source->SetParticleDefinition(G4Neutron::NeutronDefinition());
-    }
-    else
-    {
-        delete inverse_beta; inverse_beta = 0;
-        fDistribution = "No Distribution";
-        particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-        G4cout << "\tInverseBetaKinematics destroyed. Previously stored values erased and reset to default." << G4endl;
-    }
-    if(fFunction == 1) { fDistribution = "Cf-252 Spontaneous Fission Neutron Spectrum"; }
-    if(fFunction == 2) { fDistribution = "Temperature-Dependent Maxwellian Spectrum"; }
-    if(fCustom) { fDistribution = customDist; }
-    fModule = InverseBeta;
-}
-
-// ****** Fission Antineutrino Module Switch ****** //
-void PrimaryGeneratorAction::SetFissionAntiNuFlag(G4bool flag)
-{
-    if(fModule == InverseBeta)
-    { G4cout << "*** WARNING: Inverse Beta Module is still active and already contains this module within it. Fission Antineutrino Module not activated. ***" << G4endl; return; }
-    if(flag)
-    {
-        fission_spec = new FissionAntiNuGenerator(true,verbose);
-        fDistribution = "Fission Antineutrino Spectrum";
-        particle_gun->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
-        particle_source->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
-    }
-    else
-    {
-        delete fission_spec; fission_spec = 0;
-        fDistribution = "No Distribution";
-        particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-        G4cout << "\tFissionAntiNuGenerator destroyed. Previously stored values erased and reset to default." << G4endl;
-    }
-    if(fFunction == 1) { fDistribution = "Cf-252 Spontaneous Fission Neutron Spectrum"; }
-    if(fFunction == 2) { fDistribution = "Temperature-Dependent Maxwellian Spectrum"; }
-    if(fCustom) { fDistribution = customDist; }
-    fModule = FissionAntinu;
-}
-
-// ****** Cosmic Muon Module Switch ****** //
-void PrimaryGeneratorAction::SetCosmicMuonFlag(G4bool flag)
-{
-    if(flag)
-    {
-        muon_generator = new CosmicMuonGenerator(verbose,"Detector Shell");
-        fDistribution = "Cosmic Muon Energy Spectrum";
-        particle_gun->SetParticleDefinition(G4MuonMinus::MuonMinusDefinition());
-        particle_source->SetParticleDefinition(G4MuonMinus::MuonMinusDefinition());
-    }
-    else
-    {
-        delete muon_generator; muon_generator = 0;
-        fDistribution = "No Distribution";
-        particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-        G4cout << "\tCosmicMuonGenerator destroyed. Previously stored values erased and reset to default." << G4endl;
-    }
-    if(fFunction == 1) { fDistribution = "Cf-252 Spontaneous Fission Neutron Spectrum"; }
-    if(fFunction == 2) { fDistribution = "Temperature-Dependent Maxwellian Spectrum"; }
-    if(fCustom) { fDistribution = customDist; }
-    fModule = CosmicMuon;
-}
-
-// ****** Module Reset Switch ****** //
-void PrimaryGeneratorAction::ResetSimulationModule()
-{
-    switch(fModule)
-    {
-        case InverseBeta: { SetInverseBetaFlag(false); break; }
-        case FissionAntinu: { SetFissionAntiNuFlag(false); break; }
-        case CosmicNeutron: { SetCosmicNeutronFlag(false); break; }
-        case CosmicMuon: { SetCosmicMuonFlag(false); break; }
-        default: { break; }
-    }
-    fModule = None;
-    ResetAllSourceIntensities();
-}
-
-// ****** Spectrum Test Function ****** //
-void PrimaryGeneratorAction::GenerateEnergySpectrumWithoutSimulation(G4int n)		// Used to test the shape and statistics of the chosen energy spectrum
-{
-    if(fCustom)	// For custom distributions
-  {
-      // Sample custom energy/probability vectors n times
-      for(int m = 0; m < n; m++)
-      {
-          GenerateCustomParticleEnergy();
-          
-          // Print status to show progress
-          if(m % 100000 == 0) { G4cout << "Generated " << m << " samples." << G4endl; }
-      }
-      
-      // Outputs resulting histograms into text file CustomEnergyHistogram.txt
-      LogSession* log = LogSession::GetLogSessionPointer();
-      log->SetOutputFileName("CustomEnergyHistogram.txt");
-    log->OpenFile();
-    
-    // Prints the distribution parameters first
-    (*log) << "\t   Distribution Name:      " << fDistribution << "\n";
-    (*log) << "\t   Minimum Energy:         " << G4BestUnit(Energy->front(),"Energy") << "\n";
-    (*log) << "\t   Maximum Energy:         " << G4BestUnit(Energy->back(),"Energy") << "\n";
-    
-    // Then prints the energy histogram
-    (*log) << "Max Bin Energy\tCount\n";
-    std::map<G4int,G4int>::iterator itr = Histogram->begin();
-    for( ; itr != Histogram->end(); itr++)
-    {
-        (*log) << (*Energy)[itr->first] << "\t" << itr->second << std::endl;
-    }
-    log->CloseFile();
-  }
-  else if(fFunction)
-  {
-      for(int m = 0; m < n; m++)
-      {
-          GenerateFunctionParticleEnergy();
-          if(m % 100000 == 0) { G4cout << "Generated " << m << " samples." << G4endl; }
-      }
-      LogSession* log = LogSession::GetLogSessionPointer();
-      log->SetOutputFileName("EnergyDistribution.txt");
-        log->OpenFile();
-        (*log) << "Max Bin Energy\tCount\n";
-        std::map<G4int,G4int>::iterator itr = Histogram->begin();
-        for( ; itr != Histogram->end(); itr++)
-        {
-            (*log) << (*Energy)[itr->first] << "\t" << itr->second << std::endl;
-        }
-        log->CloseFile();
-  }
-  else if(fModule != None)
-  {
-      switch(fModule)
-      {
-          case InverseBeta: { inverse_beta->GenerateKinematicsWithoutSimulation(n); break; }
-          case FissionAntinu: { fission_spec->GenerateEnergiesWithoutSimulation(n); break; }
-          case CosmicNeutron: { neutron_generator->GenerateEnergiesWithoutSimulation(n); break; }
-          case CosmicMuon: { muon_generator->GenerateEnergiesWithoutSimulation(n); break; }
-          default: { break; }
-      }
-  }
-  else if(fGun)
-  {
-      G4cout << "\tParticle Gun:\t" << particle_gun->GetParticleDefinition()->GetParticleName() << G4endl;
-      G4cout << "\tParticle Energy:\t" << G4BestUnit(particle_gun->GetParticleEnergy(),"Energy") << G4endl;
-      G4cout << "\tNo energy spectrum specified. Histogram not generated." << G4endl;
-  }
-  else
-  {
-      particle_source->ListSource();
-      G4cout << "\tParticle Energy:\t" << G4BestUnit(particle_source->GetCurrentSource()->GetParticleEnergy(),"Energy") << G4endl;
-      G4cout << "\tNo energy spectrum specified. Histogram not generated." << G4endl;
-  }
-}
 
 // The following functions are for coding energy spectrum sampling and distributions
 

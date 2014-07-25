@@ -39,12 +39,12 @@ class G4ParticleTable;
 class G4GeneralParticleSource;
 class PrimaryGeneratorMessenger;
 class DetectorConstruction;
-class CosmicNeutronGenerator;
-class InverseBetaKinematics;
-class FissionAntiNuGenerator;
-class CosmicMuonGenerator;
 
 class CRYModule;
+class IBDModule;
+class FissionAntiNuModule;
+class CosmicMuonModule;
+class CosmicNeutronModule;
 
 /// Specification for a primary particle to throw
 struct primaryPtcl {
@@ -87,47 +87,49 @@ public:
     PrimaryGeneratorAction();
     /// destructor
     virtual ~PrimaryGeneratorAction();
-    
-    enum Module {
-        None,
-        InverseBeta,
-        FissionAntinu,
-        CosmicNeutron,
-        CosmicMuon
-    };
 
     /// Generates a particle and launches it into the geometry
     void GeneratePrimaries(G4Event* anEvent);
 
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
+    DetectorConstruction* GetDetector() const { return detect; }
+    
     G4String GetDistribution() const { return fDistribution; };
     std::map<G4int,G4int>* GetHistogramData() const { return Histogram; };
     std::vector<G4double>* GetEnergyTable() const { return Energy; };
     G4int GetFunction() const { return fFunction; };
     G4int GetCalibrationSource() const { return fCalibration; };
     G4bool GetGunSettings() const { return fGun; };
-    G4int GetModuleSettings() const { return (G4int)(fModule); };
     G4int GetVerbosity() const { return verbose; }
 
     void DisplayKinematicsInfo() const;
     
     /// load CRY as current generator
     void loadCRYModule();              
+    /// load Inverse Beta Decay as current generator
+    void loadIBDModule();
+    /// load fission anti-neutrinos as current generator
+    void loadFisAntNuModule();
+    /// load cosmic muons as current generator
+    void loadCosmicMuonModule();
+    /// load cosmic neutrons as current generator
+    void loadCosmicNeutronModule();
     
 protected:
     
     void SetVerbosity(G4int);
     
-    PrimaryGeneratorModule* genModule;  ///< generator module currently in use
-    CRYModule* myCRYModule;             ///< CRY generator module
-   
+    PrimaryGeneratorModule* genModule;          ///< generator module currently in use
+    CRYModule* myCRYModule;                     ///< CRY generator module
+    IBDModule* myIBDModule;                     ///< Inverse Beta Decay generator
+    FissionAntiNuModule* myFisAntNuModule;      ///< Fission anti-neutrinos generator
+    CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
+    CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     
     void GenerateUserParticleKinematics(G4int);
-    void GenerateModuleParticleKinematics(G4int);
     void GenerateFunctionParticleEnergy();
     void GenerateCustomParticleEnergy();
     void GenerateCalibratedSourceEnergy();
-    void GenerateEnergySpectrumWithoutSimulation(G4int n = 1);
 
     void ToggleCalibrationMode(G4bool);
     void SetCalibrationSource(G4int);
@@ -146,33 +148,17 @@ protected:
 
     void SetGenerationWithGun(G4bool f) { fGun = f; };
     void SetCosmicNeutronFlag(G4bool);
-    void SetInverseBetaFlag(G4bool);
-    void SetFissionAntiNuFlag(G4bool);
-    void SetCosmicMuonFlag(G4bool);
-    void ResetSimulationModule();
-
-    CosmicNeutronGenerator* GetNeutronGenerator() { return neutron_generator; };
-    InverseBetaKinematics* GetInverseGenerator() { return inverse_beta; };
-    FissionAntiNuGenerator* GetAntiNuGenerator() { return fission_spec; };
-    CosmicMuonGenerator* GetMuonGenerator() { return muon_generator; };
 
 private:
 
     G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;     ///< Whether to output primary event parameters to log; set when verbosity > 2
 
     G4ParticleGun* particle_gun;
     G4GeneralParticleSource* particle_source;
     DetectorConstruction* detect;
     PrimaryGeneratorMessenger* gun_messenger;
 
-    CosmicNeutronGenerator* neutron_generator;
-    InverseBetaKinematics* inverse_beta;
-    FissionAntiNuGenerator* fission_spec;
-    CosmicMuonGenerator* muon_generator;
-
     G4String fDistribution;             ///< Flag to determine current distribution
-    Module fModule;                     ///< Flag to determine current module, if any
     G4int fFunction;                    ///< Flag to determine current spectrum function, if any
     G4bool fCustom;                     ///< Flag to specify use of custom spectrum
     G4String customDist;

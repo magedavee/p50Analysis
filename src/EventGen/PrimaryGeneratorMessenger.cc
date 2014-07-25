@@ -59,9 +59,30 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen
     verbCmd->SetParameterName("v",false);
     verbCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
     
+    /////////////////////////////////
+    // event generator module loaders
+    
     moduleCRYcmd = new G4UIcmdWithoutParameter("/generator/module_CRY",this);
     moduleCRYcmd->SetGuidance("Use CRY event generator");
     moduleCRYcmd->AvailableForStates(G4State_Idle);
+    
+    moduleIBDcmd = new G4UIcmdWithoutParameter("/generator/module_IBD",this);
+    moduleIBDcmd->SetGuidance("Use Inverse Beta Decay event generator");
+    moduleIBDcmd->AvailableForStates(G4State_Idle);
+    
+    moduleFisANucmd = new G4UIcmdWithoutParameter("/generator/module_FisANu",this);
+    moduleFisANucmd->SetGuidance("Use fission anti-neutrino event generator");
+    moduleFisANucmd->AvailableForStates(G4State_Idle);
+    
+    moduleCosMucmd = new G4UIcmdWithoutParameter("/generator/module_CosMu",this);
+    moduleCosMucmd->SetGuidance("Use cosmic muon event generator");
+    moduleCosMucmd->AvailableForStates(G4State_Idle);
+    
+    moduleCosNcmd = new G4UIcmdWithoutParameter("/generator/module_CosN",this);
+    moduleCosNcmd->SetGuidance("Use cosmic neutron event generator");
+    moduleCosNcmd->AvailableForStates(G4State_Idle);
+    
+    
     
     InitializeBasicCommands();
     
@@ -80,16 +101,16 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
     if(calibDir) { delete calibDir; }
     if(gunDir) { delete gunDir; }
     if(spectDir) { delete spectDir; }
-    if(moduleDir) { delete moduleDir; }
     
     delete calibOnCmd;
     if(calSourceCmd) { delete calSourceCmd; }
     if(calPosCmd) { delete calPosCmd; }
     
     delete moduleCRYcmd;
+    delete moduleIBDcmd;
+    delete moduleFisANucmd;
     
     delete verbCmd;
-    if(testCmd) { delete testCmd; }
     if(gunCmd) { delete gunCmd; }
     if(functCmd) { delete functCmd; }
     if(fileCmd) { delete fileCmd; }
@@ -98,18 +119,10 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
     if(functTempCmd) { delete functTempCmd; }
     if(customCmd) { delete customCmd; }
     if(energyInactivateCmd) { delete energyInactivateCmd; }
-    if(moduleCmd) { delete moduleCmd; }
-    if(moduleResetCmd) { delete moduleResetCmd; }
 }
 
 // ****** Initialize Standard Commands ****** //
 void PrimaryGeneratorMessenger::InitializeBasicCommands() {
-    testCmd = new G4UIcmdWithAnInteger("/generator/test",this);
-    testCmd->SetGuidance("Create a histogram of energy spectrum without generating particles.");
-    testCmd->SetParameterName("nSamples",true);
-    testCmd->SetDefaultValue(1000);
-    testCmd->SetRange("nSamples>0");
-    testCmd->AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
     
     gunDir = new G4UIdirectory("/generator/gunType/");
     gunDir->SetGuidance("Toggle ParticleGun or ParticleSource.");
@@ -149,21 +162,6 @@ void PrimaryGeneratorMessenger::InitializeBasicCommands() {
     energyInactivateCmd->SetParameterName("reset",true);
     energyInactivateCmd->SetDefaultValue(false);
     energyInactivateCmd->AvailableForStates(G4State_Idle);
-    
-    moduleDir = new G4UIdirectory("/generator/module/");
-    moduleDir->SetGuidance("Activate and control pre-defined simulation modules");
-    moduleDir->AvailableForStates(G4State_Idle);
-    
-    moduleCmd = new G4UIcmdWithAString("/generator/module/set",this);
-    moduleCmd->SetGuidance("Set the kinematics module of the simulation");
-    moduleCmd->SetParameterName("moduleName",true);
-    moduleCmd->SetDefaultValue("Options:");
-    moduleCmd->SetCandidates("Options: cosmicNeutron inverseBeta fissionAntinu cosmicMuon");
-    moduleCmd->AvailableForStates(G4State_Idle);
-    
-    moduleResetCmd = new G4UIcmdWithoutParameter("/generator/module/reset",this);
-    moduleResetCmd->SetGuidance("Remove all simulation modules");
-    moduleResetCmd->AvailableForStates(G4State_Idle);
 }
 
 // ****** Initialize Calibration Commands ****** //
@@ -222,13 +220,15 @@ void PrimaryGeneratorMessenger::InitializeSpectrumCommands() {
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
     //  G4UImanager* UI = G4UImanager::GetUIpointer();
-    if(command == testCmd) {
-        generator->GenerateEnergySpectrumWithoutSimulation(testCmd->GetNewIntValue(newValue));
-    } else if(command == calibOnCmd) {
+   if(command == calibOnCmd) {
         ToggleCalibrationMode(calibOnCmd->GetNewBoolValue(newValue));
         generator->ToggleCalibrationMode(calibOnCmd->GetNewBoolValue(newValue));
     } else if(command == verbCmd) generator->SetVerbosity(verbCmd->GetNewIntValue(newValue));
     else if(command == moduleCRYcmd) generator->loadCRYModule();
+    else if(command == moduleIBDcmd) generator->loadIBDModule();
+    else if(command == moduleFisANucmd) generator->loadFisAntNuModule();
+    else if(command == moduleCosMucmd) generator->loadCosmicMuonModule();
+    else if(command == moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == calSourceCmd) {
         G4int source = 0;
         if      (newValue == "none")  { source = 0; }
@@ -254,34 +254,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == energyInactivateCmd) {
         ResetSpectrumCommands();
         generator->InactivateUserEnergySpectrum(energyInactivateCmd->GetNewBoolValue(newValue));
-    } else if(command == moduleCmd) {
-        generator->ResetSimulationModule();
-        if      (newValue == "Options:")      { G4cout << moduleCmd->GetParameter(0)->GetParameterCandidates() << G4endl; }
-        else if (newValue == "cosmicNeutron") { generator->SetCosmicNeutronFlag(true); }
-        else if (newValue == "inverseBeta")   { generator->SetInverseBetaFlag(true); }
-        else if (newValue == "fissionAntinu") { generator->SetFissionAntiNuFlag(true); }
-        else if (newValue == "cosmicMuon")    { generator->SetCosmicMuonFlag(true); }
-    } else if(command == moduleResetCmd) generator->ResetSimulationModule();
-    else G4cout << "Command not found." << G4endl;
-}
-
-// ****** Return Command String ****** //
-G4String PrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
-{
-    G4String cv;
-    if(command == verbCmd)
-    {
-        cv = ItoS(generator->GetVerbosity());
-    }
-    else if(command == moduleCmd)
-    {
-        if      (generator->GetNeutronGenerator()) { cv = "cosmicNeutron"; }
-        else if (generator->GetInverseGenerator()) { cv = "inverseBeta"; }
-        else if (generator->GetAntiNuGenerator())  { cv = "fissionAntinu"; }
-        else if (generator->GetMuonGenerator())    { cv = "cosmicMuon"; }
-        else                                       { cv = "none"; }
-    }
-    return cv;
+    } else G4cout << "Command not found." << G4endl;
 }
 
 // ****** Calibration Command Switch ****** //
@@ -289,7 +262,6 @@ void PrimaryGeneratorMessenger::ToggleCalibrationMode(G4bool flipOn) {
     G4UImanager* UI_manager = G4UImanager::GetUIpointer();
     
     if(flipOn) {
-        UI_manager->RemoveCommand(testCmd);
         UI_manager->RemoveCommand(gunCmd);
         UI_manager->RemoveCommand(gunDir);
         UI_manager->RemoveCommand(functCmd);
@@ -297,22 +269,15 @@ void PrimaryGeneratorMessenger::ToggleCalibrationMode(G4bool flipOn) {
         UI_manager->RemoveCommand(customCmd);
         UI_manager->RemoveCommand(energyInactivateCmd);
         UI_manager->RemoveCommand(spectDir);
-        UI_manager->RemoveCommand(moduleCmd);
-        UI_manager->RemoveCommand(moduleResetCmd);
-        UI_manager->RemoveCommand(moduleDir);
         
-        delete testCmd; testCmd = 0;
         delete gunCmd; gunCmd = 0;
         delete functCmd; functCmd = 0;
         delete fileCmd; fileCmd = 0;
         delete customCmd; customCmd = 0;
         delete energyInactivateCmd; energyInactivateCmd = 0;
-        delete moduleCmd; moduleCmd = 0;
-        delete moduleResetCmd; moduleResetCmd = 0;
         
         delete gunDir; gunDir = 0;
         delete spectDir; spectDir = 0;
-        delete moduleDir; moduleDir = 0;
         
         if(generator->GetFunction()) { ResetSpectrumCommands(); }
         

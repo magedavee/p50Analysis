@@ -102,7 +102,7 @@ DetectorConstruction::DetectorConstruction() {
     fShieldActivated = false;
     fCylinderActivated = false;
     fVetoActivated = false;
-    fVertical = true;
+    fVertical = false;
     
     QE = -1;
     NSegX = 4;
@@ -328,33 +328,34 @@ void DetectorConstruction::ConstructGeometry() {
         for(G4int ynum = 0; ynum<NSegY; ynum++){
             ypos =  (GetSegHeight()+AirGap)*(ynum-(NSegY-1)/2.);
             
-            G4String id1 = to_str(100*xnum+ynum);
+            G4int segnum = xnum + ynum*NSegX;
+            G4String id1 = to_str(segnum);
             
             segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log,
-                                                         "Segment "+id1, shell_log, false,100*xnum+ynum,true);
+                                                         "Segment "+id1, shell_log, false,segnum,true);
             scint_mother = segment_log;
             
             if(WrapGap>0) {
                 wrapgap_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), wrapgap_log,
-                                                             "Target Tank "+id1, segment_log, false,100*xnum+ynum,true);
+                                                             "Target Tank "+id1, segment_log, false,segnum,true);
                 scint_mother = wrapgap_log;
                 if(AcrylThickness>0){
                     target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
-                                                                "Target Tank "+id1, wrapgap_log, false,100*xnum+ynum,true);
+                                                                "Target Tank "+id1, wrapgap_log, false,segnum,true);
                     scint_mother=target_log;
                 }
             } else if(AcrylThickness>0) {
                 target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
-                                                            "Target Tank "+id1, segment_log, false,100*xnum+ynum,true);
+                                                            "Target Tank "+id1, segment_log, false,segnum,true);
                 scint_mother = target_log;
             }
             
             scint_phys[xnum][ynum] = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), scint_log,
-                                                       "Target Scintillator Volume "+id1,scint_mother, false,xnum+ynum*NSegX,true);       
+                                                       "Target Scintillator Volume "+id1, scint_mother, false,segnum,true);       
             
             // place PMTs on each side of each segment
             for(uint i=0; i<=1; i++) {
-                int copynum = 10000*i + 100*xnum + ynum;
+                int copynum = 10000*i + segnum;
                 std::string idname = (i? "S" : "N") + id1;
                 int s = i? -1 : 1;
                 G4RotationMatrix* doFlip = i? pmtFlip : NULL;

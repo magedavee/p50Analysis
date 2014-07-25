@@ -38,7 +38,6 @@ public:
     virtual ~PrimaryGeneratorMessenger();
     
     void SetNewValue(G4UIcommand*,G4String);
-    G4String GetCurrentValue(G4UIcommand*);
     
 private:
 
@@ -56,13 +55,15 @@ private:
     G4UIdirectory* calibDir;
     G4UIdirectory* gunDir;
     G4UIdirectory* spectDir;
-    G4UIdirectory* moduleDir;
     
     G4UIcmdWithoutParameter* moduleCRYcmd;
+    G4UIcmdWithoutParameter* moduleIBDcmd;
+    G4UIcmdWithoutParameter* moduleFisANucmd;
+    G4UIcmdWithoutParameter* moduleCosMucmd;
+    G4UIcmdWithoutParameter* moduleCosNcmd;
     
     G4UIcmdWithABool* calibOnCmd;
     G4UIcmdWithAnInteger* verbCmd;
-    G4UIcmdWithAnInteger* testCmd;
     G4UIcmdWithAString* calSourceCmd;
     G4UIcmdWith3VectorAndUnit* calPosCmd;
     G4UIcmdWithAString* gunCmd;
@@ -73,8 +74,6 @@ private:
     G4UIcmdWithADoubleAndUnit* functTempCmd;
     G4UIcmdWithAString* customCmd;
     G4UIcmdWithABool* energyInactivateCmd;
-    G4UIcmdWithAString* moduleCmd;
-    G4UIcmdWithoutParameter* moduleResetCmd;
 };
 
 #endif

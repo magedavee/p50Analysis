@@ -64,6 +64,6 @@ if __name__=="__main__":
 
     if options.cry:
         L = SB_MC_Launcher()
-        L.settings["nevents"] = 1e4
-        L.launch_sims(12)
+        L.settings["nevents"] = 1e5
+        L.launch_sims(120)
         
