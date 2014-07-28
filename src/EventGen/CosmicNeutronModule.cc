@@ -2,6 +2,8 @@
 
 #include <G4Neutron.hh>
 
+#include <cassert>
+
 CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
 neutron_generator(P->GetVerbosity(), "Outer Tank") { }
 

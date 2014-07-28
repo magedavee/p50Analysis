@@ -3,6 +3,8 @@
 #include <G4Positron.hh>
 #include <G4Neutron.hh>
 
+#include <cassert>
+
 IBDModule::IBDModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
 inverse_beta(P->GetVerbosity(), "Scintillator Volume") { }
 

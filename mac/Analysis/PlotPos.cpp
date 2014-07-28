@@ -136,12 +136,6 @@ void PlotPos() {
     std::cout << "\nNeutron capture nucleus A:\n";
     display_map<Int_t,Int_t>(nCaptA);
     
-    // display histograms
-    hit_xy.Draw("Col Z");
-    new TCanvas();
-    hit_yz.Draw("Col Z");
-    new TCanvas();
-    prim_p.Draw("Col Z");
     
     hEIoni.Scale(1./hEIoni.GetBinWidth(1));
     hEIoni.SetMaximum(100000);
@@ -170,4 +164,11 @@ void PlotPos() {
     hPrimN2.Draw();
     gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/PrimN_hi.pdf");
     
+    // display histograms
+    gPad->SetLogy(false);
+    hit_xy.Draw("Col Z");
+    new TCanvas();
+    hit_yz.Draw("Col Z");
+    new TCanvas();
+    prim_p.Draw("Col Z");
 }

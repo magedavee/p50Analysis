@@ -13,7 +13,7 @@
 #include "InverseBetaKinematics.hh"		// Specifies the file which contains the class structure
 
 #include "InverseBetaMessenger.hh"		// Specifies user-defined classes which are called upon in this class
-#include "FissionAntiNuGenerator.hh"
+#include "FissionAntiNuModule.hh"
 #include "LogSession.hh"
 #include "InputSession.hh"
 
@@ -63,7 +63,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   Neutrons = true;
   Positrons = true;
 
-  fission_gen = new FissionAntiNuGenerator(false,-1);
+  fission_gen = new FissionAntiNuModule(NULL); assert(false);
   inv_messenger = new InverseBetaMessenger(this);
 
 	// Establish initial target volume - defaults to world volume
@@ -143,7 +143,7 @@ void InverseBetaKinematics::SetVerbosity(G4int v)
   if(verbose > 1) { G4cout << "InverseBetaKinematics verbosity set to " << v << "." << G4endl; }
   if(verbose > 2) { RawData = true; G4cout << "*** CAUTION: InverseBetaKinematics raw data will now be output. ***" << G4endl; }
   else            { RawData = false; }
-  fission_gen->SetVerbosity(verbose);
+  //fission_gen->SetVerbosity(verbose);
 }
 
 	// ****** Change Target Volume ****** //
@@ -175,7 +175,7 @@ void InverseBetaKinematics::SetAntiNeutrinoSpectrum(G4double U5, G4double U8, G4
   }
   else
   {
-	// Passes values to FissionAntiNuGenerator object otherwise
+	// Passes values to FissionAntiNuModule object otherwise
     fission_gen->SetAntiNeutrinoSpectrum(U5,U8,P3,P4);
     G4double pcU5 = 100*(fission_gen->GetUranium235Content(true));
     G4double pcU8 = 100*(fission_gen->GetUranium238Content(true));
@@ -471,7 +471,7 @@ G4double InverseBetaKinematics::GenerateAntiNeutrinoEnergy() const
   G4double energy = antiNuMonoEnergy;
   if(!fMonoEnergy)
   { 
-    do { energy = fission_gen->GenerateAntiNeutrinoEnergy(); }		// Uses FissionAntiNuGenerator to generate antineutrino energy if specified
+    do { energy = fission_gen->GenerateAntiNeutrinoEnergy(); }		// Uses FissionAntiNuModule to generate antineutrino energy if specified
     while (energy <= 1.81*MeV || energy > 9.5*MeV);
   }
   return energy;

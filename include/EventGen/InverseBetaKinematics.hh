@@ -13,7 +13,7 @@
 #ifndef InverseBetaKinematics_H		// Only carries out if object is undefined
 #define InverseBetaKinematics_H 1	// Defines object
 
-#include "FissionAntiNuGenerator.hh"	// Specifies user-defined classes which are called upon in this class
+#include "FissionAntiNuModule.hh"	// Specifies user-defined classes which are called upon in this class
 
 #include "G4ThreeVector.hh"		// Specifies the classes which contain structures called upon in this class
 #include "G4RotationMatrix.hh"
@@ -92,7 +92,7 @@ class InverseBetaKinematics
     G4bool Neutrons;			// Flag to specify neutron production
     G4bool Positrons;			// Flag to specify positron production
 
-    FissionAntiNuGenerator* fission_gen;
+    FissionAntiNuModule* fission_gen;
     InverseBetaMessenger* inv_messenger;
 
     G4String targetName;

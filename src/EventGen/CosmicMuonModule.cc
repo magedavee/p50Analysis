@@ -3,6 +3,8 @@
 #include <G4MuonMinus.hh>
 #include <G4MuonPlus.hh>
 
+#include <cassert>
+
 CosmicMuonModule::CosmicMuonModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
 muon_generator(P->GetVerbosity(), "Detector Shell") { }
 
