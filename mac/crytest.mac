@@ -4,6 +4,8 @@
 /event/verbose 0
 /tracking/verbose 0
 
+/output/setRunNum 4567
+
 /detector/setShield true
 #/detector/setLeadShieldThickness 50.8 mm
 #/detector/setBPolyShieldThickness 600 mm
@@ -30,11 +32,13 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-#/vis/disable
+/vis/disable
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
 
-/generator/verbose 2
+/generator/verbose 0
+/run/verbose 0
+
 /generator/module_CRY
 /CRY/input returnNeutrons 1
 /CRY/input returnProtons 1
@@ -47,5 +51,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 1
+/run/beamOn 1000000
 

@@ -4,6 +4,7 @@
 #include "RunAction.hh"
 
 #include <cassert>
+#include <vector>
 
 #include <G4Step.hh>
 #include <G4Track.hh>
@@ -30,12 +31,14 @@ void IonisationHit::Display() const {
 void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();
     hit_history.clear();
+    secondaries_counter.clear();
     nclusters = 0;
 }
 
 G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     G4bool notable = ProcessNeutronHits(aStep, H);
     notable |= ProcessIoniHits(aStep, H);
+    secondaries_counter[aStep->GetTrack()->GetTrackID()] = aStep->GetSecondary()->size();
     return notable;
 }
 
@@ -43,9 +46,12 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     // Check that this is a neutron
     if(aStep->GetTrack()->GetDefinition() != G4Neutron::NeutronDefinition()) return false;
     
-    // Check that this is a hadronic capture
+    // Check that this is a hadronic capture (or special case for 6Li inelastic scattering)
     const G4VProcess* PDS = aStep->GetPostStepPoint()->GetProcessDefinedStep();
-    if(!(PDS && PDS->GetProcessType() == fHadronic && PDS->GetProcessSubType() == fCapture)) return false;
+    bool isCapt = PDS->GetProcessSubType() == fCapture;
+    if(!(PDS && PDS->GetProcessType() == fHadronic && (isCapt || PDS->GetProcessSubType() == fHadronInelastic))) return false;
+    
+    if(verbose >= 2) PDS->DumpInfo();
     
     EventNCapt nc;
     G4ThreeVector x = aStep->GetPostStepPoint()->GetPosition();
@@ -53,12 +59,18 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     nc.t = aStep->GetPostStepPoint()->GetGlobalTime();
     G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
     nc.vol = hitVol->GetCopyNumber(2);
+    nc.E = aStep->GetPreStepPoint()->GetKineticEnergy();
     
     // tally secondaries; check for recoiling nucleus
     nc.Ngamma = 0;
     nc.Egamma = 0;
+    nc.capt_Z = nc.capt_A = 0;
+    nc.Nprod = 0;
     const G4TrackVector* secondaries = aStep->GetSecondary();
-    for(G4TrackVector::const_iterator it = secondaries->begin() ; it != secondaries->end(); it++) {
+    assert(secondaries);
+    G4TrackVector::const_iterator it = secondaries->begin() + secondaries_counter[aStep->GetTrack()->GetTrackID()];
+    for(; it != secondaries->end(); it++) {
+        nc.Nprod++;
         G4ParticleDefinition* pt = (*it)->GetDefinition();
         assert(pt);
         if(pt == G4Gamma::GammaDefinition()) {
@@ -66,22 +78,28 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
             nc.Ngamma++;
         } else {
             G4int Z = pt->GetAtomicNumber();
-            if(Z>0) {
-                nc.capt_Z = Z;
-                nc.capt_A = pt->GetAtomicMass();
+            G4int A = pt->GetAtomicMass();
+            if(verbose >= 2) {
+                G4cerr << "\tFragment: " << pt->GetParticleType() << "/" << pt->GetParticleSubType()
+                << " (" << Z << "," << A << ") " << G4BestUnit((*it)->GetKineticEnergy(),"Energy") << G4endl;
             }
+            nc.capt_Z += Z;
+            nc.capt_A += A;
         }
     }
     
-    RootIO::GetInstance()->GetEvent().AddNCapt(nc);
+    if(isCapt || (nc.capt_Z == 3 && nc.capt_A == 7)) {
+        RootIO::GetInstance()->GetEvent().AddNCapt(nc);
     
-    if(verbose >= 2) {
-        G4cerr << "Neutron capture at [ " << G4BestUnit(x,"Length") << "] with "
-            << nc.Ngamma << " gammas (E=" << G4BestUnit(nc.Egamma,"Energy")
-            << ") resulting in (A,Z)=(" << nc.capt_A << "," << nc.capt_Z << ")" << G4endl;
-    }
+        if(verbose >= 2) {
+            G4cerr << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(x,"Length") << "] with "
+                << nc.Ngamma << " gammas ( E=" << G4BestUnit(nc.Egamma,"Energy")
+                << ") of " << nc.Nprod << " final products; total (A,Z)=(" << nc.capt_A << "," << nc.capt_Z << ")" << G4endl;
+        }
     
-    return true;
+        return true;
+        
+    } else return false;
 }
 
 G4bool ScintSD::ProcessIoniHits(G4Step* aStep, G4TouchableHistory*) {

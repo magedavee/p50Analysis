@@ -66,7 +66,8 @@ private:
     void RegisterIoniHit(IonisationHit* h);
     
     G4int verbose;                                              ///< output verbosity level
-    std::map< G4int, std::vector<IonisationHit*> > hit_history; ///< ionization hits collection by detector
+    std::map<G4int, std::vector<IonisationHit*> > hit_history;  ///< ionization hits collection by detector
+    std::map<G4int, G4int> secondaries_counter;                 ///< count of previously-observed secondaries in each track
     uint nclusters;                                             ///< number of time-grouped ionization event clusters
 };
 

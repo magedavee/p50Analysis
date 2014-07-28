@@ -51,11 +51,12 @@ public:
     Double_t x[3];      ///< position of capture
     Int_t Ngamma;       ///< number of gammas produced
     Double_t Egamma;    ///< total energy of gammas produced
+    Int_t Nprod;        ///< total number of secondary products
     Int_t capt_A;       ///< capture nucleus A
     Int_t capt_Z;       ///< capture nucleus Z
     Int_t vol;          ///< volume ID number
     
-    ClassDef(EventNCapt,1);
+    ClassDef(EventNCapt,2);
 };
 
 class Event : public TObject {
