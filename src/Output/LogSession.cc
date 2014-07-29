@@ -46,7 +46,7 @@ LogSession* LogSession::GetLogSessionPointer(G4String name, G4bool init)
 }
 
 	// ****** Constructor ****** //
-LogSession::LogSession(G4String name, G4bool init)
+LogSession::LogSession(G4String name, G4bool do_init)
 {
   if(homedir.empty())
   {
@@ -65,7 +65,7 @@ LogSession::LogSession(G4String name, G4bool init)
   {
     name.erase(0,name.find_first_not_of('/'));
   }
-  if(init && initname.empty() && !name.empty())
+  if(do_init && initname.empty() && !name.empty())
   {
     initname = name;
   }

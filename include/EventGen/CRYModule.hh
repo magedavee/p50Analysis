@@ -27,8 +27,8 @@ public:
     /// UI response
     void SetNewValue(G4UIcommand*,G4String);
 
-    /// get event generator elapsed "real" time
-    double getElapsedTime() const;
+    /// get total "real time" for primaries thrown
+    virtual G4double GetGeneratorTime() const;
     
 protected:
     

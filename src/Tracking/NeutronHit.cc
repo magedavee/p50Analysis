@@ -12,6 +12,7 @@
 
 #include "NeutronHit.hh"	// Specifies the file which contain the class structure
 
+#include <G4SystemOfUnits.hh>
 #include "G4RunManager.hh"	// Specifies the classes which contain structures called upon in this class
 #include "G4VVisManager.hh"
 #include "G4Colour.hh"

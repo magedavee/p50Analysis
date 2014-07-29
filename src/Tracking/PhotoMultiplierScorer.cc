@@ -16,6 +16,7 @@
 #include "LogSession.hh"
 #include "TrackInformation.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "G4Track.hh"
 #include "G4RunManager.hh"					// Specifies classes which contain structures called upon in this class
 #include "G4Step.hh"

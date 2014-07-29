@@ -12,6 +12,7 @@
 
 #include "OpticalHit.hh"		// Specifies the file which contains the class structure
 
+#include <G4SystemOfUnits.hh>
 #include "G4RunManager.hh"		// Specifies the classes which contain structures called upon in this class
 #include "G4PhysicalVolumeStore.hh"
 #include "G4VPhysicalVolume.hh"

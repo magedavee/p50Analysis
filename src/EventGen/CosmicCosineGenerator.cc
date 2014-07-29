@@ -14,6 +14,7 @@
 
 #include "LogSession.hh"			// Specifies user-defined classes which are called upon in this class
 
+#include <G4SystemOfUnits.hh>
 #include "G4RunManager.hh"			// Specifies all the classes which contain structures called upon in this class
 #include "G4PhysicalVolumeStore.hh"
 #include "G4VPhysicalVolume.hh"

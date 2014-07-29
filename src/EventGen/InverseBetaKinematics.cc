@@ -17,6 +17,7 @@
 #include "LogSession.hh"
 #include "InputSession.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "Randomize.hh"				// Specifies the classes which contain structures called upon in this class
 #include "G4UnitsTable.hh"
 #include "G4ParticleTypes.hh"
@@ -587,12 +588,12 @@ G4double InverseBetaKinematics::CalculatePositronEnergy(G4double ePlusAngle, G4d
   t3 = 2*(pMass*pMass*ePlusMass*ePlusMass - pMass*pMass*nMass*nMass - ePlusMass*ePlusMass*nMass*nMass);
   t4 = 4*nuEnergy*pMass*(pMass*pMass + ePlusMass*ePlusMass - nMass*nMass);
 
-  G4double a, b, c, Determinant;
+  G4double a, b, cc, Determinant;
   
   a = 4*pow((nuEnergy + pMass),2) - 4*(nuEnergy*nuEnergy)*pow(cos(ePlusAngle),2);
   b = -4*nuEnergy*cos(ePlusAngle)*(pMass*pMass + ePlusMass*ePlusMass - nMass*nMass + 2*nuEnergy*pMass);
-  c = t1 - t2 - t3 - t4;
-  Determinant = b*b - 4*a*c;
+  cc = t1 - t2 - t3 - t4;
+  Determinant = b*b - 4*a*cc;
 
 	// Determine validity of calculated momentum
   G4double ePlusEnergy;

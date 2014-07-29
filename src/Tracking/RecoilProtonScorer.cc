@@ -15,6 +15,7 @@
 #include "ProtonHit.hh"					// Specifies user-defined classes which are called upon in this class
 #include "LogSession.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "G4Track.hh"					// Specifies classes which contain structures called upon in this class
 #include "G4Step.hh"
 #include "G4SDManager.hh"

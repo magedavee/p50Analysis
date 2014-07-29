@@ -36,6 +36,7 @@ OpticalPhysics::~OpticalPhysics()
 	// ****** Process Specifier ****** //
 void OpticalPhysics::ConstructProcess()				// Sets up the necessary process for the desired particles
 {
+    /*
   // Optical Photon Physics
 
   G4ProcessManager* process_manager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();		// Defines which process manager is being modified
@@ -103,6 +104,7 @@ void OpticalPhysics::ConstructProcess()				// Sets up the necessary process for 
       process_manager->SetProcessOrdering(cerenkovProcess,idxPostStep);
     }
   }
+  */
 }
 
 // EOF

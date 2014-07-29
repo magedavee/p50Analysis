@@ -44,7 +44,7 @@
 int main(int argc,char** argv) {
     
     // load event classes for ROOT
-    gSystem->Load("libEventLib.so");
+    gSystem->Load("libSB_G4.so");
     
     // Sets random engine as Ranecu Engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine); 

@@ -16,6 +16,7 @@
 #include "CosmicCosineGenerator.hh"
 #include "LogSession.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "Randomize.hh"				// Specifies the classes which contain structures called upon in this class
 #include "G4UnitsTable.hh"
 #include "G4ParticleTypes.hh"

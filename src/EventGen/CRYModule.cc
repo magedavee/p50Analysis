@@ -7,6 +7,7 @@
 #include "RNGWrapper.hh"
 
 #include "DetectorConstruction.hh"
+#include <G4SystemOfUnits.hh>
 #include <G4RunManager.hh>
 #include <G4UnitsTable.hh>
 #include <G4ParticleTable.hh>
@@ -71,7 +72,7 @@ void CRYModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     else if(command == cryZCmd) zOffset = cryZCmd->GetNewDoubleValue(newValue);
 }
 
-double CRYModule::getElapsedTime() const {
+G4double CRYModule::GetGeneratorTime() const {
     if(!CRY_generator) return 0;
     return CRY_generator->timeSimulated()*s;
 }
@@ -129,9 +130,6 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
         //if(!n_neutrons) v.clear(); // only keep neutron events
         
     } while(!v.size());
-    
-    
-    if(myPGA->GetVerbosity() >= 2) G4cerr << "Cosmic rays elapsed time: " << G4BestUnit(getElapsedTime(),"Time") << G4endl;
     
     throwPrimaries(v, anEvent);
 }

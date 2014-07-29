@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 #include <iostream>
+#include <string>
 
 #include <TCanvas.h>
 
@@ -25,7 +26,9 @@ ClassImp(nucleus);
 
 void PlotPos() {
     // load library describing data classes
-    gSystem->Load("~/Applications/SB_G4_MC/lib/libSB_G4.so");
+    gSystem->Load("~/Applications/SB_G4_MC/lib/libEventLib.so");
+    
+    std::string outpath = "/home/mpmendenhall/tmp/";
     
     // load data into TChain
     TChain T("sblmc");
@@ -134,29 +137,29 @@ void PlotPos() {
     hEIoni.Scale(1./hEIoni.GetBinWidth(1));
     hEIoni.SetMaximum(20000);
     hEIoni.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/EIoni.pdf");
+    gPad->Print((outpath+"/EIoni.pdf").c_str());
     
     hPrimN3.Scale(1./hPrimN3.GetBinWidth(1));
     hPrimN3.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/PrimN_lo.pdf");
+    gPad->Print((outpath+"/PrimN_lo.pdf").c_str());
     
     hPrimN1.Scale(1./hPrimN1.GetBinWidth(1));
     hPrimN1.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/PrimN_mid.pdf");
+    gPad->Print((outpath+"/PrimN_mid.pdf").c_str());
     
     gPad->SetLogy(true);
     
     hPrimN4.Scale(1./hPrimN4.GetBinWidth(1));
     hPrimN4.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/PrimN_thermal.pdf");
+    gPad->Print((outpath+"/PrimN_thermal.pdf").c_str());
     
     hnPrim.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/nPrim.pdf");
+    gPad->Print((outpath+"/nPrim.pdf").c_str());
     std::cout << "\nSingle-primary events: " << hnPrim.GetBinContent(2) << " out of " << hnPrim.Integral() << "\n";
     
     hPrimN2.Scale(1./hPrimN2.GetBinWidth(1));
     hPrimN2.Draw();
-    gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/PrimN_hi.pdf");
+    gPad->Print((outpath+"/PrimN_hi.pdf").c_str());
     
     // display histograms
     gPad->SetLogy(false);

@@ -52,6 +52,8 @@ public:
     
     /// throw event particles
     virtual void GeneratePrimaries(G4Event* anEvent) = 0;
+    /// get total "real time" for primaries thrown
+    virtual G4double GetGeneratorTime() const { return 0; }
     
 protected:
     

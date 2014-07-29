@@ -15,6 +15,7 @@
 
 #include "DetectorConstruction.hh"		// Specifies user-defined classes which are called upon in this class
 
+#include <G4SystemOfUnits.hh>
 #include "G4UIdirectory.hh"			// Specifies the classes which contain structures called upon in this class
 #include "G4UIcommand.hh"
 #include "G4UIparameter.hh"

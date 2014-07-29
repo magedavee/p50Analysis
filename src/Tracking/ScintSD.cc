@@ -6,6 +6,7 @@
 #include <cassert>
 #include <vector>
 
+#include <G4SystemOfUnits.hh>
 #include <G4Step.hh>
 #include <G4Track.hh>
 #include <G4VProcess.hh>
@@ -27,6 +28,9 @@ void IonisationHit::Display() const {
 }
 
 ////////////////////////////////////////////////////////////////
+
+ScintSD::ScintSD(G4String name): G4VSensitiveDetector(name),
+time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0) { }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();

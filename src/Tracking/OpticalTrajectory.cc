@@ -12,6 +12,7 @@
 
 #include "OpticalTrajectory.hh"		// Specifies the file which contains the class structure
 
+#include <G4SystemOfUnits.hh>
 #include "G4TrajectoryPoint.hh"		// Specifies the classes which contain structures called upon in this class
 #include "G4Trajectory.hh"
 #include "G4ParticleTable.hh"
@@ -60,7 +61,7 @@ OpticalTrajectory::~OpticalTrajectory()
 {;}
 
 	// ****** Draw Trajectory Function ****** //
-void OpticalTrajectory::DrawTrajectory(G4int i_mode) const
+void OpticalTrajectory::_DrawTrajectory(G4int i_mode) const
 {
   //  if(!isHit) { return; }
   G4VVisManager* vis_manager = G4VVisManager::GetConcreteInstance();

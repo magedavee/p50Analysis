@@ -14,7 +14,9 @@
 
 #include "NeutronHit.hh"
 #include "LogSession.hh"
+#include "RootIO.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "G4Track.hh"
 #include "G4Step.hh"
 #include "G4SDManager.hh"
@@ -22,12 +24,8 @@
 #include "G4THitsMap.hh"
 #include "G4ParticleTypes.hh"
 #include "G4VSolid.hh"
+#include <G4ios.hh>
 
-#include "RootIO.hh"
-
-#include "G4ios.hh"
-
-#include "globals.hh"
 #include <cassert>
 
 NeutronDetectionScorer::NeutronDetectionScorer(G4String HCname): G4VPrimitiveScorer(HCname) {

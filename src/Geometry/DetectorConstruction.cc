@@ -17,6 +17,7 @@
 #include "PhotoMultiplierScorer.hh"
 #include "DetectorMessenger.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "G4Element.hh"                         // These are the GEANT4 classes necessary to construct the desired materials
 #include "G4Material.hh"                        //      |
 #include "G4Isotope.hh"                         //      |
@@ -358,20 +359,20 @@ void DetectorConstruction::ConstructGeometry() {
             for(uint i=0; i<=1; i++) {
                 int copynum = 10000*i + segnum;
                 std::string idname = (i? "S" : "N") + id1;
-                int s = i? -1 : 1;
+                int smul = i? -1 : 1;
                 G4RotationMatrix* doFlip = i? pmtFlip : NULL;
                 
                 cathSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
+                                                                G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
                                                                 cathSEG_log, "PMT Cathode "+idname, shell_log, false, copynum, true);
                 pmtSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
                                                                G4ThreeVector(0.,0.,0.),
                                                                pmtSEG_log, "PMT "+idname, cathSEG_log, false, copynum, true);
                 coverSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                 G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
+                                                                 G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
                                                                  coverSEG_log, "PMT Cover "+idname, shell_log, false, copynum, false);
                 baseSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                G4ThreeVector(xpos, ypos, s * (GetSegLength()/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness)),
+                                                                G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness)),
                                                                 baseSEG_log, "PMT Base "+idname, shell_log, false, copynum, false);
             }
         }  
@@ -394,7 +395,7 @@ void DetectorConstruction::ConstructSDs() {
     std::vector<G4double> photEnergy;
     for(int i=0; i<nSize; i++) {
         G4double l = (520-5*i)*nm;
-        photEnergy.push_back(h_Planck * c_light / l);
+        photEnergy.push_back(CLHEP::h_Planck * CLHEP::c_light / l);
     }
 
     // PMT quantum efficiency at each photon energy
@@ -669,7 +670,7 @@ void DetectorConstruction::ConstructMaterialProperties() {
     G4double PhotonEnergy[nEntries]; 
     for(int i=0; i<nEntries; i++) {
         G4double l = (520-2*i)*nm;
-        PhotonEnergy[i] = h_Planck * c_light / l;
+        PhotonEnergy[i] = CLHEP::h_Planck * CLHEP::c_light / l;
     }
     
     // Gd-Loaded Liquid Pseudocumene - BC-525

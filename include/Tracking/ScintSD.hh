@@ -2,7 +2,7 @@
 /// Assure header file is only loaded once
 #define SCINTSD_HH
 
-#include "G4VSensitiveDetector.hh"
+#include <G4VSensitiveDetector.hh>
 #include "WeightAverager.hh"
 
 #include <map>
@@ -44,7 +44,7 @@ class ScintSD : public G4VSensitiveDetector {
 public:
     
     /// Constructor
-    ScintSD(G4String name): G4VSensitiveDetector(name), time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0) { }
+    ScintSD(G4String name);
 
     /// Initializes detector at start of event
     void Initialize(G4HCofThisEvent*);

@@ -12,6 +12,7 @@
 
 #include "CosmicNeutronGenerator.hh"		// Specifies the file which contains the class structure
 
+#include <G4SystemOfUnits.hh>
 #include "CosmicNeutronMessenger.hh"		// Specifies user-defined classes which are called upon in this class
 #include "CosmicCosineGenerator.hh"
 #include "LogSession.hh"

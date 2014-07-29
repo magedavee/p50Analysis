@@ -41,7 +41,7 @@ class OpticalTrajectory : public G4Trajectory			// This class inherits functions
 
   public:	// Accessible Methods
 
-    virtual void DrawTrajectory(G4int i_mode = 0) const;
+    virtual void _DrawTrajectory(G4int i_mode = 0) const;       // TODO update this to Geant4.10 -- no i_mode ?
 
     inline void* operator new(size_t);			// Function called when new operator is used
     inline void operator delete(void*);			// Function called when delete operator is used

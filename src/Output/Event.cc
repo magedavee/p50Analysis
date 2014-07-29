@@ -1,9 +1,11 @@
 #include "Event.hh"
+#include <cassert>
 
 ClassImp(EventPrimaryPtcl)
 ClassImp(EventIoniCluster)
 ClassImp(EventNCapt)
 ClassImp(Event)
+ClassImp(RunDetGeom)
 ClassImp(Run)
 
 ////////////////////////////////////////////
@@ -57,26 +59,37 @@ void Event::AddNCapt(const EventNCapt& n) {
 //------------------------------------------
 ////////////////////////////////////////////
 
-void Run::Clear(Option_t*) {
-    AirGap=0;
-    WrapGap=0;
-    WrapThickness=0;	
-    AcrylThickness=0;        
-    SegBuffer=0;
-    ScintLength=0;
-    ScintHeight=0;
-    ScintWidth=0;
-    SegLength=0;
-    SegWidth=0;
-    SegHeight=0;	
-    PMTscale=0;               
-    ShieldLead=0;
-    ShieldPolyB=0;
-    ShieldPolyLi=0;
-    Vertical=0;
-    Scint=0;
-    Shielded=0;
-    Reflectivity=0;
+void RunDetGeom::Clear(Option_t*) {
+    AirGap = 0;
+    WrapGap = 0;
+    WrapThickness = 0;    
+    AcrylThickness = 0;        
+    SegBuffer = 0;
+    ScintLength = 0;
+    ScintHeight = 0;
+    ScintWidth = 0;
+    SegLength = 0;
+    SegWidth = 0;
+    SegHeight = 0;        
+    PMTscale = 0;               
+    ShieldLead = 0;
+    ShieldPolyB = 0;
+    ShieldPolyLi = 0;
+    Vertical = 0;
+    Scint = 0;
+    Reflectivity = 0;
+}
+
+////////////////////////////////////////////
+//------------------------------------------
+////////////////////////////////////////////
+
+void Run::Clear(Option_t* o) {
+    geom.Clear(o);
+    
+    runNum = 0;
+    nEvents = 0;
+    simTime = 0;
 }
         
         

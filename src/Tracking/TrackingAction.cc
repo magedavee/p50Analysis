@@ -19,6 +19,7 @@
 #include "LogSession.hh"
 #include "RootIO.hh"
 
+#include <G4SystemOfUnits.hh>
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4TrackStatus.hh"

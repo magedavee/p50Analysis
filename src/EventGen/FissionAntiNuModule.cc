@@ -3,6 +3,7 @@
 #include "DetectorConstruction.hh"
 #include "FissionAntiNuMessenger.hh"
 
+#include <G4SystemOfUnits.hh>
 #include <G4AntiNeutrinoE.hh>
 #include <Randomize.hh>
 
@@ -12,18 +13,18 @@ U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), fiss_messenger(new FissionAntiN
 FissionAntiNuModule::~FissionAntiNuModule() { delete fiss_messenger; }
 
 void FissionAntiNuModule::GeneratePrimaries(G4Event* anEvent) {    
-    G4ParticleGun* g = myPGA->GetParticleGun();
-    assert(g);
-    g->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
+    G4ParticleGun* gun = myPGA->GetParticleGun();
+    assert(gun);
+    gun->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
     
     /// neutrinos coming straight up from under floor
     G4double positionZ = -( myPGA->GetDetector()->GetWorldSizeZ());
     G4double positionX = 2.0*( myPGA->GetDetector()->GetWorldSizeX())*(G4UniformRand()-0.5);
     G4double positionY = 2.0*( myPGA->GetDetector()->GetWorldSizeY())*(G4UniformRand()-0.5);
-    g->SetParticlePosition(G4ThreeVector(positionX,positionY,positionZ));
-    g->SetParticleEnergy(GenerateAntiNeutrinoEnergy());
-    g->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));
-    g->GeneratePrimaryVertex(anEvent);
+    gun->SetParticlePosition(G4ThreeVector(positionX,positionY,positionZ));
+    gun->SetParticleEnergy(GenerateAntiNeutrinoEnergy());
+    gun->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));
+    gun->GeneratePrimaryVertex(anEvent);
 }
 
 G4double FissionAntiNuModule::GenerateAntiNeutrinoEnergy() const {

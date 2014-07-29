@@ -59,22 +59,22 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 ###############
 
 set(SB_G4_LINKDEF ${PROJECT_SOURCE_DIR}/include/Output/EventLinkDef.h)
-set(SB_G4_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/SB_G4_Dict.cxx)
+set(SB_G4_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/EventLib_Dict.cxx)
 MESSAGE("Generating dictionary ${SB_G4_DICTIONARY}")
 set(DICTFILES "${PROJECT_SOURCE_DIR}/include/Output/Event.hh")
 ROOT_GENERATE_DICTIONARY("${DICTFILES}" "${SB_G4_LINKDEF}" "${SB_G4_DICTIONARY}" "")
 LIST(APPEND sources ${SB_G4_DICTIONARY})
 
-add_library(SB_G4 SHARED ${sources} ${headers})
-target_link_libraries(SB_G4 CRY ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
+add_library(EventLib SHARED ${sources} ${headers})
+target_link_libraries(EventLib CRY ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
 SET(SB_G4_LIBRARY_PROPERTIES
 		${SB_G4_LIBRARY_PROPERTIES}
 		VERSION "0"
 		SOVERSION "0"
 		SUFFIX ".so"
 )
-set_target_properties(SB_G4 PROPERTIES ${SB_G4_LIBRARY_PROPERTIES})
-install(TARGETS SB_G4 DESTINATION ${LIBRARY_OUTPUT_PATH})
+set_target_properties(EventLib PROPERTIES ${SB_G4_LIBRARY_PROPERTIES})
+install(TARGETS EventLib DESTINATION ${LIBRARY_OUTPUT_PATH})
 link_directories(${LIBRARY_OUTPUT_PATH})
 
 
@@ -83,7 +83,7 @@ link_directories(${LIBRARY_OUTPUT_PATH})
 #################
 
 add_executable(ShortBaseline_v1_01 ShortBaseline_v1_01.cc)
-target_link_libraries(ShortBaseline_v1_01 SB_G4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(ShortBaseline_v1_01 EventLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 install(TARGETS ShortBaseline_v1_01 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
