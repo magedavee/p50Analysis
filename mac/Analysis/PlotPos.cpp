@@ -2,8 +2,6 @@
 // ROOT macro example for MC output analysis
 // .x PlotPos.cpp
 
-#include "PlotPos.hh"
-
 #include <map>
 #include <utility>
 #include <iostream>
@@ -75,8 +73,7 @@ void PlotPos() {
     // event counters by PID
     std::map<Int_t,Int_t> primNCapts;
     std::map<Int_t,Int_t> primIoni;
-    std::map<Int_t, Int_t> nCaptA;
-    std::map<Int_t, Int_t> nCaptZ;
+    std::map<Int_t, Int_t> nCaptZA;
     
 
     // scan events
@@ -116,8 +113,7 @@ void PlotPos() {
         Int_t nNCapts = evt->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapts; i++) {
             EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
-            nCaptZ[nc->capt_Z] += 1;
-            nCaptA[nc->capt_A] += 1;
+            nCaptZA[1000 * nc->capt_Z + nc->capt_A] += 1;
         }
         
         if(nPrim == 1) {
@@ -131,14 +127,12 @@ void PlotPos() {
     display_map<Int_t,Int_t>(primNCapts);
     std::cout << "\nIonization by primary:\n";
     display_map<Int_t,Int_t>(primIoni);
-    std::cout << "\nNeutron capture nucleus Z:\n";
-    display_map<Int_t,Int_t>(nCaptZ);
-    std::cout << "\nNeutron capture nucleus A:\n";
-    display_map<Int_t,Int_t>(nCaptA);
+    std::cout << "\nNeutron capture nucleus 1000*Z + A:\n";
+    display_map<Int_t,Int_t>(nCaptZA);
     
     
     hEIoni.Scale(1./hEIoni.GetBinWidth(1));
-    hEIoni.SetMaximum(100000);
+    hEIoni.SetMaximum(20000);
     hEIoni.Draw();
     gPad->Print("/home/mpmendenhall/Documents/PapersLibrary/PROSPECT/20140728_ShieldSims/EIoni.pdf");
     

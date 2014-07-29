@@ -68,7 +68,8 @@ void PrimaryGeneratorModule::throwPrimaries(const std::vector<primaryPtcl>& v, G
 ////////////////////////////////////////
 
 PrimaryGeneratorAction::PrimaryGeneratorAction():
-genModule(NULL), myCRYModule(NULL), myIBDModule(NULL),
+genModule(NULL), myCRYModule(NULL),
+myIBDModule(NULL), myFisAntNuModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL) {
     verbose = 0;
     

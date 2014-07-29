@@ -1,9 +1,6 @@
 /output/setRunNum %(run_num)i
 
 /detector/setShield true
-#/detector/setLeadShieldThickness 50.8 mm
-#/detector/setBPolyShieldThickness 600 mm
-#/scint/setComposition T
 /scint/setOpticalProcesses false
 
 /vis/disable
