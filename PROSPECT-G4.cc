@@ -1,50 +1,31 @@
-// Unrestricted Use - Property of AECL
-//
-// antinu.cc - created on 2010/06/09 by Aaron Ho
-// GEANT4 - geant4.4.9.3.p01
-//
-// Main file for Template GEANT4 Simulation
-// 	Contains instructions to build/run the Geant4 code
-//
-// ------------------------------------------------------------------
-//      GEANT4 - Short Baseline Anti-Neutrino Detector
-// ------------------------------------------------------------------
-//
-
-#include "G4RunManager.hh"			// Includes the class which controls the operation of the program
-#include "G4UImanager.hh"			// Includes the class which controls the user command prompt of the program (run-time control is optional though)
-
-#include "Randomize.hh"
-
-#include "DetectorConstruction.hh"		// These are the user-defined classes describing geometry, physics, and initial kinetics
-#include "PhysicsList.hh"			//	|
-#include "PrimaryGeneratorAction.hh"		//	|
-#include "RunAction.hh"				//	|
-#include "EventAction.hh"			//	|
-#include "TrackingAction.hh"			//	|
-#include "SteppingAction.hh"			//	|
-#include "SteppingVerbose.hh"			//	|
-#include "LogSession.hh"			//	V
-
-#ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
-#endif
-
-#ifdef G4UI_USE
-#include "G4UIExecutive.hh"
-#endif
-
+#include <G4RunManager.hh>
+#include <G4UImanager.hh>
 #include <G4PhysListFactory.hh>
+#include <Randomize.hh>
+#include <globals.hh>
+#ifdef G4VIS_USE
+#include <G4VisExecutive.hh>
+#endif
+#ifdef G4UI_USE
+#include <G4UIExecutive.hh>
+#endif
 
+#include <TSystem.h>
 #include <iostream>
 #include <fstream>
-#include "globals.hh"
-#include "TSystem.h"
+
+#include "DetectorConstruction.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "RunAction.hh"
+#include "EventAction.hh"
+#include "TrackingAction.hh"
+#include "SteppingAction.hh"
+#include "SteppingVerbose.hh"
 
 int main(int argc,char** argv) {
     
     // load event classes for ROOT
-    gSystem->Load("libSB_G4.so");
+    gSystem->Load("libEventLib.so");
     
     // Sets random engine as Ranecu Engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine); 
@@ -60,7 +41,7 @@ int main(int argc,char** argv) {
     DetectorConstruction* detector = new DetectorConstruction();
     run_manager->SetUserInitialization(detector);
     
-    //G4VUserPhysicsList* physics = new PhysicsList_495(false);
+    // Set physics list
     G4PhysListFactory factory;
     G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP");
     run_manager->SetUserInitialization(physList);
@@ -84,20 +65,14 @@ int main(int argc,char** argv) {
     SteppingAction* stepping_action = new SteppingAction();
     run_manager->SetUserAction(stepping_action);
     
-    ///////////////////////
-    // Initialize G4 kernel
-    // run_manager->Initialize();
-    
 #ifdef G4VIS_USE
     // Initialize visualization
     G4VisManager* vis_manager = new G4VisExecutive;
     vis_manager->Initialize(); 
 #endif
     
-    // Get the pointer to the UI manager and creates new log session (overwrites old one!)
-    G4UImanager* UI = G4UImanager::GetUIpointer(); 
-    UI->ApplyCommand("/scint/setOpticalProcesses false");
-    UI->ApplyCommand("/hits/inactivate");
+    // Get the pointer to the UI manager
+    G4UImanager* UI = G4UImanager::GetUIpointer();
     
     if(argc > 1) { // Execute the argument macro file if specified in arguments
         G4String command = "/control/execute ";
@@ -124,6 +99,8 @@ int main(int argc,char** argv) {
 #ifdef G4VIS_USE
     delete vis_manager;
 #endif
-    delete run_manager;	// All other processes owned and deleted by G4RunManager, do NOT delete them again!
+    delete run_manager;
+    // All other processes owned and deleted by G4RunManager
+    
     return 0;
 }

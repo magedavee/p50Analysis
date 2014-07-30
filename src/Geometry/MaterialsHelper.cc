@@ -31,7 +31,7 @@ void MaterialsHelper::init() {
     
     G4cerr << "Initializing materials..." << G4endl;
     
-    G4NistManager* nist = G4NistManager::Instance();
+    nist = G4NistManager::Instance();
     
     nat_H = nist->FindOrBuildMaterial("G4_H", true);
     nat_C = nist->FindOrBuildMaterial("G4_C", true);

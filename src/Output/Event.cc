@@ -91,8 +91,3 @@ void Run::Clear(Option_t* o) {
     nEvents = 0;
     simTime = 0;
 }
-        
-        
-        
-        
-        

@@ -442,4 +442,3 @@ void DetectorConstruction::SetOpticalFinish(int optfin) {
     }
 
     }     */
-                              

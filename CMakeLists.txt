@@ -20,8 +20,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}/include/EventGen
                     ${PROJECT_SOURCE_DIR}/include/Output
                     ${PROJECT_SOURCE_DIR}/include/Tracking
-                    ${PROJECT_SOURCE_DIR}/cry_v1.7/src)
-link_directories(/home/mpmendenhall/Applications/cry_v1.7/lib)
+                    $ENV{CRYHOME}/src)
+link_directories($ENV{CRYHOME}/lib)
 
 #-------------------------------
 # ROOT dependencies

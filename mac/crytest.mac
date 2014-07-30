@@ -10,7 +10,7 @@
 
 /run/initialize
 
-/vis/open OGLSXm
+/vis/open OGLSX
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
 /vis/viewer/set/auxiliaryEdge 1
