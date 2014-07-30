@@ -82,10 +82,10 @@ link_directories(${LIBRARY_OUTPUT_PATH})
 # Executables
 #################
 
-add_executable(ShortBaseline_v1_01 ShortBaseline_v1_01.cc)
-target_link_libraries(ShortBaseline_v1_01 EventLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(PROSPECT-G4 PROSPECT-G4.cc)
+target_link_libraries(PROSPECT-G4 EventLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
-install(TARGETS ShortBaseline_v1_01 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+install(TARGETS PROSPECT-G4 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
 
 #################
