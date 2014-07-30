@@ -21,7 +21,7 @@ CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
 CRY_generator(NULL), inputState(false), primpoint(false) {
    
     const DetectorConstruction* detect = dynamic_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    zOffset = detect->GetWorldSizeZ();
+    zOffset = detect->myBuilding.dim[2]/2.;
     
     CRYDir = new G4UIdirectory("/CRY/");
     CRYDir->SetGuidance("CRY initialization");
@@ -86,7 +86,6 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
     }
     
     // loop until generating at least one primary
-    //G4double length = detect->GetMaxHalfDimension();
     std::vector<primaryPtcl> v;
     do {
         vect.clear();

@@ -1,8 +1,5 @@
 /output/setRunNum %(run_num)i
 
-/detector/setShield true
-/scint/setOpticalProcesses false
-
 /vis/disable
 
 /output/setRecordLevel 2

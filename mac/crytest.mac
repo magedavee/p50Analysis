@@ -6,33 +6,29 @@
 
 /output/setRunNum 4567
 
-/detector/setShield true
-#/detector/setLeadShieldThickness 50.8 mm
-#/detector/setBPolyShieldThickness 600 mm
-#/scint/setComposition T
-/scint/setOpticalProcesses false
-
 /output/setRecordLevel 2
 
 /run/initialize
 
 /vis/open OGLSXm
-#/vis/open HepRepFile
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
 /vis/viewer/set/auxiliaryEdge 1
-/vis/viewer/set/upThetaPhi 0 90
-#/vis/viewer/set/viewpointThetaPhi 45 45
-/vis/viewer/set/viewpointThetaPhi 90 0
 /vis/drawVolume
-/vis/scene/add/axes
+
+/vis/viewer/set/upThetaPhi 0 0
+/vis/viewer/set/viewpointThetaPhi 90 90
+/vis/viewer/zoom 2
+
+#/vis/scene/add/axes
 /vis/scene/add/scale
+
 
 /vis/scene/add/trajectories
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-/vis/disable
+#/vis/disable
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
 
@@ -51,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 1000000
+/run/beamOn 1
 

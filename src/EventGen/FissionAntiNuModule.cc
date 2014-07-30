@@ -18,9 +18,10 @@ void FissionAntiNuModule::GeneratePrimaries(G4Event* anEvent) {
     gun->SetParticleDefinition(G4AntiNeutrinoE::AntiNeutrinoEDefinition());
     
     /// neutrinos coming straight up from under floor
-    G4double positionZ = -( myPGA->GetDetector()->GetWorldSizeZ());
-    G4double positionX = 2.0*( myPGA->GetDetector()->GetWorldSizeX())*(G4UniformRand()-0.5);
-    G4double positionY = 2.0*( myPGA->GetDetector()->GetWorldSizeY())*(G4UniformRand()-0.5);
+    G4ThreeVector wsize = myPGA->GetDetector()->myBuilding.dim;
+    G4double positionZ = -wsize[0]/2.;
+    G4double positionX = wsize[1]*(G4UniformRand()-0.5);
+    G4double positionY = wsize[2]*(G4UniformRand()-0.5);
     gun->SetParticlePosition(G4ThreeVector(positionX,positionY,positionZ));
     gun->SetParticleEnergy(GenerateAntiNeutrinoEnergy());
     gun->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));

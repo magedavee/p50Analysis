@@ -116,7 +116,7 @@ void PlotPos() {
         Int_t nNCapts = evt->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapts; i++) {
             EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
-            nCaptZA[1000 * nc->capt_Z + nc->capt_A] += 1;
+            nCaptZA[10000 * nc->capt_Z + nc->capt_A] += 1;
         }
         
         if(nPrim == 1) {
@@ -130,7 +130,7 @@ void PlotPos() {
     display_map<Int_t,Int_t>(primNCapts);
     std::cout << "\nIonization by primary:\n";
     display_map<Int_t,Int_t>(primIoni);
-    std::cout << "\nNeutron capture nucleus 1000*Z + A:\n";
+    std::cout << "\nNeutron capture nucleus 10000*Z + A:\n";
     display_map<Int_t,Int_t>(nCaptZA);
     
     

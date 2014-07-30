@@ -74,26 +74,6 @@ void RootIO::SetFileName(G4String filename) {
         
         // set up run info output
         mcrun.Clear();
-        
-        mcrun.geom.NSegX = detector->GetNSegX();
-        mcrun.geom.NSegY = detector->GetNSegY();
-        mcrun.geom.AirGap = detector->GetAirGap();
-        mcrun.geom.WrapGap = detector->GetWrapGap();
-        mcrun.geom.WrapThickness = detector->GetWrapThickness();		
-        mcrun.geom.AcrylThickness = detector->GetAcrylThickness();       
-        mcrun.geom.SegBuffer = detector->GetSegBuffer();	
-        mcrun.geom.ScintLength = detector->GetScintLength();
-        mcrun.geom.ScintHeight = detector->GetScintHeight();
-        mcrun.geom.ScintWidth = detector->GetScintWidth();
-        mcrun.geom.SegLength = detector->GetSegLength();	
-        mcrun.geom.SegWidth = detector->GetSegWidth();	
-        mcrun.geom.SegHeight = detector->GetSegHeight();	
-        mcrun.geom.PMTscale = detector->GetPMTscale();                 
-        mcrun.geom.ShieldLead = detector->GetShieldLead();
-        mcrun.geom.ShieldPolyB = detector->GetShieldPolyB();
-        mcrun.geom.ShieldPolyLi = detector->GetShieldPolyLi();
-        mcrun.geom.Vertical = detector->GetVertical();
-        mcrun.geom.Reflectivity = detector->GetReflectivity();
         mcrun.Write("RunInfo");
     }
 }
