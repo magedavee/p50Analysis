@@ -26,11 +26,13 @@ public:
     static G4Material* nat_Cr;          ///< natural chromium
     static G4Material* nat_Mo;          ///< natural molybdenum
     
+    static G4Material* Vacuum;          ///< vacuum
     static G4Material* Air;             ///< room air
     static G4Material* PMMA;            ///< plexiglass
     static G4Material* PEEK;            ///< PEEK O3 C19 H12
     static G4Material* RawPsiCumene;    ///< un-doped pseudocumene scintillator base
     static G4Material* SS444;           ///< Stainless Steel 444
+    static G4Material* Quartz;          ///< Quartz
     static G4Material* Concrete;        ///< Concrete
     
     /// get 6Li-loaded liquid scintillator material

@@ -16,11 +16,13 @@ G4Material* MaterialsHelper::nat_Fe = NULL;
 G4Material* MaterialsHelper::nat_Cr = NULL;
 G4Material* MaterialsHelper::nat_Mo = NULL;
 
+G4Material* MaterialsHelper::Vacuum = NULL;
 G4Material* MaterialsHelper::Air = NULL;
 G4Material* MaterialsHelper::PMMA = NULL;
 G4Material* MaterialsHelper::PEEK = NULL;
 G4Material* MaterialsHelper::RawPsiCumene = NULL;
 G4Material* MaterialsHelper::SS444 = NULL;
+G4Material* MaterialsHelper::Quartz = NULL;
 G4Material* MaterialsHelper::Concrete = NULL;
 
 std::map<double, G4Material*> MaterialsHelper::LiLSs;
@@ -40,6 +42,8 @@ void MaterialsHelper::init() {
     nat_Fe = nist->FindOrBuildMaterial("G4_Fe", true);
     nat_Cr = nist->FindOrBuildMaterial("G4_Cr", true);
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
+    
+    Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     
     Air = new G4Material("Air", 1.204*kg/m3, 1, kStateGas, 293.15*kelvin);
     Air->AddMaterial(nist->FindOrBuildMaterial("G4_AIR", true, true), 100.*perCent);
@@ -66,6 +70,10 @@ void MaterialsHelper::init() {
     SS444->AddMaterial(nat_Cr, 18.*perCent);
     SS444->AddMaterial(nat_Mo, 2.*perCent);
     
+    Quartz = new G4Material("Quartz", 2.62*g/cm3, 2, kStateSolid, 293.15*kelvin);
+    Quartz->AddMaterial(nat_Si, 0.4674);
+    Quartz->AddMaterial(nat_O, 0.5326);
+    
     Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, 293.15*kelvin);
     Concrete->AddMaterial(nat_Si, 0.227915);
     Concrete->AddMaterial(nat_O, 0.60541);
@@ -89,14 +97,7 @@ G4Material* MaterialsHelper::get6LiLS(double loading) {
 
 /*
 void DetectorConstruction::ConstructMaterials() {
-    
-    // Quartz, for PMTs
-    Quartz = new G4Material
-    ("Quartz", density=2.62*g/cm3, nComponents=2, kStateSolid, T= 293.15*kelvin);
-    Quartz->AddMaterial(Si, 0.4674);
-    Quartz->AddMaterial(O, 0.5326);
-    
-    
+        
     MinOil = new G4Material("Mineral Oil CH1.1", density= 0.877*g/cm3, nComponents= 2, kStateLiquid, T= 293.15*kelvin);
     MinOil->AddMaterial(C, massFraction= 91.53*perCent);
     MinOil->AddMaterial(H, massFraction= 8.47*perCent);

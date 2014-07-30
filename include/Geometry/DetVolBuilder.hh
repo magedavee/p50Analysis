@@ -4,6 +4,7 @@
 
 #include "ScintTankBuilder.hh"
 #include "TankLidBuilder.hh"
+#include "PMTBuilder.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
@@ -26,6 +27,7 @@ public:
     
     ScintTankBuilder myTank;    ///< scintillator tank with dividers
     TankLidBuilder myLid;       ///< lid to place on either side of tank
+    PMTBuilder myPMT;           ///< PMTs to place on each segment
     
 private:
     G4ThreeVector dim;          ///< outer dimensions

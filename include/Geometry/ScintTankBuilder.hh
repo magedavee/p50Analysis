@@ -28,7 +28,7 @@ public:
     G4LogicalVolume* scint_log; ///< liquid scintillator volume
     
     /// get total number of segments
-    uint getNSeg() const { return nSegX+nSegY; }
+    uint getNSeg() const { return nSegX*nSegY; }
     /// get total width in x
     double getWidthX() const { return nSegX*seg_size+2*(tank_wall_thick+ls_buffer_thick); }
     /// get total width in y

@@ -6,6 +6,14 @@
 #include <G4PVPlacement.hh>
 #include <G4Box.hh>
 
+/// utility function for converting to string
+template<typename T>
+std::string to_str(T x) {
+    std::stringstream ss;
+    ss << x;
+    return ss.str();
+}
+
 DetVolBuilder::DetVolBuilder(): main_log(NULL),
 shell_thick(2*mm), air_buffer_thick(10*cm), shell_vis(G4Colour(1.0,0,1.0)) { }
 
@@ -13,10 +21,11 @@ void DetVolBuilder::construct() {
     
     myTank.construct();
     myLid.construct(myTank);
+    myPMT.construct();
     
     dim = G4ThreeVector(myTank.getWidthX() + 2*(shell_thick+air_buffer_thick),
                         myTank.getWidthY() + 2*(shell_thick+air_buffer_thick),
-                        myTank.tank_depth + 2*(shell_thick+air_buffer_thick+myLid.getThick()));
+                        myTank.tank_depth + 2*(shell_thick+air_buffer_thick+myLid.getThick()+myPMT.getLength()));
     
     ///////////////////////
     // shell and air volume
@@ -39,4 +48,11 @@ void DetVolBuilder::construct() {
     G4RotationMatrix* lid_flip = new G4RotationMatrix();
     lid_flip->rotateX(180*deg);
     new G4PVPlacement(lid_flip, G4ThreeVector(0,0,-lid_z), myLid.main_log, "DetVol_lid_phys_1", air_log, true, 1, true);
+    
+    double pmt_z = (myTank.tank_depth + myPMT.getLength())/2. + myLid.getThick();
+    for(uint i=0; i<myTank.getNSeg(); i++) {
+        G4ThreeVector pos = myTank.getSegmentPosition(i);
+        new G4PVPlacement(lid_flip, G4ThreeVector(pos[0],pos[1],pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i), air_log, true, 2*i, true);
+        new G4PVPlacement(NULL, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), air_log, true, 2*i+1, true);
+    }
 }

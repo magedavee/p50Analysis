@@ -146,33 +146,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     scint_log = new G4LogicalVolume(scint_cyl, *MainScintMat, "InnerScintLogical", 0,0,0);
     segment_log = new G4LogicalVolume(segment_box, *ScintSegMat, "SegmentLogical", 0,0,0);
     
-    ///////////////
-    // PMT geometry
-    
-    // vacuum-filled quartz cylinder attached to SS base, enclosed in SS cover
-    // one on each side of each scintillator segment
-    
-    G4Tubs* cathSEG_tube = new G4Tubs("CATHSEGTube", pmtSEG_i, pmtSEG_r, pmtSEG_h/2, angle_s, angle_f);
-    G4Tubs* pmtSEG_tube = new G4Tubs("PMTSEGTube", pmtSEG_i, pmtSEG_r-10.0*mm, pmtSEG_h/2-10.0*mm, angle_s, angle_f);
-    G4Tubs* coverSEG_tube = new G4Tubs("PMTSEGCoverTube", pmtSEG_r, coverSEG_r, coverSEG_h/2, angle_s, angle_f);
-    G4Tubs* baseSEG1_tube = new G4Tubs("PMTSEGBaseTube1", pmtSEG_i, pmtSEGbase_r, (pmtSEGbase_h - basepinSEG_h)/2, angle_s, angle_f);
-    G4Tubs* baseSEG2_tube = new G4Tubs("PMTSEGBaseTube2", pmtSEG_i, basepinSEG_r, pmtSEGbase_h/2, angle_s, angle_f);
-    
-    G4RotationMatrix* rotBaseSEG = new G4RotationMatrix(0.,0.,0.);
-    
-    G4ThreeVector transBaseSEG(0.,0.,basepinSEG_h/2);
-    G4UnionSolid* baseSEG_solid = new G4UnionSolid("PMTSEGBaseSolid", baseSEG1_tube, baseSEG2_tube, rotBaseSEG, transBaseSEG);
-    
-    G4RotationMatrix* pmtFlip = new G4RotationMatrix(0.,0.,0.);
-    pmtFlip->rotateY(180.*deg);
-    
-    cathSEG_log = new G4LogicalVolume(cathSEG_tube, Quartz, "PMTCathodeLogical", 0,0,0);
-    pmtSEG_log = new G4LogicalVolume(pmtSEG_tube, Vacuum, "PolyvinylToluenePMTLogical", 0,0,0);
-    coverSEG_log = new G4LogicalVolume(coverSEG_tube, StSteel, "PMTSEGCoverLogical", 0,0,0);
-    baseSEG_log = new G4LogicalVolume(baseSEG_solid, StSteel, "PMTSEGBaseLogical", 0,0,0);
-                
-    G4double xpos=0;
-    G4double ypos=0;
+   
     
     for(G4int xnum = 0; xnum < NSegX; xnum++){
         xpos = (GetSegWidth()+AirGap)*(xnum-(NSegX-1)/2.);
