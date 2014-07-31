@@ -6,6 +6,7 @@
 
 #include <G4Material.hh>
 #include <G4NistManager.hh>
+#include <G4MaterialPropertiesTable.hh>
 
 /// Class with singleton instance providing materials properties
 class MaterialsHelper {
@@ -13,33 +14,35 @@ public:
     /// get instance reference
     static MaterialsHelper& M();
     
-    G4NistManager* nist;         ///< NIST materials DB
+    G4NistManager* nist;        ///< NIST materials DB
     
-    G4Material* nat_H;           ///< natural hydrogen
-    G4Material* nat_Li;          ///< natural lithium
-    G4Material* Li6;             ///< isotopically pure 6Li
-    G4Material* nat_C;           ///< natural carbon
-    G4Material* nat_O;           ///< natural oxygen
-    G4Material* nat_Ca;          ///< natural calcium
-    G4Material* nat_Si;          ///< natural silicon
-    G4Material* nat_B;           ///< natural boron
-    G4Material* nat_Al;          ///< natural aluminum
-    G4Material* nat_Fe;          ///< natural iron
-    G4Material* nat_Cr;          ///< natural chromium
-    G4Material* nat_Mo;          ///< natural molybdenum
-    G4Material* nat_Pb;          ///< natural lead
+    G4Material* nat_H;          ///< natural hydrogen
+    G4Material* nat_Li;         ///< natural lithium
+    G4Material* Li6;            ///< isotopically pure 6Li
+    G4Material* nat_C;          ///< natural carbon
+    G4Material* nat_O;          ///< natural oxygen
+    G4Material* nat_Ca;         ///< natural calcium
+    G4Material* nat_Si;         ///< natural silicon
+    G4Material* nat_B;          ///< natural boron
+    G4Material* nat_Al;         ///< natural aluminum
+    G4Material* nat_Fe;         ///< natural iron
+    G4Material* nat_Cr;         ///< natural chromium
+    G4Material* nat_Mo;         ///< natural molybdenum
+    G4Material* nat_Pb;         ///< natural lead
     
-    G4Material* Vacuum;          ///< vacuum
-    G4Material* Air;             ///< room air
-    G4Material* PMMA;            ///< plexiglass
-    G4Material* PEEK;            ///< PEEK O3 C19 H12
-    G4Material* Polyeth;         ///< Polyethylene
-    G4Material* BPoly;           ///< Borated (5% by mass) polyethylene
-    G4Material* LiPoly;          ///< Lithiated (5% by mass) polyethlyene
-    G4Material* RawPsiCumene;    ///< un-doped pseudocumene scintillator base
-    G4Material* SS444;           ///< Stainless Steel 444
-    G4Material* Quartz;          ///< Quartz
-    G4Material* Concrete;        ///< Concrete
+    G4Material* Vacuum;         ///< vacuum
+    G4Material* Air;            ///< room air
+    G4Material* MinOil;         ///< Mineral oil
+    G4Material* PMMA;           ///< plexiglass
+    G4Material* PEEK;           ///< PEEK O3 C19 H12
+    G4Material* Polyeth;        ///< Polyethylene
+    G4Material* BPoly;          ///< Borated (5% by mass) polyethylene
+    G4Material* LiPoly;         ///< Lithiated (5% by mass) polyethlyene
+    G4Material* PVT;            ///< Polyvinyl Toluene scintillator
+    G4Material* RawPsiCumene;   ///< un-doped pseudocumene scintillator base
+    G4Material* SS444;          ///< Stainless Steel 444
+    G4Material* Quartz;         ///< Quartz
+    G4Material* Concrete;       ///< Concrete
     
     /// get 6Li-loaded liquid scintillator material
     G4Material* get6LiLS(double loading = 0.007);
@@ -47,8 +50,15 @@ public:
 protected:
     /// Constructor
     MaterialsHelper();
+    /// set up material optical properties
+    void setupOptical();
+    
     static MaterialsHelper* theMatHelper;       ///< singleton instance
     std::map<double, G4Material*> LiLSs;        ///< 6Li-loaded liquid scintillator concoctions
+    
+    G4MaterialPropertiesTable* mptCumene;       ///< optical properties for pseudocumene
+    double birksPC;                             ///< Birk's Law quenching constant for pseudocumene
+    double birksPVT;                            ///< Birk's Law quenching constant for PVT
 };
 
 
