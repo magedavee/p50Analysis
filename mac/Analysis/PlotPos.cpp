@@ -19,11 +19,6 @@ void display_map(const std::map<T,U>& m) {
     std::cout << "Total:\t" << total << "\n";
 }
 
-//using namespace std;
-//typedef std::pair<Int_t, Int_t> nucleus;
-
-ClassImp(nucleus);
-
 void PlotPos() {
     // load library describing data classes
     gSystem->Load("~/Applications/SB_G4_MC/lib/libEventLib.so");
@@ -32,7 +27,7 @@ void PlotPos() {
     
     // load data into TChain
     TChain T("sblmc");
-    T.Add("Run_*");
+    T.Add("*.root");
     // set readout branches
     Event* evt = new Event();
     T.GetBranch("iEvts")->SetAutoDelete(kFALSE);
@@ -161,11 +156,11 @@ void PlotPos() {
     hPrimN2.Draw();
     gPad->Print((outpath+"/PrimN_hi.pdf").c_str());
     
-    // display histograms
     gPad->SetLogy(false);
     hit_xy.Draw("Col Z");
-    new TCanvas();
+    gPad->Print((outpath+"/Hit_xy.pdf").c_str());
     hit_yz.Draw("Col Z");
-    new TCanvas();
+    gPad->Print((outpath+"/Hit_yz.pdf").c_str());
     prim_p.Draw("Col Z");
+    gPad->Print((outpath+"/Hit_P0.pdf").c_str());
 }

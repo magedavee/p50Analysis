@@ -6,14 +6,13 @@
 #include <G4PVPlacement.hh>
 
 ShieldBuilder::ShieldBuilder() {
+    addLayer(ShieldLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
+    addLayer(ShieldLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));
+    addLayer(ShieldLayerSpec(3*cm, MaterialsHelper::M().nat_Pb, G4Colour(0.,1.,0.)));
+    addLayer(ShieldLayerSpec(47*cm, MaterialsHelper::M().BPoly, G4Colour(0.,1.,0.)));
 }
 
 void ShieldBuilder::construct() {
-
-    layers.push_back(ShieldLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
-    layers.push_back(ShieldLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));
-    layers.push_back(ShieldLayerSpec(3*cm, MaterialsHelper::M().nat_Pb, G4Colour(0.,1.,0.)));
-    layers.push_back(ShieldLayerSpec(47*cm, MaterialsHelper::M().BPoly, G4Colour(0.,1.,0.)));
     
     myDet.construct();
     main_log = myDet.main_log;

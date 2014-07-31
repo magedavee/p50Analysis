@@ -35,6 +35,8 @@ public:
     double getWidthY() const { return nSegY*seg_size+2*(tank_wall_thick+ls_buffer_thick); }
     /// get position at center of numbered segment
     G4ThreeVector getSegmentPosition(uint n) const;
+    /// get segment number at position in scintillator local coordinates
+    int getSegmentNum(const G4ThreeVector& pos) const;
     
     double tank_depth;          ///< scintillator depth in long (z) direction
     double tank_wall_thick;     ///< thickness of tank wall

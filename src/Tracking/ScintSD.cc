@@ -2,6 +2,7 @@
 
 #include "RootIO.hh"
 #include "RunAction.hh"
+#include "ScintTankBuilder.hh"
 
 #include <cassert>
 #include <vector>
@@ -29,8 +30,8 @@ void IonisationHit::Display() const {
 
 ////////////////////////////////////////////////////////////////
 
-ScintSD::ScintSD(G4String name): G4VSensitiveDetector(name),
-time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0) { }
+ScintSD::ScintSD(G4String name, ScintTankBuilder& T): G4VSensitiveDetector(name),
+time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0), myTank(T) { }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();
@@ -40,9 +41,22 @@ void ScintSD::Initialize(G4HCofThisEvent*) {
 }
 
 G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
-    G4bool notable = ProcessNeutronHits(aStep, H);
+    
+    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
+    // check that we are in scintillator proper, not sub-assemblies therein
+    G4LogicalVolume* log = hitVol->GetVolume()->GetLogicalVolume();
+    if(log != myTank.scint_log) return false;
+    
+    // world and local position
+    worldPos = aStep->GetPreStepPoint()->GetPosition();
+    localPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPos);
+    seg_id = myTank.getSegmentNum(localPos);
+    
+    G4bool notable = false;
+    notable |= ProcessNeutronHits(aStep, H);
     notable |= ProcessIoniHits(aStep, H);
     secondaries_counter[aStep->GetTrack()->GetTrackID()] = aStep->GetSecondary()->size();
+    
     return notable;
 }
 
@@ -58,11 +72,9 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     if(verbose >= 2) PDS->DumpInfo();
     
     EventNCapt nc;
-    G4ThreeVector x = aStep->GetPostStepPoint()->GetPosition();
-    for(uint i=0; i<3; i++) nc.x[i] = x[i];
+    for(uint i=0; i<3; i++) nc.x[i] = localPos[i];
     nc.t = aStep->GetPostStepPoint()->GetGlobalTime();
-    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
-    nc.vol = hitVol->GetCopyNumber(2);
+    nc.vol = seg_id;
     nc.E = aStep->GetPreStepPoint()->GetKineticEnergy();
     
     // tally secondaries; check for recoiling nucleus
@@ -96,7 +108,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
         RootIO::GetInstance()->GetEvent().AddNCapt(nc);
     
         if(verbose >= 2) {
-            G4cerr << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(x,"Length") << "] with "
+            G4cerr << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPos,"Length") << "] with "
                 << nc.Ngamma << " gammas ( E=" << G4BestUnit(nc.Egamma,"Energy")
                 << ") of " << nc.Nprod << " final products; total (A,Z)=(" << nc.capt_A << "," << nc.capt_Z << ")" << G4endl;
         }
@@ -114,15 +126,13 @@ G4bool ScintSD::ProcessIoniHits(G4Step* aStep, G4TouchableHistory*) {
         || aStep->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition() ) ) return false;
     
     IonisationHit* aHit = new IonisationHit();
-    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
-    aHit->SetVolume(hitVol->GetCopyNumber(2));
-    //for(uint i=0; i<4; i++) G4cerr << "\t" << hitVol->GetCopyNumber(i); G4cerr << G4endl;
+    aHit->SetVolume(seg_id);
     
     // Record total energy deposit if particle is charged (e-, e+, etc.)
     //if(aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0)
     aHit->SetEnergy(aStep->GetTotalEnergyDeposit());
     aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime());
-    aHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
+    aHit->SetPos(localPos);
     
     /* TODO: Need to implement direct energy deposit by gamma in case of high production threshold for e- */
     

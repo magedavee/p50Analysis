@@ -28,7 +28,7 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-#/vis/disable
+/vis/disable
 
 /output/filename ~/Analysis/ShortBaseline/CryMCData.root
 
@@ -47,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 1
+/run/beamOn 10000
 

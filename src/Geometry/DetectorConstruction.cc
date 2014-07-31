@@ -9,8 +9,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cerr << "Starting detector construction..." << G4endl;
     myBuilding.construct();
-      
-    myScintSD = new ScintSD("ScintSD");
+    
+    // assign sensitive detector to scintillator
+    myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
     G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
     getScintLog()->SetSensitiveDetector(myScintSD);
     
@@ -20,186 +21,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     return new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log,
                             "building_phys", NULL, false,  0);
 }
-
-/*
-    ///////////////////////////
-    // PMT dimension parameters
-    G4double pmtSEG_i = 0.*PMTscale/(25.4*mm);
-    G4double pmtedge_r = 25.4*mm;
-    G4double pmtSEG_r = pmtedge_r*PMTscale/(25.4*mm);
-    G4double pmtSEG_h = 100.*mm;
-    G4double pmtSEGbase_r = 26.4*mm*PMTscale/(25.4*mm);
-    G4double pmtSEGbase_h = 44.*mm;
-    G4double coverSEG_r = pmtSEG_r + 1.*mm;
-    G4double coverSEG_h = pmtSEG_h;
-    G4double basepinSEG_r = 17.*mm*PMTscale/(25.4*mm);
-    G4double basepinSEG_h = 20.*mm;
-    G4double angle_s = 0.*deg;
-    G4double angle_f = 360.*deg;
-    
-    G4double shell_w = (GetSegWidth()+AirGap)*NSegX;
-    G4double shell_h = (GetSegHeight()+AirGap)*NSegY;
-    G4double shell_l = GetSegLength() + 2.0*(pmtSEG_h + (pmtSEGbase_h + basepinSEG_h));
-    
-    G4ThreeVector shell_placement(0,0,0);
-    
-   
-    
-    G4LogicalVolume* scint_mother;
-    
-    if(fShieldActivated) {
-        
-        shell_w += 1.0*mm;
-        shell_h += 1.0*mm;
-        shell_l += 0.5*mm;
-        
-        if(fVertical) {  
-
-            G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldPolyB/2.+ ShieldLead/2.+ ShieldPolyLi/2.);    
-            shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
-            shieldpolyb_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-0.5),
-                                                 shieldpolyb_log, "PolyShieldB", hall_log, false,0,false);
-            
-            G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead + ShieldPolyLi, shell_l/2.+ ShieldLead/2. + ShieldPolyLi/2.);    
-            shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
-            shieldlead_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,-ShieldPolyB/2.),
-                                                shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
-            
-            G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi, shell_l/2.+ ShieldPolyLi/2.);
-            shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
-            shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,- ShieldLead/2.),
-                                                  shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
-        } else { // !fVertical:
-            
-            G4RotationMatrix* rotateAssembly = new G4RotationMatrix(0.,0.,0.);
-            rotateAssembly->rotateX(-90.*deg);
-
-            G4Box* shieldpolyb_box = new G4Box("ShieldPolyBBox", shell_w/2.+ ShieldPolyB + ShieldLead + ShieldPolyLi, shell_h/2. + ShieldPolyB/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyB+ ShieldLead+ ShieldPolyLi);    
-            shieldpolyb_log = new G4LogicalVolume(shieldpolyb_box, BPoly, "ShieldPolyBLogical", 0,0,0);
-            shieldpolyb_phys = new G4PVPlacement(rotateAssembly, G4ThreeVector(0.,-0.5,0.),
-                                                 shieldpolyb_log, "PolyShieldB", hall_log, false,0,false);
-            
-            
-            G4Box* shieldlead_box = new G4Box("ShieldLeadBox", shell_w/2.+ ShieldLead + ShieldPolyLi, shell_h/2. + ShieldLead/2. + ShieldPolyLi/2., shell_l/2.+ ShieldLead + ShieldPolyLi);    
-            shieldlead_log = new G4LogicalVolume(shieldlead_box, Pb, "ShieldLeadLogical", 0,0,0);
-            shieldlead_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,-ShieldPolyB/2.,0.),
-                                                shieldlead_log, "LeadShield", shieldpolyb_log, false,0,false);
-            
-            G4Box* shieldpolyli_box = new G4Box("ShieldPolyLiBox", shell_w/2.+ ShieldPolyLi, shell_h/2. + ShieldPolyLi/2., shell_l/2.+ ShieldPolyLi);
-            shieldpolyli_log = new G4LogicalVolume(shieldpolyli_box, LiPoly, "ShieldPolyLiLogical", 0,0,0);
-            shieldpolyli_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,- ShieldLead/2.,0.),
-                                                  shieldpolyli_log, "PolyShieldLi", shieldlead_log, false,0,false);
-            
-            shell_placement[1] -= 0.25; 
-            
-            shell_w -= 1.0*mm;
-            shell_l -= 1.0*mm;
-            shell_h -= 0.5*mm;
-        }
-        
-    } else { // !fShieldActivated:
-        assert(false);
-    }
-    
-    /////////////////
-    // Detector shell
-    G4Box* shell_box = new G4Box("DetectorShellBox", shell_w/2., shell_h/2., shell_l/2.);
-    shell_log = new G4LogicalVolume(shell_box, Air, "ShellLogical", 0,0,0);
-    shell_phys = new G4PVPlacement(0, shell_placement, shell_log, "Detector Shell", shieldpolyli_log, false,0,false);
-    
-    
-    ////////////////////////
-    // scintillator segments
-    G4Tubs* segment_cutout = new G4Tubs("Segment_cutout", pmtSEG_i, pmtSEG_r, WrapThickness/2, angle_s, angle_f); 
-    G4SubtractionSolid* segment_box;
-    G4VSolid* segment_b1;
-    G4VSolid* wrapgap_box;
-    G4VSolid* target_cyl;
-    G4VSolid* scint_cyl;
-    switch(fCylinderActivated) {
-        case true: { 
-            segment_b1 = new G4Tubs("SegmentMain", 0, GetSegWidth()/2., GetSegLength()/2., angle_s, angle_f); 
-            wrapgap_box = new G4Tubs("WrapGapBox",0, GetSegWidth()/2.-WrapThickness, GetSegLength()/2.-WrapThickness, angle_s, angle_f); 
-            target_cyl = new G4Tubs("TargetTankCylinder", 0, GetSegWidth()/2.-WrapThickness-WrapGap, GetSegLength()/2.-WrapThickness, angle_s, angle_f); 
-            scint_cyl = new G4Tubs("ScintillatorCylinder", 0, ScintWidth/2., ScintLength/2., angle_s, angle_f); 
-            break;
-        }
-        case false: { 
-            segment_b1 = new G4Box("SegmentMain", GetSegWidth()/2., GetSegHeight()/2., GetSegLength()/2.); 
-            wrapgap_box = new G4Box("WrapGapBox", GetSegWidth()/2.-WrapThickness, GetSegHeight()/2-WrapThickness, GetSegLength()/2.-WrapThickness); 
-            target_cyl = new G4Box("TargetTankCylinder", GetSegWidth()/2.-WrapThickness-WrapGap, GetSegHeight()/2-WrapThickness-WrapGap, GetSegLength()/2.-WrapThickness); 
-            scint_cyl = new G4Box("ScintillatorCylinder", ScintWidth/2., ScintHeight/2., ScintLength/2.); 
-            break;
-        }
-    }
-    segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_b1, segment_cutout, 0, G4ThreeVector(0.,0.,GetSegLength()/2.-WrapThickness/2.));
-    segment_box = new G4SubtractionSolid("PMTSEGBaseSolid", segment_box, segment_cutout, 0, G4ThreeVector(0.,0.,-GetSegLength()/2.+WrapThickness/2.));
-    
-    if(WrapGap>0) wrapgap_log = new G4LogicalVolume(wrapgap_box, Air, "WrapGapLogical", 0,0,0);
-    else  wrapgap_log = new G4LogicalVolume(wrapgap_box, PMMA, "WrapGapLogical", 0,0,0);
-    
-    target_log = new G4LogicalVolume(target_cyl, PMMA, "TargetTankLogical", 0,0,0);
-            
-    assert(MainScintMat && ScintSegMat);
-    scint_log = new G4LogicalVolume(scint_cyl, *MainScintMat, "InnerScintLogical", 0,0,0);
-    segment_log = new G4LogicalVolume(segment_box, *ScintSegMat, "SegmentLogical", 0,0,0);
-    
-   
-    
-    for(G4int xnum = 0; xnum < NSegX; xnum++){
-        xpos = (GetSegWidth()+AirGap)*(xnum-(NSegX-1)/2.);
-        for(G4int ynum = 0; ynum<NSegY; ynum++){
-            ypos =  (GetSegHeight()+AirGap)*(ynum-(NSegY-1)/2.);
-            
-            G4int segnum = xnum + ynum*NSegX;
-            G4String id1 = to_str(segnum);
-            
-            segment_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(xpos,ypos,0.), segment_log,
-                                                         "Segment "+id1, shell_log, false,segnum,true);
-            scint_mother = segment_log;
-            
-            if(WrapGap>0) {
-                wrapgap_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), wrapgap_log,
-                                                             "Target Tank "+id1, segment_log, false,segnum,true);
-                scint_mother = wrapgap_log;
-                if(AcrylThickness>0){
-                    target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
-                                                                "Target Tank "+id1, wrapgap_log, false,segnum,true);
-                    scint_mother=target_log;
-                }
-            } else if(AcrylThickness>0) {
-                target_phys[xnum][ynum] = new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), target_log,
-                                                            "Target Tank "+id1, segment_log, false,segnum,true);
-                scint_mother = target_log;
-            }
-            
-            scint_phys[xnum][ynum] = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), scint_log,
-                                                       "Target Scintillator Volume "+id1, scint_mother, false,segnum,true);       
-            
-            // place PMTs on each side of each segment
-            for(uint i=0; i<=1; i++) {
-                int copynum = 10000*i + segnum;
-                std::string idname = (i? "S" : "N") + id1;
-                int smul = i? -1 : 1;
-                G4RotationMatrix* doFlip = i? pmtFlip : NULL;
-                
-                cathSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
-                                                                cathSEG_log, "PMT Cathode "+idname, shell_log, false, copynum, true);
-                pmtSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                               G4ThreeVector(0.,0.,0.),
-                                                               pmtSEG_log, "PMT "+idname, cathSEG_log, false, copynum, true);
-                coverSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                 G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.-WrapThickness)),
-                                                                 coverSEG_log, "PMT Cover "+idname, shell_log, false, copynum, false);
-                baseSEG_phys[i][xnum][ynum] = new G4PVPlacement(doFlip,
-                                                                G4ThreeVector(xpos, ypos, smul * (GetSegLength()/2.+pmtSEG_h/2.+ pmtSEG_h/2. + (pmtSEGbase_h - basepinSEG_h)/2-WrapThickness)),
-                                                                baseSEG_log, "PMT Base "+idname, shell_log, false, copynum, false);
-            }
-        }  
-    }
-}
-*/
 
 /*
 void DetectorConstruction::ConstructSDs() {
@@ -376,28 +197,6 @@ void DetectorConstruction::ConstructSDs() {
     }
 } */
 
-
-/*
- * void DetectorConstruction::SetScintillatorBirksConstant(G4double birks) {
-
-    if(birks >= 0.) {
-        birksPC = birks;
-        G4Material::GetMaterial("Pseudocumene")->GetIonisation()->SetBirksConstant(birksPC);
-        G4Material::GetMaterial("PC-0.15wt%Li")->GetIonisation()->SetBirksConstant(birksPC);
-        G4Material::GetMaterial("PC-0.30wt%Li")->GetIonisation()->SetBirksConstant(birksPC);
-        G4Material::GetMaterial("PC-0.1wt%Gd")->GetIonisation()->SetBirksConstant(birksPC);
-        G4Material::GetMaterial("PC-0.5wt%Gd")->GetIonisation()->SetBirksConstant(birksPC);
-        G4Material::GetMaterial("PC-100%Gd")->GetIonisation()->SetBirksConstant(birksPC);
-        G4cout << "Inner Scintillator Birks Constant set to " << birksPC/(mm/MeV) << " mm/MeV." << G4endl;
-    } else {
-        G4cout << "*** ATTENTION: Birks Constant must be a positive number. Parameter not registered into the scintillator material. ***" << G4endl;
-        return;
-    }
-
-    
-    if(!fOptical)
-        G4cout << "*** CAUTION: Optical processes have not been activated. Birks Constant parameter will not apply to simulation as is. ***" << G4endl;
-} */
 
 /*
 void DetectorConstruction::SetOpticalFinish(int optfin) {

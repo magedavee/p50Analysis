@@ -2,6 +2,7 @@
 /// Assure header file is only loaded once
 #define SCINTSD_HH
 
+#include "ScintTankBuilder.hh"
 #include <G4VSensitiveDetector.hh>
 #include "WeightAverager.hh"
 
@@ -44,7 +45,7 @@ class ScintSD : public G4VSensitiveDetector {
 public:
     
     /// Constructor
-    ScintSD(G4String name);
+    ScintSD(G4String name, ScintTankBuilder& T);
 
     /// Initializes detector at start of event
     void Initialize(G4HCofThisEvent*);
@@ -56,7 +57,7 @@ public:
     G4double time_gap;          ///< time gap for separating event clusters
     G4double edep_threshold;    ///< threshold for registering deposited energy hit
     
-private:
+protected:
     
     /// process ionizing tracks
     G4bool ProcessIoniHits(G4Step* aStep, G4TouchableHistory*);
@@ -65,10 +66,16 @@ private:
     /// Save and output a completed ionization cluster
     void RegisterIoniHit(IonisationHit* h);
     
+    
     G4int verbose;                                              ///< output verbosity level
     std::map<G4int, std::vector<IonisationHit*> > hit_history;  ///< ionization hits collection by detector
     std::map<G4int, G4int> secondaries_counter;                 ///< count of previously-observed secondaries in each track
     uint nclusters;                                             ///< number of time-grouped ionization event clusters
+    
+    ScintTankBuilder& myTank;                                   ///< scintillator tank reference
+    int seg_id;                                                 ///< scintillator segment ID number
+    G4ThreeVector worldPos;                                     ///< position in world coordinates
+    G4ThreeVector localPos;                                     ///< position in scintillator coordinates
 };
 
 #endif

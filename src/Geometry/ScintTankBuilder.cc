@@ -99,3 +99,10 @@ G4ThreeVector ScintTankBuilder::getSegmentPosition(uint n) const {
     assert(n<getNSeg());
     return G4ThreeVector( ((n%nSegX) - 0.5*nSegX + 0.5)*seg_size, ((n/nSegX) - 0.5*nSegY + 0.5)*seg_size, 0 );
 }
+
+int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
+    int nx = floor(pos[0]/seg_size + nSegX/2.);
+    int ny = floor(pos[1]/seg_size + nSegY/2.);
+    if(nx < 0 || nx >= nSegX || ny < 0 || ny >= nSegY) return -1;
+    return nx + nSegX*ny;
+}

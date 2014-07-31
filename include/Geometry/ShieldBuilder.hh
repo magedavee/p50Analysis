@@ -33,6 +33,10 @@ public:
     void construct();
     /// Get outer dimensions
     G4ThreeVector getDimensions() const { return dim; }
+    /// remove all shield layers
+    void clearShield() { layers.clear(); }
+    /// add shield layer
+    void addLayer(const ShieldLayerSpec& s) { layers.push_back(s); }
     
     G4LogicalVolume* main_log;                  ///< outermost volume layer
     DetVolBuilder myDet;                        ///< detector assembly
