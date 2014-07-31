@@ -7,19 +7,25 @@ G4NistManager* MaterialsHelper::nist = NULL;
 
 G4Material* MaterialsHelper::nat_H = NULL;
 G4Material* MaterialsHelper::Li6 = NULL;
+G4Material* MaterialsHelper::nat_Li = NULL;
 G4Material* MaterialsHelper::nat_C = NULL;
 G4Material* MaterialsHelper::nat_O = NULL;
 G4Material* MaterialsHelper::nat_Ca = NULL;
 G4Material* MaterialsHelper::nat_Si = NULL;
+G4Material* MaterialsHelper::nat_B = NULL;
 G4Material* MaterialsHelper::nat_Al = NULL;
 G4Material* MaterialsHelper::nat_Fe = NULL;
 G4Material* MaterialsHelper::nat_Cr = NULL;
 G4Material* MaterialsHelper::nat_Mo = NULL;
+G4Material* MaterialsHelper::nat_Pb = NULL;
 
 G4Material* MaterialsHelper::Vacuum = NULL;
 G4Material* MaterialsHelper::Air = NULL;
 G4Material* MaterialsHelper::PMMA = NULL;
 G4Material* MaterialsHelper::PEEK = NULL;
+G4Material* MaterialsHelper::Polyeth = NULL;
+G4Material* MaterialsHelper::BPoly = NULL;
+G4Material* MaterialsHelper::LiPoly = NULL;
 G4Material* MaterialsHelper::RawPsiCumene = NULL;
 G4Material* MaterialsHelper::SS444 = NULL;
 G4Material* MaterialsHelper::Quartz = NULL;
@@ -34,18 +40,23 @@ void MaterialsHelper::init() {
     nist = G4NistManager::Instance();
     
     nat_H = nist->FindOrBuildMaterial("G4_H", true);
+    nat_Li = nist->FindOrBuildMaterial("G4_Li", true);
     nat_C = nist->FindOrBuildMaterial("G4_C", true);
     nat_O = nist->FindOrBuildMaterial("G4_O", true);
     nat_Ca = nist->FindOrBuildMaterial("G4_Ca", true);
     nat_Si = nist->FindOrBuildMaterial("G4_Si", true);
+    nat_B = nist->FindOrBuildMaterial("G4_B", true);
     nat_Al = nist->FindOrBuildMaterial("G4_Al", true);
     nat_Fe = nist->FindOrBuildMaterial("G4_Fe", true);
     nat_Cr = nist->FindOrBuildMaterial("G4_Cr", true);
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
+    nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
+    
+    double room_T = 293.15*kelvin; // materials "room temperature"
     
     Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     
-    Air = new G4Material("Air", 1.204*kg/m3, 1, kStateGas, 293.15*kelvin);
+    Air = new G4Material("Air", 1.204*kg/m3, 1, kStateGas, room_T);
     Air->AddMaterial(nist->FindOrBuildMaterial("G4_AIR", true, true), 100.*perCent);
     
     G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
@@ -54,27 +65,37 @@ void MaterialsHelper::init() {
     Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
     Li6->AddElement(elLi6,1);
     
-    RawPsiCumene = new G4Material("Pseudocumene", 0.88*g/cm3, 2, kStateLiquid, 293.15*kelvin);
+    RawPsiCumene = new G4Material("Pseudocumene", 0.88*g/cm3, 2, kStateLiquid, room_T);
     RawPsiCumene->AddMaterial(nat_C, 89.945*perCent);
     RawPsiCumene->AddMaterial(nat_H, 10.055*perCent);
     
     PMMA = nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true);
     
-    PEEK = new G4Material("PEEK", 1.32*g/cm3, 3, kStateSolid, 293.15*kelvin);
+    PEEK = new G4Material("PEEK", 1.32*g/cm3, 3, kStateSolid, room_T);
     PEEK->AddElement(nist->FindOrBuildElement("H",true), 12);
     PEEK->AddElement(nist->FindOrBuildElement("C",true), 19);
     PEEK->AddElement(nist->FindOrBuildElement("O",true), 3);
     
-    SS444 = new G4Material("Stainless Steel Type 444", 8.*g/cm3, 3, kStateSolid, 293.15*kelvin);
+    Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
+    
+    BPoly = new G4Material("5wt% Borated Polyethylene", 0.92*g/cm3, 2, kStateSolid, room_T);
+    BPoly->AddMaterial(Polyeth, 95.0*perCent);
+    BPoly->AddMaterial(nat_B, 5.0*perCent);
+    
+    LiPoly = new G4Material("5wt% Lithiated Polyethylene", 0.92*g/cm3, 2, kStateSolid, room_T);
+    LiPoly->AddMaterial(Polyeth, 95.0*perCent);
+    LiPoly->AddMaterial(nat_Li, 5.0*perCent);
+    
+    SS444 = new G4Material("Stainless Steel Type 444", 8.*g/cm3, 3, kStateSolid, room_T);
     SS444->AddMaterial(nat_Fe, 80.*perCent);
     SS444->AddMaterial(nat_Cr, 18.*perCent);
     SS444->AddMaterial(nat_Mo, 2.*perCent);
     
-    Quartz = new G4Material("Quartz", 2.62*g/cm3, 2, kStateSolid, 293.15*kelvin);
+    Quartz = new G4Material("Quartz", 2.62*g/cm3, 2, kStateSolid, room_T);
     Quartz->AddMaterial(nat_Si, 0.4674);
     Quartz->AddMaterial(nat_O, 0.5326);
     
-    Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, 293.15*kelvin);
+    Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, room_T);
     Concrete->AddMaterial(nat_Si, 0.227915);
     Concrete->AddMaterial(nat_O, 0.60541);
     Concrete->AddMaterial(nat_H, 0.09972);
@@ -125,13 +146,7 @@ void DetectorConstruction::ConstructMaterials() {
     GdPaintC->AddMaterial(PMMA, massFraction= 98.0*perCent);
     GdPaintC->AddMaterial(Gd, massFraction= 2.0*perCent);
     
-    BPoly = new G4Material("5wt% Borated Polyethylene", density= 0.92*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
-    BPoly->AddMaterial(Polyeth, massFraction = 95.0*perCent);
-    BPoly->AddMaterial(B, massFraction = 5.0*perCent);
     
-    LiPoly = new G4Material("5wt% Lithiated Polyethylene", density= 0.92*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
-    LiPoly->AddMaterial(Polyeth, massFraction = 95.0*perCent);
-    LiPoly->AddMaterial(Li, massFraction = 5.0*perCent);
     
     // Example of how to define a vacuum since pure vacuum does not exist in Geant4 library
     Vacuum = new G4Material("Vacuum", z= 2., a= 4.0026*g/mole, density= 1.e-25*g/cm3, kStateGas, T= 2.73*kelvin, P= 3.e-18*pascal);

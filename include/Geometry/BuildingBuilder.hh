@@ -2,7 +2,7 @@
 /// Assure this header is only loaded once
 #define BUILDINGBUILDER_HH
 
-#include "DetVolBuilder.hh"
+#include "ShieldBuilder.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4ThreeVector.hh>
@@ -23,7 +23,7 @@ public:
     G4ThreeVector dim;          ///< outer dimensions
     double wall_thick;          ///< thickness of building walls
     
-    DetVolBuilder myDet;        ///< detector assembly
+    ShieldBuilder myDetUnit;    ///< detector assembly in shields
     
 private:
     

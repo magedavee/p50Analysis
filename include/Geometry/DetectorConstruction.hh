@@ -19,7 +19,7 @@ public:
     G4VPhysicalVolume* Construct();
         
     /// Get reference to active scintillator volume
-    G4LogicalVolume* getScintLog() const { return myBuilding.myDet.myTank.scint_log; }
+    G4LogicalVolume* getScintLog() const { return myBuilding.myDetUnit.myDet.myTank.scint_log; }
     
     BuildingBuilder myBuilding; ///< building containing detector
 

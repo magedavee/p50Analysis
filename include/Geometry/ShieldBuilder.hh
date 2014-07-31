@@ -1,0 +1,45 @@
+#ifndef SHIELDBUILDER_HH
+/// Assure this header is only loaded once
+#define SHIELDBUILDER_HH
+
+#include "DetVolBuilder.hh"
+#include "Utilities.hh"
+#include <vector>
+
+#include <G4LogicalVolume.hh>
+#include <G4VisAttributes.hh>
+
+/// Specification for a shielding layer
+class ShieldLayerSpec {
+public:
+    /// Constructor
+    ShieldLayerSpec(double t, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
+    top_thick(t), side_thick(t), bottom_thick(0), mat(M), vis(c) { }
+    
+    double top_thick;           ///< thickness on top
+    double side_thick;          ///< thickness on sides
+    double bottom_thick;        ///< thickness on bottom
+    G4Material* mat;            ///< material
+    G4VisAttributes vis;        ///< layer visualization attributes
+};
+
+/// Builder for shielding layers around detector
+class ShieldBuilder {
+public:
+    /// constructor
+    ShieldBuilder();
+    
+    /// Construct geometry
+    void construct();
+    /// Get outer dimensions
+    G4ThreeVector getDimensions() const { return dim; }
+    
+    G4LogicalVolume* main_log;                  ///< outermost volume layer
+    DetVolBuilder myDet;                        ///< detector assembly
+    
+protected:
+    std::vector<ShieldLayerSpec> layers;        ///< descriptions of each layer
+    G4ThreeVector dim;                          ///< outermost dimensions
+};
+
+#endif

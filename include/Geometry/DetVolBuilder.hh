@@ -8,6 +8,7 @@
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
+#include <G4RotationMatrix.hh>
 
 /// Builder for detector volume (everything inside metal shell)
 class DetVolBuilder {
@@ -21,7 +22,7 @@ public:
     G4ThreeVector getDimensions() const { return dim; }
     
     G4LogicalVolume* main_log;  ///< main mother volume, metal shell enclosure
-
+    
     double shell_thick;         ///< thickness of shell wall
     double air_buffer_thick;    ///< gap size between shell and internal assembly
     
@@ -31,6 +32,7 @@ public:
     
 private:
     G4ThreeVector dim;          ///< outer dimensions
+    G4RotationMatrix myRot;     ///< rotation to apply to internal components
     G4VisAttributes shell_vis;  ///< visualization settings for shell
 };
 

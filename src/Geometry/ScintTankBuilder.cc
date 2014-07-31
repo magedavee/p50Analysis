@@ -1,4 +1,5 @@
 #include "ScintTankBuilder.hh"
+#include "Utilities.hh"
 
 #include <cassert>
 
@@ -9,14 +10,6 @@
 #include <G4Box.hh>
 #include <G4RotationMatrix.hh>
 #include <G4PVPlacement.hh>
-
-/// utility function for converting to string
-template<typename T>
-std::string to_str(T x) {
-    std::stringstream ss;
-    ss << x;
-    return ss.str();
-}
 
 ScintTankBuilder::ScintTankBuilder(): main_log(NULL),
 tank_depth(65*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
