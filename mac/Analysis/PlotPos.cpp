@@ -34,8 +34,8 @@ void PlotPos() {
     T.SetBranchAddress("MCEvent",&evt);
     
     // set up histograms
-    TH2F hit_xy("hit_xy", "Hit positions", 200,-1200,1200, 200,-1200,1200);
-    TH2F hit_yz("hit_yz", "Hit positions", 200,-1200,1200, 200,-1200,1200);
+    TH2F hit_xy("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200);
+    TH2F hit_zy("hit_zy", "Hit positions", 300,-1200,1200, 300,-1200,1200);
     TH2F prim_p("prim_p", "Primary momentum direction", 100,-1.2,1.2, 100,-1.2,1.2);
     
     TH1F hnPrim("hnPrim","Number of primary particles", 15, 0, 15);
@@ -103,8 +103,10 @@ void PlotPos() {
             hEIoni.Fill(evt->EIoni);
         for(Int_t i=0; i<nIoni; i++) {
             EventIoniCluster* ei = (EventIoniCluster*)evt->iEvts->At(i);
-            hit_xy.Fill(ei->x[0], ei->x[1]);
-            hit_yz.Fill(ei->x[1], ei->x[2]);
+            if(ei->vol >= 0) {
+                hit_xy.Fill(ei->x[0], ei->x[1]);
+                hit_zy.Fill(ei->x[2], ei->x[1]);
+            }
         }
         
         // neutron captures
@@ -157,10 +159,11 @@ void PlotPos() {
     gPad->Print((outpath+"/PrimN_hi.pdf").c_str());
     
     gPad->SetLogy(false);
+    gPad->SetCanvasSize(700,700);
     hit_xy.Draw("Col Z");
     gPad->Print((outpath+"/Hit_xy.pdf").c_str());
-    hit_yz.Draw("Col Z");
-    gPad->Print((outpath+"/Hit_yz.pdf").c_str());
+    hit_zy.Draw("Col Z");
+    gPad->Print((outpath+"/Hit_zy.pdf").c_str());
     prim_p.Draw("Col Z");
     gPad->Print((outpath+"/Hit_P0.pdf").c_str());
 }

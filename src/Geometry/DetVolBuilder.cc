@@ -9,7 +9,7 @@
 
 DetVolBuilder::DetVolBuilder(): main_log(NULL),
 shell_thick(2*mm), air_buffer_thick(10*cm), shell_vis(G4Colour(1.0,0,1.0)) {
-    myRot.rotateX(90*deg);
+    myRot.rotateX(-90*deg);
 }
 
 void DetVolBuilder::construct() {
