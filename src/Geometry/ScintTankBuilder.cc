@@ -55,14 +55,14 @@ void ScintTankBuilder::construct() {
     ///////////////
     // acrylic tank
     G4Box* tank_box = new G4Box("tank_box", getWidthX()/2., getWidthY()/2., tank_depth/2.);
-    main_log = new G4LogicalVolume(tank_box, MaterialsHelper::PMMA, "ScintTank_main_log");
+    main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
     
     /////////////////////////////
     // liquid scintillator volume
     
     G4Box* scint_box = new G4Box("scint_box", getWidthX()/2.-tank_wall_thick, getWidthY()/2.-tank_wall_thick, tank_depth/2.);
-    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::get6LiLS(scint6LiLoading), "ScintTank_scint_log");
+    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(scint6LiLoading), "ScintTank_scint_log");
     scint_log->SetVisAttributes(&scint_vis);
     new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
     

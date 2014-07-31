@@ -8,8 +8,6 @@
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cerr << "Starting detector construction..." << G4endl;
-    
-    MaterialsHelper::init();
     myBuilding.construct();
       
     myScintSD = new ScintSD("ScintSD");

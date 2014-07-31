@@ -14,11 +14,11 @@ void BuildingBuilder::construct() {
     myDetUnit.construct();
     
     G4Box* wall_box = new G4Box("wall_box", dim[0]/2., dim[1]/2., dim[2]/2.);
-    main_log = new G4LogicalVolume(wall_box, MaterialsHelper::Concrete, "Building_main_log");
+    main_log = new G4LogicalVolume(wall_box, MaterialsHelper::M().Concrete, "Building_main_log");
     main_log->SetVisAttributes(&wall_vis);
     
     G4Box* air_box = new G4Box("air_box", dim[0]/2.-wall_thick, dim[1]/2.-wall_thick, dim[2]/2.-wall_thick);
-    air_log = new G4LogicalVolume(air_box, MaterialsHelper::Air, "Building_air_log");
+    air_log = new G4LogicalVolume(air_box, MaterialsHelper::M().Air, "Building_air_log");
     air_log->SetVisAttributes(&wall_vis);
     new G4PVPlacement(NULL, G4ThreeVector(), air_log, "Building_air_phys", main_log, false, 0, false);
     

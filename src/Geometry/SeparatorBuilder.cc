@@ -14,6 +14,6 @@ void SeparatorBuilder::construct(double w, double l) {
     assert(cfThick < totalThick);
     
     G4Box* main_box = new G4Box("SeparatorMainBox", width/2., length/2., totalThick/2.);    
-    main_log = new G4LogicalVolume(main_box, MaterialsHelper::PMMA, "Separator_main_Log");
+    main_log = new G4LogicalVolume(main_box, MaterialsHelper::M().PMMA, "Separator_main_Log");
     main_log->SetVisAttributes(&sep_vis);
 }

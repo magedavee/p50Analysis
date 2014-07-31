@@ -32,6 +32,6 @@ void SlottedRodBuilder::construct(double l, double rslot, double wslot) {
         rod_cut = new G4SubtractionSolid("rod_cut", rod_cut, cutout_box, R, G4ThreeVector(cos(theta)*ltrans, sin(theta)*ltrans, 0));
     }
     
-    main_log = new G4LogicalVolume(rod_cut, MaterialsHelper::PEEK, "SlottedRod_main_Log");
+    main_log = new G4LogicalVolume(rod_cut, MaterialsHelper::M().PEEK, "SlottedRod_main_Log");
     main_log->SetVisAttributes(&rod_vis);
 }

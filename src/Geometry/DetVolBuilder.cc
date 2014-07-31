@@ -29,14 +29,14 @@ void DetVolBuilder::construct() {
     // outer shell
     
     G4Box* shell_box = new G4Box("shell_box", dim[0]/2., dim[1]/2., dim[2]/2.);
-    main_log = new G4LogicalVolume(shell_box, MaterialsHelper::SS444, "DetVol_main_log");
+    main_log = new G4LogicalVolume(shell_box, MaterialsHelper::M().SS444, "DetVol_main_log");
     main_log->SetVisAttributes(&shell_vis);
     
     ///////////////////////
     // (rotated) air volume
     
     G4Box* air_box = new G4Box("air_box", airDim[0]/2., airDim[1]/2., airDim[2]/2.);
-    G4LogicalVolume* air_log = new G4LogicalVolume(air_box, MaterialsHelper::Air, "DetVol_air_log");
+    G4LogicalVolume* air_log = new G4LogicalVolume(air_box, MaterialsHelper::M().Air, "DetVol_air_log");
     air_log->SetVisAttributes(&shell_vis);
     new G4PVPlacement(&myRot, G4ThreeVector(), air_log, "DetVol_air_phys", main_log, false, 0, false);
     

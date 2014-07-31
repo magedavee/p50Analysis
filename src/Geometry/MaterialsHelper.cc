@@ -3,37 +3,14 @@
 #include <G4NistManager.hh>
 #include <G4ios.hh>
 
-G4NistManager* MaterialsHelper::nist = NULL;
+MaterialsHelper* MaterialsHelper::theMatHelper = NULL;
 
-G4Material* MaterialsHelper::nat_H = NULL;
-G4Material* MaterialsHelper::Li6 = NULL;
-G4Material* MaterialsHelper::nat_Li = NULL;
-G4Material* MaterialsHelper::nat_C = NULL;
-G4Material* MaterialsHelper::nat_O = NULL;
-G4Material* MaterialsHelper::nat_Ca = NULL;
-G4Material* MaterialsHelper::nat_Si = NULL;
-G4Material* MaterialsHelper::nat_B = NULL;
-G4Material* MaterialsHelper::nat_Al = NULL;
-G4Material* MaterialsHelper::nat_Fe = NULL;
-G4Material* MaterialsHelper::nat_Cr = NULL;
-G4Material* MaterialsHelper::nat_Mo = NULL;
-G4Material* MaterialsHelper::nat_Pb = NULL;
+MaterialsHelper& MaterialsHelper::M() {
+    if(!theMatHelper) theMatHelper = new MaterialsHelper;
+    return *theMatHelper;
+}
 
-G4Material* MaterialsHelper::Vacuum = NULL;
-G4Material* MaterialsHelper::Air = NULL;
-G4Material* MaterialsHelper::PMMA = NULL;
-G4Material* MaterialsHelper::PEEK = NULL;
-G4Material* MaterialsHelper::Polyeth = NULL;
-G4Material* MaterialsHelper::BPoly = NULL;
-G4Material* MaterialsHelper::LiPoly = NULL;
-G4Material* MaterialsHelper::RawPsiCumene = NULL;
-G4Material* MaterialsHelper::SS444 = NULL;
-G4Material* MaterialsHelper::Quartz = NULL;
-G4Material* MaterialsHelper::Concrete = NULL;
-
-std::map<double, G4Material*> MaterialsHelper::LiLSs;
-
-void MaterialsHelper::init() {
+MaterialsHelper::MaterialsHelper() {
     
     G4cerr << "Initializing materials..." << G4endl;
     
