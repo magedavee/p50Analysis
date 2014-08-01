@@ -4,27 +4,32 @@
 
 #include "DetVolBuilder.hh"
 #include "Utilities.hh"
+#include "XMLProvider.hh"
 #include <vector>
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Specification for a shielding layer
-class ShieldLayerSpec {
+class ShieldLayerSpec: public XMLProvider {
 public:
     /// Constructor
     ShieldLayerSpec(double t, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
-    top_thick(t), side_thick(t), bottom_thick(0), mat(M), vis(c) { }
+    XMLProvider("ShieldLayer"), top_thick(t), side_thick(t), bottom_thick(0), mat(M), vis(c) { }
     
     double top_thick;           ///< thickness on top
     double side_thick;          ///< thickness on sides
     double bottom_thick;        ///< thickness on bottom
     G4Material* mat;            ///< material
     G4VisAttributes vis;        ///< layer visualization attributes
+
+protected:
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 /// Builder for shielding layers around detector
-class ShieldBuilder {
+class ShieldBuilder: public XMLProvider {
 public:
     /// constructor
     ShieldBuilder();

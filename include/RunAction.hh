@@ -1,36 +1,27 @@
-// Unrestricted Use - Property of AECL
-//
-// RunAction.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Custom Run Controller and Processing
-// 	Contains class functions/variables
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-// --------------------------------------------------------
+#ifndef RunAction_H
+/// Assure this header is only loaded once
+#define RunAction_H
 
-#ifndef RunAction_H		// Only carries out if object is undefined
-#define RunAction_H 1		// Defines object
+#include "XMLProvider.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "DetectorConstruction.hh"
 
-#include "G4UserRunAction.hh"	// Specifies base class or parent class
-
-#include <map>			// Specifies classes defining all global parameters and variable types
+#include <map>
 #include <vector>
-#include "G4ThreeVector.hh"
-#include "globals.hh"
+
+#include <G4UserRunAction.hh>
+#include <G4ThreeVector.hh>
 
 class G4Run;
 class RunMessenger;
-class PrimaryGeneratorAction;
 
-class RunAction : public G4UserRunAction {
+class RunAction : public G4UserRunAction, public XMLProvider {
     friend class RunMessenger;
     
 public:
     
     /// Constructor
-    RunAction();
+    RunAction(PrimaryGeneratorAction* g, DetectorConstruction* d);
     /// Destructor
     virtual ~RunAction();
     
@@ -53,6 +44,7 @@ private:
     
     RunMessenger* run_messenger;
     PrimaryGeneratorAction* gen;
+    DetectorConstruction* det;
     
     G4int nRunNumber;           ///< run number
     G4int nRecLev;              ///< flag for amount of data to record

@@ -10,20 +10,18 @@
 //	Version 1.01 - 2011/04/29 - A. Ho
 // --------------------------------------------------------
 
-#ifndef OpticalHit_H			// Only creates if object is not yet defined
-#define OpticalHit_H 1			// Defines object
+#ifndef OpticalHit_H
+#define OpticalHit_H
 
-#include "G4VHit.hh"			// Specifies base class or parent class
-
-#include "G4THitsCollection.hh"		// Specifies the classes which contain structures called upon in this class
-#include "G4Allocator.hh"
-#include "G4ThreeVector.hh"
-
-#include <vector>			// Specifies classes defining all global parameters and variable types
+#include <vector>
 #include <map>
-#include "globals.hh"
 
-class G4AttDef;				// Structures necessary for class definition
+#include <G4VHit.hh>
+#include <G4THitsCollection.hh>
+#include <G4Allocator.hh>
+#include <G4ThreeVector.hh>
+
+class G4AttDef;
 class G4AttValue;
 
 /* -------- Class Definition --------- */

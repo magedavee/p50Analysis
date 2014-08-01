@@ -3,13 +3,14 @@
 #define BUILDINGBUILDER_HH
 
 #include "ShieldBuilder.hh"
+#include "XMLProvider.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4ThreeVector.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for building containing detector
-class BuildingBuilder {
+class BuildingBuilder: public XMLProvider {
 public:
     /// Constructor
     BuildingBuilder();

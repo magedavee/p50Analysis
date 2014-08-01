@@ -4,6 +4,7 @@
 
 #include "SeparatorBuilder.hh"
 #include "SlottedRodBuilder.hh"
+#include "XMLProvider.hh"
 
 #include <G4UImessenger.hh>
 #include <G4LogicalVolume.hh>
@@ -14,7 +15,7 @@
 #include <G4VisAttributes.hh>
 
 /// Builder for tank holding liquid scintillator and reflector lattice
-class ScintTankBuilder: public G4UImessenger {
+class ScintTankBuilder: public G4UImessenger, public XMLProvider {
 public:
     /// Constructor
     ScintTankBuilder();
@@ -48,6 +49,10 @@ public:
     
     SlottedRodBuilder mySlottedRod;     ///< slotted rod for holding separators
     SeparatorBuilder mySeparator;       ///< separator panels
+
+protected:
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
     
 private:
     

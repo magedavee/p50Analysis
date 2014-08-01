@@ -6,8 +6,10 @@
 #include <G4RotationMatrix.hh>
 #include <G4PVPlacement.hh>
 
-BuildingBuilder::BuildingBuilder(): main_log(NULL),
-dim(6.*m, 6.*m, 4.*m), wall_thick(0.75*m), wall_vis(G4Colour(0.3, 0.4, 0.4)) { }
+BuildingBuilder::BuildingBuilder(): XMLProvider("Building"), main_log(NULL),
+dim(6.*m, 6.*m, 4.*m), wall_thick(0.75*m), wall_vis(G4Colour(0.3, 0.4, 0.4)) {
+    addChild(&myDetUnit);
+}
 
 void BuildingBuilder::construct() {
     

@@ -30,7 +30,7 @@
 
 /vis/disable
 
-/output/filename ~/Analysis/ShortBaseline/CryMCData.root
+/output/filename /home/mpmendenhall/Analysis/ShortBaseline/CryMCData.root
 
 /generator/verbose 0
 /run/verbose 0
@@ -47,5 +47,5 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 10000
+/run/beamOn 1000
 

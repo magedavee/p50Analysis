@@ -6,12 +6,13 @@
 #include "MaterialsHelper.hh"
 
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4LogicalVolume.hh>
 #include <G4Box.hh>
 #include <G4RotationMatrix.hh>
 #include <G4PVPlacement.hh>
 
-ScintTankBuilder::ScintTankBuilder(): main_log(NULL),
+ScintTankBuilder::ScintTankBuilder(): XMLProvider("ScintTank"), main_log(NULL),
 tank_depth(65*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(25*cm), nSegX(8), nSegY(4), scint6LiLoading(0.007),
 tank_ui_dir("/geom/tank"),
@@ -40,6 +41,9 @@ scint_vis(G4Colour(0.5,0.5,1.0)) {
     scint6Licmd.SetGuidance("Scintillator 6Li loading fraction by mass");
     scint6Licmd.SetDefaultValue(scint6LiLoading);
     scint6Licmd.AvailableForStates(G4State_PreInit);
+    
+    addChild(&mySeparator);
+    addChild(&mySlottedRod);
 }
 
 void ScintTankBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -103,6 +107,16 @@ G4ThreeVector ScintTankBuilder::getSegmentPosition(uint n) const {
 int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     int nx = floor(pos[0]/seg_size + nSegX/2.);
     int ny = floor(pos[1]/seg_size + nSegY/2.);
-    if(nx < 0 || nx >= nSegX || ny < 0 || ny >= nSegY) return -1;
+    if(nx < 0 || nx >= (int)nSegX || ny < 0 || ny >= (int)nSegY) return -1;
     return nx + nSegX*ny;
+}
+
+void ScintTankBuilder::fillNode(TXMLEngine& E) {
+    addAttr(E, "depth", G4BestUnit(tank_depth,"Length"));
+    addAttr(E, "seg_size", G4BestUnit(seg_size,"Length"));
+    addAttr(E, "wall", G4BestUnit(tank_wall_thick,"Length"));
+    addAttr(E, "buffer", G4BestUnit(ls_buffer_thick,"Length"));
+    addAttr(E, "scint", scint_log->GetMaterial()->GetName());
+    addAttr(E, "nSegX", nSegX);
+    addAttr(E, "nSegY", nSegY);
 }

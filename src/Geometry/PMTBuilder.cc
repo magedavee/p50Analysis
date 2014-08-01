@@ -2,12 +2,13 @@
 #include "MaterialsHelper.hh"
 
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4Tubs.hh>
 #include <G4PVPlacement.hh>
 
 #include <cmath>
 
-PMTBuilder::PMTBuilder(): diameter(8*2.54*cm), length(0),
+PMTBuilder::PMTBuilder(): XMLProvider("PMT"), diameter(8*2.54*cm), length(0),
 outer_vis(G4Color(0.2,0.2,0.4)), capsule_vis(G4Color(1.0,1.0,0.0)) { }
 
 void PMTBuilder::construct() {
@@ -28,4 +29,9 @@ void PMTBuilder::construct() {
     G4Tubs* pmt_vacuum_tube = new G4Tubs("pmt_vacuum_tube", 0, capsule_radius - capsule_thick, capsule_length/2.-capsule_thick, 0, 2*M_PI);
     G4LogicalVolume* vacuum_log = new G4LogicalVolume(pmt_vacuum_tube, MaterialsHelper::M().Vacuum, "PMT_vacuum_log");
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), vacuum_log, "PMT_vacuum_phys", capsule_log, false, 0, true);
+}
+
+void PMTBuilder::fillNode(TXMLEngine& E) {
+    addAttr(E, "len", G4BestUnit(length,"Length"));
+    addAttr(E, "d", G4BestUnit(diameter,"Length"));
 }

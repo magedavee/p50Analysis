@@ -24,7 +24,12 @@ public:
     void Clear() { mcevent.Clear(); mcrun.Clear(); }
     /// Set output file
     void SetFileName(G4String filename);
+    /// Get output filename
+    G4String GetFileName() const { return fname; }
 
+    Run mcrun;          ///< run data
+    Event mcevent;      ///< event data fill point
+    
 protected:
     /// Constructor; protected for singleton instantiation
     RootIO(); 
@@ -32,12 +37,11 @@ protected:
 private:
     
     int writecount;     ///< count number of events recorded to file
+    G4String fname;     ///< file name
     TFile* outfile;     ///< output file
     TTree* dataTree;    ///< output events TTree
-    
-    Event mcevent;      ///< event data fill point
     Event* pmcevent;    ///< pointer to mcevent, for TTree setup
-    Run mcrun;          ///< run data
+
 };
 
 #endif

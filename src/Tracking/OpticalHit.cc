@@ -10,28 +10,27 @@
 //	Version 1.01 - 2011/04/29 - A. Ho
 // --------------------------------------------------------
 
-#include "OpticalHit.hh"		// Specifies the file which contains the class structure
+#include "OpticalHit.hh"
 
 #include <G4SystemOfUnits.hh>
-#include "G4RunManager.hh"		// Specifies the classes which contain structures called upon in this class
-#include "G4PhysicalVolumeStore.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4VVisManager.hh"
-#include "G4Colour.hh"
-#include "G4AttDefStore.hh"
-#include "G4AttDef.hh"
-#include "G4AttValue.hh"
-#include "G4UnitsTable.hh"
-#include "G4VisAttributes.hh"
-#include "G4ThreeVector.hh"
-#include "G4Point3D.hh"
-#include "G4Circle.hh"
-#include "G4VSolid.hh"
+#include <G4RunManager.hh>
+#include <G4PhysicalVolumeStore.hh>
+#include <G4VPhysicalVolume.hh>
+#include <G4VVisManager.hh>
+#include <G4Colour.hh>
+#include <G4AttDefStore.hh>
+#include <G4AttDef.hh>
+#include <G4AttValue.hh>
+#include <G4UnitsTable.hh>
+#include <G4VisAttributes.hh>
+#include <G4ThreeVector.hh>
+#include <G4Point3D.hh>
+#include <G4Circle.hh>
+#include <G4VSolid.hh>
 
-#include <iomanip>			// Specifies the classes which allow reading/writing to standard input/output
-#include "G4ios.hh"
+#include <G4ios.hh>
 
-#include "globals.hh"			// Specifies class defining all global parameters and variable types
+#include <iomanip>
 
 G4Allocator<OpticalHit> OpticalHitAllocator;	// Creates an allocator for the OpticalHit class - allocates memory according to size of data to be stored
 

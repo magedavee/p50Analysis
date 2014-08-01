@@ -2,11 +2,13 @@
 /// Assure this header is only loaded once
 #define SEPARATOR_HH
 
+#include "XMLProvider.hh"
+
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for scintillator separator panels
-class SeparatorBuilder {
+class SeparatorBuilder: public XMLProvider {
 public:
     /// Constructor
     SeparatorBuilder();
@@ -29,6 +31,9 @@ protected:
     double width;               ///< panel width (x)
     double length;              ///< panel length (y)
     G4VisAttributes sep_vis;    ///< visualization settings
+
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

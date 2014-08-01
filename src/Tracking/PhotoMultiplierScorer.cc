@@ -10,26 +10,24 @@
 //	Version 1.01 - 2011/04/29 - A. Ho
 // --------------------------------------------------------
 
-#include "PhotoMultiplierScorer.hh"		// Specifies the file which contains the class structure
+#include "PhotoMultiplierScorer.hh"
 
-#include "OpticalHit.hh"					// Specifies user-defined classes which are called upon in this class
+#include "RunAction.hh"
+#include "OpticalHit.hh"
 #include "LogSession.hh"
 #include "TrackInformation.hh"
 
 #include <G4SystemOfUnits.hh>
-#include "G4Track.hh"
-#include "G4RunManager.hh"					// Specifies classes which contain structures called upon in this class
-#include "G4Step.hh"
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4THitsMap.hh"
-#include "G4ParticleTypes.hh"
-#include "G4VSolid.hh"
-#include "RunAction.hh"
+#include <G4Track.hh>
+#include <G4RunManager.hh>
+#include <G4Step.hh>
+#include <G4SDManager.hh>
+#include <G4VProcess.hh>
+#include <G4THitsMap.hh>
+#include <G4ParticleTypes.hh>
+#include <G4VSolid.hh>
+#include <G4ios.hh>
 
-#include "G4ios.hh"					// Specifies the classes which allow reading/writing to standard input/output
-
-#include "globals.hh"					// Specifies class defining all global constants and variable types
 #include <map>
 
 	// ****** Constructor ****** //

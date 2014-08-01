@@ -4,14 +4,15 @@
 
 #include "BuildingBuilder.hh"
 #include "ScintSD.hh"
+#include "XMLProvider.hh"
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4LogicalVolume.hh>
 
-class DetectorConstruction: public G4VUserDetectorConstruction {
+class DetectorConstruction: public G4VUserDetectorConstruction, public XMLProvider {
 public:
     /// Constructor
-    DetectorConstruction() { }
+    DetectorConstruction(): XMLProvider("DetectorConstruction") { addChild(&myBuilding); }
     /// Destructor
     virtual ~DetectorConstruction() { }
 

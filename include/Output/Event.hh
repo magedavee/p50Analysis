@@ -4,6 +4,7 @@
 
 #include <TObject.h>
 #include <TClonesArray.h>
+#include <TXMLEngine.h>
 
 /// Primary particle specification for ROOT output
 class EventPrimaryPtcl: public TObject {
@@ -91,43 +92,6 @@ public:
     ClassDef(Event,2);
 };
 
-/// Detector geometry specification in run
-class RunDetGeom: public TObject {
-public:
-    /// Constructor
-    RunDetGeom() { Clear(); }
-    /// reset all values to 0
-    void Clear(Option_t *option ="");
-    
-    Int_t NSegX;                ///< the number of segments in x direction
-    Int_t NSegY;                ///< the number of segments in y direction
-    Double_t ScintLength;       ///< length of scintillator segments (long direction)
-    Double_t ScintHeight;       ///< height of scintillator segments
-    Double_t ScintWidth;        ///< width of scintillator segments
-    
-    Double_t AirGap;            ///< air gap between segments
-    Double_t WrapThickness;     ///< Thickness of Outer Tank - approximately 1/8"
-    Double_t WrapGap;
-    Double_t AcrylThickness;    ///< thickness of the sides of the acrylic segments
-    Double_t SegBuffer;         ///< the ammount of buffer material(acrylic) between the PMT and scintillator
-    Double_t SegLength;         ///< total length of the segment (not including PMTs) (this is defined as the z dimension)
-    Double_t SegWidth;          ///< total width of the segment (defined as x)
-    Double_t SegHeight;         ///< total height of the segment (defined as y) 
-    Double_t PMTscale;          ///< PMT photocathode radius
-    
-    Double_t ShieldLead;        ///< thickness of lead shield layer
-    Double_t ShieldPolyB;       ///< thickness of borated poly shield layer
-    Double_t ShieldPolyLi;      ///< thickness of 6Li poly shield layer
-    
-    Double_t Reflectivity;
-    Bool_t Vertical;            ///< whether detector is set in vertical orientation
-    
-    Int_t Scint;                ///< scintillator material choice
-        
-    ClassDef(RunDetGeom,1);
-};
-
-
 /// Information about setup for simulation run
 class Run : public TObject {
 public:
@@ -138,12 +102,12 @@ public:
     /// reset all values to 0
     void Clear(Option_t *option ="");
     
-    RunDetGeom geom;    ///< detector geometry
+    TXMLEngine myXML;   ///< XML run data
     Int_t runNum;       ///< run number
     Int_t nEvents;      ///< total number of events thrown
     Double_t simTime;   ///< nominal timespan simulated
     
-    ClassDef(Run,2)
+    ClassDef(Run,3)
 };
 
 #endif

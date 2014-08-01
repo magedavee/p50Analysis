@@ -2,14 +2,23 @@
 #include "MaterialsHelper.hh"
 
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4Box.hh>
 #include <G4PVPlacement.hh>
+        
+void ShieldLayerSpec::fillNode(TXMLEngine& E) {
+    if(mat) addAttr(E, "mat", mat->GetName());
+    addAttr(E, "top", G4BestUnit(top_thick,"Length"));
+    addAttr(E, "side", G4BestUnit(side_thick,"Length"));
+    addAttr(E, "bottom", G4BestUnit(bottom_thick,"Length"));
+}
 
-ShieldBuilder::ShieldBuilder() {
+ShieldBuilder::ShieldBuilder(): XMLProvider("Shield") {
     addLayer(ShieldLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
     addLayer(ShieldLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));
     addLayer(ShieldLayerSpec(3*cm, MaterialsHelper::M().nat_Pb, G4Colour(0.,1.,0.)));
     addLayer(ShieldLayerSpec(47*cm, MaterialsHelper::M().BPoly, G4Colour(0.,1.,0.)));
+    addChild(&myDet);
 }
 
 void ShieldBuilder::construct() {
@@ -34,6 +43,8 @@ void ShieldBuilder::construct() {
                           main_log, "Shield_layer_phys_"+to_str(nlayers), s_log, false, 0, true);
         
         main_log = s_log;
+        
+        addChild(&(*it));
     }
     
 }

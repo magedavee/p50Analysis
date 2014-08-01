@@ -10,16 +10,13 @@
 //	Version 1.01 - 2011/04/29 - A. Ho
 // --------------------------------------------------------
 
-#ifndef PhotoMultiplierScorer_H			// Only creates if object is not yet defined
-#define PhotoMultiplierScorer_H 1		// Defines object
+#ifndef PhotoMultiplierScorer_H
+#define PhotoMultiplierScorer_H
 
-#include "G4VPrimitiveScorer.hh"		// Specifies the base or parent class
+#include "OpticalHit.hh"
 
-#include "OpticalHit.hh"			// Specifies user-defined classes which are called upon in this class
-
-#include "G4THitsMap.hh"			// Specifies the classes which contain structures called upon in this class
-
-#include "globals.hh"				// Specifies class defining all global parameters and variable types
+#include <G4VPrimitiveScorer.hh>
+#include <G4THitsMap.hh>
 
 class G4Step;					// Structures necessary for class definition
 

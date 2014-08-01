@@ -57,6 +57,7 @@ void RootIO::FillTree() {
 
 void RootIO::SetFileName(G4String filename) {
     
+    fname = filename;
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());   
    

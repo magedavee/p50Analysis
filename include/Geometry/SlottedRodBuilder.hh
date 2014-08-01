@@ -2,11 +2,13 @@
 /// Assure this header is loaded only once
 #define SLOTTEDRODBUILDER_HH
 
+#include "XMLProvider.hh"
+
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for slotted rods to hold separator panels
-class SlottedRodBuilder {
+class SlottedRodBuilder: public XMLProvider {
 public:
     /// Constructor
     SlottedRodBuilder();
@@ -24,6 +26,9 @@ protected:
     double r_slot;              ///< radius to innermost edge of each slot
     double w_slot;              ///< width of slot   
     G4VisAttributes rod_vis;    ///< visualization settings
+
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

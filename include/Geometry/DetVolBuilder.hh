@@ -5,13 +5,14 @@
 #include "ScintTankBuilder.hh"
 #include "TankLidBuilder.hh"
 #include "PMTBuilder.hh"
+#include "XMLProvider.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 #include <G4RotationMatrix.hh>
 
 /// Builder for detector volume (everything inside metal shell)
-class DetVolBuilder {
+class DetVolBuilder: public XMLProvider {
 public:
     /// Constructor
     DetVolBuilder();
