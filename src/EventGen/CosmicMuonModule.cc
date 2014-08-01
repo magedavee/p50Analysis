@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-CosmicMuonModule::CosmicMuonModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
+CosmicMuonModule::CosmicMuonModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CosmicMuon"),
 muon_generator(P->GetVerbosity(), "Detector Shell") { }
 
 void CosmicMuonModule::GeneratePrimaries(G4Event* anEvent) {    

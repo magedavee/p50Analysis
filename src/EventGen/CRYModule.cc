@@ -17,7 +17,7 @@
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithoutParameter.hh>
 
-CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
+CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CRY"),
 CRY_generator(NULL), inputState(false), primpoint(false) {
    
     const DetectorConstruction* detect = dynamic_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());

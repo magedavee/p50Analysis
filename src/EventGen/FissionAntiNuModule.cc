@@ -7,7 +7,7 @@
 #include <G4AntiNeutrinoE.hh>
 #include <Randomize.hh>
 
-FissionAntiNuModule::FissionAntiNuModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
+FissionAntiNuModule::FissionAntiNuModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "FissionAntiNu"),
 U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), fiss_messenger(new FissionAntiNuMessenger(this)) { }
 
 FissionAntiNuModule::~FissionAntiNuModule() { delete fiss_messenger; }

@@ -15,6 +15,8 @@
 /// Assure header is only loaded once during compilation
 #define PrimaryGeneratorAction_H
 
+#include "XMLProvider.hh"
+
 #include <G4VUserPrimaryGeneratorAction.hh>
 
 #include <G4ThreeVector.hh>
@@ -43,10 +45,10 @@ struct primaryPtcl {
 class PrimaryGeneratorAction;
 
 /// Base class interface for alternate generator modules
-class PrimaryGeneratorModule {
+class PrimaryGeneratorModule: public XMLProvider {
 public:
     /// Constructor
-    PrimaryGeneratorModule(PrimaryGeneratorAction* P): myPGA(P) { }
+    PrimaryGeneratorModule(PrimaryGeneratorAction* P, const std::string& nm): XMLProvider(nm), myPGA(P) { }
     /// Destructor
     virtual ~PrimaryGeneratorModule() { }
     
@@ -65,7 +67,7 @@ protected:
 
 
 /// Class for generating primary particles for event
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction, public XMLProvider {
     
 friend class PrimaryGeneratorMessenger;
 
@@ -95,6 +97,9 @@ public:
     
 protected:
     
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
+    /// Set event generator log verbosity
     void SetVerbosity(G4int);
     
     PrimaryGeneratorModule* genModule;          ///< generator module currently in use

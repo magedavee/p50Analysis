@@ -68,6 +68,7 @@ void PrimaryGeneratorModule::throwPrimaries(const std::vector<primaryPtcl>& v, G
 ////////////////////////////////////////
 
 PrimaryGeneratorAction::PrimaryGeneratorAction():
+XMLProvider("PrimaryGenerator"),
 genModule(NULL), myCRYModule(NULL),
 myIBDModule(NULL), myFisAntNuModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL) {
@@ -134,5 +135,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     } else {
         assert(particle_gun);
         particle_gun->GeneratePrimaryVertex(anEvent);
+    }
+}
+
+void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
+    children.clear();
+    if(genModule) {
+        addChild(genModule);
+        addAttr(E,"time",G4BestUnit(genModule->GetGeneratorTime(), "Time"));
     }
 }

@@ -14,9 +14,6 @@ void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {
     }
 }
 
-/// Add int-valued attribute to node
-void addAttr(TXMLEngine& E, const std::string& nm, int i);
-
 void XMLProvider::writeToFile(const std::string& fname) {
     G4cerr << "Writing XML output '" << fname << "'" << G4endl;
     

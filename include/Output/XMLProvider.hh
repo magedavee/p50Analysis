@@ -11,7 +11,7 @@ class XMLProvider {
 public:
     /// Constructor
     XMLProvider(const std::string& n): nodeName(n), myNode(NULL) { }
-    /// Destructor
+    /// Destructor TODO: memory management for class!
     virtual ~XMLProvider() { }
     
     /// Write to file

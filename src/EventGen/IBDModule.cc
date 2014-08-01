@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-IBDModule::IBDModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
+IBDModule::IBDModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "IBD"),
 inverse_beta(P->GetVerbosity(), "Scintillator Volume") { }
 
 void IBDModule::GeneratePrimaries(G4Event* anEvent) {    

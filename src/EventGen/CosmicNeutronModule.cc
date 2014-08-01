@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P),
+CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CosmicNeutron"),
 neutron_generator(P->GetVerbosity(), "Outer Tank") { }
 
 void CosmicNeutronModule::GeneratePrimaries(G4Event* anEvent) {    

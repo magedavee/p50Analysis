@@ -48,6 +48,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     
     // set up XML output
     addChild(det);
+    addChild(gen);
     writeToFile(R->GetFileName()+".xml");
     
     R->WriteFile();
