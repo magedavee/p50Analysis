@@ -100,14 +100,13 @@ public:
     Run() { Clear(); }
     
     /// reset all values to 0
-    void Clear(Option_t *option ="");
+    void Clear(Option_t* ="") { runNum = nEvents = simTime = 0; }
     
-    TXMLEngine myXML;   ///< XML run data
     Int_t runNum;       ///< run number
     Int_t nEvents;      ///< total number of events thrown
     Double_t simTime;   ///< nominal timespan simulated
     
-    ClassDef(Run,3)
+    ClassDef(Run,2);
 };
 
 #endif

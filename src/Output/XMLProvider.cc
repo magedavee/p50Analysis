@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <G4ios.hh>
-#include <TString.h>
 
 void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {    
     myNode = E.NewChild(parent, NULL, nodeName.c_str());

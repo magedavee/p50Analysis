@@ -8,6 +8,7 @@
 
 #include <map>
 #include <vector>
+#include <time.h>
 
 #include <G4UserRunAction.hh>
 #include <G4ThreeVector.hh>
@@ -39,6 +40,12 @@ protected:
 
     void SetRunNumber(G4int rnum);
     void SetRecordLevel(G4int rnum) { nRecLev = rnum; }
+    
+    time_t start_time;  ///< time stamp for start of run
+    time_t end_time;    ///< time stamp for end of run
+
+    /// fill in XML data
+    virtual void fillNode(TXMLEngine& E);
     
 private:
     

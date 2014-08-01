@@ -53,13 +53,3 @@ void Event::AddNCapt(const EventNCapt& n) {
     assert(nCapts);
     new((*nCapts)[nNCapts++]) EventNCapt(n);
 }
-
-////////////////////////////////////////////
-//------------------------------------------
-////////////////////////////////////////////
-
-void Run::Clear(Option_t* o) {    
-    runNum = 0;
-    nEvents = 0;
-    simTime = 0;
-}
