@@ -32,7 +32,7 @@ public:
     
 protected:
     /// Constructor; protected for singleton instantiation
-    RootIO(); 
+    RootIO();
   
 private:
     
