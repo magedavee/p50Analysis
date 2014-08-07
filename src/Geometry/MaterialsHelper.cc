@@ -1,4 +1,5 @@
 #include "MaterialsHelper.hh"
+#include "Utilities.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <G4NistManager.hh>
@@ -95,7 +96,7 @@ MaterialsHelper::MaterialsHelper() {
 
 G4Material* MaterialsHelper::get6LiLS(double loading) {
     if(!LiLSs.count(loading)) {
-        G4Material* LiPsiCumene = new G4Material("PC-0.70wt%Li", 0.88*g/cm3, 2, kStateLiquid, 293.15*kelvin);
+        G4Material* LiPsiCumene = new G4Material(("PC-"+to_str(100*loading)+"wt%Li").c_str(), 0.88*g/cm3, 2, kStateLiquid, 293.15*kelvin);
         LiPsiCumene->AddMaterial(RawPsiCumene, 1-loading);
         LiPsiCumene->AddMaterial(Li6, loading);
         LiPsiCumene->SetMaterialPropertiesTable(mptCumene);

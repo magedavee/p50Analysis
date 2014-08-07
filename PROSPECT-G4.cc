@@ -1,6 +1,5 @@
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
-#include <G4PhysListFactory.hh>
 #include <Randomize.hh>
 #include <globals.hh>
 #ifdef G4VIS_USE
@@ -21,6 +20,7 @@
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
 #include "SteppingVerbose.hh"
+#include "PhysicsList.hh"
 
 int main(int argc,char** argv) {
     
@@ -42,9 +42,7 @@ int main(int argc,char** argv) {
     run_manager->SetUserInitialization(detector);
     
     // Set physics list
-    G4PhysListFactory factory;
-    G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP");
-    run_manager->SetUserInitialization(physList);
+    run_manager->SetUserInitialization(new PhysicsList());
 
     // Set mandatory user action classes
     PrimaryGeneratorAction* generator = new PrimaryGeneratorAction();

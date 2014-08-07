@@ -1,32 +1,13 @@
 #ifndef PHYSICSLIST_HH
 #define PHYSICSLIST_HH
 
-#include <G4VModularPhysicsList.hh>
-#include <G4VPhysicsConstructor.hh>
+#include <QGSP_BERT_HP.hh>
 
-class PhysicsList_495: public G4VModularPhysicsList {
+/// Physics list, derived from QGSP_BERT_HP
+class PhysicsList: public QGSP_BERT_HP {
 public:
-    
-    PhysicsList_495(bool usePenelope = false);
-    virtual ~PhysicsList_495();
-    
-    void ConstructParticle();
-    
-    void SetCuts();
-    void SetCutForGamma(G4double);
-    void SetCutForElectron(G4double);
-    void SetCutForPositron(G4double);
-    
-    void ConstructProcess();
-    
-private:
-    
-    G4double cutForGamma;
-    G4double cutForElectron;
-    G4double cutForPositron;
-    
-    G4String emName;
-    G4VPhysicsConstructor* emPhysicsList;
+    /// Constructor
+    PhysicsList();
 };
 
 #endif
