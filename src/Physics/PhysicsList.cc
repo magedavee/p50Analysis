@@ -1,7 +1,19 @@
 #include "PhysicsList.hh"
-#include "G4OpticalPhysics.hh"
 
-PhysicsList::PhysicsList(): QGSP_BERT_HP() {
-    // Add optical photon physics
-    //RegisterPhysics( new G4OpticalPhysics );
+PhysicsList::PhysicsList(): QGSP_BERT_HP(), XMLProvider("physics"),
+myOptPhys(NULL), physDir(new G4UIdirectory("/phys/")) {    
+    opticalCmd = new G4UIcmdWithoutParameter("/phys/enableOptical",this);
+    opticalCmd->SetGuidance("Enables optical photon physics.");
+    opticalCmd->AvailableForStates(G4State_PreInit,G4State_Init);
 }
+
+void PhysicsList::SetNewValue(G4UIcommand* command, G4String) {
+    if(command == opticalCmd) {
+        if(!myOptPhys) {
+            myOptPhys = new G4OpticalPhysics(0);
+            RegisterPhysics(myOptPhys);
+        }
+    }
+}
+
+

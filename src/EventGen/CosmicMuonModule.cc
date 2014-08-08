@@ -2,6 +2,7 @@
 
 #include <G4MuonMinus.hh>
 #include <G4MuonPlus.hh>
+#include <G4ParticleGun.hh>
 
 #include <cassert>
 

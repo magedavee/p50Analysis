@@ -1,8 +1,8 @@
 #include "RunAction.hh"
 
+#include "RootIO.hh"
 #include "RunMessenger.hh"
 #include "EventAction.hh"
-#include "RootIO.hh"
 #include "XMLProvider.hh"
 #include "ProcessInfo.hh"
 #include "Utilities.hh"
@@ -11,8 +11,9 @@
 #include <G4RunManager.hh>
 #include <G4ios.hh>
 
-RunAction::RunAction(PrimaryGeneratorAction* g, DetectorConstruction* d):
-XMLProvider("Run"), gen(g), det(d) {
+
+RunAction::RunAction(PrimaryGeneratorAction* gn, DetectorConstruction* d, PhysicsList* p):
+XMLProvider("Run"), gen(gn), det(d), phys(p) {
     run_messenger = new RunMessenger(this);
 }
 
@@ -34,7 +35,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun) {
 void RunAction::fillNode(TXMLEngine& E) {
     addAttr(E, "t_start",to_str(start_time));
     addAttr(E, "t_end",to_str(end_time));
-    addAttr(E, "num", nRunNumber);
+    addAttrI(E, "num", nRunNumber);
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun) {
@@ -50,6 +51,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     addChild(&PI);
     addChild(det);
     addChild(gen);
+    addChild(phys);
     writeToFile(R->GetFileName()+".xml");
     children.clear();
     

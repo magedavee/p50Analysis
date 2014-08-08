@@ -8,7 +8,6 @@
 #pragma link C++ class EventIoniCluster+;
 #pragma link C++ class EventNCapt+;
 #pragma link C++ class Event+;
-#pragma link C++ class Run+;
 
 #include <vector>
 #ifdef __MAKECINT__

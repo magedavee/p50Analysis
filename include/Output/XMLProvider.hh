@@ -32,8 +32,10 @@ protected:
     void addChild(XMLProvider* p) { children.push_back(p); }
     /// Add string-valued attribute to node
     void addAttr(TXMLEngine& E, const string& nm, const string& val) { E.NewAttr(myNode, NULL, nm.c_str(), val.c_str()); }
+    /// Add double-valued attribute to node
+    void addAttr(TXMLEngine& E, const string& nm, double v);
     /// Add int-valued attribute to node
-    void addAttr(TXMLEngine& E, const string& nm, int i) { E.NewIntAttr(myNode, nm.c_str(), i); }
+    void addAttrI(TXMLEngine& E, const string& nm, int i) { E.NewIntAttr(myNode, nm.c_str(), i); }
     /// Subclass me to fill in node data!
     virtual void fillNode(TXMLEngine&) { }
         

@@ -20,7 +20,6 @@
 #include <G4VUserPrimaryGeneratorAction.hh>
 
 #include <G4ThreeVector.hh>
-#include <G4ParticleGun.hh>
 
 class G4Event;
 class G4ParticleGun;

@@ -13,9 +13,16 @@
 
 SlottedRodBuilder::SlottedRodBuilder(): XMLProvider("SlottedRod"), main_log(NULL),
 r_outer(9.5*mm), r_inner(4*mm), length(0), r_slot(0), w_slot(0),
-rod_vis(G4Colour(1.0,1.0,0.5)) { }
+rod_vis(G4Colour(1.0,1.0,0.5)) {
+    myOptSurf.refl = 0.9;
+    myOptSurf.lobe = 0.9;
+    myOptSurf.spike = 0.1;
+    addChild(&myOptSurf);
+}
 
 void SlottedRodBuilder::construct(double l, double rslot, double wslot) {
+    myOptSurf.construct();
+    
     length = l;
     r_slot = rslot;
     w_slot = wslot;

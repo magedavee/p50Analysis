@@ -3,6 +3,8 @@
 #define GENPTCLMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
+#include <cassert>
+
 #include <G4UImessenger.hh>
 #include <G4GeneralParticleSource.hh>
 
@@ -13,7 +15,7 @@ public:
     GenPtclModule(PrimaryGeneratorAction* P);
     
     /// throw event particles
-    virtual void GeneratePrimaries(G4Event* anEvent) { }
+    virtual void GeneratePrimaries(G4Event*) { assert(false); } //TODO
     
 protected:
     

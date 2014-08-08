@@ -1,11 +1,12 @@
 #include "Event.hh"
 #include <cassert>
 
+#include <TClonesArray.h>
+
 ClassImp(EventPrimaryPtcl)
 ClassImp(EventIoniCluster)
 ClassImp(EventNCapt)
 ClassImp(Event)
-ClassImp(Run)
 
 ////////////////////////////////////////////
 //------------------------------------------

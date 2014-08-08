@@ -1,4 +1,5 @@
 #include "XMLProvider.hh"
+#include "Utilities.hh"
 
 #include <cassert>
 #include <G4ios.hh>
@@ -26,3 +27,5 @@ void XMLProvider::writeToFile(const string& fname) {
     E.DocSetRootElement(xmldoc, myNode);
     E.SaveDoc(xmldoc, fname.c_str());
 }
+
+void XMLProvider::addAttr(TXMLEngine& E, const string& nm, double v) { addAttr(E, nm, to_str(v)); }

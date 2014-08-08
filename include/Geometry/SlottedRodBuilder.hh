@@ -3,6 +3,7 @@
 #define SLOTTEDRODBUILDER_HH
 
 #include "XMLProvider.hh"
+#include "OpticalSurfaceSetup.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
@@ -16,7 +17,8 @@ public:
     /// Construct geometry, given length, slot radius, slot width
     void construct(double l, double rslot, double wslot);
     
-    G4LogicalVolume* main_log;  ///< main mother volume
+    G4LogicalVolume* main_log;          ///< main mother volume
+    OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
     
     double r_outer;             ///< outer radius
     double r_inner;             ///< inner radius

@@ -2,16 +2,17 @@
 /// Assure this header is only loaded once
 #define RunAction_H
 
+#include <G4UserRunAction.hh>
+#include <G4ThreeVector.hh>
+
 #include "XMLProvider.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
+#include "PhysicsList.hh"
 
 #include <map>
 #include <vector>
 #include <time.h>
-
-#include <G4UserRunAction.hh>
-#include <G4ThreeVector.hh>
 
 class G4Run;
 class RunMessenger;
@@ -22,7 +23,7 @@ class RunAction : public G4UserRunAction, public XMLProvider {
 public:
     
     /// Constructor
-    RunAction(PrimaryGeneratorAction* g, DetectorConstruction* d);
+    RunAction(PrimaryGeneratorAction* gn, DetectorConstruction* d, PhysicsList* p);
     /// Destructor
     virtual ~RunAction();
     
@@ -52,6 +53,7 @@ private:
     RunMessenger* run_messenger;
     PrimaryGeneratorAction* gen;
     DetectorConstruction* det;
+    PhysicsList* phys;
     
     G4int nRunNumber;           ///< run number
     G4int nRecLev;              ///< flag for amount of data to record

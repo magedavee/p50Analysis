@@ -6,6 +6,7 @@
 #include <G4SystemOfUnits.hh>
 #include <G4AntiNeutrinoE.hh>
 #include <Randomize.hh>
+#include <G4ParticleGun.hh>
 
 FissionAntiNuModule::FissionAntiNuModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "FissionAntiNu"),
 U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), fiss_messenger(new FissionAntiNuMessenger(this)) { }

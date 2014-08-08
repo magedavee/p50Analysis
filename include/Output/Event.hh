@@ -3,8 +3,7 @@
 #define EVENT_HH
 
 #include <TObject.h>
-#include <TClonesArray.h>
-#include <TXMLEngine.h>
+class TClonesArray;
 
 /// Primary particle specification for ROOT output
 class EventPrimaryPtcl: public TObject {
@@ -90,23 +89,6 @@ public:
     void AddNCapt(const EventNCapt& n);
     
     ClassDef(Event,2);
-};
-
-/// Information about setup for simulation run
-class Run : public TObject {
-public:
-    
-    /// constructor
-    Run() { Clear(); }
-    
-    /// reset all values to 0
-    void Clear(Option_t* ="") { runNum = nEvents = simTime = 0; }
-    
-    Int_t runNum;       ///< run number
-    Int_t nEvents;      ///< total number of events thrown
-    Double_t simTime;   ///< nominal timespan simulated
-    
-    ClassDef(Run,2);
 };
 
 #endif

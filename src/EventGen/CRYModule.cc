@@ -7,6 +7,7 @@
 #include "RNGWrapper.hh"
 
 #include "DetectorConstruction.hh"
+
 #include <G4SystemOfUnits.hh>
 #include <G4RunManager.hh>
 #include <G4UnitsTable.hh>
@@ -16,6 +17,7 @@
 #include <G4UIcmdWithADoubleAndUnit.hh>
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithoutParameter.hh>
+
 
 CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CRY"),
 CRY_generator(NULL), inputState(false), primpoint(false) {

@@ -1,16 +1,14 @@
 #include <sstream>
 #include <cassert>
 
+#include <TFile.h>
+#include <TTree.h>
+
 #include "RootIO.hh"
-#include "DetectorConstruction.hh"
-#include "G4RunManager.hh"
 #include "RunAction.hh"
 
-#include "G4SDManager.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4EventManager.hh"
-#include "G4Event.hh"
-#include "G4ios.hh"
+#include <G4RunManager.hh>
+#include <G4ios.hh>
 
 
 static RootIO* instance = NULL;
@@ -59,11 +57,10 @@ void RootIO::SetFileName(G4String filename) {
     
     fname = filename;
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-    DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());   
    
     mcevent.Clear();
     
-    if(run_action->GetRecordLevel()>=0){
+    if(run_action->GetRecordLevel() >= 0){
         G4cerr << "RootIO output file is set to " << filename << G4endl;
         outfile = new TFile(filename,"RECREATE");
         
@@ -72,10 +69,6 @@ void RootIO::SetFileName(G4String filename) {
         dataTree->SetDirectory(outfile);
         pmcevent = &mcevent;
         dataTree->Branch("MCEvent",&pmcevent);
-        
-        // set up run info output
-        mcrun.Clear();
-        mcrun.Write("RunInfo");
     }
 }
 

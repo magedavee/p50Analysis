@@ -1,47 +1,30 @@
-// Unrestricted Use - Property of AECL
-//
-// EventAction.cc
-// GEANT4 - geant4.9.3.p01
-//
-// Class File for Custom Event Controller and Processing
-// 	Contains definitions for functions in header file
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-//  Edited for clarity 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
-
 #include "EventAction.hh"
+#include "RootIO.hh"
 
-// User-defined classes which are called upon in this class
 #include "RunAction.hh"
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "RootIO.hh"
 #include "Event.hh"
 
-// Geant4 structures called upon in this class
-#include "G4Event.hh"
-#include "G4EventManager.hh"
-#include "G4TrajectoryContainer.hh"
-#include "G4VTrajectory.hh"
-#include "G4VVisManager.hh"
-#include "G4UnitsTable.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4RunManager.hh"
-#include "G4SDManager.hh"
-#include "G4THitsMap.hh"
-#include "Randomize.hh"
-#include "G4GeneralParticleSource.hh"
-#include "G4ParticleGun.hh"
+#include <G4Event.hh>
+#include <G4EventManager.hh>
+#include <G4TrajectoryContainer.hh>
+#include <G4VTrajectory.hh>
+#include <G4VVisManager.hh>
+#include <G4UnitsTable.hh>
+#include <G4HCofThisEvent.hh>
+#include <G4RunManager.hh>
+#include <G4SDManager.hh>
+#include <G4THitsMap.hh>
+#include <Randomize.hh>
+#include <G4GeneralParticleSource.hh>
+#include <G4ParticleGun.hh>
 
-#include "G4ios.hh"
+#include <G4ios.hh>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <cassert>
-
-#include "globals.hh"
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     
@@ -74,8 +57,8 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
             const G4PrimaryParticle* pp = v->GetPrimary(pn);
             assert(pp);
             G4ThreeVector mom = pp->GetMomentum();
-            G4double m = pp->GetMass();
-            p.E = sqrt(mom.mag2()+m*m)-m;
+            G4double mass = pp->GetMass();
+            p.E = sqrt(mom.mag2()+mass*mass)-mass;
             mom = mom.unit();
             for(uint j=0; j<3; j++) p.p[j] = mom[j];
             p.PID = pp->GetPDGcode();

@@ -11,7 +11,7 @@
 //      Edited 2014/07 M. P. Mendenhall
 // --------------------------------------------------------
 
-#include "PrimaryGeneratorAction.hh"		// Specifies the file which contains the class structure
+#include "PrimaryGeneratorAction.hh"
 
 #include "PrimaryGeneratorMessenger.hh" 
 #include "DetectorConstruction.hh"
@@ -27,6 +27,12 @@
 #include "CosmicMuonModule.hh"
 #include "CosmicNeutronModule.hh"
 
+#include <math.h>
+#include <string>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+
 #include <G4Event.hh>
 #include <G4GeneralParticleSource.hh>
 #include <G4ParticleGun.hh>
@@ -37,15 +43,8 @@
 #include <Randomize.hh>
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
-
 #include <G4ios.hh>
 
-#include "globals.hh"
-#include <math.h>
-#include <string>
-#include <iomanip>
-#include <iostream>
-#include <fstream>
 
 //////////////////////////////////////
 
@@ -54,14 +53,14 @@ void PrimaryGeneratorModule::throwPrimaries(const std::vector<primaryPtcl>& v, G
     for(std::vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
         if(myPGA->GetVerbosity() >= 2) G4cerr << "\tPDG ID " << it->PDGid << "\tKE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
         
-        G4ParticleGun* g = myPGA->GetParticleGun();
-        assert(g);
-        g->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
-        g->SetParticleEnergy(it->KE);
-        g->SetParticlePosition(it->pos);
-        g->SetParticleMomentumDirection(it->mom);
-        g->SetParticleTime(it->t);
-        g->GeneratePrimaryVertex(anEvent);
+        G4ParticleGun* gn = myPGA->GetParticleGun();
+        assert(gn);
+        gn->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
+        gn->SetParticleEnergy(it->KE);
+        gn->SetParticlePosition(it->pos);
+        gn->SetParticleMomentumDirection(it->mom);
+        gn->SetParticleTime(it->t);
+        gn->GeneratePrimaryVertex(anEvent);
     }
 }
 

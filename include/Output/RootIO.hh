@@ -2,11 +2,11 @@
 /// Assure this header file is loaded only once
 #define INCLUDE_ROOTIO_HH
 
-#include <TFile.h>
-#include <TTree.h>
-#include <G4String.hh>
-
 #include "Event.hh"
+
+#include <G4String.hh>
+class TFile;
+class TTree;
 
 /// Class with singleton instance for managing MC output via ROOT
 class RootIO {
@@ -21,13 +21,12 @@ public:
     Event& GetEvent() { return mcevent; }
     
     /// Reset data to initial values
-    void Clear() { mcevent.Clear(); mcrun.Clear(); }
+    void Clear() { mcevent.Clear(); }
     /// Set output file
     void SetFileName(G4String filename);
     /// Get output filename
     G4String GetFileName() const { return fname; }
 
-    Run mcrun;          ///< run data
     Event mcevent;      ///< event data fill point
     
 protected:

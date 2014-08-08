@@ -49,7 +49,7 @@ public:
     
     SlottedRodBuilder mySlottedRod;     ///< slotted rod for holding separators
     SeparatorBuilder mySeparator;       ///< separator panels
-
+    
 protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

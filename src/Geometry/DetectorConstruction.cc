@@ -69,64 +69,6 @@ void DetectorConstruction::ConstructSDs() {
 
 /* void DetectorConstruction::ConstructOpticalSurfaces() {
     
-    G4cerr << "Constructing optical surfaces..." << G4endl;
-    
-    const G4int num = 2;
-    G4double Ephoton[num] = { 1.5*eV, 6.0*eV };		// Photon Energies
-    
-    // GC Inner Tank vs. GC Scintillator Volume
-    
-    //changes for di-di ground back paint surface only surface only
-    //  spike =1; //only specular reflection when TIR occurs
-    //  G4double RIndex[num]        = { 1.300, 1.300 };	// Refractive index of reflector, PTFE
-    //end changes for di-di ground back paint surface only surface only
-    
-    G4double Reflectivity2[num]  = { refl, refl };
-    
-    G4double Efficiency2[num]    = { efficiency, efficiency };
-    G4double SpecularLobe2[num]  = { lobe, lobe };
-    G4double SpecularSpike2[num] = { spike, spike };
-    G4double Backscatter2[num]   = { back, back };
-    
-    G4MaterialPropertiesTable* mst = new G4MaterialPropertiesTable();
-    //  mst->AddProperty("RINDEX", Ephoton, RIndex, num); //d-d groundback paint only
-    mst->AddProperty("REFLECTIVITY", Ephoton, Reflectivity2, num);
-    mst->AddProperty("EFFICIENCY", Ephoton, Efficiency2, num);
-    mst->AddProperty("SPECULARLOBECONSTANT", Ephoton, SpecularLobe2, num);
-    mst->AddProperty("SPECULARSPIKECONSTANT", Ephoton, SpecularSpike2, num);
-    mst->AddProperty("BACKSCATTERCONSTANT", Ephoton, Backscatter2, num);   
-    G4OpticalSurface* InnerTankSurface = new G4OpticalSurface("InnerInSurface");
-    
-    InnerTankSurface->SetFinish(OptFinish);
-    if(OptFinish<6) {
-        InnerTankSurface->SetType(dielectric_metal);
-        //InnerTankSurface->SetType(dielectric_dielectric);//d-d groundback paint only
-        //InnerTankSurface->SetFinish(groundbackpainted);//d-d groundback paint only
-        InnerTankSurface->SetModel(unified);
-    } else {
-        InnerTankSurface->SetType(dielectric_LUT);
-        InnerTankSurface->SetModel(LUT);
-    }
-    
-    InnerTankSurface->SetMaterialPropertiesTable(mst);
-    
-    // scintillator steel cladding optical surface
-    // if(WrapGap>0) ScintSteel[i][j] = new G4LogicalSkinSurface("ScintSteelSurface"+id1, wrapgap_log, InnerTankSurface); //NSB 10/14/2013
-    //      else 
-    new G4LogicalSkinSurface("ScintSteelSurface", segment_log, InnerTankSurface); //NSB 10/14/2013
-    
-    // G4LogicalSkinSurface* WrapSurf = new G4LogicalSkinSurface("WrapSurface", wrapgap_log, InnerTankSurface);
-    // G4MaterialPropertiesTable* wrapfin = new G4MaterialPropertiesTable();
-    // if(WrapGap>0){  G4OpticalSurface* WrapGapSurface = new G4OpticalSurface("WrapGapSurface");
-    //   WrapGapSurface->SetType(dielectric_dielectric);
-    //   WrapGapSurface->SetFinish(polished); //NSB 10/14/2013
-    //   //WrapGapSurface->SetFinish(ground);//NSB 10/14/2013
-    //   //    WrapGapSurface->SetSigmaAlpha(sigal);//NSB 10/14/2013
-    //   WrapGapSurface->SetModel(unified);
-    
-    //   G4LogicalSkinSurface* AcrylAir = new G4LogicalSkinSurface("AcrylAir", target_log, WrapGapSurface);//NSB 10/14/2013
-    // }
-    
     G4OpticalSurface* PMTRejectSurface = new G4OpticalSurface("RejectSurface");
     PMTRejectSurface->SetType(dielectric_dielectric);
     PMTRejectSurface->SetFinish(groundfrontpainted);
@@ -144,57 +86,6 @@ void DetectorConstruction::ConstructSDs() {
     
     new G4LogicalSkinSurface("CoverAirSurface", coverSEG_log, PMTRejectSurface);
     new G4LogicalSkinSurface("BaseAirSurface", baseSEG_log, PMTRejectSurface);
-    
-    
-    // Muon Veto Panel Foil Wrapping
-    
-    G4OpticalSurface* VetoFoilSurface = new G4OpticalSurface("VetoFoilSurface");
-    VetoFoilSurface->SetType(dielectric_metal);
-    VetoFoilSurface->SetFinish(polishedbackpainted);	// Dielectric-dielectric for interface with thin air layer, metallic back surface is implied with polished reflectance
-    VetoFoilSurface->SetModel(unified);
-    
-    G4double RIndexFoil[num]        = { 1.000, 1.000 };	// Refractive index of air layer
-    G4double ReflectivityFoil[num]  = { 0.700, 0.700 };	// Reflectivity of foil
-    G4double SpecularLobeFoil[num]  = { 0.300, 0.300 };
-    G4double SpecularSpikeFoil[num] = { 0.500, 0.500 };
-    G4double BackscatterFoil[num]   = { 0.000, 0.000 };
-    
-    G4MaterialPropertiesTable* mstVetoFoil = new G4MaterialPropertiesTable();
-    mstVetoFoil->AddProperty("RINDEX", Ephoton, RIndexFoil, num);
-    mstVetoFoil->AddProperty("REFLECTIVITY", Ephoton, ReflectivityFoil, num);
-    mstVetoFoil->AddProperty("SPECULARLOBECONSTANT", Ephoton, SpecularLobeFoil, num);
-    mstVetoFoil->AddProperty("SPECULARSPIKECONSTANT", Ephoton, SpecularSpikeFoil, num);
-    mstVetoFoil->AddProperty("BACKSCATTERCONSTANT", Ephoton, BackscatterFoil, num);
-    VetoFoilSurface->SetMaterialPropertiesTable(mstVetoFoil);
-    
-    // veto air and steel
-    for(int i = 0; i < 12; i++) {
-        G4String id = to_str(i);
-        new G4LogicalBorderSurface("Veto"+id+"AirSurface", door_phys[i], shell_phys, VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", door_phys[i], shield_phys[0][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", door_phys[i], shield_phys[0][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", door_phys[i], shield_phys[1][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", door_phys[i], shield_phys[1][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", door_phys[i], shield_phys[2][0], VetoFoilSurface);
-    }
-    for(int i = 12; i < 22; i++) {
-        G4String id = to_str(i);
-        new G4LogicalBorderSurface("Veto"+id+"AirSurface", side_phys[i-12], shell_phys, VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", side_phys[i-12], shield_phys[0][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", side_phys[i-12], shield_phys[0][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", side_phys[i-12], shield_phys[1][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", side_phys[i-12], shield_phys[1][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", side_phys[i-12], shield_phys[2][0], VetoFoilSurface);
-    }
-    for(int i = 22; i < 33; i++) {
-        G4String id = to_str(i);
-        new G4LogicalBorderSurface("Veto"+id+"AirSurface", top_phys[i-22], shell_phys, VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface1", top_phys[i-22], shield_phys[0][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface2", top_phys[i-22], shield_phys[0][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface3", top_phys[i-22], shield_phys[1][0], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface4", top_phys[i-22], shield_phys[1][1], VetoFoilSurface);
-        new G4LogicalBorderSurface("Veto"+id+"SteelSurface5", top_phys[i-22], shield_phys[2][0], VetoFoilSurface);
-    }
 } */
 
 

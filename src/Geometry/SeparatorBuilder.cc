@@ -7,9 +7,13 @@
 #include <cassert>
 
 SeparatorBuilder::SeparatorBuilder(): XMLProvider("Separator"), main_log(NULL),
-totalThick(5*mm), cfThick(3*mm), width(0), length(0), sep_vis(G4Colour(0.9,0.9,0.9)) { }
+totalThick(5*mm), cfThick(3*mm), width(0), length(0), sep_vis(G4Colour(0.9,0.9,0.9)) {
+    addChild(&myOptSurf);
+}
 
 void SeparatorBuilder::construct(double w, double l) {
+    myOptSurf.construct();
+    
     width = w;
     length = l;
     assert(cfThick < totalThick);
@@ -23,4 +27,5 @@ void SeparatorBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "thick", G4BestUnit(totalThick,"Length"));
     addAttr(E, "len", G4BestUnit(length,"Length"));
     addAttr(E, "wid", G4BestUnit(width,"Length"));
+    
 }

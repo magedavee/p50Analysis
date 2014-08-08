@@ -2,6 +2,7 @@
 #include "Utilities.hh"
 
 #include <cassert>
+#include <vector>
 
 #include "MaterialsHelper.hh"
 
@@ -11,6 +12,7 @@
 #include <G4Box.hh>
 #include <G4RotationMatrix.hh>
 #include <G4PVPlacement.hh>
+#include <G4LogicalBorderSurface.hh>
 
 ScintTankBuilder::ScintTankBuilder(): XMLProvider("ScintTank"), main_log(NULL),
 tank_depth(65*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
@@ -68,7 +70,7 @@ void ScintTankBuilder::construct() {
     G4Box* scint_box = new G4Box("scint_box", getWidthX()/2.-tank_wall_thick, getWidthY()/2.-tank_wall_thick, tank_depth/2.);
     scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(scint6LiLoading), "ScintTank_scint_log");
     scint_log->SetVisAttributes(&scint_vis);
-    new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
+    G4PVPlacement* scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
     
     ////////////////////////////
     // rods & separators lattice
@@ -84,19 +86,31 @@ void ScintTankBuilder::construct() {
     rotSepX->rotateX(90*deg);
     G4RotationMatrix* rotSepY = new G4RotationMatrix();                 // rotation for y-aligned separators (memory leaked!)
     rotSepY->rotateX(90*deg); rotSepY->rotateY(90*deg);
+    std::vector<G4PVPlacement*> seps;
     for(uint nx = 0; nx <= nSegX; nx++) {
         for(uint ny = 0; ny <= nSegY; ny++) {
+            
             uint copynum = nx + (nSegX+1)*ny;
-            new G4PVPlacement (NULL, r0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
-                               mySlottedRod.main_log, "ScintTank_rod_phys_"+to_str(copynum), scint_log, true, copynum, true);
+            
+            G4PVPlacement* rod = new G4PVPlacement (NULL, r0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
+                                                    mySlottedRod.main_log, "ScintTank_rod_phys_"+to_str(copynum),
+                                                    scint_log, true, copynum, true);
+            new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, mySlottedRod.myOptSurf.S);
+            
             if(nx < nSegX)
-                new G4PVPlacement (rotSepX, sx0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
-                                   mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum), scint_log, true, copynum, true);
+                seps.push_back(new G4PVPlacement (rotSepX, sx0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
+                                                  mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
+                                                  scint_log, true, copynum, true));
             if(ny < nSegY)
-                new G4PVPlacement (rotSepY, sy0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
-                                   mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum), scint_log, true, copynum, true);
+                seps.push_back(new G4PVPlacement (rotSepY, sy0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
+                                                  mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
+                                                  scint_log, true, copynum, true));
         }
     }
+    
+    // apply separator boundary reflections
+    for(uint i=0; i<seps.size(); i++)
+        new G4LogicalBorderSurface("SepOpticalBorder_"+to_str(i), scint_phys, seps[i], mySeparator.myOptSurf.S);
 }
 
 G4ThreeVector ScintTankBuilder::getSegmentPosition(uint n) const {
@@ -117,6 +131,6 @@ void ScintTankBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "wall", G4BestUnit(tank_wall_thick,"Length"));
     addAttr(E, "buffer", G4BestUnit(ls_buffer_thick,"Length"));
     addAttr(E, "scint", scint_log->GetMaterial()->GetName());
-    addAttr(E, "nSegX", nSegX);
-    addAttr(E, "nSegY", nSegY);
+    addAttrI(E, "nSegX", nSegX);
+    addAttrI(E, "nSegY", nSegY);
 }

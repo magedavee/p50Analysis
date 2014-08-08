@@ -2,6 +2,7 @@
 
 #include <G4Positron.hh>
 #include <G4Neutron.hh>
+#include <G4ParticleGun.hh>
 
 #include <cassert>
 

@@ -42,7 +42,8 @@ int main(int argc,char** argv) {
     run_manager->SetUserInitialization(detector);
     
     // Set physics list
-    run_manager->SetUserInitialization(new PhysicsList());
+    PhysicsList* physics = new PhysicsList();
+    run_manager->SetUserInitialization(physics);
 
     // Set mandatory user action classes
     PrimaryGeneratorAction* generator = new PrimaryGeneratorAction();
@@ -51,7 +52,7 @@ int main(int argc,char** argv) {
     ///////////////////////////////////
     // Set optional user action classes
     
-    RunAction* run_action = new RunAction(generator, detector);
+    RunAction* run_action = new RunAction(generator, detector,physics);
     run_manager->SetUserAction(run_action);
     
     EventAction* event_action = new EventAction();

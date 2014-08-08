@@ -16,14 +16,11 @@
 #include "RunAction.hh"
 #include "RootIO.hh"
 
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithAnInteger.hh"
-#include "G4UnitsTable.hh"
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithAString.hh>
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4ios.hh>
 
-#include "G4ios.hh"
-
-#include "globals.hh"
 
 RunMessenger::RunMessenger(RunAction* run_action): run(run_action) {
     outputDir = new G4UIdirectory("/output/");

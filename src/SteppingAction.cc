@@ -1,43 +1,29 @@
-// Unrestricted Use - Property of AECL
-//
-// SteppingAction.cc
-// GEANT4 - geant4.9.3.p01
-//
-// Class File for Custom Step Controller and Processing
-//	Contains definitions for functions in header file
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-// --------------------------------------------------------
+#include <G4Step.hh>
+#include <G4StepPoint.hh>
+#include <G4ThreeVector.hh>
+#include <G4Track.hh>
+#include <G4TrackVector.hh>
+#include <G4ParticleTypes.hh>
+#include <G4RunManager.hh>
+#include <G4TrackStatus.hh>
+#include <G4ios.hh>
 
-#include "SteppingAction.hh"		// Specifies the file which contains the class structure
+#include "SteppingAction.hh"
 
-#include "RunAction.hh"			// Specifies user-defined classes which are called upon in this class
+#include "RunAction.hh"	
 #include "TrackInformation.hh"
 #include "LogSession.hh"
 #include "RootIO.hh"
 #include "DetectorConstruction.hh"
 
-#include "G4Step.hh"			// Specifies all the classes which contain structures called upon in this class
-#include "G4StepPoint.hh"
-#include "G4ThreeVector.hh"
-#include "G4Track.hh"
-#include "G4TrackVector.hh"
-#include "G4ParticleTypes.hh"
-#include "G4RunManager.hh"
-#include "G4TrackStatus.hh"
-
-#include "G4ios.hh"			// Specifies classes which allow reading/writing into standard input/output
 #include <iostream>
 #include <fstream>
 #include <map>
 
-#include "globals.hh"			// Specifies class defining all global constants and variable types
-
 // ****** Post-Step Processing ****** //
-void SteppingAction::UserSteppingAction(const G4Step* aStep) {
+void SteppingAction::UserSteppingAction(const G4Step*) {
     
-  RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
+  //RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
   
   /*
   DetectorConstruction* detector = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
