@@ -13,7 +13,6 @@
 #include "RecoilProtonScorer.hh"		// Specifies the file which contains the class structure
 
 #include "ProtonHit.hh"					// Specifies user-defined classes which are called upon in this class
-#include "LogSession.hh"
 
 #include <G4SystemOfUnits.hh>
 #include "G4Track.hh"					// Specifies classes which contain structures called upon in this class

@@ -13,7 +13,6 @@
 #include "NeutronDetectionScorer.hh"
 
 #include "NeutronHit.hh"
-#include "LogSession.hh"
 #include "RootIO.hh"
 
 #include <G4SystemOfUnits.hh>

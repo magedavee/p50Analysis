@@ -11,8 +11,6 @@
 #include "SteppingAction.hh"
 
 #include "RunAction.hh"	
-#include "TrackInformation.hh"
-#include "LogSession.hh"
 #include "RootIO.hh"
 #include "DetectorConstruction.hh"
 

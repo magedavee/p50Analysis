@@ -14,8 +14,6 @@
 
 #include "RunAction.hh"
 #include "OpticalHit.hh"
-#include "LogSession.hh"
-#include "TrackInformation.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <G4Track.hh>
@@ -96,8 +94,8 @@ G4bool PhotoMultiplierScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 	  if(!PMTHitAlready) { oHit_collection->insert(aHit); }
 	  
 	  // Flag trajectory to be drawn at end of event - saves memory as it only draws accepted photon tracks
-	  TrackInformation* info = (TrackInformation*)(aStep->GetTrack()->GetUserInformation());
-	  info->SetTrackStatusFlag(true);
+	  //TrackInformation* info = (TrackInformation*)(aStep->GetTrack()->GetUserInformation());
+	  //info->SetTrackStatusFlag(true);
 	  
 	  // Kill photon as it is absorbed by PMT via photoelectric effect
 	  aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);

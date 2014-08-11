@@ -12,8 +12,6 @@
 
 #include "CosmicCosineGenerator.hh"		// Specifies the file which contains the class structure
 
-#include "LogSession.hh"			// Specifies user-defined classes which are called upon in this class
-
 #include <G4SystemOfUnits.hh>
 #include "G4RunManager.hh"			// Specifies all the classes which contain structures called upon in this class
 #include "G4PhysicalVolumeStore.hh"
@@ -198,18 +196,6 @@ std::vector<G4double>* CosmicCosineGenerator::GenerateSourceLocation(G4bool sub)
   G4double vector[] = {x, y, z, px, py, pz};
   PositionMomentum->assign(vector,vector+6);
 //  G4cout << G4BestUnit((*PositionMomentum)[3],"Length") << G4BestUnit((*PositionMomentum)[4],"Length") << G4BestUnit((*PositionMomentum)[5],"Length") << G4endl;
-
-	// Writes individual momentums into file if requested
-  if(!sub && RawData)
-  {
-    G4ThreeVector pHat(px,py,pz);
-    G4double angle = std::fabs(pHat.angle(G4ThreeVector(0.,1.,0.)));
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedSourceMomenta.txt");
-    log->OpenFile(false,true);
-    (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << "\t" << angle/deg << std::endl;
-    log->CloseFile();
-  }
 
   return PositionMomentum;
 }

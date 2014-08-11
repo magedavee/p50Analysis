@@ -18,9 +18,6 @@
 #include "RunAction.hh"
 #include "RootIO.hh"
 
-#include "LogSession.hh"
-#include "InputSession.hh"
-
 #include "CRYModule.hh"
 #include "IBDModule.hh"
 #include "FissionAntiNuModule.hh"

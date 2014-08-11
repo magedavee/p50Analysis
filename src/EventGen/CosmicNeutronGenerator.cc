@@ -15,7 +15,6 @@
 #include <G4SystemOfUnits.hh>
 #include "CosmicNeutronMessenger.hh"		// Specifies user-defined classes which are called upon in this class
 #include "CosmicCosineGenerator.hh"
-#include "LogSession.hh"
 
 #include "Randomize.hh"				// Specifies the classes which contain structures called upon in this class
 #include "G4UnitsTable.hh"
@@ -413,36 +412,6 @@ void CosmicNeutronGenerator::GenerateEnergiesWithoutSimulation(const G4int n) co
     if(reps % 100000 == 0) { G4cout << "Completed " << reps << " samples." << G4endl; }
     reps++;
   }
-  G4double dd = ConvertToKm(d);		// Conversion for output purposes
-
-	// Outputs resulting histograms into text file CosmicNeutronSpectrumHistogram.txt
-  LogSession* log = LogSession::GetLogSessionPointer();
-  log->SetOutputFileName("CosmicNeutronSpectrumHistogram.txt");
-  log->OpenFile();
-
-	// Prints out spectrum parameters first
-  (*log) << "\t   Solar Modulation:		" << G4BestUnit(s,"Electric potential") << "\n"
-         << "\t   Cut-off Rigidity:		" << G4BestUnit(rc,"Electric potential") << "\n"
-         << "\t   Atmospheric Depth:		" << G4BestUnit(d,"Mass/Surface") << "\n"
-         << "\t   Atmospheric Height in km:	" << std::fabs(dd)/km << " km" << "\n"
-         << "\t   Water-equivalent Content:	" << w << "\n"
-         << "\t   Minimum Sample Energy:	" << G4BestUnit(min_e,"Energy") << "\n"
-         << "\t   Maximum Sample Energy:	" << G4BestUnit(max_e,"Energy") << "\n"
-         << "\t   Target Volume Name:		" << GetTargetVolume() << "\n"
-         << "\t   Spherical Source Radius:	" << G4BestUnit(GetSourceRadius(),"Length") << "\n"
-         << std::endl;
-
-	// Then prints the neutron histogram
-  (*log) << "Energy Bin Lower Limit: (MeV)\t\tCount:" << std::endl;
-  G4int totalCount = 0;
-  std::map<G4double,G4int>::iterator ittr = theHistogram->begin();
-  for( ; ittr != theHistogram->end(); ittr++)
-  {
-    totalCount += ittr->second;
-    (*log) << (ittr->first)/MeV << "\t\t\t" << ittr->second << std::endl;
-  }
-  (*log) << "Total Number of Energies Generated: " << totalCount << std::endl;
-  log->CloseFile();
 }
 
 	// ****** Generate Initial Particle Vector ******  //
@@ -450,18 +419,6 @@ std::vector<G4double>* CosmicNeutronGenerator::GenerateSourceLocation() const	//
 {
 	// Output as <x,y,z,px,py,pz> - p* indicates momentum in the * direction
   std::vector<G4double>* kinematics = cos_gen->GenerateSourceLocation(true);
-
-	// Writes individual momenta into file if requested
-  if(RawData)
-  {
-    G4ThreeVector pHat((*kinematics)[3],(*kinematics)[4],(*kinematics)[5]);
-    G4double angle = std::fabs(pHat.angle(G4ThreeVector(0.,1.,0.)));
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedNeutronMomenta.txt");
-    log->OpenFile(false,true);
-    (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << "\t" << angle/deg << std::endl;
-    log->CloseFile();
-  }
 
   return kinematics;
 }
@@ -491,16 +448,6 @@ G4double CosmicNeutronGenerator::GenerateNeutronEnergy() const		// Generation of
       Probability = CalculateFluxValue(xSeed);	// Calculate acceptance value
     }
     while (ySeed > Probability);	// Acceptance condition
-  }
-
-	// Writes individual energies into file if requested
-  if(RawData)
-  {
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedNeutronEnergies.txt");
-    log->OpenFile(false,true);
-    (*log) << xSeed/MeV << std::endl;
-    log->CloseFile();
   }
 
   return xSeed;

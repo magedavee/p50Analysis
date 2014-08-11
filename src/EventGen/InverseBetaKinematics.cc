@@ -14,8 +14,6 @@
 
 #include "InverseBetaMessenger.hh"		// Specifies user-defined classes which are called upon in this class
 #include "FissionAntiNuModule.hh"
-#include "LogSession.hh"
-#include "InputSession.hh"
 
 #include <G4SystemOfUnits.hh>
 #include "Randomize.hh"				// Specifies the classes which contain structures called upon in this class
@@ -313,26 +311,6 @@ std::vector<G4double>* InverseBetaKinematics::GenerateReactionKinematics() const
 	// Returns the vector of kinematics values
   if(!CheckFourVectorSolution(eNu,ePos,eN,thetaPos,thetaN)) { return GenerateReactionKinematics(); }
 
-	// Writes individual momentums and energies into file if requested
-  if(RawData)
-  {
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedPositronMomenta.txt");
-    log->OpenFile(false,true);
-    (*log) << pHatPos.x() << "\t" << pHatPos.y() << "\t" << pHatPos.z() << "\t" << thetaPos/deg << std::endl;
-    log->CloseFile();
-
-    log->SetOutputFileName("GeneratedNeutronMomenta.txt");
-    log->OpenFile(false,true);
-    (*log) << pHatN.x() << "\t" << pHatN.y() << "\t" << pHatN.z() << "\t" << thetaN/deg << std::endl;
-    log->CloseFile();
-
-    log->SetOutputFileName("GeneratedSourceEnergies.txt");
-    log->OpenFile(false,true);
-    (*log) << kePos/MeV << "\t" << keN/MeV << std::endl;
-    log->CloseFile();
-  }
-
   return kinematics;
 }
 
@@ -404,66 +382,6 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const
     if(reps % 100000 == 0) { G4cout << "Completed " << reps << " samples." << G4endl; }
     reps++;
   }
-
-	// Outputs resulting histograms into text file InverseBetaSpectrumHistogram.txt
-  LogSession* log = LogSession::GetLogSessionPointer();
-  log->SetOutputFileName("InverseBetaSpectrumHistograms.txt");
-  log->OpenFile();
-
-	// Prints out spectrum parameters first
-  if(fMonoEnergy)
- {(*log) << "\t   Fission Spectrum:		" << "Inactive" << "\n"
-         << "\t   Antineutrino Mono Energy:	" << G4BestUnit(antiNuMonoEnergy,"Energy") << "\n" ;}
-  else
- {(*log) << "\t   Fission Spectrum:		" << "Active" << "\n"
-         << "\t   Uranium-235 Content:		" << 100*(fission_gen->GetUranium235Content(true)) << "%" << "\n"
-         << "\t   Uranium-238 Content:		" << 100*(fission_gen->GetUranium238Content(true)) << "%" << "\n"
-         << "\t   Plutonium-239 Content:	" << 100*(fission_gen->GetPlutonium239Content(true)) << "%" << "\n"
-         << "\t   Plutonium-241-Content:	" << 100*(fission_gen->GetPlutonium241Content(true)) << "%" << "\n" ;}
-  (*log) << "\t   Antineutrino Flux Direction:	" << "x = " << antiNuDir.x() << ", y = " << antiNuDir.y() << ", z = " << antiNuDir.z() << "\n"
-         << "\t   Target Volume Name:		" << targetName << "\n"
-	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() << "\tY: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() << "\tZ: "
-	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() << "\n"
-         << std::endl;
-
-	// Then prints the positron energy histogram
-  (*log) << "Positron Energies" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (MeV)\t\tCount:" << std::endl;
-  std::map<G4double,G4int>::iterator ittr = thePosEHistogram->begin();
-  for( ; ittr != thePosEHistogram->end(); ittr++)
-  {
-    (*log) << (ittr->first)/MeV << "\t\t" << ittr->second << std::endl;
-  }
-
-	// Then prints the neutron energy histogram
-  (*log) << "\nNeutron Energies" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (MeV)\t\tCount:" << std::endl;
-  ittr = theNEHistogram->begin();
-  for( ; ittr != theNEHistogram->end(); ittr++)
-  {
-    (*log) << (ittr->first)/MeV << "\t\t" << ittr->second << std::endl;
-  }
-
-	// Then prints the positron angular histogram
-  (*log) << "\nPositron Angles" << std::endl;
-  (*log) << "Angle Bin Upper Limit: (deg)\t\tCount:" << std::endl;
-  ittr = thePosAngHistogram->begin();
-  for( ; ittr != thePosAngHistogram->end(); ittr++)
-  {
-    (*log) << (ittr->first)/deg << "\t\t" << ittr->second << std::endl;
-  }
-
-	// Then prints the neutron angular histogram
-  (*log) << "\nNeutron Angles" << std::endl;
-  (*log) << "Angle Bin Upper Limit: (deg)\t\tCount:" << std::endl;
-  ittr = theNAngHistogram->begin();
-  for( ; ittr != theNAngHistogram->end(); ittr++)
-  {
-    (*log) << (ittr->first)/deg << "\t\t" << ittr->second << std::endl;
-  }
-  (*log) << std::endl;
-  log->CloseFile();
 }
 
 	// ****** Generate Reaction Antineutrino Energy ****** //

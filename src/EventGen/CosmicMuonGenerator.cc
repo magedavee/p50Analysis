@@ -14,7 +14,6 @@
 
 #include "CosmicMuonMessenger.hh"		// Specifies user-defined classes which are called upon in this class
 #include "CosmicCosineGenerator.hh"
-#include "LogSession.hh"
 
 #include <G4SystemOfUnits.hh>
 #include "Randomize.hh"				// Specifies the classes which contain structures called upon in this class
@@ -443,49 +442,6 @@ void CosmicMuonGenerator::GenerateLipariEnergiesWithoutSimulation(const G4int n)
     }
     reps++;
   }
-
-	// Outputs resulting histograms into text file CosmicMuonSpectrumHistogram.txt
-  LogSession* log = LogSession::GetLogSessionPointer();
-  log->SetOutputFileName("CosmicMuonSpectrumHistogram.txt");	// File will be found in default directory - specified using LogSession class
-  log->OpenFile();
-
-	// Prints out spectrum parameters first
-  std::stringstream stream;
-  if(fPlusOnly) { stream << "Only mu+"; }
-  else if(fMinusOnly) { stream << " Only mu-"; }
-  else if(ratio <= 0.0) { stream << "Energy-Dependent"; }
-  else { stream << ratio; }
-  (*log) << "\t   Mu+ to Mu- Ratio:		" << stream.str() << "\n"
-         << "\t   Minimum Sample Energy:	" << G4BestUnit(min_val,"Energy") << "\n"
-         << "\t   Maximum Sample Energy:	" << G4BestUnit(max_val,"Energy") << "\n"
-         << "\t   Target Volume Name:		" << GetTargetVolume() << "\n"
-         << "\t   Spherical Source Radius:	" << G4BestUnit(GetSourceRadius(),"Length") << "\n"
-         << std::endl;
-
-	// Then prints the mu+ histogram
-  (*log) << "***************** Mu+ Spectrum ******************" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (GeV)\t\tCount:" << std::endl;
-  G4int totalCount = 0;
-  std::map<G4double,G4int>::iterator ittr = thePlusHistogram->begin();
-  for( ; ittr != thePlusHistogram->end(); ittr++)
-  {
-    totalCount += ittr->second;
-    (*log) << (ittr->first)/GeV << "\t\t\t" << ittr->second << std::endl;
-  }
-  ittr = theMinusHistogram->begin();
-  (*log) << "\nNumber of Mu+ Generated: " << muPlusCount << "\n" << std::endl;
-
-	// Then prints the mu- histogram
-  (*log) << "***************** Mu- Spectrum ******************" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (GeV)\t\tCount:" << std::endl;
-  for( ; ittr != theMinusHistogram->end(); ittr++)
-  {
-    totalCount += ittr->second;
-    (*log) << (ittr->first)/GeV << "\t\t\t" << ittr->second << std::endl;
-  }
-  (*log) << "\nNumber of Mu- Generated: " << muMinusCount << "\n" << std::endl;
-  (*log) << "Total Number of Energies Generated: " << totalCount << std::endl;
-  log->CloseFile();
 }
 
 	// ****** Test Implementation for BESS Spectrum ****** //
@@ -533,49 +489,6 @@ void CosmicMuonGenerator::GenerateBESSEnergiesWithoutSimulation(const G4int n) c
     if(reps % 100000 == 0) { G4cout << "Completed " << reps << " samples." << G4endl; }
     reps++;
   }
-
-	// Outputs resulting histograms into text file CosmicMuonSpectrumHistogram.txt
-  LogSession* log = LogSession::GetLogSessionPointer();
-  log->SetOutputFileName("CosmicMuonSpectrumHistogram.txt");	// File will be found in default directory - specified using LogSession class
-  log->OpenFile();
-
-	// Prints out spectrum parameters first
-  std::stringstream stream;
-  if(fPlusOnly) { stream << "Only mu+"; }
-  else if(fMinusOnly) { stream << " Only mu-"; }
-  else if(ratio <= 0.0) { stream << "Energy-Dependent"; }
-  else { stream << ratio; }
-  (*log) << "\t   Mu+ to Mu- Ratio:		" << stream.str() << "\n"
-         << "\t   Minimum Sample Momentum:	" << G4BestUnit(min_val,"Energy") << "/c" << "\n"
-         << "\t   Maximum Sample Momentum:	" << G4BestUnit(max_val,"Energy") << "/c" << "\n"
-         << "\t   Target Volume Name:		" << GetTargetVolume() << "\n"
-         << "\t   Spherical Source Radius:	" << G4BestUnit(GetSourceRadius(),"Length") << "\n"
-         << std::endl;
-
-	// Then prints the mu+ histogram
-  (*log) << "***************** Mu+ Spectrum ******************" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (GeV)\t\tCount:" << std::endl;
-  G4int totalCount = 0;
-  std::map<G4double,G4int>::iterator ittr = thePlusHistogram->begin();
-  for( ; ittr != thePlusHistogram->end(); ittr++)
-  {
-    totalCount += ittr->second;
-    (*log) << (ittr->first)/GeV << "\t\t\t" << ittr->second << std::endl;
-  }
-  ittr = theMinusHistogram->begin();
-  (*log) << "\nNumber of Mu+ Generated: " << muPlusCount << "\n" << std::endl;
-
-	// Then prints the mu- histogram
-  (*log) << "***************** Mu- Spectrum ******************" << std::endl;
-  (*log) << "Energy Bin Lower Limit: (GeV)\t\tCount:" << std::endl;
-  for( ; ittr != theMinusHistogram->end(); ittr++)
-  {
-    totalCount += ittr->second;
-    (*log) << (ittr->first)/GeV << "\t\t\t" << ittr->second << std::endl;
-  }
-  (*log) << "\nNumber of Mu- Generated: " << muMinusCount << "\n" << std::endl;
-  (*log) << "Total Number of Energies Generated: " << totalCount << std::endl;
-  log->CloseFile();
 }
 
 	// ****** Generate Initial Particle Vector ******  //
@@ -583,18 +496,6 @@ std::vector<G4double>* CosmicMuonGenerator::GenerateSourceLocation() const	// Ge
 {
 	// Output as <x,y,z,px,py,pz> - p* indicates momentum in the * direction
   std::vector<G4double>* kinematics = cos_gen->GenerateSourceLocation(true);
-
-	// Writes individual momentums into file if requested
-  if(RawData)
-  {
-    G4ThreeVector pHat((*kinematics)[3],(*kinematics)[4],(*kinematics)[5]);
-    G4double angle = std::fabs(pHat.angle(G4ThreeVector(0.,1.,0.)));
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedMuonMomenta.txt");
-    log->OpenFile(false,true);
-    (*log) << pHat.x() << "\t" << pHat.y() << "\t" << pHat.z() << "\t" << angle/deg << std::endl;
-    log->CloseFile();
-  }
 
   return kinematics;
 }
@@ -607,16 +508,6 @@ G4double CosmicMuonGenerator::GenerateMuonEnergy(G4ThreeVector muDir) const	// G
   if(fMonoEnergy) { result = muMono; }			// Returns the monoenergetic neutron if specified
   else if(fBESS) { result = GenerateBESSMuonEnergy(); }
   else { result = GenerateLipariMuonEnergy(muDir); }
-
-	// Writes individual energies into file if requested
-  if(RawData)
-  {
-    LogSession* log = LogSession::GetLogSessionPointer();
-    log->SetOutputFileName("GeneratedMuonEnergies.txt");
-    log->OpenFile(false,true);
-    (*log) << result/GeV << std::endl;
-    log->CloseFile();
-  }
 
   return result;
 }
