@@ -3,7 +3,6 @@
 #include "RootIO.hh"
 #include "RunMessenger.hh"
 #include "EventAction.hh"
-#include "XMLProvider.hh"
 #include "ProcessInfo.hh"
 #include "CommandInfo.hh"
 #include "Utilities.hh"

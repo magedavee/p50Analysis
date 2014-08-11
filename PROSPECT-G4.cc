@@ -20,7 +20,6 @@
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
-#include "SteppingAction.hh"
 #include "SteppingVerbose.hh"
 #include "PhysicsList.hh"
 
@@ -59,9 +58,6 @@ int main(int argc,char** argv) {
     
     EventAction* event_action = new EventAction();
     run_manager->SetUserAction(event_action);
-    
-    SteppingAction* stepping_action = new SteppingAction();
-    run_manager->SetUserAction(stepping_action);
     
 #ifdef G4VIS_USE
     // Initialize visualization

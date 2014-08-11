@@ -1,16 +1,3 @@
-// Unrestricted Use - Property of AECL
-//
-// RunMessenger.cc
-// GEANT4 - geant4.9.3.p01
-//
-// Class File for Run Action Messenger
-//      Contains definitions for functions in header file
-//
-// --------------------------------------------------------
-//      Version 1.01 - 2011/04/29 - A. Ho
-//      Edited 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
-
 #include "RunMessenger.hh"
 
 #include "RunAction.hh"
@@ -20,7 +7,6 @@
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithAnInteger.hh>
 #include <G4ios.hh>
-
 
 RunMessenger::RunMessenger(RunAction* run_action): run(run_action) {
     outputDir = new G4UIdirectory("/output/");

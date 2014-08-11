@@ -2,29 +2,13 @@
 #include "RootIO.hh"
 
 #include "RunAction.hh"
-#include "DetectorConstruction.hh"
-#include "PrimaryGeneratorAction.hh"
 #include "Event.hh"
 
 #include <G4Event.hh>
-#include <G4EventManager.hh>
-#include <G4TrajectoryContainer.hh>
-#include <G4VTrajectory.hh>
-#include <G4VVisManager.hh>
-#include <G4UnitsTable.hh>
-#include <G4HCofThisEvent.hh>
 #include <G4RunManager.hh>
-#include <G4SDManager.hh>
-#include <G4THitsMap.hh>
 #include <Randomize.hh>
-#include <G4GeneralParticleSource.hh>
-#include <G4ParticleGun.hh>
 
 #include <G4ios.hh>
-#include <iomanip>
-#include <iostream>
-#include <fstream>
-#include <cassert>
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     
@@ -33,12 +17,6 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     if(!(eventNumber % 1000)) {
         G4cout << "   Beginning of event: " << eventNumber << G4endl;
         CLHEP::HepRandom::showEngineStatus();
-    }
-
-    // Initialize HC pointers at the start of every event
-    G4SDManager* sd_manager = G4SDManager::GetSDMpointerIfExist();
-    if(sd_manager) {
-        //InnerHCIDEDep = sd_manager->GetCollectionID("scintHitInner/IoniseCollection");
     }
     
     // Clear prior event data

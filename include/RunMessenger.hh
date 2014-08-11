@@ -1,23 +1,8 @@
-// Unrestricted Use - Property of AECL
-// 
-// RunMessenger.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Run Action Messenger
-//      Contains class functions/variables
-//
-// --------------------------------------------------------
-//      Version 1.01 - 2011/04/29 - A. Ho
-//      Edited 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
-
 #ifndef RunMessenger_H
 /// Assure this header is loaded only once
 #define RunMessenger_H
 
-#include "G4UImessenger.hh"
-
-#include "globals.hh"
+#include <G4UImessenger.hh>
 
 class RunAction;
 class G4UIdirectory;

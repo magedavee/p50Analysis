@@ -33,13 +33,11 @@ public:
     void EndOfRunAction(const G4Run*);
     
     G4int GetRecordLevel() const { return nRecLev; }
-    
-    void PrintCurrentData();
-    void PrintOutputList() const;
-    
+        
 protected:
-
+    /// Set run number
     void SetRunNumber(G4int rnum);
+    /// Set event output recording completeness level
     void SetRecordLevel(G4int rnum) { nRecLev = rnum; }
     
     time_t start_time;  ///< time stamp for start of run
