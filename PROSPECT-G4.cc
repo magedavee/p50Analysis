@@ -2,10 +2,12 @@
 #include <G4UImanager.hh>
 #include <Randomize.hh>
 #include <globals.hh>
+
 #ifdef G4VIS_USE
 #include <G4VisExecutive.hh>
 #include "VisSetup.hh"
 #endif
+
 #ifdef G4UI_USE
 #include <G4UIExecutive.hh>
 #endif
@@ -78,21 +80,22 @@ int main(int argc,char** argv) {
     if(argc > 1) { // Execute the argument macro file if specified in arguments
         G4String command = "/control/execute ";
         G4String macfile_name = argv[1];
-        G4cerr << "starting macro" << G4endl;
+        G4cerr << "Starting macro" << G4endl;
         UI->ApplyCommand(command+macfile_name); 
     } else { // otherwise, apply default initialization
+#ifdef G4UI_USE
         UI->ApplyCommand("/control/verbose 0");
         UI->ApplyCommand("/run/verbose 0");
         UI->ApplyCommand("/event/verbose 0");
         UI->ApplyCommand("/tracking/verbose 0");
         
-        // List all sensitive detector
-        UI->ApplyCommand("/hits/list"); 
-        UI->ApplyCommand("/output/list");
-#ifdef G4UI_USE
+        G4cerr << "Starting UI session" << G4endl;
         G4UIExecutive* ui = new G4UIExecutive(argc,argv);
         ui->SessionStart();
         delete ui;
+        // TODO: figure out why program segfaults if exiting here before /run/initialize
+#else
+        G4cerr << "Not compiled with UI available; please specify a macro." << G4endl;
 #endif
     }
 
