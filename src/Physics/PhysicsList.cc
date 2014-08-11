@@ -1,6 +1,6 @@
 #include "PhysicsList.hh"
 
-PhysicsList::PhysicsList(): QGSP_BERT_HP(), XMLProvider("physics"),
+PhysicsList::PhysicsList(): QGSP_BERT_HP(), XMLProvider("Physics"),
 myOptPhys(NULL), physDir(new G4UIdirectory("/phys/")) {    
     opticalCmd = new G4UIcmdWithoutParameter("/phys/enableOptical",this);
     opticalCmd->SetGuidance("Enables optical photon physics.");

@@ -8,6 +8,8 @@
 
 /output/setRecordLevel 2
 
+/phys/enableOptical
+
 /run/initialize
 
 /vis/open OGLSXm
@@ -28,19 +30,6 @@
 /vis/scene/add/trajectories
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
-
-/vis/modeling/trajectories/create/drawByParticleID vpid
-/vis/modeling/trajectories/vpid/setRGBA e+ 1 0 0 1
-/vis/modeling/trajectories/vpid/setRGBA e- 0 0 1 1
-/vis/modeling/trajectories/vpid/setRGBA gamma 0.5 1 0.5 1
-/vis/modeling/trajectories/vpid/setRGBA opticalphoton 1 1 1 1
-/vis/modeling/trajectories/vpid/setRGBA n 0 1 0 1
-/vis/modeling/trajectories/vpid/setRGBA mu+ 0.7 0.5 0 1
-/vis/modeling/trajectories/vpid/setRGBA mu- 0 0.5 0.7 1
-/vis/modeling/trajectories/vpid/setRGBA pi+ 0.4 0.2 0 1
-/vis/modeling/trajectories/vpid/setRGBA pi- 0 0.2 0.4 1
-
-
 
 /output/filename /home/mpmendenhall/Analysis/ShortBaseline/CryMCData.root
 

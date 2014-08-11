@@ -4,6 +4,7 @@
 #include <globals.hh>
 #ifdef G4VIS_USE
 #include <G4VisExecutive.hh>
+#include "VisSetup.hh"
 #endif
 #ifdef G4UI_USE
 #include <G4UIExecutive.hh>
@@ -67,7 +68,8 @@ int main(int argc,char** argv) {
 #ifdef G4VIS_USE
     // Initialize visualization
     G4VisManager* vis_manager = new G4VisExecutive;
-    vis_manager->Initialize(); 
+    vis_manager->Initialize();
+    VisSetup VS(vis_manager);
 #endif
     
     // Get the pointer to the UI manager
