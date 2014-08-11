@@ -8,7 +8,7 @@
 #include <G4Box.hh>
 
 DetVolBuilder::DetVolBuilder(): XMLProvider("DetVol"), main_log(NULL),
-shell_thick(2*mm), air_buffer_thick(10*cm), shell_vis(G4Colour(1.0,0,1.0)) {
+shell_thick(2*mm), buffer_thick(2*cm), shell_vis(G4Colour(1.0,0,1.0)) {
     myRot.rotateX(-90*deg);
     addChild(&myTank);
     addChild(&myLid);
@@ -21,9 +21,9 @@ void DetVolBuilder::construct() {
     myLid.construct(myTank);
     myPMT.construct();
     
-    G4ThreeVector airDim(myTank.getWidthX() + 2*air_buffer_thick,
-                         myTank.getWidthY() + 2*air_buffer_thick,
-                         myTank.tank_depth + 2*(air_buffer_thick+myLid.getThick()+myPMT.getLength()));
+    G4ThreeVector airDim(myTank.getWidthX() + 2*buffer_thick,
+                         myTank.getWidthY() + 2*buffer_thick,
+                         myTank.tank_depth + 2*(buffer_thick+myLid.getThick()+myPMT.getLength()));
         
     dim = myRot * airDim;
     dim = G4ThreeVector(fabs(dim[0])+2*shell_thick, fabs(dim[1])+2*shell_thick, fabs(dim[2])+2*shell_thick);

@@ -9,6 +9,7 @@
 SeparatorBuilder::SeparatorBuilder(): XMLProvider("Separator"), main_log(NULL),
 totalThick(5*mm), cfThick(3*mm), width(0), length(0), sep_vis(G4Colour(0.9,0.9,0.9)) {
     addChild(&myOptSurf);
+    myOptSurf.refl = 0.96;
 }
 
 void SeparatorBuilder::construct(double w, double l) {

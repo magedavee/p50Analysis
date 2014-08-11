@@ -25,7 +25,7 @@ public:
     G4LogicalVolume* main_log;  ///< main mother volume, metal shell enclosure
     
     double shell_thick;         ///< thickness of shell wall
-    double air_buffer_thick;    ///< gap size between shell and internal assembly
+    double buffer_thick;    ///< gap size between shell and internal assembly
     
     ScintTankBuilder myTank;    ///< scintillator tank with dividers
     TankLidBuilder myLid;       ///< lid to place on either side of tank

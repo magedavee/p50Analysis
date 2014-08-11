@@ -61,7 +61,7 @@ void ScintTankBuilder::construct() {
     ///////////////
     // acrylic tank
     G4Box* tank_box = new G4Box("tank_box", getWidthX()/2., getWidthY()/2., tank_depth/2.);
-    main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA, "ScintTank_main_log");
+    main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
     
     /////////////////////////////

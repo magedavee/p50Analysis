@@ -33,7 +33,9 @@ public:
     G4Material* Vacuum;         ///< vacuum
     G4Material* Air;            ///< room air
     G4Material* MinOil;         ///< Mineral oil
-    G4Material* PMMA;           ///< plexiglass
+    G4Material* PMMA;           ///< plexiglass, transparent
+    G4Material* PMMA_black;     ///< plexiglass, black
+    G4Material* PMMA_white;     ///< plexiglass, white
     G4Material* PEEK;           ///< PEEK O3 C19 H12
     G4Material* Polyeth;        ///< Polyethylene
     G4Material* BPoly;          ///< Borated (5% by mass) polyethylene

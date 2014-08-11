@@ -3,7 +3,7 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/output/setRunNum 12
+/output/setRunNum 13
 
 /output/setRecordLevel 2
 
@@ -13,7 +13,7 @@
 
 /vis/open OGLSXm
 #/vis/disable
-/vis/ogl/set/displayListLimit 10000
+#/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
 /vis/viewer/set/auxiliaryEdge 1
@@ -21,7 +21,7 @@
 
 /vis/viewer/set/upThetaPhi 0 0
 /vis/viewer/set/viewpointThetaPhi 90 90
-/vis/viewer/zoom 2
+/vis/viewer/zoom 3
 
 #/vis/scene/add/axes
 /vis/scene/add/scale

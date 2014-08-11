@@ -57,6 +57,8 @@ MaterialsHelper::MaterialsHelper() {
     RawPsiCumene->AddMaterial(nat_H, 10.055*perCent);
     
     PMMA = nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true);
+    PMMA_black = new G4Material("PMMA_black", PMMA->GetDensity(), PMMA);
+    PMMA_white = new G4Material("PMMA_white", PMMA->GetDensity(), PMMA);
     
     PEEK = new G4Material("PEEK", 1.32*g/cm3, 3, kStateSolid, room_T);
     PEEK->AddElement(nist->FindOrBuildElement("H",true), 12);
@@ -240,10 +242,10 @@ void MaterialsHelper::setupOptical() {
     /////////////////////
     // Plexiglass Windows
     
-    G4double RIndex2[nEntries];
-    for(int i = 0; i < nEntries; i++) RIndex2[i] = 1.492;
+    G4double RIndex_PMMA[nEntries];
+    for(int i = 0; i < nEntries; i++) RIndex_PMMA[i] = 1.492;
                                  
-    G4double AbsLength2[nEntries] = {
+    G4double AbsLength_PMMA[nEntries] = {
         0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
         0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
         0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m, 0.5*m,
@@ -257,11 +259,18 @@ void MaterialsHelper::setupOptical() {
     };
     
     G4MaterialPropertiesTable* mptPMMA = new G4MaterialPropertiesTable();
-    mptPMMA->AddProperty("RINDEX", PhotonEnergy, RIndex2, nEntries);
-    mptPMMA->AddProperty("ABSLENGTH", PhotonEnergy, AbsLength2, nEntries);
+    mptPMMA->AddProperty("RINDEX", PhotonEnergy, RIndex_PMMA, nEntries);
+    mptPMMA->AddProperty("ABSLENGTH", PhotonEnergy, AbsLength_PMMA, nEntries);
     
     PMMA->SetMaterialPropertiesTable(mptPMMA);
   
+    G4double Ephoton2[2] = { 1.5*eV, 6.0*eV };
+    G4double AbsLength_Black[2] = { 0.01*mm, 0.01*mm };
+    G4MaterialPropertiesTable* mptPMMA_blk = new G4MaterialPropertiesTable();
+    mptPMMA_blk->AddProperty("RINDEX", PhotonEnergy, RIndex_PMMA, nEntries);
+    mptPMMA_blk->AddProperty("ABSLENGTH", Ephoton2, AbsLength_Black, 2);
+    PMMA_black->SetMaterialPropertiesTable(mptPMMA_blk);
+    
     //////////////
     // Mineral Oil
     
