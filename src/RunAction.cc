@@ -5,6 +5,7 @@
 #include "EventAction.hh"
 #include "XMLProvider.hh"
 #include "ProcessInfo.hh"
+#include "CommandInfo.hh"
 #include "Utilities.hh"
 
 #include <G4Run.hh>
@@ -49,6 +50,8 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     children.clear();
     ProcessInfo PI;
     addChild(&PI);
+    CommandInfo CI;
+    addChild(&CI);
     addChild(det);
     addChild(gen);
     addChild(phys);

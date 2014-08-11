@@ -72,6 +72,7 @@ int main(int argc,char** argv) {
     
     // Get the pointer to the UI manager
     G4UImanager* UI = G4UImanager::GetUIpointer();
+    UI->SetMaxHistSize(1000);
     
     if(argc > 1) { // Execute the argument macro file if specified in arguments
         G4String command = "/control/execute ";

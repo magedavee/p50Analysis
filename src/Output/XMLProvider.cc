@@ -15,7 +15,7 @@ void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {
         (*it)->genNode(E, myNode);
     }
     //if(content.size())
-    //    E.AddNodeContent(myNode, content.c_str());
+    //    E.AddNodeContent(myNode, content.c_str(), content.size());
 }
 
 void XMLProvider::writeToFile(const string& fname) {

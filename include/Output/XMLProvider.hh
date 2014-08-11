@@ -20,7 +20,7 @@ public:
     virtual ~XMLProvider() { }
     
     // TODO: TXMLEngine::AddNodeContent is in documentation, but missing from my ROOT 5.34/18 install's headers ?!
-    // string content;     ///< (non-XML) contents of node
+    string content;     ///< (non-XML) contents of node
     
     /// Add attribute
     void addAttr(const string& key, const string& val) { xattrs.push_back(pair<string, string>(key,val)); }
