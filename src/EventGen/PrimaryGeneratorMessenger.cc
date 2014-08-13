@@ -1,16 +1,3 @@
-// Unrestricted Use - Property of AECL
-//
-// PrimaryGeneratorMessenger.cc
-// GEANT4 - geant4.9.3.p01
-//
-// Class File for Initial Kinematics Messenger
-//      Contains definitions for functions in header file
-//
-// --------------------------------------------------------
-//      Version 1.01 - 2011/04/29 - A. Ho
-//      Edited 201407 M. P. Mendenhall
-// --------------------------------------------------------
-
 #include "PrimaryGeneratorMessenger.hh"
 
 #include "PrimaryGeneratorAction.hh"

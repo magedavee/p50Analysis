@@ -1,16 +1,3 @@
-// Unrestricted Use - Property of AECL
-// 
-// PrimaryGeneratorAction.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Source and Initial Kinematics Specifications
-//      Contains class functions/variables
-//
-// --------------------------------------------------------
-//      Version 1.01 - 2011/04/29 - A. Ho
-//      Edited 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
-
 #ifndef PrimaryGeneratorAction_H
 /// Assure header is only loaded once during compilation
 #define PrimaryGeneratorAction_H

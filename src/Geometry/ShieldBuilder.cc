@@ -13,12 +13,16 @@ void ShieldLayerSpec::fillNode(TXMLEngine& E) {
     addAttr(E, "bottom", G4BestUnit(bottom_thick,"Length"));
 }
 
-ShieldBuilder::ShieldBuilder(): XMLProvider("Shield") {
+ShieldBuilder::ShieldBuilder(): XMLProvider("Shield"),
+shield_dir("/geom/shield/"), clearCmd("/geom/shield/clear",this) {
     addLayer(ShieldLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
     addLayer(ShieldLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));
     addLayer(ShieldLayerSpec(3*cm, MaterialsHelper::M().nat_Pb, G4Colour(0.,1.,0.)));
     addLayer(ShieldLayerSpec(47*cm, MaterialsHelper::M().BPoly, G4Colour(0.,1.,0.)));
     addChild(&myDet);
+    
+    clearCmd.SetGuidance("Remove shield (replace with air)");
+    clearCmd.AvailableForStates(G4State_PreInit);
 }
 
 void ShieldBuilder::construct() {
@@ -46,5 +50,17 @@ void ShieldBuilder::construct() {
         
         addChild(&(*it));
     }
-    
+}
+
+void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String) {
+    if(command == &clearCmd) {
+        ShieldLayerSpec S(0*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.));
+        for(std::vector<ShieldLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+            S.side_thick += it->side_thick;
+            S.top_thick += it->top_thick;
+            S.bottom_thick += it->bottom_thick;            
+        }
+        layers.clear();
+        addLayer(S);
+    } else G4cerr << "Unknown command!" << G4endl;
 }

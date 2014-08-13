@@ -10,6 +10,10 @@
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithoutParameter.hh>
+
 /// Specification for a shielding layer
 class ShieldLayerSpec: public XMLProvider {
 public:
@@ -29,10 +33,13 @@ protected:
 };
 
 /// Builder for shielding layers around detector
-class ShieldBuilder: public XMLProvider {
+class ShieldBuilder: public G4UImessenger, public XMLProvider {
 public:
     /// constructor
     ShieldBuilder();
+    
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
     
     /// Construct geometry
     void construct();
@@ -49,6 +56,9 @@ public:
 protected:
     std::vector<ShieldLayerSpec> layers;        ///< descriptions of each layer
     G4ThreeVector dim;                          ///< outermost dimensions
+    
+    G4UIdirectory shield_dir;                   ///< UI directory for shield commands
+    G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
 };
 
 #endif
