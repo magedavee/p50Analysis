@@ -59,6 +59,9 @@ protected:
     
     G4UIdirectory shield_dir;                   ///< UI directory for shield commands
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

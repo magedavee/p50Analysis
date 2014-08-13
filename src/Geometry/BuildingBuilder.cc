@@ -7,8 +7,8 @@
 #include <G4PVPlacement.hh>
 
 BuildingBuilder::BuildingBuilder(): XMLProvider("Building"), main_log(NULL),
-wall_thick(0.75*m), wall_clearance(1.*m), ceil_thick(0.75*m), ceil_clearance(0.5*m),
-floor_thick(0.2*m), dim(), wall_vis(G4Colour(0.3, 0.4, 0.4)),
+wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
+floor_thick(0.1*m), dim(), wall_vis(G4Colour(0.3, 0.4, 0.4)),
 building_ui_dir("/geom/building/"), bareCmd("/geom/building/setBare",this) {
     addChild(&myDetUnit);
     

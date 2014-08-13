@@ -5,6 +5,9 @@
 /output/setRecordLevel 2
 /run/verbose 0
 
+/geom/building/setBare
+#/geom/shield/clear
+
 /run/initialize
 
 /generator/module_CRY

@@ -125,12 +125,16 @@ G4bool ScintSD::ProcessIoniHits(G4Step* aStep, G4TouchableHistory*) {
         //    || aStep->GetTrack()->GetDefinition() == G4Neutron::NeutronDefinition()
         || aStep->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition() ) ) return false;
     
+    G4double E = aStep->GetTotalEnergyDeposit()-aStep->GetNonIonizingEnergyDeposit();
+    if(!E) return false;
+    
     IonisationHit* aHit = new IonisationHit();
     aHit->SetVolume(seg_id);
     
     // Record total energy deposit if particle is charged (e-, e+, etc.)
     //if(aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.0)
-    aHit->SetEnergy(aStep->GetTotalEnergyDeposit());
+    aHit->SetEnergy(E);
+    aHit->SetLength(aStep->GetStepLength());
     aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime());
     aHit->SetPos(localPos);
     

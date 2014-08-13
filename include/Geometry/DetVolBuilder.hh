@@ -35,6 +35,9 @@ private:
     G4ThreeVector dim;          ///< outer dimensions
     G4RotationMatrix myRot;     ///< rotation to apply to internal components
     G4VisAttributes shell_vis;  ///< visualization settings for shell
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "Utilities.hh"
 
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
 #include <G4Box.hh>
@@ -59,4 +60,8 @@ void DetVolBuilder::construct() {
         new G4PVPlacement(lid_flip, G4ThreeVector(pos[0],pos[1],pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i), inner_log, true, 2*i, true);
         new G4PVPlacement(NULL, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), inner_log, true, 2*i+1, true);
     }
+}
+
+void DetVolBuilder::fillNode(TXMLEngine& E) {
+    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
