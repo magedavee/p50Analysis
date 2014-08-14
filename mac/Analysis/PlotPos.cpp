@@ -1,33 +1,70 @@
 ////////////////////////////////////////////
 // ROOT macro example for MC output analysis
 // .x PlotPos.cpp
+// export PG4_DIR=/home/mpmendenhall/Applications/PROSPECT-G4/ 
+// export LD_LIBRARY_PATH=/home/mpmendenhall/Applications/PG4/lib/:$LD_LIBRARY_PATH
+// g++ `root-config --cflags --libs` -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib -I${PG4_DIR}/include/Output/ ${PG4_DIR}/mac/Analysis/PlotPos.cpp
 
 #include <map>
+#include <vector>
 #include <utility>
 #include <iostream>
 #include <string>
+#include <cassert>
+
+#include "Event.hh"
 
 #include <TCanvas.h>
+#include <TSystem.h>
+#include <TClonesArray.h>
+#include <TStyle.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TFile.h>
+#include <TChain.h>
+
+using std::vector;
 
 template<typename T, typename U>
 void display_map(const std::map<T,U>& m) {
     U total = 0;
-    for(std::map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
-        std:cout << it->first << ":\t" << it->second << "\n";
+    for(typename std::map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
+        std::cout << it->first << ":\t" << it->second << "\n";
         total += it->second;       
     }
     std::cout << "Total:\t" << total << "\n";
 }
 
-void PlotPos() {
+class FileKeeper {
+public:
+    FileKeeper(const std::string& fname): f(NULL) {
+        f = new TFile(fname.c_str(),"RECREATE");
+        std::cout << "Opened file " << fname << "\n";
+    }
+    ~FileKeeper() {
+        assert(f);
+        f->cd();
+        for(int i=0; i<objs.size(); i++) objs[i]->Write();
+        f->Close();
+        delete f;
+        //for(int i=0; i<objs.size(); i++) delete objs[i];
+    }
+    TObject* add(TObject* O) { objs.push_back(O); return O; }
+    TFile* f;
+    vector<TObject*> objs;
+};
+
+// void PlotPos() {
+int main(int, char**) {
     // load library describing data classes
     gSystem->Load("~/Applications/PG4/lib/libEventLib.so");
     
-    std::string outpath = "/home/mpmendenhall/tmp/Pb6cm/";
-    TFile* f = new TFile((outpath+"Out.root").c_str(), "RECREATE");
+    std::string outpath = "/home/mpmendenhall/tmp/airbuild/";
+    FileKeeper f(outpath+"Out.root");
     
     // load data into TChain
     TChain T("sblmc");
+    T.SetDirectory(NULL);
     T.Add("*.root");
     // set readout branches
     Event* evt = new Event();
@@ -35,63 +72,63 @@ void PlotPos() {
     T.SetBranchAddress("MCEvent",&evt);
     
     // set up histograms
-    TH2F hit_xy("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200);
-    TH2F hit_zy("hit_zy", "Hit positions", 300,-1200,1200, 300,-1200,1200);
-    TH2F prim_p("prim_p", "Primary momentum direction", 100,-1.2,1.2, 100,-1.2,1.2);
+    TH2F* hit_xy = (TH2F*)f.add(new TH2F("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
+    TH2F* hit_zy = (TH2F*)f.add(new TH2F("hit_zy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
+    TH2F* prim_p = (TH2F*)f.add(new TH2F("prim_p", "Primary momentum direction", 100,-1.2,1.2, 100,-1.2,1.2));
     
-    TH1F hnPrim("hnPrim","Number of primary particles", 15, 0, 15);
-    hnPrim.GetXaxis()->SetTitle("Number of primaries");
-    hnPrim.GetYaxis()->SetTitle("Number of events");
+    TH1F* hnPrim = (TH1F*)f.add(new TH1F("hnPrim","Number of primary particles", 15, 0, 15));
+    hnPrim->GetXaxis()->SetTitle("Number of primaries");
+    hnPrim->GetYaxis()->SetTitle("Number of events");
     
-    TH1F hEIoni("hEIoni","Ionizing energy deposition", 200, 0, 400);
-    hEIoni.GetXaxis()->SetTitle("energy deposition [MeV]");
-    hEIoni.GetYaxis()->SetTitle("Events per MeV");
-    hEIoni.GetYaxis()->SetTitleOffset(1.45);
+    TH1F* hEIoni = (TH1F*)f.add(new TH1F("hEIoni","Ionizing energy deposition", 200, 0, 400));
+    hEIoni->GetXaxis()->SetTitle("energy deposition [MeV]");
+    hEIoni->GetYaxis()->SetTitle("Events per MeV");
+    hEIoni->GetYaxis()->SetTitleOffset(1.45);
     
-    TH1F hEIoniLo("hEIoniLo","Ionizing energy deposition", 200, 0, 20);
-    hEIoniLo.GetXaxis()->SetTitle("energy deposition [MeV]");
-    hEIoniLo.GetYaxis()->SetTitle("Events per MeV");
-    hEIoniLo.GetYaxis()->SetTitleOffset(1.45);
+    TH1F* hEIoniLo = (TH1F*)f.add(new TH1F("hEIoniLo","Ionizing energy deposition", 200, 0, 20));
+    hEIoniLo->GetXaxis()->SetTitle("energy deposition [MeV]");
+    hEIoniLo->GetYaxis()->SetTitle("Events per MeV");
+    hEIoniLo->GetYaxis()->SetTitleOffset(1.45);
     
-    TH1F hPrimN1("hPrimN1","Primary neutron spectrum", 500, 0, 5);
-    hPrimN1.GetXaxis()->SetTitle("kinetic energy [GeV]");
-    hPrimN1.GetYaxis()->SetTitle("Events per GeV");
-    hPrimN1.GetYaxis()->SetTitleOffset(1.45);
+    TH1F* hPrimN1 = (TH1F*)f.add(new TH1F("hPrimN1","Primary neutron spectrum", 500, 0, 5));
+    hPrimN1->GetXaxis()->SetTitle("kinetic energy [GeV]");
+    hPrimN1->GetYaxis()->SetTitle("Events per GeV");
+    hPrimN1->GetYaxis()->SetTitleOffset(1.45);
     
-    TH1F hPrimN2("hPrimN2","Primary neutron spectrum", 200, 0, 100);
-    hPrimN2.GetXaxis()->SetTitle("kinetic energy [GeV]");
-    hPrimN2.GetYaxis()->SetTitle("Events per GeV");
+    TH1F* hPrimN2 = (TH1F*)f.add(new TH1F("hPrimN2","Primary neutron spectrum", 200, 0, 100));
+    hPrimN2->GetXaxis()->SetTitle("kinetic energy [GeV]");
+    hPrimN2->GetYaxis()->SetTitle("Events per GeV");
    
-    TH1F hPrimN3("hPrimN3","Primary neutron spectrum", 200, 0, 10);
-    hPrimN3.GetXaxis()->SetTitle("kinetic energy [MeV]");
-    hPrimN3.GetYaxis()->SetTitle("Events per MeV");
-    hPrimN3.GetYaxis()->SetTitleOffset(1.45);
+    TH1F* hPrimN3 = (TH1F*)f.add(new TH1F("hPrimN3","Primary neutron spectrum", 200, 0, 10));
+    hPrimN3->GetXaxis()->SetTitle("kinetic energy [MeV]");
+    hPrimN3->GetYaxis()->SetTitle("Events per MeV");
+    hPrimN3->GetYaxis()->SetTitleOffset(1.45);
     
-    TH1F hPrimN4("hPrimN4","Primary neutron spectrum", 200, 0, 1);
-    hPrimN4.GetXaxis()->SetTitle("kinetic energy [keV]");
-    hPrimN4.GetYaxis()->SetTitle("Events per keV");
+    TH1F* hPrimN4 = (TH1F*)f.add(new TH1F("hPrimN4","Primary neutron spectrum", 200, 0, 1));
+    hPrimN4->GetXaxis()->SetTitle("kinetic energy [keV]");
+    hPrimN4->GetYaxis()->SetTitle("Events per keV");
     //hPrimN4.GetYaxis()->SetTitleOffset(1.45);
     
-    TH2F hTimeCorr("hTimeCorr","Neutron-capture-correlated energy deposition",
-                   250, -20, 5, 200, 0, 25);
-    hTimeCorr.GetYaxis()->SetTitle("ionizing deposition [MeV]");
-    hTimeCorr.GetXaxis()->SetTitle("time from neutron capture [#mus]");
+    TH2F* hTimeCorr = (TH2F*)f.add(new TH2F("hTimeCorr","Neutron-capture-correlated energy deposition",
+                                     250, -20, 5, 200, 0, 25));
+    hTimeCorr->GetYaxis()->SetTitle("ionizing deposition [MeV]");
+    hTimeCorr->GetXaxis()->SetTitle("time from neutron capture [#mus]");
     
-    TH2F hTimeCorr2("hTimeCorr2","Neutron-capture-correlated energy deposition",
-                   480, -100, 20, 200, 0, 25);
-    hTimeCorr2.GetYaxis()->SetTitle("ionizing deposition [MeV]");
-    hTimeCorr2.GetXaxis()->SetTitle("time from neutron capture [ns]");
+    TH2F* hTimeCorr2 = (TH2F*)f.add(new TH2F("hTimeCorr2","Neutron-capture-correlated energy deposition",
+                                      480, -100, 20, 200, 0, 25));
+    hTimeCorr2->GetYaxis()->SetTitle("ionizing deposition [MeV]");
+    hTimeCorr2->GetXaxis()->SetTitle("time from neutron capture [ns]");
     
     gStyle->SetOptStat("");
     
     // event counters by PID
     std::map<Int_t, Int_t> primNCapts;
     std::map<Int_t, Int_t> primIoni;
-    std::map<Int_t, Int_t> nCaptZA;
-    
+    std::map<Int_t, Int_t> nCaptZA;    
 
     // scan events
     Long64_t nentries = T.GetEntries();
+    std::cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
         evt->Clear();
         T.GetEntry(ev);
@@ -99,17 +136,17 @@ void PlotPos() {
         // primaries
         Int_t nPrim = evt->Primaries->GetEntriesFast();
         Int_t primTp = 0;
-        hnPrim.Fill(nPrim);
+        hnPrim->Fill(nPrim);
         for(Int_t i=0; i<nPrim; i++) {
             EventPrimaryPtcl* pp = (EventPrimaryPtcl*)evt->Primaries->At(i);
-            prim_p.Fill(pp->p[0], pp->p[1]);
+            prim_p->Fill(pp->p[0], pp->p[1]);
             
             primTp = pp->PID;
             if(primTp == 2112) {
-                hPrimN1.Fill(pp->E/1000.);
-                hPrimN2.Fill(pp->E/1000.);
-                hPrimN3.Fill(pp->E);
-                hPrimN4.Fill(pp->E*1e3);
+                hPrimN1->Fill(pp->E/1000.);
+                hPrimN2->Fill(pp->E/1000.);
+                hPrimN3->Fill(pp->E);
+                hPrimN4->Fill(pp->E*1e3);
             }
         }
         
@@ -125,19 +162,19 @@ void PlotPos() {
         // ionization
         Int_t nIoni = evt->iEvts->GetEntriesFast();
         if(evt->EIoni) {
-            hEIoni.Fill(evt->EIoni);
-            hEIoniLo.Fill(evt->EIoni);
+            hEIoni->Fill(evt->EIoni);
+            hEIoniLo->Fill(evt->EIoni);
         }
         for(Int_t i=0; i<nIoni; i++) {
             EventIoniCluster* ei = (EventIoniCluster*)evt->iEvts->At(i);
             if(ei->vol >= 0) {
-                hit_xy.Fill(ei->x[0], ei->x[1]);
-                hit_zy.Fill(ei->x[2], ei->x[1]);
+                hit_xy->Fill(ei->x[0], ei->x[1]);
+                hit_zy->Fill(ei->x[2], ei->x[1]);
             }
             
             for(std::vector<double>::const_iterator it = capt_times.begin(); it != capt_times.end(); it++) {
-                hTimeCorr.Fill((ei->t - *it)/1000., ei->E);
-                hTimeCorr2.Fill((ei->t - *it), ei->E);
+                hTimeCorr->Fill((ei->t - *it)/1000., ei->E);
+                hTimeCorr2->Fill((ei->t - *it), ei->E);
             }
         }
         
@@ -155,65 +192,55 @@ void PlotPos() {
     display_map<Int_t,Int_t>(nCaptZA);
     
     
-    hEIoni.Scale(1./hEIoni.GetBinWidth(1));
-    hEIoni.SetMaximum(20000);
-    hEIoni.Draw();
-    hEIoni.Write();
+    hEIoni->Scale(1./hEIoni->GetBinWidth(1));
+    hEIoni->SetMaximum(20000);
+    hEIoni->Draw();
     gPad->Print((outpath+"/EIoni.pdf").c_str());
     
-    hEIoniLo.Scale(1./hEIoniLo.GetBinWidth(1));
-    //hEIoni.SetMaximum(20000);
-    hEIoniLo.Draw();
-    hEIoniLo.Write();
+    hEIoniLo->Scale(1./hEIoniLo->GetBinWidth(1));
+    //hEIoni->SetMaximum(20000);
+    hEIoniLo->Draw();
     gPad->Print((outpath+"/EIoniLo.pdf").c_str());
     
-    hPrimN3.Scale(1./hPrimN3.GetBinWidth(1));
-    hPrimN3.Draw();
-    hPrimN3.Write();
+    hPrimN3->Scale(1./hPrimN3->GetBinWidth(1));
+    hPrimN3->Draw();
     gPad->Print((outpath+"/PrimN_lo.pdf").c_str());
     
-    hPrimN1.Scale(1./hPrimN1.GetBinWidth(1));
-    hPrimN1.Draw();
-    hPrimN1.Write();
+    hPrimN1->Scale(1./hPrimN1->GetBinWidth(1));
+    hPrimN1->Draw();
     gPad->Print((outpath+"/PrimN_mid.pdf").c_str());
     
     gPad->SetLogy(true);
     
-    hPrimN4.Scale(1./hPrimN4.GetBinWidth(1));
-    hPrimN4.Draw();
-    hPrimN4.Write();
+    hPrimN4->Scale(1./hPrimN4->GetBinWidth(1));
+    hPrimN4->Draw();
     gPad->Print((outpath+"/PrimN_thermal.pdf").c_str());
     
-    hnPrim.Draw();
-    hnPrim.Write();
+    hnPrim->Draw();
     gPad->Print((outpath+"/nPrim.pdf").c_str());
-    std::cout << "\nSingle-primary events: " << hnPrim.GetBinContent(2) << " out of " << hnPrim.Integral() << "\n";
+    std::cout << "\nSingle-primary events: " << hnPrim->GetBinContent(2) << " out of " << hnPrim->Integral() << "\n";
     
-    hPrimN2.Scale(1./hPrimN2.GetBinWidth(1));
-    hPrimN2.Draw();
-    hPrimN2.Write();
+    hPrimN2->Scale(1./hPrimN2->GetBinWidth(1));
+    hPrimN2->Draw();
     gPad->Print((outpath+"/PrimN_hi.pdf").c_str());
     
     gPad->SetLogy(false);
     
-    hTimeCorr.SetMaximum(30);
-    hTimeCorr.Draw("Col Z");
-    hTimeCorr.Write();
+    hTimeCorr->SetMaximum(30);
+    hTimeCorr->Draw("Col Z");
     gPad->Print((outpath+"/TimeCorr.pdf").c_str());
     
-    hTimeCorr2.SetMaximum(100);
-    hTimeCorr2.Draw("Col Z");
-    hTimeCorr2.Write();
+    hTimeCorr2->SetMaximum(100);
+    hTimeCorr2->Draw("Col Z");
     gPad->Print((outpath+"/TimeCorr2.pdf").c_str());
     
     gPad->SetCanvasSize(700,700);
-    hit_xy.Draw("Col Z");
+    hit_xy->Draw("Col Z");
     gPad->Print((outpath+"/Hit_xy.pdf").c_str());
-    hit_zy.Draw("Col Z");
+    hit_zy->Draw("Col Z");
     gPad->Print((outpath+"/Hit_zy.pdf").c_str());
-    prim_p.Draw("Col Z");
+    prim_p->Draw("Col Z");
     gPad->Print((outpath+"/Hit_P0.pdf").c_str());
     
-    f->Close();
-    delete f;
+    return 0;
 }

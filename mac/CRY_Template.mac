@@ -5,7 +5,8 @@
 /output/setRecordLevel 2
 /run/verbose 0
 
-/geom/building/setBare
+#/geom/building/makeBare
+/geom/building/makeVacuum
 #/geom/shield/clear
 
 /run/initialize

@@ -9,7 +9,7 @@
 
 #/phys/enableOptical
 
-/geom/building/setBare
+/geom/building/makeBare
 /geom/shield/clear
 
 /run/initialize

@@ -36,6 +36,8 @@ public:
     double ceil_thick;          ///< thickness of ceiling above detector
     double ceil_clearance;      ///< space between detector and ceiling
     double floor_thick;         ///< thickness of floor
+    bool makeVacuum;            ///< whether to turn building materials to vacuum
+    bool makeBare;              ///< whether to produce bare detector without building
     
     ShieldBuilder myDetUnit;    ///< detector assembly in shields
     
@@ -45,7 +47,11 @@ private:
     G4VisAttributes wall_vis;   ///< visualization settings for shell
     
     G4UIdirectory building_ui_dir;      ///< UI directory for building-related commands
-    G4UIcmdWithoutParameter bareCmd;    ///< UI command to remove walls
+    G4UIcmdWithoutParameter bareCmd;    ///< UI command to make zero-size building
+    G4UIcmdWithoutParameter vacuumCmd;  ///< UI command to turn building materials into vacuum
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

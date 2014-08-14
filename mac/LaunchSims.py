@@ -63,6 +63,6 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher("CRY_Shielded_6cmPb", 1e5)
+        L = SB_MC_Launcher("CRY_VacBuild", 1e5)
         L.launch_sims(4*6*5)
         

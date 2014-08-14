@@ -18,7 +18,7 @@ void ComparePlots() {
     fnames.push_back("/home/mpmendenhall/tmp/shielded/Out.root");
     fnames.push_back("/home/mpmendenhall/tmp/Pb6cm/Out.root");
         
-    string hname = "hTimeCorr";
+    string hname = "hTimeCorr2";
     
     //vector<TH1*> hs;
     for(int i=0; i<fnames.size(); i++) {
@@ -31,7 +31,7 @@ void ComparePlots() {
         char projname[1024];
         sprintf(projname,"px_%i",i);
         h = ((TH2F*)h)->ProjectionX(projname);
-        h->SetMaximum(5000);
+        h->SetMaximum(1000);
         
         h->SetLineColor(4-i);
         h->Draw(i?"Same":"");

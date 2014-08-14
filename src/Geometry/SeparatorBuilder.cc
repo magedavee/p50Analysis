@@ -28,5 +28,4 @@ void SeparatorBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "thick", G4BestUnit(totalThick,"Length"));
     addAttr(E, "len", G4BestUnit(length,"Length"));
     addAttr(E, "wid", G4BestUnit(width,"Length"));
-    
 }
