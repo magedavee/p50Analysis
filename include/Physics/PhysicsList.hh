@@ -23,6 +23,9 @@ public:
 protected:
     PhysicsListMessenger* myMessenger;  ///< UI for this PhysicsList
     G4OpticalPhysics* myOptPhys;        ///< optical physics processes
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 /// UI messenger class for physics list

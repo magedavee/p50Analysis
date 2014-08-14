@@ -9,6 +9,10 @@ PhysicsList::~PhysicsList() {
     // Do not delete myOptPhys --- automatically handled
 }
 
+void PhysicsList::fillNode(TXMLEngine& E) {
+    addAttr(E, "optical", myOptPhys?"on":"off");
+}
+
 PhysicsListMessenger::PhysicsListMessenger(PhysicsList* p): 
 phys(p), physDir(new G4UIdirectory("/phys/")) {    
     opticalCmd = new G4UIcmdWithoutParameter("/phys/enableOptical",this);
