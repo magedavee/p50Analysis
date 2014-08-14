@@ -6,6 +6,7 @@
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWithoutParameter.hh>
 #include <G4ios.hh>
 
 RunMessenger::RunMessenger(RunAction* run_action): run(run_action) {
@@ -21,11 +22,15 @@ RunMessenger::RunMessenger(RunAction* run_action): run(run_action) {
     recLevCmd = new G4UIcmdWithAnInteger("/output/setRecordLevel",this);
     recLevCmd->SetGuidance("Set the level at which events are recorded:\n0: when a photon is detected by the PMTs\n1: when energy is deposited in the scintillator\n2: When a particle enters the shield\n3: All events");
     recLevCmd->SetDefaultValue(0);
-    recLevCmd->AvailableForStates(G4State_PreInit,G4State_Init, G4State_Idle);    
+    recLevCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);    
     
+    primOnlyCmd = new G4UIcmdWithoutParameter("/output/primariesOnly",this);
+    primOnlyCmd->SetGuidance("Stop simulation after primary particle generation; record primaries.");
+    primOnlyCmd->AvailableForStates(G4State_PreInit);
+        
     outFileName = new G4UIcmdWithAString("/output/filename",this);
     outFileName->SetGuidance("ROOT data output filename");
-    outFileName->AvailableForStates(G4State_Init, G4State_Idle);
+    outFileName->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
 }
 
 RunMessenger::~RunMessenger() {
@@ -44,6 +49,8 @@ void RunMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
         G4int recL = recLevCmd->GetNewIntValue(newValue);
         run->SetRecordLevel(recL);
         G4cout << "Record Level is " << recL << G4endl;
+    } else if(command == primOnlyCmd) {
+        run->SetPrimariesOnly();
     } else if(command == outFileName) {
         RootIO::GetInstance()->SetFileName(newValue);
     } else G4cout << "Command not found." << G4endl;

@@ -3,6 +3,7 @@
 #include "RootIO.hh"
 #include "RunMessenger.hh"
 #include "EventAction.hh"
+#include "StackingAction.hh"
 #include "ProcessInfo.hh"
 #include "CommandInfo.hh"
 #include "Utilities.hh"
@@ -58,4 +59,11 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     children.clear();
     
     R->WriteFile();
+}
+
+void RunAction::SetPrimariesOnly() {
+    StackingAction* stacking_action = new StackingAction();
+    stacking_action->noTracks = true;
+    G4RunManager::GetRunManager()->SetUserAction(stacking_action);
+    SetRecordLevel(3);
 }

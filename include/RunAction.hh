@@ -39,6 +39,8 @@ protected:
     void SetRunNumber(G4int rnum);
     /// Set event output recording completeness level
     void SetRecordLevel(G4int rnum) { nRecLev = rnum; }
+    /// Set to record primaries only
+    void SetPrimariesOnly();
     
     time_t start_time;  ///< time stamp for start of run
     time_t end_time;    ///< time stamp for end of run

@@ -1,9 +1,7 @@
 ////////////////////////////////////////////
 // ROOT macro example for MC output analysis
-// .x PlotPos.cpp
-// export PG4_DIR=/home/mpmendenhall/Applications/PROSPECT-G4/ 
-// export LD_LIBRARY_PATH=/home/mpmendenhall/Applications/PG4/lib/:$LD_LIBRARY_PATH
-// g++ `root-config --cflags --libs` -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib -I${PG4_DIR}/include/Output/ ${PG4_DIR}/mac/Analysis/PlotPos.cpp
+// export PG4_DIR=../PROSPECT-G4/; export LD_LIBRARY_PATH=./lib/:$LD_LIBRARY_PATH
+// g++ `root-config --cflags --libs` -L./lib/ -lEventLib -I${PG4_DIR}/include/Output/ -I${PG4_DIR}/mac/Analysis/ ${PG4_DIR}/mac/Analysis/PlotPos.cpp -o PlotPos
 
 #include <map>
 #include <vector>
@@ -11,8 +9,10 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <sys/stat.h>
 
 #include "Event.hh"
+#include "FileKeeper.hh"
 
 #include <TCanvas.h>
 #include <TSystem.h>
@@ -20,52 +20,37 @@
 #include <TStyle.h>
 #include <TH1F.h>
 #include <TH2F.h>
-#include <TFile.h>
+#include <TF1.h>
 #include <TChain.h>
 
 using std::vector;
+using std::map;
 
 template<typename T, typename U>
-void display_map(const std::map<T,U>& m) {
+void display_map(const map<T,U>& m) {
     U total = 0;
-    for(typename std::map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
+    for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
         std::cout << it->first << ":\t" << it->second << "\n";
         total += it->second;       
     }
     std::cout << "Total:\t" << total << "\n";
 }
 
-class FileKeeper {
-public:
-    FileKeeper(const std::string& fname): f(NULL) {
-        f = new TFile(fname.c_str(),"RECREATE");
-        std::cout << "Opened file " << fname << "\n";
-    }
-    ~FileKeeper() {
-        assert(f);
-        f->cd();
-        for(int i=0; i<objs.size(); i++) objs[i]->Write();
-        f->Close();
-        delete f;
-        //for(int i=0; i<objs.size(); i++) delete objs[i];
-    }
-    TObject* add(TObject* O) { objs.push_back(O); return O; }
-    TFile* f;
-    vector<TObject*> objs;
-};
-
-// void PlotPos() {
-int main(int, char**) {
+int main(int argc, char** argv) {
     // load library describing data classes
     gSystem->Load("~/Applications/PG4/lib/libEventLib.so");
     
-    std::string outpath = "/home/mpmendenhall/tmp/airbuild/";
+    std::string inPath = ".";
+    if(argc == 2) inPath = argv[1];
+    std::string outpath = inPath + "/Plots/";
+
+    mkdir(outpath.c_str(), 0755);
     FileKeeper f(outpath+"Out.root");
     
     // load data into TChain
     TChain T("sblmc");
     T.SetDirectory(NULL);
-    T.Add("*.root");
+    T.Add((inPath+"/*.root").c_str());
     // set readout branches
     Event* evt = new Event();
     T.GetBranch("iEvts")->SetAutoDelete(kFALSE);
@@ -74,6 +59,13 @@ int main(int, char**) {
     // set up histograms
     TH2F* hit_xy = (TH2F*)f.add(new TH2F("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
     TH2F* hit_zy = (TH2F*)f.add(new TH2F("hit_zy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
+    
+    TH2F* ncapt_xy = (TH2F*)f.add(new TH2F("ncapt_xy", "Neutron capture positions", 100,-1.2,1.2, 100,-1.2,1.2));
+    ncapt_xy->GetXaxis()->SetTitle("x position [m]");
+    ncapt_xy->GetYaxis()->SetTitle("y position [m]");
+    TH1F* ncapt_y = (TH1F*)f.add(new TH1F("ncapt_y", "Neutron capture positions", 200,-0.6,0.6));
+    ncapt_y->GetXaxis()->SetTitle("y position [m]");
+    
     TH2F* prim_p = (TH2F*)f.add(new TH2F("prim_p", "Primary momentum direction", 100,-1.2,1.2, 100,-1.2,1.2));
     
     TH1F* hnPrim = (TH1F*)f.add(new TH1F("hnPrim","Number of primary particles", 15, 0, 15));
@@ -122,10 +114,13 @@ int main(int, char**) {
     gStyle->SetOptStat("");
     
     // event counters by PID
-    std::map<Int_t, Int_t> primNCapts;
-    std::map<Int_t, Int_t> primIoni;
-    std::map<Int_t, Int_t> nCaptZA;    
+    map<Int_t, Int_t> primNCapts;
+    map<Int_t, Int_t> primIoni;
+    map<Int_t, Int_t> nCaptZA;
 
+    // counter for "IBD-like" neutron captures
+    int nFakeIBD = 0;
+    
     // scan events
     Long64_t nentries = T.GetEntries();
     std::cout << "Scanning " << nentries << " events...\n";
@@ -151,15 +146,20 @@ int main(int, char**) {
         }
         
         // neutron captures
-        std::vector<double> capt_times;
+        vector<double> capt_times;
         Int_t nNCapts = evt->nCapts->GetEntriesFast();
+        Int_t nNCaptInVol = 0;
         for(Int_t i=0; i<nNCapts; i++) {
             EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
             nCaptZA[10000 * nc->capt_Z + nc->capt_A] += 1;
             capt_times.push_back(nc->t);
+            nNCaptInVol += nc->vol >= 0;
+            //ncapt_xy->Fill(nc->x[0]/1000.,nc->x[1]/1000.);
+            //ncapt_y->Fill(nc->x[1]/1000.);
         }
         
         // ionization
+        map<Int_t, double> volIoni; // Ionization accumulator by volume
         Int_t nIoni = evt->iEvts->GetEntriesFast();
         if(evt->EIoni) {
             hEIoni->Fill(evt->EIoni);
@@ -170,9 +170,10 @@ int main(int, char**) {
             if(ei->vol >= 0) {
                 hit_xy->Fill(ei->x[0], ei->x[1]);
                 hit_zy->Fill(ei->x[2], ei->x[1]);
+                volIoni[ei->vol] += ei->E;
             }
             
-            for(std::vector<double>::const_iterator it = capt_times.begin(); it != capt_times.end(); it++) {
+            for(vector<double>::const_iterator it = capt_times.begin(); it != capt_times.end(); it++) {
                 hTimeCorr->Fill((ei->t - *it)/1000., ei->E);
                 hTimeCorr2->Fill((ei->t - *it), ei->E);
             }
@@ -182,10 +183,29 @@ int main(int, char**) {
             primNCapts[primTp] += (evt->nNCapts > 0);
             primIoni[primTp] += (nIoni > 0);
         }
+        
+        if(evt->nNCapts > 0 && nNCaptInVol > 0) {
+            int nThresh = 0;
+            int nHi = 0;
+            for(map<Int_t,double>::iterator it = volIoni.begin(); it != volIoni.end(); it++) {
+                nThresh += it->second > 0.02;
+                nHi += it->second > 20;
+            }
+            bool isFakeIBD = (nThresh == 1 && nHi == 0);
+            nFakeIBD += isFakeIBD;
+            if(isFakeIBD) {
+                for(Int_t i=0; i<nNCapts; i++) {
+                    EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
+                    ncapt_xy->Fill(nc->x[0]/1000.,nc->x[1]/1000.);
+                    ncapt_y->Fill(nc->x[1]/1000.);
+                }
+            }
+        }
     }
     
     std::cout << "\nNeutron captures by primary:\n";
     display_map<Int_t,Int_t>(primNCapts);
+    std::cout << "IBD-like: " << nFakeIBD << "\n";
     std::cout << "\nIonization by primary:\n";
     display_map<Int_t,Int_t>(primIoni);
     std::cout << "\nNeutron capture nucleus 10000*Z + A:\n";
@@ -241,6 +261,11 @@ int main(int, char**) {
     gPad->Print((outpath+"/Hit_zy.pdf").c_str());
     prim_p->Draw("Col Z");
     gPad->Print((outpath+"/Hit_P0.pdf").c_str());
+    
+    ncapt_xy->Draw("Col Z");
+    gPad->Print((outpath+"/nCapt_xy.pdf").c_str());
+    ncapt_y->Draw();
+    gPad->Print((outpath+"/nCapt_y.pdf").c_str());
     
     return 0;
 }

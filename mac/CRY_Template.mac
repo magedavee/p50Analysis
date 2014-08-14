@@ -6,7 +6,7 @@
 /run/verbose 0
 
 #/geom/building/makeBare
-/geom/building/makeVacuum
+#/geom/building/makeVacuum
 #/geom/shield/clear
 
 /run/initialize

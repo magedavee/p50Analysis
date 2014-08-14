@@ -8,6 +8,7 @@ class RunAction;
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
+class G4UIcmdWithoutParameter;
 
 class RunMessenger: public G4UImessenger {
 public:
@@ -21,13 +22,14 @@ public:
 
 private:
 
-    RunAction* run;                     ///< run object being controlled
+    RunAction* run;                             ///< run object being controlled
 
-    G4UIdirectory* outputDir;           ///< UI directory for run commands
+    G4UIdirectory* outputDir;                   ///< UI directory for run commands
 
-    G4UIcmdWithAnInteger* outNumCmd;    ///< set run number
-    G4UIcmdWithAnInteger* recLevCmd;    ///< set event recording completeness
-    G4UIcmdWithAString* outFileName;    ///< set filename for ROOT output
+    G4UIcmdWithAnInteger* outNumCmd;            ///< set run number
+    G4UIcmdWithAnInteger* recLevCmd;            ///< set event recording completeness
+    G4UIcmdWithoutParameter* primOnlyCmd;       ///< set to only produce primaries
+    G4UIcmdWithAString* outFileName;            ///< set filename for ROOT output
 };
 
 #endif

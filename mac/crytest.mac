@@ -3,14 +3,15 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/output/setRunNum 13
+/output/setRunNum 0
 
 /output/setRecordLevel 2
+/output/primariesOnly
 
 #/phys/enableOptical
 
-/geom/building/makeBare
-/geom/shield/clear
+#/geom/building/makeBare
+#/geom/shield/clear
 
 /run/initialize
 
@@ -33,7 +34,7 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/CryMCData.root
+/output/filename /home/mpmendenhall/Analysis/ShortBaseline/CRY_Primaries.root
 
 /generator/verbose 0
 /run/verbose 0
@@ -44,11 +45,11 @@
 /CRY/input returnGammas 1
 /CRY/input returnPions 1
 /CRY/input returnKaons 1
-/CRY/input date 7-1-2012
+/CRY/input date 7-1-2016
 /CRY/input latitude 90.0
 /CRY/input altitude 0.0
 /CRY/input subboxLength 5
 /CRY/update
 
-/run/beamOn 10
+/run/beamOn 100000
 
