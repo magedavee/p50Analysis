@@ -2,16 +2,20 @@
 
 /vis/disable
 
-/output/setRecordLevel 2
+/output/setRecordLevel %(reclevel)i
 /run/verbose 0
 
 #/geom/building/makeBare
 #/geom/building/makeVacuum
 #/geom/shield/clear
 
+%(preinit)s
+
+/output/filename %(outfile)s
 /run/initialize
 
 /generator/module_CRY
+/CRY/neutronOnly
 /CRY/input returnNeutrons 1
 /CRY/input returnProtons 1
 /CRY/input returnGammas 1
@@ -22,8 +26,6 @@
 /CRY/input altitude 0.0
 /CRY/input subboxLength 5
 /CRY/update
-
-/output/filename %(outfile)s
 
 /run/beamOn %(nevents)i
 

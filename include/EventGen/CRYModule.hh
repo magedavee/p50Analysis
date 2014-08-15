@@ -39,6 +39,7 @@ protected:
     CRYGenerator* CRY_generator;        ///< CRY event generator
     G4bool inputState;                  ///< flag indicating CRY currently receiving input commands
     G4bool primpoint;                   ///< flag to determine whether particles are generated from the CRY package selectively point at the detector
+    G4bool neutronOnly;                 ///< flag to only produce events containing neutrons
     std::vector<CRYParticle*> vect;     ///< vector of generated particles
     
     G4UIdirectory* CRYDir;              ///< UI directory for CRY-related commands
@@ -46,6 +47,7 @@ protected:
     G4UIcmdWithADoubleAndUnit* cryZCmd; ///< UI command for setting height of event vertex plane
     G4UIcmdWithAString* cryInputCmd;    ///< UI command for direct commands to CRY
     G4UIcmdWithoutParameter* cryUpdateCmd;      ///< UI command for executing cached CRY commands
+    G4UIcmdWithoutParameter* neutronOnlyCmd;    ///< UI command for only outputting events with neutrons
 };
 
 #endif

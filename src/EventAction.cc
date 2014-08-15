@@ -20,16 +20,15 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     }
     
     // Clear prior event data
-    Event& evt =  RootIO::GetInstance()->GetEvent();
-    evt.Clear();
-    evt.N = eventNumber;
+    RootIO::GetInstance()->Clear();
+    RootIO::GetEvent().N = eventNumber;
 }
 
 void EventAction::EndOfEventAction(const G4Event* anEvent) {
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
-    Event& evt = RootIO::GetInstance()->GetEvent();
+    Event& evt = RootIO::GetEvent();
     if(reclevel >= 3 || (reclevel >= 2 && evt.nNCapts + evt.nIoniClusts > 0)) {
         
         // record event primaries information

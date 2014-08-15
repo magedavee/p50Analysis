@@ -3,6 +3,7 @@
 #define BUILDINGBUILDER_HH
 
 #include "ShieldBuilder.hh"
+#include "FluxCounterBuilder.hh"
 #include "XMLProvider.hh"
 
 #include <G4LogicalVolume.hh>
@@ -38,8 +39,10 @@ public:
     double floor_thick;         ///< thickness of floor
     bool makeVacuum;            ///< whether to turn building materials to vacuum
     bool makeBare;              ///< whether to produce bare detector without building
+    bool makeFluxTest;          ///< whether to set up without detector for incident flux test
     
-    ShieldBuilder myDetUnit;    ///< detector assembly in shields
+    ShieldBuilder myDetUnit;            ///< detector assembly in shields
+    FluxCounterBuilder myFluxCounter;   ///< empty flux-counting volume
     
 private:
     
@@ -49,6 +52,7 @@ private:
     G4UIdirectory building_ui_dir;      ///< UI directory for building-related commands
     G4UIcmdWithoutParameter bareCmd;    ///< UI command to make zero-size building
     G4UIcmdWithoutParameter vacuumCmd;  ///< UI command to turn building materials into vacuum
+    G4UIcmdWithoutParameter fluxCmd;    ///< UI command to substitute flux-measuring volume for real detector
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

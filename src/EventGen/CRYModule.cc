@@ -20,7 +20,7 @@
 
 
 CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CRY"),
-CRY_generator(NULL), inputState(false), primpoint(false) {
+CRY_generator(NULL), inputState(false), primpoint(false), neutronOnly(false) {
    
     const DetectorConstruction* detect = dynamic_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     zOffset = detect->myBuilding.getDimensions()[2]/2.;
@@ -49,6 +49,10 @@ CRY_generator(NULL), inputState(false), primpoint(false) {
     cryUpdateCmd->SetGuidance("This command MUST be applied before \"beamOn\" ");
     cryUpdateCmd->SetGuidance("if you changed the CRY definition.");
     cryUpdateCmd->AvailableForStates(G4State_Idle);
+    
+    neutronOnlyCmd = new G4UIcmdWithoutParameter("/CRY/neutronOnly",this);
+    neutronOnlyCmd->SetGuidance("Only throw events containing neutrons.");
+    neutronOnlyCmd->AvailableForStates(G4State_Idle);
 }
 
 CRYModule::~CRYModule() {
@@ -57,6 +61,7 @@ CRYModule::~CRYModule() {
     delete cryZCmd;
     delete cryInputCmd;
     delete cryUpdateCmd;
+    delete neutronOnlyCmd;
     if(CRY_generator) delete CRY_generator;
 }
 
@@ -71,6 +76,7 @@ void CRYModule::SetNewValue(G4UIcommand* command, G4String newValue) {
         initCRY(messageInput); 
         messageInput = "";
     } else if(command == cryPointCmd) primpoint = cryPointCmd->GetNewBoolValue(newValue);
+    else if(command == neutronOnlyCmd) neutronOnly = true;
     else if(command == cryZCmd) zOffset = cryZCmd->GetNewDoubleValue(newValue);
 }
 
@@ -128,7 +134,8 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
             delete vect[j];
         }
         
-        //if(!n_neutrons) v.clear(); // only keep neutron events
+        // optionally, only keep neutron events
+        if(neutronOnly && !n_neutrons) v.clear();
         
     } while(!v.size());
     

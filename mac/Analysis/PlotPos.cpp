@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
     
     TH2F* prim_p = (TH2F*)f.add(new TH2F("prim_p", "Primary momentum direction", 100,-1.2,1.2, 100,-1.2,1.2));
     
-    TH1F* hnPrim = (TH1F*)f.add(new TH1F("hnPrim","Number of primary particles", 15, 0, 15));
+    TH1F* hnPrim = (TH1F*)f.add(new TH1F("hnPrim","Number of primary particles", 15, -0.5, 14.5));
     hnPrim->GetXaxis()->SetTitle("Number of primaries");
     hnPrim->GetYaxis()->SetTitle("Number of events");
     
@@ -118,8 +118,10 @@ int main(int argc, char** argv) {
     map<Int_t, Int_t> primIoni;
     map<Int_t, Int_t> nCaptZA;
 
-    // counter for "IBD-like" neutron captures
-    int nFakeIBD = 0;
+    // counter for "IBD-like" neutron captures, as a function of number of primaries
+    TH1F* hFakeIBD = (TH1F*)f.add(new TH1F("hFakeIBD","Number of IBD-like events", 15, -0.5, 14.5));
+    hFakeIBD->GetXaxis()->SetTitle("Number of primaries");
+    hFakeIBD->GetYaxis()->SetTitle("Number of IBD-like events");
     
     // scan events
     Long64_t nentries = T.GetEntries();
@@ -192,8 +194,8 @@ int main(int argc, char** argv) {
                 nHi += it->second > 20;
             }
             bool isFakeIBD = (nThresh == 1 && nHi == 0);
-            nFakeIBD += isFakeIBD;
             if(isFakeIBD) {
+                hFakeIBD->Fill(nPrim);
                 for(Int_t i=0; i<nNCapts; i++) {
                     EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
                     ncapt_xy->Fill(nc->x[0]/1000.,nc->x[1]/1000.);
@@ -205,12 +207,18 @@ int main(int argc, char** argv) {
     
     std::cout << "\nNeutron captures by primary:\n";
     display_map<Int_t,Int_t>(primNCapts);
-    std::cout << "IBD-like: " << nFakeIBD << "\n";
     std::cout << "\nIonization by primary:\n";
     display_map<Int_t,Int_t>(primIoni);
     std::cout << "\nNeutron capture nucleus 10000*Z + A:\n";
     display_map<Int_t,Int_t>(nCaptZA);
     
+    std::cout << "IBD-like: \n";
+    for(int i=1; i<hFakeIBD->GetNbinsX(); i++) {
+        std::cout << "\t" << hFakeIBD->GetXaxis()->GetBinCenter(i) << ":\t";
+        float nibd = hFakeIBD->GetBinContent(i);
+        float nnp = hnPrim->GetBinContent(i);
+        std::cout << nibd << " IBD-like / " << nnp << " = " << nibd/nnp << "\n";
+    }
     
     hEIoni->Scale(1./hEIoni->GetBinWidth(1));
     hEIoni->SetMaximum(20000);

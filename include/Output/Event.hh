@@ -20,6 +20,25 @@ public:
     ClassDef(EventPrimaryPtcl,1);
 };
 
+/// Event containing a list of particles
+class ParticleEvent: public TObject {
+public:
+    /// Constructor
+    ParticleEvent(): nParticles(0), particles(NULL) { }
+    /// Destructor
+    ~ParticleEvent();
+    
+    Int_t nParticles;           ///< number of particles
+    TClonesArray* particles;    ///< the particles
+    
+    /// Clear data for new event
+    void Clear(Option_t *option ="");
+    /// Add new particle data
+    void AddParticle(const EventPrimaryPtcl& P);
+    
+    ClassDef(ParticleEvent,1);
+};
+
 /// Ionization energy deposition in event
 class EventIoniCluster: public TObject {
 public:
@@ -55,7 +74,7 @@ public:
     ClassDef(EventNCapt,2);
 };
 
-class Event : public TObject {
+class Event: public TObject {
 public:
     
     /// Constructor

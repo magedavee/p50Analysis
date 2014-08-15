@@ -9,6 +9,8 @@ class SB_MC_Launcher:
         self.settings = {"nevents":nevt, "run_num":0}
         self.n_parallel = 4
         self.settings["simName"] = simname
+        self.settings["preinit"] = ""
+        self.settings["reclevel"] = 2
         
     def set_dirs(self):
         self.bin_name = os.environ["SBMC_BIN"]
@@ -63,6 +65,8 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher("CRY_ConcreteBuild", 1e5)
+        L = SB_MC_Launcher("CRY_FluxTest_5m", 1e3)
+        L.settings["preinit"] += "/geom/building/makeFluxTest\n"
+        L.settings["reclevel"] = 3
         L.launch_sims(4*6*5)
         

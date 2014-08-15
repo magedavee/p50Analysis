@@ -105,7 +105,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     }
     
     if(isCapt || (nc.capt_Z == 3 && nc.capt_A == 7)) {
-        RootIO::GetInstance()->GetEvent().AddNCapt(nc);
+        RootIO::GetEvent().AddNCapt(nc);
     
         if(verbose >= 2) {
             G4cerr << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPos,"Length") << "] with "
@@ -168,7 +168,7 @@ void ScintSD::RegisterIoniHit(IonisationHit* h) {
     c.dt = h->GetDTime();
     for(uint i=0; i<3; i++) { c.x[i] = h->GetPos()[i]; c.dx[i] = h->GetDPos()[i]; }
     c.vol = h->GetVolume();
-    RootIO::GetInstance()->GetEvent().AddIoniCluster(c);
+    RootIO::GetEvent().AddIoniCluster(c);
 }
 
 bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return a->GetTime() < b->GetTime(); }

@@ -4,6 +4,7 @@
 #include <TClonesArray.h>
 
 ClassImp(EventPrimaryPtcl)
+ClassImp(ParticleEvent)
 ClassImp(EventIoniCluster)
 ClassImp(EventNCapt)
 ClassImp(Event)
@@ -11,6 +12,21 @@ ClassImp(Event)
 ////////////////////////////////////////////
 //------------------------------------------
 ////////////////////////////////////////////
+
+ParticleEvent::~ParticleEvent() {
+    if(particles) delete particles;
+}
+
+void ParticleEvent::Clear(Option_t*) {
+    if(!particles) particles = new TClonesArray("EventPrimaryPtcl",100);
+    particles->Clear("C");
+    nParticles = 0;
+}
+
+void ParticleEvent::AddParticle(const EventPrimaryPtcl& P) {
+    assert(particles);
+    new((*particles)[nParticles++]) EventPrimaryPtcl(P);
+}
 
 Event::~Event() {
     if(iEvts) delete iEvts;

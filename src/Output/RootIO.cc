@@ -14,6 +14,8 @@
 static RootIO* instance = NULL;
 
 RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
+    pmcevent = &mcevent;
+    pfluxCounter = &fluxCounter;
     G4cerr << "RootIO initialized." << G4endl;
 }
 
@@ -21,7 +23,8 @@ RootIO* RootIO::GetInstance() {
     if (instance == NULL) {
         G4cerr << "Instantiating ROOT output instance" << G4endl;
         instance = new RootIO();
-        instance->GetEvent().Clear();
+        GetEvent().Clear();
+        GetFlux().Clear();
     }
     return instance;
 }
@@ -45,6 +48,7 @@ void RootIO::WriteFile() {
 }
 
 void RootIO::FillTree() {
+    if(!dataTree) return;
     dataTree->Fill(); 
     writecount++;
     if(writecount==500) {
@@ -53,12 +57,23 @@ void RootIO::FillTree() {
     }
 }
 
+void RootIO::addFluxBranch() {
+    if(!dataTree) {
+        std::cout << "*** Please set output file first!\n";
+        return;
+    }
+    std::cout << "RootIO Setting up 'Flux' output branch...\n";
+    assert(dataTree);
+    dataTree->Branch("Flux",&pfluxCounter);
+}
+
 void RootIO::SetFileName(G4String filename) {
     
     fname = filename;
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
    
     mcevent.Clear();
+    fluxCounter.Clear();
     
     if(run_action->GetRecordLevel() >= 0){
         G4cerr << "RootIO output file is set to " << filename << G4endl;
@@ -67,7 +82,6 @@ void RootIO::SetFileName(G4String filename) {
         // set up output TTree
         dataTree = new TTree("sblmc","Short Baseline MC data");
         dataTree->SetDirectory(outfile);
-        pmcevent = &mcevent;
         dataTree->Branch("MCEvent",&pmcevent);
     }
 }

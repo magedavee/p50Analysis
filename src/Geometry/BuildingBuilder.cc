@@ -9,12 +9,12 @@
 
 BuildingBuilder::BuildingBuilder(): XMLProvider("Building"), main_log(NULL),
 wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
-floor_thick(0.1*m), makeVacuum(false), makeBare(false), dim(), wall_vis(G4Colour(0.3, 0.4, 0.4)),
+floor_thick(0.1*m), makeVacuum(false), makeBare(false), makeFluxTest(false),
+dim(), wall_vis(G4Colour(0.3, 0.4, 0.4)),
 building_ui_dir("/geom/building/"),
 bareCmd("/geom/building/makeBare",this),
-vacuumCmd("/geom/building/makeVacuum",this) {
-    addChild(&myDetUnit);
-    
+vacuumCmd("/geom/building/makeVacuum",this),
+fluxCmd("/geom/building/makeFluxTest",this) {
     bareCmd.SetGuidance("No walls, ceiling, or floor around detector");
     bareCmd.AvailableForStates(G4State_PreInit);
     
@@ -24,15 +24,28 @@ vacuumCmd("/geom/building/makeVacuum",this) {
 
 void BuildingBuilder::construct() {
     
-    myDetUnit.construct();
-    
     if(makeBare) {
         wall_thick = ceil_thick = floor_thick = ceil_clearance = 0;
-        wall_clearance = 2.0;
+        wall_clearance = 5.0;
         makeVacuum = true;
     }
     
-    G4ThreeVector airDim = myDetUnit.getDimensions();
+    myDetUnit.construct();
+    
+    myFluxCounter.dim = G4ThreeVector(6*m,6*m,1*cm);
+    myFluxCounter.construct();
+    
+    G4ThreeVector airDim;
+    if(makeFluxTest) {
+        ceil_clearance = ceil_thick = 0;
+        floor_thick = 5.*m;
+        addChild(&myFluxCounter);
+        airDim = myFluxCounter.dim;
+    } else {
+        addChild(&myDetUnit);
+        airDim = myDetUnit.getDimensions();
+    }
+
     airDim[0] += 2*wall_clearance;
     airDim[1] += 2*wall_clearance;
     airDim[2] += ceil_clearance;
@@ -51,12 +64,15 @@ void BuildingBuilder::construct() {
     air_log->SetVisAttributes(&wall_vis);
     new G4PVPlacement(NULL, G4ThreeVector(0, 0, (floor_thick-ceil_thick)/2.), air_log, "Building_air_phys", main_log, false, 0, false);
     
-    new G4PVPlacement(NULL, G4ThreeVector(0, 0, -ceil_clearance/2.), myDetUnit.main_log, "Det_phys", air_log, false, 0, true);    
+    new G4PVPlacement(NULL, G4ThreeVector(0, 0, -ceil_clearance/2.),
+                      makeFluxTest?myFluxCounter.main_log:myDetUnit.main_log,
+                      makeFluxTest?"Flux_phys":"Det_phys", air_log, false, 0, true);    
 }
 
 void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String) {
     if(command == &bareCmd) makeBare = true;
     else if(command == &vacuumCmd) makeVacuum = true; 
+    else if(command == &fluxCmd) makeFluxTest = true; 
     else G4cerr << "Unknown command!" << G4endl;
 }
 
