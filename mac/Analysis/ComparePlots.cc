@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
-#include <stdio>
+#include <cstdio>
 
 #include <TCanvas.h>
 #include <TH1.h>

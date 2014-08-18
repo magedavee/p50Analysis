@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////
 // Standalone program for plotting MC primaries information
 // export PG4_DIR=../PROSPECT-G4/; export LD_LIBRARY_PATH=./lib/:$LD_LIBRARY_PATH
-// g++ `root-config --cflags --libs` -L./lib/ -lEventLib -I${PG4_DIR}/include/Output/ -I${PG4_DIR}/mac/Analysis/ ${PG4_DIR}/mac/Analysis/PlotFlux.cpp -o PlotFlux
 
 #include <map>
 #include <vector>
@@ -11,10 +10,12 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <cmath>
+#include <sstream>
 
 #include "Event.hh"
 #include "FileKeeper.hh"
 #include "GoldhagenSpectrum.hh"
+#include "strutils.hh"
 
 #include <TCanvas.h>
 #include <TSystem.h>
@@ -29,14 +30,6 @@
 using std::vector;
 using std::map;
 using std::string;
-
-/// utility function for converting to string
-template<typename T>
-string to_str(T x) {
-    std::stringstream ss;
-    ss << x;
-    return ss.str();
-}
 
 /// Collection of histograms to generate for a particle type
 class FluxHistograms {
@@ -89,7 +82,7 @@ public:
             hGoldhagen->SetMinimum(1e-6);
             hGoldhagen->Draw();
             
-            double fluxscale = 1./(500.*500.)/(12.4607*24);
+            double fluxscale = 1./(500.*500.)/(1.17*120);
             
             hNeutronE->Scale(fluxscale);
             scale_times_bin(hNeutronE);
@@ -126,8 +119,10 @@ public:
         gPad->SetLogy(false);
         gPad->SetCanvasSize(700,700);
         
+        gPad->SetLogz(true);
         p_dir->Draw("Col Z");
         gPad->Print((outpath+"/p_Direction_"+pn+".pdf").c_str());
+        gPad->SetLogz(false);
 
     }
     

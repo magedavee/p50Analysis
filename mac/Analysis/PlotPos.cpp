@@ -1,7 +1,6 @@
 ////////////////////////////////////////////
 // ROOT macro example for MC output analysis
 // export PG4_DIR=../PROSPECT-G4/; export LD_LIBRARY_PATH=./lib/:$LD_LIBRARY_PATH
-// g++ `root-config --cflags --libs` -L./lib/ -lEventLib -I${PG4_DIR}/include/Output/ -I${PG4_DIR}/mac/Analysis/ ${PG4_DIR}/mac/Analysis/PlotPos.cpp -o PlotPos
 
 #include <map>
 #include <vector>
@@ -13,6 +12,7 @@
 
 #include "Event.hh"
 #include "FileKeeper.hh"
+#include "XMLInfo.hh"
 
 #include <TCanvas.h>
 #include <TSystem.h>
@@ -48,13 +48,12 @@ int main(int argc, char** argv) {
     FileKeeper f(outpath+"Out.root");
     
     // load data into TChain
-    TChain T("sblmc");
-    T.SetDirectory(NULL);
-    T.Add((inPath+"/*.root").c_str());
-    // set readout branches
+    OutDirLoader D(inPath);
+    TChain* T = D.makeTChain();
     Event* evt = new Event();
-    T.GetBranch("iEvts")->SetAutoDelete(kFALSE);
-    T.SetBranchAddress("MCEvent",&evt);
+    T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
+    T->SetBranchAddress("MCEvent",&evt);
+    double totalTime = D.getTotalGenTime();
     
     // set up histograms
     TH2F* hit_xy = (TH2F*)f.add(new TH2F("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
@@ -124,11 +123,11 @@ int main(int argc, char** argv) {
     hFakeIBD->GetYaxis()->SetTitle("Number of IBD-like events");
     
     // scan events
-    Long64_t nentries = T.GetEntries();
+    Long64_t nentries = T->GetEntries();
     std::cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
         evt->Clear();
-        T.GetEntry(ev);
+        T->GetEntry(ev);
         
         // primaries
         Int_t nPrim = evt->Primaries->GetEntriesFast();
@@ -274,6 +273,8 @@ int main(int argc, char** argv) {
     gPad->Print((outpath+"/nCapt_xy.pdf").c_str());
     ncapt_y->Draw();
     gPad->Print((outpath+"/nCapt_y.pdf").c_str());
+    
+    delete(T);
     
     return 0;
 }

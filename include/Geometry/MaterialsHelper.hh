@@ -45,6 +45,7 @@ public:
     G4Material* SS444;          ///< Stainless Steel 444
     G4Material* Quartz;         ///< Quartz
     G4Material* Concrete;       ///< Concrete
+    G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
     
     /// get 6Li-loaded liquid scintillator material
     G4Material* get6LiLS(double loading = 0.007);

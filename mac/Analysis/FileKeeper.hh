@@ -3,28 +3,22 @@
 
 #include <TFile.h>
 #include <vector>
-#include <iostream>
 
 using std::vector;
 
 /// Utility class for keeping TObjects to stuff into TFile
 class FileKeeper {
 public:
-    FileKeeper(const std::string& fname): f(NULL) {
-        f = new TFile(fname.c_str(),"RECREATE");
-        std::cout << "Opened file " << fname << "\n";
-    }
-    ~FileKeeper() {
-        assert(f);
-        f->cd();
-        for(int i=0; i<objs.size(); i++) objs[i]->Write();
-        f->Close();
-        delete f;
-        //for(int i=0; i<objs.size(); i++) delete objs[i];
-    }
+    /// Constructor
+    FileKeeper(const std::string& fname);
+    /// Destructor
+    ~FileKeeper();
+    /// Add object to file list
     TObject* add(TObject* O) { objs.push_back(O); return O; }
-    TFile* f;
-    vector<TObject*> objs;
+
+protected:
+    TFile* f;                   ///< output file
+    vector<TObject*> objs;      ///< objects list
 };
 
 #endif

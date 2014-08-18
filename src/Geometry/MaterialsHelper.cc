@@ -84,6 +84,8 @@ MaterialsHelper::MaterialsHelper() {
     Quartz->AddMaterial(nat_Si, 0.4674);
     Quartz->AddMaterial(nat_O, 0.5326);
     
+    Concrete = nist->FindOrBuildMaterial("G4_CONCRETE");
+    /*
     Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, room_T);
     Concrete->AddMaterial(nat_Si, 0.227915);
     Concrete->AddMaterial(nat_O, 0.60541);
@@ -91,6 +93,17 @@ MaterialsHelper::MaterialsHelper() {
     Concrete->AddMaterial(nat_Ca, 0.04986);
     Concrete->AddMaterial(nat_Al, 0.014245);
     Concrete->AddMaterial(nat_Fe, 0.00285);
+    */
+        
+    Dirt = new G4Material("Dirt", 1.52*g/cm3, 5);
+    /* TODO
+    G4int nAtoms = 0;
+    Dirt->AddElement(nat_C,  nAtoms=  1);
+    Dirt->AddElement(nat_Si, nAtoms= 29);
+    Dirt->AddElement(nat_Al, nAtoms= 15);
+    Dirt->AddElement(nat_Fe, nAtoms=  5);
+    Dirt->AddElement(nat_O,  nAtoms= 50);
+    */
     
     setupOptical();
     G4cerr << "Materials initialized." << G4endl;

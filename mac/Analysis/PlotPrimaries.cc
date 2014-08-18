@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <cmath>
+#include <sstream>
 
 #include "Event.hh"
 #include "FileKeeper.hh"
