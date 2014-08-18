@@ -16,6 +16,7 @@
 #include "FileKeeper.hh"
 #include "GoldhagenSpectrum.hh"
 #include "strutils.hh"
+#include "XMLInfo.hh"
 
 #include <TCanvas.h>
 #include <TSystem.h>
@@ -69,7 +70,7 @@ public:
     }
     
     /// Process and draw
-    void Draw(const string& outpath) {
+    void Draw(const string& outpath, double t) {
         
         string pn = to_str(PID);
         
@@ -82,7 +83,7 @@ public:
             hGoldhagen->SetMinimum(1e-6);
             hGoldhagen->Draw();
             
-            double fluxscale = 1./(500.*500.)/(1.17*120);
+            double fluxscale = 1./(500.*500.*t);
             
             hNeutronE->Scale(fluxscale);
             scale_times_bin(hNeutronE);
@@ -146,22 +147,21 @@ int main(int argc, char** argv) {
     FileKeeper f(outpath+"FluxOut.root");
     
     // load data into TChain
-    TChain T("sblmc");
-    T.SetDirectory(NULL);
-    T.Add((inPath+"/*.root").c_str());
+    OutDirLoader D(inPath);
+    TChain* T = D.makeTChain();
     // set readout branches
     ParticleEvent* evt = new ParticleEvent();
-    T.GetBranch("iEvts")->SetAutoDelete(kFALSE);
-    T.SetBranchAddress("Flux",&evt);
+    T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
+    T->SetBranchAddress("Flux",&evt);
     
     map<Int_t, FluxHistograms> primHists;
     
     // scan events
-    Long64_t nentries = T.GetEntries();
+    Long64_t nentries = T->GetEntries();
     std::cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
         evt->Clear();
-        T.GetEntry(ev);
+        T->GetEntry(ev);
         Int_t nPrim = evt->particles->GetEntriesFast();
         for(Int_t i=0; i<nPrim; i++) {
             EventPrimaryPtcl* pp = (EventPrimaryPtcl*)evt->particles->At(i);
@@ -176,8 +176,9 @@ int main(int argc, char** argv) {
     }
     
     // produce output
+    double totalTime = D.getTotalGenTime();
     for(map<Int_t, FluxHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++) {
-        it->second.Draw(outpath);
+        it->second.Draw(outpath, totalTime);
     }
         
     return 0;

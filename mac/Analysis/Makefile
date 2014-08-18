@@ -14,7 +14,7 @@ LDFLAGS =  -L. -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib `root-confi
 # things to build
 #
 
-Utils = FileKeeper.o GoldhagenSpectrum.o strutils.o XMLInfo.o
+Utils = FileKeeper.o GoldhagenSpectrum.o PathUtils.o strutils.o XMLInfo.o
 objects = $(Utils)
 
 all: $(objects)

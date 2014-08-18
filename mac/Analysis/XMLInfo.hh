@@ -13,12 +13,23 @@ class XMLInfo {
 public:
     /// Constructor
     XMLInfo(const std::string& fname);
+    /// Destructor
+    ~XMLInfo();
     
     /// Get event generator "real" time
     double getGenTime();
     
 protected:
-    TXMLEngine E;       ///< ROOT XML reader engine
+    TXMLEngine E;               ///< ROOT XML reader engine
+    XMLDocPointer_t myDoc;      ///< read-in document
+    XMLNodePointer_t docRoot;   ///< root node of document
+    
+    /// find named child node of given node
+    XMLNodePointer_t findChild(XMLNodePointer_t N, const std::string& nm);
+    
+    /// parse Geant4 string with units
+    double fromUnits(const std::string& s) const;
+    std::map<std::string, double> unitconv;     ///< Geant4 unit conversions 
 };
 
 /// Loader for directory full of simulation runs

@@ -53,7 +53,6 @@ int main(int argc, char** argv) {
     Event* evt = new Event();
     T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
     T->SetBranchAddress("MCEvent",&evt);
-    double totalTime = D.getTotalGenTime();
     
     // set up histograms
     TH2F* hit_xy = (TH2F*)f.add(new TH2F("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200));

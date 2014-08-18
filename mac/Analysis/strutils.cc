@@ -31,7 +31,7 @@ string vtos(const double* st, const double* en, string sep) {
         return s;
 }
 
-string vtos(const std::vector<double>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
+string vtos(const vector<double>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
 
 string vtos(const float* st, const float* en, string sep) {
         string s = "";
@@ -43,7 +43,7 @@ string vtos(const float* st, const float* en, string sep) {
         return s;
 }
 
-string vtos(const std::vector<float>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
+string vtos(const vector<float>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
 
 string vtos(const int* st, const int* en, string sep) {
         string s = "";
@@ -55,7 +55,7 @@ string vtos(const int* st, const int* en, string sep) {
         return s;
 }
 
-string vtos(const std::vector<int>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
+string vtos(const vector<int>& ds,string sep) { return vtos(&*ds.begin(),&*ds.end(),sep); }
 
 string ctos(char c) {
         char ch[3];
@@ -84,8 +84,8 @@ string replace(string s, char o, char n) {
 
 bool startsWith(const string& a, const string& b) { return a.substr(0,b.size()) == b; }
 
-std::vector<string> split(const string& s, const string splitchars) {
-        std::vector<string> v;
+vector<string> split(const string& s, const string splitchars) {
+        vector<string> v;
         size_t p = 0;
         while(p<s.size()) {
                 size_t wstart = s.find_first_not_of(splitchars,p);
@@ -99,12 +99,12 @@ std::vector<string> split(const string& s, const string splitchars) {
         return v;
 }
 
-string join(const std::vector<string>& ss, const string& sep) {
+string join(const vector<string>& ss, const string& sep) {
         string s = "";
         if(!ss.size())
                 return s;
         s = ss[0];
-        for(std::vector<string>::const_iterator it = ss.begin()+1; it < ss.end(); it++)
+        for(vector<string>::const_iterator it = ss.begin()+1; it < ss.end(); it++)
                 s += sep + *it;
         return s;
 }
@@ -117,36 +117,36 @@ string strip(const string& s, const string stripchars) {
         return s.substr(wstart,wend-wstart+1);
 }
 
-std::vector<double> sToDoubles(const string& s, const string splitchars) {
-        std::vector<double> v;
-        std::vector<string> words = split(s,splitchars);
+vector<double> sToDoubles(const string& s, const string splitchars) {
+        vector<double> v;
+        vector<string> words = split(s,splitchars);
         for(unsigned int i=0; i<words.size(); i++)
                 v.push_back(atof(words[i].c_str()));
         return v;
 }
 
-std::vector<float> sToFloats(const string& s, const string splitchars) {
-        std::vector<float> v;
-        std::vector<string> words = split(s,splitchars);
+vector<float> sToFloats(const string& s, const string splitchars) {
+        vector<float> v;
+        vector<string> words = split(s,splitchars);
         for(unsigned int i=0; i<words.size(); i++)
                 v.push_back(atof(words[i].c_str()));
         return v;
 }
 
-std::vector<int> sToInts(const string& s, const string splitchars) {
-        std::vector<int> v;
-        std::vector<string> words = split(s,splitchars);
+vector<int> sToInts(const string& s, const string splitchars) {
+        vector<int> v;
+        vector<string> words = split(s,splitchars);
         for(unsigned int i=0; i<words.size(); i++)
                 v.push_back(atoi(words[i].c_str()));
         return v;
 }
 
-std::vector< std::vector<float> > readArray(std::ifstream& fin, unsigned int minitems, const string splitchars) {
-        std::vector< std::vector<float> > a;
+vector< vector<float> > readArray(std::ifstream& fin, unsigned int minitems, const string splitchars) {
+        vector< vector<float> > a;
         string s;
         while (fin.good()) {
                 std::getline(fin,s);
-                std::vector<float> v = sToFloats(s,splitchars);
+                vector<float> v = sToFloats(s,splitchars);
                 if(v.size() >= minitems)
                         a.push_back(v);
         }
