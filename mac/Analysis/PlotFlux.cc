@@ -81,6 +81,7 @@ public:
             hGoldhagen->GetYaxis()->SetTitle("E #times d#Phi/dE, [1/cm^{2}/s]");
             hGoldhagen->SetMaximum(1e-2);
             hGoldhagen->SetMinimum(1e-6);
+            hGoldhagen->SetTitle("Surface neutron flux");
             hGoldhagen->Draw();
             
             double fluxscale = 1./(500.*500.*t);

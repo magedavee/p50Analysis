@@ -10,33 +10,27 @@
 //	Version 1.01 - 2011/04/29 - A. Ho
 // --------------------------------------------------------
 
-#ifndef CosmicNeutronGenerator_H		// Only carries out if object is undefined
-#define CosmicNeutronGenerator_H 1		// Defines object
+#ifndef CosmicNeutronGenerator_H
+#define CosmicNeutronGenerator_H
 
-#include <map>					// Specifies classes defining all global parameters and variable types
+#include <map>
 #include <vector>
-#include "globals.hh"
+
 #include "CosmicNeutronMessenger.hh"
+#include "CosmicCosineGenerator.hh"
 
-class CosmicCosineGenerator;			// Structures necessary for class definition
 
-/* -------- Class Definition --------- */
-
-class CosmicNeutronGenerator
-{
+class CosmicNeutronGenerator: public CosmicCosineGenerator {
   friend class CosmicNeutronMessenger;
 
   public:	// Constructors and Destructors
 
-    CosmicNeutronGenerator(G4int v = 1, const G4String target = "");		// Constructor
-    CosmicNeutronGenerator(G4double,G4double,G4double,G4double,G4int v = 1);	// Overloaded Constructor - initialize with s, rc, d, w
-    CosmicNeutronGenerator(G4double,G4int v = 1);				// Overloaded Constructor - initialize with nMono
+    CosmicNeutronGenerator(const G4String target = "");		// Constructor
+    CosmicNeutronGenerator(G4double,G4double,G4double,G4double);	// Overloaded Constructor - initialize with s, rc, d, w
+    CosmicNeutronGenerator(G4double);				// Overloaded Constructor - initialize with nMono
 
     ~CosmicNeutronGenerator();			// Destructor
 
-  public:	// Accessible Methods
-
-    void SetVerbosity(G4int);
     void SetSolarModulation(G4double);
     void SetCutoffRigidity(G4double);
     void SetAtmosphericDepth(G4double, G4bool IsKm = false);
@@ -45,8 +39,6 @@ class CosmicNeutronGenerator
     void SetMaxEnergy(G4double);
     void SetMonoEnergyFlag(G4bool flip) { fMonoEnergy = flip; };
     void SetNeutronMonoEnergy(G4double);
-    void SetTargetVolume(G4String);
-    void SetSourceRadius(G4double);
 
     G4double GetSolarModulation() const { return s; };
     G4double GetCutoffRigidity() const { return rc; };
@@ -56,14 +48,10 @@ class CosmicNeutronGenerator
     G4bool GetMonoEnergyFlag() const { return fMonoEnergy; };
     G4double GetNeutronMonoEnergy() const { return nMono; };
     G4double GetMaxEnergy() const { return max_e; };
-    G4String GetTargetVolume() const;
-    G4double GetSourceRadius() const;
-    CosmicCosineGenerator* GetCosineGenerator() { return cos_gen; };
 
     G4double CalculateLethargyValue(const G4double) const;
     G4double CalculateFluxValue(const G4double) const;
     void GenerateEnergiesWithoutSimulation(const G4int n = 1) const;
-    std::vector<G4double>* GenerateSourceLocation() const;
     G4double GenerateNeutronEnergy() const;
     G4double GenerateNeutronEnergyWithCDF() const;	// For a quicker, less accurate simulation - not quite working yet!!!
 
@@ -106,7 +94,6 @@ class CosmicNeutronGenerator
 
   private:	// Member Data
 
-    CosmicCosineGenerator* cos_gen;
     CosmicNeutronMessenger* neutron_messenger;
 };
 

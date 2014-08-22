@@ -1,49 +1,26 @@
-// Unrestricted Use - Property of AECL
-// 
-// CosmicMuonGenerator.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Cosmic Muon Energy Spectrum Generator
-//	Contains class functions/variables
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-// --------------------------------------------------------
+#ifndef CosmicMuonGenerator_H
+#define CosmicMuonGenerator_H
 
-#ifndef CosmicMuonGenerator_H		// Only carries out if object is undefined
-#define CosmicMuonGenerator_H 1		// Defines object
-
-#include <map>				// Specifies classes defining all global parameters and variable types
-#include <vector>
-#include "G4ThreeVector.hh"
-#include "globals.hh"
+#include "CosmicCosineGenerator.hh"
 #include "CosmicMuonMessenger.hh"
 
-class CosmicCosineGenerator;		// Structures necessary for class definition
+#include <map>
 
-/* -------- Class Definition --------- */
-
-class CosmicMuonGenerator
-{
+class CosmicMuonGenerator: public CosmicCosineGenerator {
   friend class CosmicMuonMessenger;
 
-  public:	// Constructors and Destructors
+  public:
 
-    CosmicMuonGenerator(G4int v = 1,const G4String target = "");	// Constructor
-    CosmicMuonGenerator(G4bool,G4double PlusMinus = 0.0,G4int v = 1);	// Overloaded Constructor - initialize with BESS spectrum and +/- ratio
-    CosmicMuonGenerator(G4double,G4double PlusMinus = 1.0,G4int v = 1);	// Overloaded Constructor - initialize with muMono
+    CosmicMuonGenerator(const G4String target = "");    // Constructor
+    CosmicMuonGenerator(G4bool,G4double PlusMinus = 0.0);	// Overloaded Constructor - initialize with BESS spectrum and +/- ratio
+    CosmicMuonGenerator(G4double,G4double PlusMinus = 1.0);	// Overloaded Constructor - initialize with muMono
 
-    ~CosmicMuonGenerator();						// Destructor
+    ~CosmicMuonGenerator();
 
-  public:	// Accessible Methods
-
-    void SetVerbosity(G4int);
     void SetMinRange(G4double);
     void SetMaxRange(G4double);
     void SetMonoEnergyFlag(G4bool flip) { fMonoEnergy = flip; };
     void SetMuonMonoEnergy(G4double);
-    void SetTargetVolume(G4String);
-    void SetSourceRadius(G4double);
     void SetPlusMinusRatio(G4double);
     void SetMuonPlusOnlyFlag(G4bool);
     void SetMuonMinusOnlyFlag(G4bool);
@@ -53,17 +30,13 @@ class CosmicMuonGenerator
     G4double GetMinMomentum() const { return min_val; };
     G4double GetMaxMomentum() const { return max_val; };
     G4double GetMuonMonoEnergy() const { return muMono; };
-    G4String GetTargetVolume() const;
-    G4double GetSourceRadius() const;
     G4double GetPlusMinusRatio() const { return ratio; };
     G4bool GetMuonPlusFlag() const { return fPlusOnly; };
     G4bool GetMuonMinusFlag() const { return fMinusOnly; };
     G4bool GetBESSSpectrumFlag() const { return fBESS; };
     G4ThreeVector GetTestDirection() const { return testDir; };
-    CosmicCosineGenerator* GetCosineGenerator() { return cos_gen; };
 
     void GenerateEnergiesWithoutSimulation(const G4int n = 1) const;
-    std::vector<G4double>* GenerateSourceLocation() const;
     G4double GenerateMuonEnergy(G4ThreeVector muDir = G4ThreeVector(0.,1.,0.)) const;
     G4int GenerateMuonType(G4double,G4ThreeVector muDir = G4ThreeVector(0.,1.,0.)) const;
 
@@ -100,7 +73,6 @@ class CosmicMuonGenerator
 
   private:	// Member Data
 
-    CosmicCosineGenerator* cos_gen;
     CosmicMuonMessenger* muon_messenger;
 
     G4double minBESS_p, maxBESS_p;		// Hard limits for BESS spectrum
@@ -120,8 +92,5 @@ class CosmicMuonGenerator
     G4double ZAng[13][8];
 };
 
-/* ----------------------------------- */
 
-#endif						// End of the if clause
-
-// EOF
+#endif

@@ -118,14 +118,6 @@ CosmicMuonMessenger::CosmicMuonMessenger(CosmicMuonGenerator* cosmic_mu)
   cosmuCosRadCmd->SetDefaultUnit("m");
   cosmuCosRadCmd->AvailableForStates(G4State_Idle);
 
-  cosmuVerbCmd = new G4UIcmdWithAnInteger("/generator/module/cosmicMuon/verbose",this);
-  cosmuVerbCmd->SetGuidance("Set the verbosity of this module");
-  cosmuVerbCmd->SetGuidance("    0 = silent, 1 = minimal, 2 = loud");
-  cosmuVerbCmd->SetGuidance("    Entries less than 0 will count as 0");
-  cosmuVerbCmd->SetGuidance("    Entries greater than 0 will also output generated values");
-  cosmuVerbCmd->SetParameterName("v",false);
-  cosmuVerbCmd->AvailableForStates(G4State_Idle);
-
   cosmuPrintCmd = new G4UIcmdWithoutParameter("/generator/module/cosmicMuon/printParameters",this);
   cosmuPrintCmd->SetGuidance("Prints all user-defined parameters for the Cosmic Neutron Module.");
   cosmuPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
@@ -148,7 +140,6 @@ CosmicMuonMessenger::~CosmicMuonMessenger()
   delete cosmuMonoECmd;
   delete cosmuCosVolCmd;
   delete cosmuCosRadCmd;
-  delete cosmuVerbCmd;
   delete cosmuPrintCmd;
 }
 
@@ -199,10 +190,6 @@ void CosmicMuonMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
   {
     generator->SetSourceRadius(cosmuCosRadCmd->GetNewDoubleValue(newValue));
   }
-  else if(command == cosmuVerbCmd)
-  {
-    generator->SetVerbosity(cosmuVerbCmd->GetNewIntValue(newValue));
-  }
   else if(command == cosmuPrintCmd)
   {
     generator->PrintAllParameters();
@@ -237,7 +224,6 @@ void CosmicMuonMessenger::ResetModuleCommands()		// Removes commands related to 
   UI_manager->RemoveCommand(cosmuMonoECmd);
   UI_manager->RemoveCommand(cosmuCosVolCmd);
   UI_manager->RemoveCommand(cosmuCosRadCmd);
-  UI_manager->RemoveCommand(cosmuVerbCmd);
   UI_manager->RemoveCommand(cosmuPrintCmd);
   UI_manager->RemoveCommand(cosmicMuDir);
 
@@ -251,7 +237,6 @@ void CosmicMuonMessenger::ResetModuleCommands()		// Removes commands related to 
   cosmuMaxPCmd = 0;
   cosmuCosVolCmd = 0;
   cosmuCosRadCmd = 0;
-  cosmuVerbCmd = 0;
   cosmuPrintCmd = 0;
 }
 

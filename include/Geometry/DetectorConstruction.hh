@@ -8,6 +8,7 @@
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4LogicalVolume.hh>
+#include <G4VPhysicalVolume.hh>
 
 class DetectorConstruction: public G4VUserDetectorConstruction, public XMLProvider {
 public:
@@ -23,7 +24,7 @@ public:
     G4LogicalVolume* getScintLog() const { return myBuilding.myDetUnit.myDet.myTank.scint_log; }
     
     BuildingBuilder myBuilding; ///< building containing detector
-
+    G4VPhysicalVolume* theWorld;///< world volume
 private:
     
     // Sensitive Detectors

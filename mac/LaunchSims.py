@@ -65,7 +65,7 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher("CRY_FluxTest_All", 1e4)
+        L = SB_MC_Launcher("CRY_FluxTest_NISTCrete", 1e4)
         L.settings["preinit"] += "/geom/building/makeFluxTest\n"
         L.settings["reclevel"] = 3
         L.launch_sims(4*6*5)

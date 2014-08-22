@@ -19,12 +19,15 @@ public:
     G4Material* nat_H;          ///< natural hydrogen
     G4Material* nat_Li;         ///< natural lithium
     G4Material* Li6;            ///< isotopically pure 6Li
-    G4Material* nat_C;          ///< natural carbon
-    G4Material* nat_O;          ///< natural oxygen
-    G4Material* nat_Ca;         ///< natural calcium
-    G4Material* nat_Si;         ///< natural silicon
     G4Material* nat_B;          ///< natural boron
+    G4Material* nat_C;          ///< natural carbon
+    G4Material* nat_N;          ///< natural nitrogen
+    G4Material* nat_O;          ///< natural oxygen
     G4Material* nat_Al;         ///< natural aluminum
+    G4Material* nat_Si;         ///< natural silicon
+    G4Material* nat_P;          ///< natural phosphorus
+    G4Material* nat_Cl;         ///< natural chlorine
+    G4Material* nat_Ca;         ///< natural calcium
     G4Material* nat_Fe;         ///< natural iron
     G4Material* nat_Cr;         ///< natural chromium
     G4Material* nat_Mo;         ///< natural molybdenum
@@ -40,8 +43,10 @@ public:
     G4Material* Polyeth;        ///< Polyethylene
     G4Material* BPoly;          ///< Borated (5% by mass) polyethylene
     G4Material* LiPoly;         ///< Lithiated (5% by mass) polyethlyene
+    G4Material* Water;          ///< Water
     G4Material* PVT;            ///< Polyvinyl Toluene scintillator
     G4Material* RawPsiCumene;   ///< un-doped pseudocumene scintillator base
+    G4Material* UG_AB;          ///< Ultima Gold AB scintillator
     G4Material* SS444;          ///< Stainless Steel 444
     G4Material* Quartz;         ///< Quartz
     G4Material* Concrete;       ///< Concrete

@@ -1,83 +1,63 @@
-// Unrestricted Use - Property of AECL
-// 
-// CosmicCosineGenerator.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Surface-Based Cosmic Angular Distribution Generator (for neutron, mu+, mu-)
-//	Contains class functions/variables
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-//      Edited 2014/07 M. P. Mendenhall
-// --------------------------------------------------------
+#ifndef CosmicCosineGenerator_HH
+#define CosmicCosineGenerator_HH
 
-#ifndef CosmicCosineGenerator_H		// Only carries out if object is undefined
-#define CosmicCosineGenerator_H 1		// Defines object
+#include <vector>
 
-#include "G4ThreeVector.hh"			// Specifies the classes which contain structures called upon in this class
-#include "G4RotationMatrix.hh"
-#include "G4VSolid.hh"
+#include <G4ThreeVector.hh>
+#include <G4RotationMatrix.hh>
+#include <G4VSolid.hh>
 
-#include <vector>				// Specifies classes defining all global parameters and variable types
-#include "globals.hh"
-
-class G4VPhysicalVolume;			// Structures necessary for class definition
-
-/* -------- Class Definition --------- */
+class G4VPhysicalVolume;
 
 /// Generates cosmic ray initial position/momentum distribution,
 /// from hemisphere directed towards faces of rectangular prism target volume
-class CosmicCosineGenerator
-{
-  public:	// Constructors and Destructors
+class CosmicCosineGenerator {
+public:
+    /// Constructor
+    CosmicCosineGenerator(const G4String target = "");
+    /// Destructor
+    ~CosmicCosineGenerator();
 
-    CosmicCosineGenerator(const G4int v = 0, const G4String target = "");			// Constructor
-    ~CosmicCosineGenerator();									// Destructor
-
-  public:	// Accessible Methods
-
-    void SetTargetVolume(const G4String);			// Set methods
+    /// Set target volume by name
+    void SetTargetVolume(const G4String);
+    /// Set radius of source sphere
     void SetSourceRadius(const G4double);
-    void SetVerbosity(const G4int);
-    std::vector<G4double>* GenerateSourceLocation(G4bool sub = false);
-
-    G4String GetTargetVolume() const { return targetName; };	// Get methods
+    
+    /// Generate initial particle position/momentum vector
+    void GenerateSourceLocation(G4bool sub = false);
+    G4ThreeVector pos;  ///< generated position
+    G4ThreeVector mom;  ///< generated momentum
+    
+    G4String GetTargetVolume() const { return targetName; };
     G4double GetSourceRadius() const { return SphereRadius; };
-
-  protected:	// Internal Methods
-
+    
+protected:
+    /// Generate position on target surface
     G4ThreeVector GeneratePositionOnDetector(const G4VSolid*);
+    /// Generate momentum direction of entry into target
     G4ThreeVector GenerateMomentumObserved();
     /// determines target volume rotation relative to world volume
     G4RotationMatrix* FindTargetRotationWRTWorld();
     /// determines target volume translation relative to world volume
     G4ThreeVector* FindTargetTranslationWRTWorld();
-    /// calculates appropriate radius for initial position hemisphere to contain target
+    /// calculate recommended radius for initial position hemisphere to contain target
     void CalculateSourceRadius();
+    /// calculate target size and dimensions
     void CalculateTargetSpecs();
-    G4double CalculateSourceQuadratic(G4ThreeVector,G4ThreeVector);
-
-  private:	// Member Data
-
-    G4double SphereRadius;
-    std::vector<G4double>* PositionMomentum;
+    /// line extension algorithm
+    G4double CalculateSourceQuadratic(G4ThreeVector x, G4ThreeVector p);
+    
+    G4double SphereRadius;              ///< source sphere radius
     G4double Random;
-
-//    G4ThreeVector upDir;
-    G4String targetName;
-    G4VPhysicalVolume* worldVolume;
-    G4VPhysicalVolume* targetVolume;
-    G4RotationMatrix* DToWRotation;
-    G4ThreeVector* DToWTranslation;
-    G4ThreeVector pointOne;
-    G4ThreeVector pointTwo;
-
-    G4int verbose;     ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;    ///< Outputs generated numbers, set with verbosity > 2
+    
+    G4String targetName;                ///< name of target volume
+    G4VPhysicalVolume* worldVolume;     ///< world volume
+    G4VPhysicalVolume* targetVolume;    ///< target volume
+    G4RotationMatrix* DToWRotation;     ///< target rotation to world
+    G4ThreeVector* DToWTranslation;     ///< target translation to world
+    G4ThreeVector targTop;              ///< high point on target
+    G4ThreeVector targBottom;           ///< low point on target
+    
 };
 
-/* ----------------------------------- */
-
-#endif						// End of the if clause
-
-// EOF
+#endif

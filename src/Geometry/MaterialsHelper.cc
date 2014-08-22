@@ -14,22 +14,31 @@ MaterialsHelper& MaterialsHelper::M() {
 
 MaterialsHelper::MaterialsHelper() {
     
-    G4cerr << "Initializing materials..." << G4endl;
+    G4cout << "Initializing materials..." << G4endl;
     
     nist = G4NistManager::Instance();
     
-    nat_H = nist->FindOrBuildMaterial("G4_H", true);
+    nat_H  = nist->FindOrBuildMaterial("G4_H",  true);
     nat_Li = nist->FindOrBuildMaterial("G4_Li", true);
-    nat_C = nist->FindOrBuildMaterial("G4_C", true);
-    nat_O = nist->FindOrBuildMaterial("G4_O", true);
-    nat_Ca = nist->FindOrBuildMaterial("G4_Ca", true);
-    nat_Si = nist->FindOrBuildMaterial("G4_Si", true);
-    nat_B = nist->FindOrBuildMaterial("G4_B", true);
+    nat_B  = nist->FindOrBuildMaterial("G4_B",  true);
+    nat_C  = nist->FindOrBuildMaterial("G4_C",  true);
+    nat_N  = nist->FindOrBuildMaterial("G4_N",  true);
+    nat_O  = nist->FindOrBuildMaterial("G4_O",  true);
     nat_Al = nist->FindOrBuildMaterial("G4_Al", true);
+    nat_Si = nist->FindOrBuildMaterial("G4_Si", true);
+    nat_P  = nist->FindOrBuildMaterial("G4_P",  true);
+    nat_Cl = nist->FindOrBuildMaterial("G4_Cl", true);
+    nat_Ca = nist->FindOrBuildMaterial("G4_Ca", true);
     nat_Fe = nist->FindOrBuildMaterial("G4_Fe", true);
     nat_Cr = nist->FindOrBuildMaterial("G4_Cr", true);
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
     nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
+    
+    G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
+    G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
+    elLi6->AddIsotope(isoLi6,100.*perCent);
+    Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
+    Li6->AddElement(elLi6,1);
     
     double room_T = 293.15*kelvin; // materials "room temperature"
     
@@ -42,11 +51,7 @@ MaterialsHelper::MaterialsHelper() {
     MinOil->AddMaterial(nat_C, 91.53*perCent);
     MinOil->AddMaterial(nat_H, 8.47*perCent);
     
-    G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
-    G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
-    elLi6->AddIsotope(isoLi6,100.*perCent);
-    Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
-    Li6->AddElement(elLi6,1);
+    Water = nist->FindOrBuildMaterial("G4_WATER", true, true);
     
     PVT = new G4Material("Polyvinyl Toluene", 1.023*g/cm3, 2, kStateSolid, room_T);
     PVT->AddMaterial(nat_C, 91.478*perCent);
@@ -55,6 +60,13 @@ MaterialsHelper::MaterialsHelper() {
     RawPsiCumene = new G4Material("Pseudocumene", 0.88*g/cm3, 2, kStateLiquid, room_T);
     RawPsiCumene->AddMaterial(nat_C, 89.945*perCent);
     RawPsiCumene->AddMaterial(nat_H, 10.055*perCent);
+    
+    UG_AB = new G4Material("UG_AB", 0.98*g/cm3, 5, kStateLiquid, room_T);
+    UG_AB->AddMaterial(nat_C, 76.3*perCent);
+    UG_AB->AddMaterial(nat_H, 9.7*perCent);
+    UG_AB->AddMaterial(nat_N, 0.05*perCent);
+    UG_AB->AddMaterial(nat_O, 13.8*perCent);
+    UG_AB->AddMaterial(nat_P, 0.1*perCent);
     
     PMMA = nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true);
     PMMA_black = new G4Material("PMMA_black", PMMA->GetDensity(), PMMA);
@@ -96,51 +108,32 @@ MaterialsHelper::MaterialsHelper() {
     */
         
     Dirt = new G4Material("Dirt", 1.52*g/cm3, 5);
-    /* TODO
     G4int nAtoms = 0;
-    Dirt->AddElement(nat_C,  nAtoms=  1);
-    Dirt->AddElement(nat_Si, nAtoms= 29);
-    Dirt->AddElement(nat_Al, nAtoms= 15);
-    Dirt->AddElement(nat_Fe, nAtoms=  5);
-    Dirt->AddElement(nat_O,  nAtoms= 50);
-    */
+    Dirt->AddElement(nist->FindOrBuildElement("C"),  nAtoms=  1);
+    Dirt->AddElement(nist->FindOrBuildElement("Si"), nAtoms= 29);
+    Dirt->AddElement(nist->FindOrBuildElement("Al"), nAtoms= 15);
+    Dirt->AddElement(nist->FindOrBuildElement("Fe"), nAtoms=  5);
+    Dirt->AddElement(nist->FindOrBuildElement("O"),  nAtoms= 50);
     
     setupOptical();
-    G4cerr << "Materials initialized." << G4endl;
 }
 
 G4Material* MaterialsHelper::get6LiLS(double loading) {
     if(!LiLSs.count(loading)) {
-        G4Material* LiPsiCumene = new G4Material(("PC-"+to_str(100*loading)+"wt%Li").c_str(), 0.88*g/cm3, 2, kStateLiquid, 293.15*kelvin);
-        LiPsiCumene->AddMaterial(RawPsiCumene, 1-loading);
-        LiPsiCumene->AddMaterial(Li6, loading);
-        LiPsiCumene->SetMaterialPropertiesTable(mptCumene);
-        LiPsiCumene->GetIonisation()->SetBirksConstant(birksPC);
-        LiLSs[loading] = LiPsiCumene;
+        G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator...\n";
+        double m_Cl = loading*35.45/6.;                    /// mass fraction Cl, by ratio of masses to 6Li
+        double m_H2O = (1000./8. - 6. -35.45)/6.*loading;  /// mass fraction H2O from 8 molar LiCl solution
+        G4Material* Li_UG_AB = new G4Material(("UG_AB-"+to_str(100*loading)+"wt%Li").c_str(), 0.98*g/cm3, 4, kStateLiquid, 293.15*kelvin);
+        Li_UG_AB->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
+        Li_UG_AB->AddMaterial(Li6, loading);
+        Li_UG_AB->AddMaterial(nat_Cl, m_Cl);
+        Li_UG_AB->AddMaterial(Water, m_H2O);
+        //Li_UG_AB->SetMaterialPropertiesTable(mptCumene);      TODO
+        //Li_UG_AB->GetIonisation()->SetBirksConstant(birksPC); TODO
+        LiLSs[loading] = Li_UG_AB;
     }
     return LiLSs[loading];
 }
-
-/*
-void DetectorConstruction::ConstructMaterials() {
-    
-    
-    Water = new G4Material("Water", density= 1.00*g/cm3, nComponents= 1, kStateLiquid, T=293.15*kelvin);
-    Water->AddMaterial(nist->FindOrBuildMaterial("G4_WATER", true, true), massFraction= 100.*perCent);
-    
-    GdPaintA = new G4Material("GdPaintA", density= 1.21*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
-    GdPaintA->AddMaterial(PMMA, massFraction= 99.5*perCent);
-    GdPaintA->AddMaterial(Gd, massFraction= 0.5*perCent);
-    
-    GdPaintB =  new G4Material("GdPaintB", density= 1.24*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
-    GdPaintB->AddMaterial(PMMA, massFraction= 99.0*perCent);
-    GdPaintB->AddMaterial(Gd, massFraction= 1.0*perCent);
-    
-    GdPaintC =  new G4Material("GdPaintC", density= 1.30*g/cm3, nComponents= 2, kStateSolid, T= 293.15*kelvin);
-    GdPaintC->AddMaterial(PMMA, massFraction= 98.0*perCent);
-    GdPaintC->AddMaterial(Gd, massFraction= 2.0*perCent);
-}
-*/
 
 void MaterialsHelper::setupOptical() {
     

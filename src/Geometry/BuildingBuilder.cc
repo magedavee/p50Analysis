@@ -32,13 +32,13 @@ void BuildingBuilder::construct() {
     
     myDetUnit.construct();
     
-    myFluxCounter.dim = G4ThreeVector(10*m,10*m,1*cm);
+    myFluxCounter.dim = G4ThreeVector(100*m,100*m,1*cm);
     myFluxCounter.construct();
     
     G4ThreeVector airDim;
     if(makeFluxTest) {
         ceil_clearance = ceil_thick = 0;
-        floor_thick = 1.*m;
+        floor_thick = 25.*m;
         addChild(&myFluxCounter);
         airDim = myFluxCounter.dim;
     } else {

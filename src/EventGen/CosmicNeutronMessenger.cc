@@ -118,11 +118,6 @@ CosmicNeutronMessenger::CosmicNeutronMessenger(CosmicNeutronGenerator* cosmic_n)
   cosmicCosRadCmd->SetDefaultUnit("m");
   cosmicCosRadCmd->AvailableForStates(G4State_Idle);
 
-  cosmicVerbCmd = new G4UIcmdWithAnInteger("/generator/module/cosmicNeutron/verbose",this);
-  cosmicVerbCmd->SetGuidance("Set the verbosity of this module");
-  cosmicVerbCmd->SetParameterName("v",false);
-  cosmicVerbCmd->AvailableForStates(G4State_Idle);
-
   cosmicPrintCmd = new G4UIcmdWithoutParameter("/generator/module/cosmicNeutron/printParameters",this);
   cosmicPrintCmd->SetGuidance("Prints all user-defined parameters for the Cosmic Neutron Module.");
   cosmicPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
@@ -144,7 +139,6 @@ CosmicNeutronMessenger::~CosmicNeutronMessenger()
   delete cosmicMonoECmd;
   delete cosmicCosVolCmd;
   delete cosmicCosRadCmd;
-  delete cosmicVerbCmd;
   delete cosmicPrintCmd;
 }
 
@@ -194,10 +188,6 @@ void CosmicNeutronMessenger::SetNewValue(G4UIcommand* command, G4String newValue
   {
     generator->SetSourceRadius(cosmicCosRadCmd->GetNewDoubleValue(newValue));
   }
-  else if(command == cosmicVerbCmd)
-  {
-    generator->SetVerbosity(cosmicVerbCmd->GetNewIntValue(newValue));
-  }
   else if(command == cosmicPrintCmd)
   {
     generator->PrintAllParameters();
@@ -231,7 +221,6 @@ void CosmicNeutronMessenger::ResetModuleCommands()		// Remove commands related t
   UI_manager->RemoveCommand(cosmicMonoECmd);
   UI_manager->RemoveCommand(cosmicCosVolCmd);
   UI_manager->RemoveCommand(cosmicCosRadCmd);
-  UI_manager->RemoveCommand(cosmicVerbCmd);
   UI_manager->RemoveCommand(cosmicPrintCmd);
   UI_manager->RemoveCommand(cosmicNDir);
 
@@ -246,7 +235,6 @@ void CosmicNeutronMessenger::ResetModuleCommands()		// Remove commands related t
   cosmicMonoECmd = 0;
   cosmicCosVolCmd = 0;
   cosmicCosRadCmd = 0;
-  cosmicVerbCmd = 0;
   cosmicPrintCmd = 0;
 }
 

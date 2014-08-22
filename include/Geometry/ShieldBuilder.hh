@@ -48,7 +48,7 @@ public:
     /// remove all shield layers
     void clearShield() { layers.clear(); }
     /// add shield layer
-    void addLayer(const ShieldLayerSpec& s) { layers.push_back(s); }
+    void addLayer(const ShieldLayerSpec& sh) { layers.push_back(sh); }
     
     G4LogicalVolume* main_log;                  ///< outermost volume layer
     DetVolBuilder myDet;                        ///< detector assembly

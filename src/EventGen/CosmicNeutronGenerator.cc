@@ -25,11 +25,7 @@
 #include <math.h>
 #include <map>
 
-	// ****** Constructor ****** //
-CosmicNeutronGenerator::CosmicNeutronGenerator(G4int v, const G4String target)
-{
-  verbose = v;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
+CosmicNeutronGenerator::CosmicNeutronGenerator(const G4String target): CosmicCosineGenerator(target) {
 
 	// Defines hard limits on solar modulation parameter
   s_min = 465.*megavolt;
@@ -48,7 +44,6 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4int v, const G4String target)
 
   GenerateCDFTable();		// CDF generation method is flawed... DO NOT USE!
 
-  cos_gen = new CosmicCosineGenerator(verbose,target);
   neutron_messenger = new CosmicNeutronMessenger(this);
 
 	// Conversion factors for atmospheric depth to altitude
@@ -73,11 +68,7 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4int v, const G4String target)
          << G4endl;
 }
 
-	// ****** Overloaded Constructor ****** //
-CosmicNeutronGenerator::CosmicNeutronGenerator(G4double s_mod, G4double rigid, G4double depth, G4double water, G4int v)		// Specify cosmic parmaeters
-{
-  verbose = v;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
+CosmicNeutronGenerator::CosmicNeutronGenerator(G4double s_mod, G4double rigid, G4double depth, G4double water): CosmicCosineGenerator() {
 
 	// Defines hard limits on solar modulation parameter
   fMonoEnergy = false;
@@ -118,7 +109,6 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4double s_mod, G4double rigid, G
 
   GenerateCDFTable();		// CDF generation method is flawed... DO NOT USE!!!
 
-  cos_gen = new CosmicCosineGenerator(verbose);
   neutron_messenger = new CosmicNeutronMessenger(this);
 
 	// Conversion factors for atmospheric depth to altitude
@@ -143,11 +133,7 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4double s_mod, G4double rigid, G
          << G4endl;
 }
 
-	// ****** Overloaded Constructor ****** //
-CosmicNeutronGenerator::CosmicNeutronGenerator(G4double monoE, G4int v)		// Specify mono-energy
-{
-  verbose = v;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-  if(verbose > 2) { RawData = true; } else { RawData = false; }
+CosmicNeutronGenerator::CosmicNeutronGenerator(G4double monoE): CosmicCosineGenerator() {
 
 	// Defines hard limits on solar modulation parameter
   s_min = 465.*megavolt;
@@ -166,7 +152,6 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4double monoE, G4int v)		// Spec
 
   GenerateCDFTable();		// CDF generation method is flawed... DO NOT USE!
 
-  cos_gen = new CosmicCosineGenerator(verbose);
   neutron_messenger = new CosmicNeutronMessenger(this);
 
 	// Outputs user-defined parameter list to terminal
@@ -183,19 +168,9 @@ CosmicNeutronGenerator::CosmicNeutronGenerator(G4double monoE, G4int v)		// Spec
 CosmicNeutronGenerator::~CosmicNeutronGenerator()
 {
   delete theCDF;
-  delete cos_gen;
   delete neutron_messenger;
 }
 
-	// ****** Change Verbosity ******* //
-void CosmicNeutronGenerator::SetVerbosity(G4int v)
-{
-  verbose = v;
-  if(verbose > 1) { G4cout << "CosmicMuonGenerator verbosity set to " << v << "." << G4endl; }
-  if(verbose > 2) { RawData = true; G4cout << "*** CAUTION: CosmicNeutronGenerator raw data will now be output. ***" << G4endl; }
-  else            { RawData = false; }
-  cos_gen->SetVerbosity(verbose);
-}
 
 	// The following functions allow the user to set the global condition parameters of this analytical spectrum function
 
@@ -316,30 +291,6 @@ void CosmicNeutronGenerator::SetNeutronMonoEnergy(G4double E)
 
 	// The following functions allow the user to specify the source and location for the angular distribution generator
 
-	// ****** Set Target Volume ****** //
-void CosmicNeutronGenerator::SetTargetVolume(G4String vol)
-{
-  cos_gen->SetTargetVolume(vol);
-}
-
-	// ****** Set Source Radius ****** //
-void CosmicNeutronGenerator::SetSourceRadius(G4double r)
-{
-  cos_gen->SetSourceRadius(r);
-}
-
-	// The following functions return the angular distribution generator settings for output
-
-G4String CosmicNeutronGenerator::GetTargetVolume() const
-{
-  return cos_gen->GetTargetVolume();
-}
-
-G4double CosmicNeutronGenerator::GetSourceRadius() const
-{
-  return cos_gen->GetSourceRadius();
-}
-
 // -------------------------------------------------------------------------------------------------- //
 
 	// ****** Calculate Flux in Lethargy ****** //
@@ -412,15 +363,6 @@ void CosmicNeutronGenerator::GenerateEnergiesWithoutSimulation(const G4int n) co
     if(reps % 100000 == 0) { G4cout << "Completed " << reps << " samples." << G4endl; }
     reps++;
   }
-}
-
-	// ****** Generate Initial Particle Vector ******  //
-std::vector<G4double>* CosmicNeutronGenerator::GenerateSourceLocation() const	// Generation of neutron position and momentum - for use in PrimaryGeneratorAction
-{
-	// Output as <x,y,z,px,py,pz> - p* indicates momentum in the * direction
-  std::vector<G4double>* kinematics = cos_gen->GenerateSourceLocation(true);
-
-  return kinematics;
 }
 
 	// ****** Generate Initial Particle Energy ****** //

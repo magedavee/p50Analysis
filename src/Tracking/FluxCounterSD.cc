@@ -11,7 +11,7 @@ G4bool FluxCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     G4StepPoint* p0 = aStep->GetPreStepPoint();
     G4StepPoint* p1 = aStep->GetPostStepPoint();
 
-    //if(!aStep->IsFirstStepInVolume()) return false; // entering particles only
+    // particles entering volume only: previously in a different physical volume
     if(p0->GetPhysicalVolume() == p1->GetPhysicalVolume()) return false;
     
     EventPrimaryPtcl P;

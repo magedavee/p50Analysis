@@ -66,7 +66,6 @@ class CosmicMuonMessenger: public G4UImessenger		// This class inherits function
     G4UIcmdWithADoubleAndUnit* cosmuMonoECmd;
     G4UIcmdWithAString* cosmuCosVolCmd;
     G4UIcmdWithADoubleAndUnit* cosmuCosRadCmd;
-    G4UIcmdWithAnInteger* cosmuVerbCmd;
     G4UIcmdWithoutParameter* cosmuPrintCmd;
 };
 

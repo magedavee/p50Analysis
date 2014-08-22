@@ -28,7 +28,6 @@
 #include <map>
 
 void CosmicMuonGenerator::setDefaults() {
-    RawData = (verbose>2);
     muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();      // Placed in new variable for ease of coding
     
     // Defines hard limits for each energy spectrum range
@@ -52,7 +51,7 @@ void CosmicMuonGenerator::setDefaults() {
 }
 
 // ****** Constructor ******* //
-CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target): fBESS(false),  verbose(v) {
+CosmicMuonGenerator::CosmicMuonGenerator(const G4String target): CosmicCosineGenerator(target), fBESS(false) {
     setDefaults();
     
   if(verbose > 1) { G4cout << "\tEnergy-dependent ratio values are currently being used." << G4endl; }
@@ -60,7 +59,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target): fBESS(
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 
-  cos_gen = new CosmicCosineGenerator(verbose,target);
   muon_messenger = new CosmicMuonMessenger(this);
 
 	// Outputs default parameter list to terminal
@@ -79,7 +77,7 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4int v, const G4String target): fBESS(
 }
 
 // ****** Overloaded Constructor ******* //
-CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int v): fBESS(BESS), verbose(v) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus): CosmicCosineGenerator(), fBESS(BESS) {
     setDefaults();
    
 	// Determine user-specified muon ratio
@@ -105,7 +103,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int 
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 
-  cos_gen = new CosmicCosineGenerator(verbose);
   muon_messenger = new CosmicMuonMessenger(this);
 
 	// Outputs user-specified parameter list to terminal
@@ -130,7 +127,7 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4bool BESS, G4double PlusMinus, G4int 
 }
 
 // ****** Overloaded Constructor ****** //
-CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4int v): fBESS(false), verbose(v) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus): CosmicCosineGenerator(), fBESS(false) {
     setDefaults();
     muMono = monoE;
     fMonoEnergy = true;
@@ -158,7 +155,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4i
   GenerateLipariPDFTable();		// Intention to code CDF function later for faster simulation
   GenerateBESSPDFTable();
 
-  cos_gen = new CosmicCosineGenerator(verbose);
   muon_messenger = new CosmicMuonMessenger(this);
 
 	// Outputs user-specified parameter list to terminal
@@ -177,28 +173,15 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4double monoE, G4double PlusMinus, G4i
          << G4endl;
 }
 
-	// ****** Destructor ******* //
-CosmicMuonGenerator::~CosmicMuonGenerator()
-{
-  delete cos_gen;
+CosmicMuonGenerator::~CosmicMuonGenerator() {
   delete muon_messenger;
 }
 
-	// ****** Change Verbosity ******* //
-void CosmicMuonGenerator::SetVerbosity(G4int v)
-{
-  verbose = v;
-  if(verbose > 1) { G4cout << "CosmicMuonGenerator verbosity set to " << v << "." << G4endl; }
-  if(verbose > 2) { RawData = true; G4cout << "*** CAUTION: CosmicMuonGenerator raw data will now be output. ***" << G4endl; }
-  else            { RawData = false; }
-  cos_gen->SetVerbosity(verbose);
-}
 
 	// The following functions allow the user to adjust the sample range of the momentum spectrum
 
 	// ****** Change Range Minimum ****** //
-void CosmicMuonGenerator::SetMinRange(G4double min)
-{
+void CosmicMuonGenerator::SetMinRange(G4double min) {
   if(fBESS)
   {
     if(min < minBESS_p || min > maxBESS_p)
@@ -363,29 +346,6 @@ void CosmicMuonGenerator::SetTestAngle(G4double angle)
 
 	// The following functions allow the user to specify the source and location for the angular distribution generator
 
-	// ****** Set Target Volume ****** //
-void CosmicMuonGenerator::SetTargetVolume(G4String vol)
-{
-  cos_gen->SetTargetVolume(vol);
-}
-
-	// ****** Set Source Radius ****** //
-void CosmicMuonGenerator::SetSourceRadius(G4double r)
-{
-  cos_gen->SetSourceRadius(r);
-}
-
-	// The following functions return the angular distribution generator settings for output
-
-G4String CosmicMuonGenerator::GetTargetVolume() const
-{
-  return cos_gen->GetTargetVolume();
-}
-
-G4double CosmicMuonGenerator::GetSourceRadius() const
-{
-  return cos_gen->GetSourceRadius();
-}
 
 // -------------------------------------------------------------------------------------------------- //
 
@@ -491,15 +451,6 @@ void CosmicMuonGenerator::GenerateBESSEnergiesWithoutSimulation(const G4int n) c
   }
 }
 
-	// ****** Generate Initial Particle Vector ******  //
-std::vector<G4double>* CosmicMuonGenerator::GenerateSourceLocation() const	// Generation of muon position and momentum - for use in PrimaryGeneratorAction
-{
-	// Output as <x,y,z,px,py,pz> - p* indicates momentum in the * direction
-  std::vector<G4double>* kinematics = cos_gen->GenerateSourceLocation(true);
-
-  return kinematics;
-}
-
 	// ****** Generate Initial Particle Energy ****** //
 G4double CosmicMuonGenerator::GenerateMuonEnergy(G4ThreeVector muDir) const	// Generation of muon energy - for use in PrimaryGeneratorAction
 {
@@ -540,9 +491,8 @@ G4double CosmicMuonGenerator::GenerateLipariMuonEnergy(G4ThreeVector muDir) cons
     ZEn[j] = -ZEn[j-1] + 2.0*(AngFlx[j]-AngFlx[j-1])/(En[j]-En[j-1]);
   }
 
-  G4double muEnergy, Random, Prob;
-  do
-  {
+  G4double muEnergy, Prob;
+  do {
 	// Determine the bin that muon energy falls into
     muEnergy = 6.0*G4UniformRand();
     G4int enBin = 0;
@@ -556,9 +506,8 @@ G4double CosmicMuonGenerator::GenerateLipariMuonEnergy(G4ThreeVector muDir) cons
     G4double TotalFlx = a + b*(muEnergy - En[enBin]) + c*pow((muEnergy - En[enBin]),2);
 
     Prob = pow(10.0,TotalFlx);	// Probability at sampled muon zenith angle and energy
-    Random = Flx[0][0]*G4UniformRand();
   }
-  while(Random > Prob);		// Repeat final energy sampling procedure if value not accepted
+  while(Flx[0][0]*G4UniformRand() > Prob);		// Repeat final energy sampling procedure if value not accepted
 
   muEnergy = pow(10.0,muEnergy)*GeV;	// Final transformation from exponent to kinetic energy
   return muEnergy;

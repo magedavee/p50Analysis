@@ -18,8 +18,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cerr << "Detector construction complete." << G4endl;
     
     // need to return the physical World Volume
-    return new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log,
-                            "building_phys", NULL, false,  0);
+    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log,
+                                 "building_phys", NULL, false,  0);
+    return theWorld;
 }
 
 /*

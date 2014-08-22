@@ -3,10 +3,13 @@
 #define COSMICNEUTRONMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "CosmicNeutronGenerator.hh"
+#include "SatoNiitaNeutrons.hh"
+#include "SurfaceThrower.hh"
+
+//#include "CosmicNeutronGenerator.hh"
 
 /// Cosmic neutron event generator module
-class CosmicNeutronModule: public PrimaryGeneratorModule {
+class CosmicNeutronModule: public PrimaryGeneratorModule, public SurfaceThrower, protected SatoNiitaNeutrons {
 public:
     /// Constructor
     CosmicNeutronModule(PrimaryGeneratorAction* P);
@@ -14,8 +17,8 @@ public:
     /// throw event particles
     virtual void GeneratePrimaries(G4Event* anEvent);
 
-protected:
-    CosmicNeutronGenerator neutron_generator; ///< kinematics code for events
+//protected:
+    //CosmicNeutronGenerator neutron_generator; ///< kinematics code for events
 };
 
 #endif

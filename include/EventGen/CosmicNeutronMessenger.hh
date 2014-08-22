@@ -65,7 +65,6 @@ class CosmicNeutronMessenger: public G4UImessenger		// This class inherits funct
     G4UIcmdWithADoubleAndUnit* cosmicMonoECmd;
     G4UIcmdWithAString* cosmicCosVolCmd;
     G4UIcmdWithADoubleAndUnit* cosmicCosRadCmd;
-    G4UIcmdWithAnInteger* cosmicVerbCmd;
     G4UIcmdWithoutParameter* cosmicPrintCmd;
 };
 
