@@ -128,8 +128,8 @@ G4Material* MaterialsHelper::get6LiLS(double loading) {
         Li_UG_AB->AddMaterial(Li6, loading);
         Li_UG_AB->AddMaterial(nat_Cl, m_Cl);
         Li_UG_AB->AddMaterial(Water, m_H2O);
-        //Li_UG_AB->SetMaterialPropertiesTable(mptCumene);      TODO
-        //Li_UG_AB->GetIonisation()->SetBirksConstant(birksPC); TODO
+        if(mptUG_AB) Li_UG_AB->SetMaterialPropertiesTable(mptUG_AB);      // TODO
+        Li_UG_AB->GetIonisation()->SetBirksConstant(birksUG_AB);
         LiLSs[loading] = Li_UG_AB;
     }
     return LiLSs[loading];
@@ -141,6 +141,7 @@ void MaterialsHelper::setupOptical() {
     
     birksPC = 0.1*mm/MeV;
     birksPVT = 0.2*mm/MeV;
+    birksUG_AB = 0.1*mm/MeV; // TODO
     
     // NOTE: The emission spectra had to be modified from manufaturer specifications
     //       as the Scintillation process samples the photon energy uniformly in photon energy
@@ -189,7 +190,7 @@ void MaterialsHelper::setupOptical() {
         0.041, 0.037, 0.033, 0.029, 0.026, 0.023, 0.021, 0.019, 0.018
     };
     
-    mptCumene = new G4MaterialPropertiesTable();
+    G4MaterialPropertiesTable* mptCumene = new G4MaterialPropertiesTable();
     
     // Specification of properties that are constant with photon energy
     mptCumene->AddConstProperty("FASTTIMECONSTANT", 3.8*ns);            // Fast Component Decay Time
@@ -207,6 +208,7 @@ void MaterialsHelper::setupOptical() {
     RawPsiCumene->SetMaterialPropertiesTable(mptCumene);
     RawPsiCumene->GetIonisation()->SetBirksConstant(birksPC);
 
+    mptUG_AB = NULL; // TODO
     
     //////////////////////////////////////////////////////////////////
     // Anthracene-doped Polyvinyltoluene Plastic Scintillator - EJ-500
