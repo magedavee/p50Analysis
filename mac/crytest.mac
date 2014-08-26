@@ -52,5 +52,7 @@
 /CRY/input subboxLength 5
 /CRY/update
 
+/generator/module_CosN
+
 /run/beamOn 1000
 

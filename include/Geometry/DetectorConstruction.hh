@@ -13,7 +13,7 @@
 class DetectorConstruction: public G4VUserDetectorConstruction, public XMLProvider {
 public:
     /// Constructor
-    DetectorConstruction(): XMLProvider("DetectorConstruction") { addChild(&myBuilding); }
+    DetectorConstruction();
     /// Destructor
     virtual ~DetectorConstruction() { }
 
@@ -23,12 +23,18 @@ public:
     /// Get reference to active scintillator volume
     G4LogicalVolume* getScintLog() const { return myBuilding.myDetUnit.myDet.myTank.scint_log; }
     
-    BuildingBuilder myBuilding; ///< building containing detector
-    G4VPhysicalVolume* theWorld;///< world volume
+    BuildingBuilder myBuilding;         ///< building containing detector
+    G4VPhysicalVolume* theWorld;        ///< world volume
+    G4VPhysicalVolume* ptclSrc;         ///< event generator source volume
+    double worldPad;                    ///< "padding" width of vacuum around "building"
+    
 private:
     
-    // Sensitive Detectors
+    G4ThreeVector dim;          ///< overall world volume dimensions
     ScintSD* myScintSD;         ///< sensitive detector for scintillator volume
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

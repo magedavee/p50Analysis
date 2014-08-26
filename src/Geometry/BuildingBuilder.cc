@@ -32,13 +32,13 @@ void BuildingBuilder::construct() {
     
     myDetUnit.construct();
     
-    myFluxCounter.dim = G4ThreeVector(100*m,100*m,1*cm);
+    myFluxCounter.dim = G4ThreeVector(10*m,10*m,1*cm);
     myFluxCounter.construct();
     
     G4ThreeVector airDim;
     if(makeFluxTest) {
         ceil_clearance = ceil_thick = 0;
-        floor_thick = 25.*m;
+        floor_thick = 2.*m;
         addChild(&myFluxCounter);
         airDim = myFluxCounter.dim;
     } else {
@@ -64,9 +64,9 @@ void BuildingBuilder::construct() {
     air_log->SetVisAttributes(&wall_vis);
     new G4PVPlacement(NULL, G4ThreeVector(0, 0, (floor_thick-ceil_thick)/2.), air_log, "Building_air_phys", main_log, false, 0, false);
     
-    new G4PVPlacement(NULL, G4ThreeVector(0, 0, -ceil_clearance/2.),
-                      makeFluxTest?myFluxCounter.main_log:myDetUnit.main_log,
-                      makeFluxTest?"Flux_phys":"Det_phys", air_log, false, 0, true);    
+    det_phys = new G4PVPlacement(NULL, G4ThreeVector(0, 0, -ceil_clearance/2.),
+                                 makeFluxTest?myFluxCounter.main_log:myDetUnit.main_log,
+                                 makeFluxTest?"Flux_phys":"Det_phys", air_log, false, 0, true);    
 }
 
 void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String) {

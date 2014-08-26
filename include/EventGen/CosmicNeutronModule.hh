@@ -3,10 +3,10 @@
 #define COSMICNEUTRONMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "SatoNiitaNeutrons.hh"
 #include "SurfaceThrower.hh"
+#include "SatoNiitaNeutrons.hh"
 
-//#include "CosmicNeutronGenerator.hh"
+class TH1F;
 
 /// Cosmic neutron event generator module
 class CosmicNeutronModule: public PrimaryGeneratorModule, public SurfaceThrower, protected SatoNiitaNeutrons {
@@ -17,8 +17,14 @@ public:
     /// throw event particles
     virtual void GeneratePrimaries(G4Event* anEvent);
 
-//protected:
-    //CosmicNeutronGenerator neutron_generator; ///< kinematics code for events
+protected:
+    /// generate distribution histogram
+    void makeDistribution();
+    /// neutron flux direction distribution
+    virtual G4ThreeVector proposeDirection();
+    
+    TH1F* myDist;       ///< underlying energy distribution
+    double waterFrac;   ///< water fraction by weight in reflecting material
 };
 
 #endif

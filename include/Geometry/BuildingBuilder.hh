@@ -7,6 +7,7 @@
 #include "XMLProvider.hh"
 
 #include <G4LogicalVolume.hh>
+#include <G4VPhysicalVolume.hh>
 #include <G4ThreeVector.hh>
 #include <G4VisAttributes.hh>
 
@@ -31,6 +32,7 @@ public:
     
     G4LogicalVolume* main_log;  ///< main mother volume: concrete building
     G4LogicalVolume* air_log;   ///< air space inside building
+    G4VPhysicalVolume* det_phys;///< detector volume physical placement
     
     double wall_thick;          ///< thickness of building side walls
     double wall_clearance;      ///< space from side walls to detector

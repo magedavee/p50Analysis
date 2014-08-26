@@ -1,14 +1,32 @@
 #include "DetectorConstruction.hh"
 #include "MaterialsHelper.hh"
 
+#include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4SDManager.hh>
 #include <G4PVPlacement.hh>
 #include <G4ios.hh>
+#include <G4Box.hh>
+#include <G4Sphere.hh>
+
+DetectorConstruction::DetectorConstruction():
+XMLProvider("DetectorConstruction"), worldPad(4.*m) {
+    addChild(&myBuilding);
+}
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cerr << "Starting detector construction..." << G4endl;
     myBuilding.construct();
+    
+    dim = myBuilding.getDimensions() + G4ThreeVector(2,2,2)*worldPad;
+    G4Box* world_box = new G4Box("world_box", dim[0]/2., dim[1]/2., dim[2]/2.);
+    G4LogicalVolume* world_log = new G4LogicalVolume(world_box, MaterialsHelper::M().Vacuum, "world_log");
+    new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log, "building_phys", world_log, false,  0);
+    
+    G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, worldPad/4., 0, 2*M_PI, 0, M_PI);
+    G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
+    ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,dim[2]/2.-worldPad/2.), sun_log, "sun_phys", world_log, false,  0);
     
     // assign sensitive detector to scintillator
     myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
@@ -18,9 +36,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cerr << "Detector construction complete." << G4endl;
     
     // need to return the physical World Volume
-    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log,
-                                 "building_phys", NULL, false,  0);
+    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), world_log, "world_phys", NULL, false,  0);
     return theWorld;
+}
+
+void DetectorConstruction::fillNode(TXMLEngine& E) {
+    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    addAttr(E, "pad", G4BestUnit(worldPad,"Length"));
 }
 
 /*

@@ -9,7 +9,6 @@
 #include "IBDModule.hh"
 #include "FissionAntiNuModule.hh"
 #include "CosmicMuonModule.hh"
-#include "CosmicNeutronModule.hh"
 
 #include <math.h>
 #include <string>
@@ -29,6 +28,7 @@
 #include <G4UImanager.hh>
 #include <G4ios.hh>
 
+#include "CosmicNeutronModule.hh"
 
 //////////////////////////////////////
 
