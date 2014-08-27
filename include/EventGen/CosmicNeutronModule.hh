@@ -16,6 +16,9 @@ public:
     
     /// throw event particles
     virtual void GeneratePrimaries(G4Event* anEvent);
+    
+    /// get total "real time" for primaries thrown
+    virtual G4double GetGeneratorTime() const;
 
 protected:
     /// generate distribution histogram
@@ -25,6 +28,7 @@ protected:
     
     TH1F* myDist;       ///< underlying energy distribution
     double waterFrac;   ///< water fraction by weight in reflecting material
+    double netFlux;     ///< total flux 1/cm^2/s
 };
 
 #endif

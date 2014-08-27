@@ -26,6 +26,7 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     G4VPhysicalVolume* theWorld;        ///< world volume
     G4VPhysicalVolume* ptclSrc;         ///< event generator source volume
+    G4VPhysicalVolume* building_phys;   ///< physical building placement
     double worldPad;                    ///< "padding" width of vacuum around "building"
     
 private:

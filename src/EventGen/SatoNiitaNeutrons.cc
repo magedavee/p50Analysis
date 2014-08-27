@@ -3,9 +3,6 @@
 #include <cassert>
 
 void SatoNiitaNeutrons::setParameters(double ss, double rc, double d) {
-    
-    assert(s_max > s_min && s_max >= ss && ss >= s_min);
-    
     // Eq. (6): b_i1, b_i2 interpolated values between solar min and max
     b_i1[1] = (b_11mn*(s_max - ss) + b_11mx*(ss - s_min))/(s_max - s_min);
     for(int i=1; i<=4; i++)

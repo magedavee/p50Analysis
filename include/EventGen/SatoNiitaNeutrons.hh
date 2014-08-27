@@ -2,17 +2,21 @@
 #define SATONIITANEUTRONS_HH
 
 #include <G4SystemOfUnits.hh>
+#include <cmath>
 
 /// Implementation of neutron spectra from Sato, Niita, RADIATION RESEARCH 166, 544–555 (2006)
 /// which parametrizes simulation results for <20km altitudes
 class SatoNiitaNeutrons {
 public:
     
-    /// Constructor
-    SatoNiitaNeutrons() { setParameters(1.*GV, 4.*GeV, 1035*g/cm2); }
+    /// Constructor (default initialization to Nashville, TN location from Ziegler 1998)
+    SatoNiitaNeutrons() { setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2); }
     
     /// Set solar modulation potential ss, cutoff rigidity rc, atmospheric depth d
     void setParameters(double ss, double rc, double d);
+    
+    /// approximate conversion from altitude to atmospheric depth
+    static double altitudeToDepth(double a) { return pow(10,-0.066044*a/km)*1033.7*g/cm2; }
     
     /// Calcuate energy-dependent spectrum terms at energy E
     double calcAirSpectrum(double E);
@@ -49,7 +53,7 @@ protected:
     // Table 2 for c_i
     const double c_1 = 0.229;           // 1/Lethargy units
     const double c_2 = 2.31*MeV;
-    const double c_3 = 0.5;             // Sato and Niita paper uses 0.721, but they recommend 0.5 for basic evaporation spectrum
+    const double c_3 = 0.721;           // would be 0.5 for "conventional" evaporation spectrum without further atmospheric modification
     /***/ double c_4 = 0.0516;          // 1/Lethargy, redefined in Eq. (8)
     const double c_5 = 126.*MeV;
     const double c_6 = 2.17*MeV;

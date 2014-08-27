@@ -79,8 +79,8 @@ public:
         if(hGoldhagen) {
             scale_times_bin(hGoldhagen);
             hGoldhagen->GetYaxis()->SetTitle("E #times d#Phi/dE, [1/cm^{2}/s]");
-            hGoldhagen->SetMaximum(1e-2);
-            hGoldhagen->SetMinimum(1e-6);
+            hGoldhagen->SetMaximum(5e-2);
+            hGoldhagen->SetMinimum(1e-5);
             hGoldhagen->SetTitle("Surface neutron flux");
             hGoldhagen->Draw();
             
@@ -89,7 +89,7 @@ public:
             hNeutronE->Scale(fluxscale);
             scale_times_bin(hNeutronE);
             normalize_to_bin_width(hNeutronE);
-            hNeutronE->Draw("Same");
+            //hNeutronE->Draw("Same");
             
             hNeutronIn->Scale(fluxscale);
             scale_times_bin(hNeutronIn);
@@ -104,8 +104,9 @@ public:
             leg->SetBorderSize(0); // get rid of the box
             leg->SetTextSize(0.045); // set text size
             leg->AddEntry(hGoldhagen,"Goldhagen (Watson roof)","l");
-            leg->AddEntry("hNeutronE","CRY + Geant4 backscatter","l");
-            leg->AddEntry("hNeutronIn","CRY incident","l");
+            //leg->AddEntry("hNeutronE","CRY + Geant4 backscatter","l");
+            //leg->AddEntry("hNeutronIn","CRY incident","l");
+            leg->AddEntry("hNeutronIn","Sato-Niita parametrization","l");
             leg->Draw();
             
             gPad->Print((outpath+"/E_Goldhagen.pdf").c_str());
@@ -150,6 +151,8 @@ int main(int argc, char** argv) {
     // load data into TChain
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
+    if(!D.getTotalGenTime()) { std::cout << "Oops, zero simulated time! Goodbye.\n"; return -1; }
+    
     // set readout branches
     ParticleEvent* evt = new ParticleEvent();
     T->GetBranch("iEvts")->SetAutoDelete(kFALSE);

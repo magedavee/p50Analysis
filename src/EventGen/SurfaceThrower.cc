@@ -11,26 +11,35 @@ void SurfaceThrower::setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* T
     W2T.setParentChild(W,T);
 }
 
-bool SurfaceThrower::genThrow() {
+void SurfaceThrower::genThrow() {
     assert(S && T);
-    if(!S || !T) return false;
+    if(!S || !T) return;
     
-    // propose throw direction
-    mom = proposeDirection();
+    do {
+        double x;
+        do {
+            // propose throw direction
+            mom = proposeDirection();
+        
+            // propose source surface point.
+            // Note: this won't be right if solid doesn't return uniformly distributed points!
+            pos = S->GetLogicalVolume()->GetSolid()->GetPointOnSurface();
+            G4ThreeVector snorm = S->GetLogicalVolume()->GetSolid()->SurfaceNormal(pos);
+            pos = W2S.coordCtoP(pos);
+            snorm = W2S.dirCtoP(snorm);
+        
+            // cos-theta surface normal condition
+            x = snorm.dot(mom);
+            
+            nAttempts++;
+            
+        } while(!(((outer && x>0) || (!outer && x<0)) && G4UniformRand() < fabs(x)));
+        
+        nSurfaceThrows++;
+        
+    } while(!W2T.intersects(pos,mom));
     
-    // propose source surface point.
-    // Note: this won't be right if solid doesn't return uniformly distributed points!
-    pos = S->GetLogicalVolume()->GetSolid()->GetPointOnSurface();
-    G4ThreeVector snorm = S->GetLogicalVolume()->GetSolid()->SurfaceNormal(pos);
-    pos = W2S.coordCtoP(pos);
-    snorm = W2S.dirCtoP(snorm);
-    
-    // cos-theta surface normal condition
-    double x = snorm.dot(mom);
-    if(!(((outer && x>0) || (!outer && x<0)) && G4UniformRand() < fabs(x))) return false;
-    
-    // whether proposed event points to target surface
-    return W2T.intersects(pos,mom);
+    nHits++;
 }
 
 G4ThreeVector SurfaceThrower::proposeDirection() {

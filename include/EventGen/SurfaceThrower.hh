@@ -7,13 +7,13 @@
 class SurfaceThrower {
 public:
     /// Constructor
-    SurfaceThrower(G4VPhysicalVolume* w): outer(true), W(w) { }
+    SurfaceThrower(G4VPhysicalVolume* w): outer(true), W(w), nAttempts(0), nSurfaceThrows(0), nHits(0) { }
     
     /// Set source (surface) and target (volume)
     void setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* TT);
     
     /// Generate position and momentum for throwing particle; return whether successful direction generated
-    bool genThrow();
+    void genThrow();
     
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector mom;          ///< momentum direction
@@ -29,6 +29,10 @@ protected:
     G4VPhysicalVolume* T;       ///< Target volume
     GeomHelper W2S;             ///< World to source-volume geometry
     GeomHelper W2T;             ///< World to target volume geometry
+    
+    int nAttempts;              ///< number of proposed throws
+    int nSurfaceThrows;         ///< number of proposed throws passing surface cos-theta criteria
+    int nHits;                  ///< number of events hitting target
 };
 
 

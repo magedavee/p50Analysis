@@ -1,7 +1,6 @@
 #include "PrimaryGeneratorMessenger.hh"
 
 #include "PrimaryGeneratorAction.hh"
-#include "CosmicNeutronGenerator.hh"
 #include "CosmicMuonGenerator.hh"
 #include "CosmicCosineGenerator.hh"
 #include "InverseBetaKinematics.hh"

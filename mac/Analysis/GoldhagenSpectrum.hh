@@ -13,6 +13,6 @@ void scale_times_bin(TH1* f);
 void normalize_to_bin_width(TH1* f);
 
 /// Utility for loading Goldhagen ground-level neutron spectra histogram
-TH1* loadGoldhagen(const string& fname = "/home/mpmendenhall/Documents/PROSPECT/Goldhagen_Watson_Roof.txt");
+TH1* loadGoldhagen(const string& fname = "/home/mpmendenhall/Documents/PROSPECT/Cosmic Background Papers/Goldhagen_Watson_Roof.txt");
 
 #endif
