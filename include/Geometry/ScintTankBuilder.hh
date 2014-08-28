@@ -2,7 +2,7 @@
 /// Assure this header is loaded only once
 #define SCINTTANKBUILDER_HH
 
-#include "Builder.hh"
+#include "ScintSegVol.hh"
 #include "SeparatorBuilder.hh"
 #include "SlottedRodBuilder.hh"
 
@@ -15,7 +15,7 @@
 #include <G4VisAttributes.hh>
 
 /// Builder for tank holding liquid scintillator and reflector lattice
-class ScintTankBuilder: public Builder, public G4UImessenger {
+class ScintTankBuilder: public ScintSegVol, public G4UImessenger {
 public:
     /// Constructor
     ScintTankBuilder();
@@ -24,8 +24,6 @@ public:
     void construct();
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
-    
-    G4LogicalVolume* scint_log; ///< liquid scintillator volume
     
     /// get total number of segments
     uint getNSeg() const { return nSegX*nSegY; }

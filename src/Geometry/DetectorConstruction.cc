@@ -10,30 +10,40 @@
 #include <G4Sphere.hh>
 
 DetectorConstruction::DetectorConstruction():
-XMLProvider("DetectorConstruction"), worldPad(4.*m) {
-    addChild(&myBuilding);
+XMLProvider("DetectorConstruction"), worldPad(0.2*m) {
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cerr << "Starting detector construction..." << G4endl;
     myBuilding.construct();
+    myTestCell.construct();
     
-    dim = myBuilding.getDimensions() + G4ThreeVector(2,2,2)*worldPad;
+    bool testCell = false;
+    Builder& myContents = testCell ? (Builder&)myTestCell : (Builder&)myBuilding;
+    addChild(&myContents);
+    
+    dim = myContents.getDimensions() + G4ThreeVector(2,2,2)*worldPad;
     G4Box* world_box = new G4Box("world_box", dim[0]/2., dim[1]/2., dim[2]/2.);
     G4LogicalVolume* world_log = new G4LogicalVolume(world_box, MaterialsHelper::M().Vacuum, "world_log");
-    building_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myBuilding.main_log, "building_phys", world_log, false,  0);
+    building_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myContents.main_log, "building_phys", world_log, false,  0);
     
-    /*
-    G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, worldPad/4., 0, 2*M_PI, 0, M_PI);
-    G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
-    ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,dim[2]/2.-worldPad/2.), sun_log, "sun_phys", world_log, false,  0);
-    */
+    if(testCell) {
+        G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, worldPad/4., 0, 2*M_PI, 0, M_PI);
+        G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
+        ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,dim[2]/2.-worldPad/2.), sun_log, "sun_phys", world_log, false,  0);
+        
+        // assign sensitive detector to scintillator
+        myScintSD = new ScintSD("ScintSD", myTestCell);
+        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
+        myTestCell.scint_log->SetSensitiveDetector(myScintSD);
+    } else {
+        myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
+        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
+        getScintLog()->SetSensitiveDetector(myScintSD);
+    }
     
-    // assign sensitive detector to scintillator
-    myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
-    G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-    getScintLog()->SetSensitiveDetector(myScintSD);
+    G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
     G4cerr << "Detector construction complete." << G4endl;
     

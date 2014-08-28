@@ -1,5 +1,6 @@
 #include "VisSetup.hh"
 #include <G4TrajectoryDrawByParticleID.hh>
+#include <G4ios.hh>
 
 VisSetup::VisSetup(G4VisManager* vis_manager) {
     
@@ -20,6 +21,8 @@ VisSetup::VisSetup(G4VisManager* vis_manager) {
     vis_manager->SelectTrajectoryModel(pidModel->Name());
 
     vis_manager->RegisterModel(new OpticalPhotonReducer());
+    
+    G4cout << "Track visualization setup complete.\n";
 }
 
 bool OpticalPhotonReducer::Evaluate (const G4VTrajectory& T) const {

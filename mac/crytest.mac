@@ -1,5 +1,6 @@
 /control/verbose 0
 /run/verbose 2
+/generator/verbose 3
 /event/verbose 0
 /tracking/verbose 0
 
@@ -16,8 +17,8 @@
 
 /run/initialize
 
-/vis/open OGLSXm
-#/vis/disable
+#/vis/open OGLSXm
+/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
@@ -35,10 +36,7 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/CRY_GroundFlux.root
-
-/generator/verbose 0
-/run/verbose 2
+/output/filename /home/mpmendenhall/Analysis/ShortBaseline/TestOut.root
 
 /generator/module_CRY
 /CRY/input returnNeutrons 1
@@ -52,7 +50,7 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-#/generator/module_CosN
+/generator/module_Cf252
 
-/run/beamOn 1000
+/run/beamOn 100000
 

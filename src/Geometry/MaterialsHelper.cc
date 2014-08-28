@@ -118,21 +118,24 @@ MaterialsHelper::MaterialsHelper() {
     setupOptical();
 }
 
-G4Material* MaterialsHelper::get6LiLS(double loading) {
-    if(!LiLSs.count(loading)) {
-        G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator...\n";
-        double m_Cl = loading*35.45/6.;                    /// mass fraction Cl, by ratio of masses to 6Li
-        double m_H2O = (1000./8. - 6. -35.45)/6.*loading;  /// mass fraction H2O from 8 molar LiCl solution
-        G4Material* Li_UG_AB = new G4Material(("UG_AB-"+to_str(100*loading)+"wt%Li").c_str(), 0.98*g/cm3, 4, kStateLiquid, 293.15*kelvin);
+G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
+    std::string mnm = "UG_AB-"+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
+    if(!xmats.count(mnm)) {
+        G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator " << nm << " ...\n";
+        G4Material* myLi = enriched? Li6 : nat_Li; 
+        double avgLiA = enriched? 6. : 0.0864*6 + .9135*7;      /// Li average mass
+        double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li
+        double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;  /// mass fraction H2O from 8 molar LiCl solution
+        G4Material* Li_UG_AB = new G4Material(mnm.c_str(), 0.98*g/cm3, 4, kStateLiquid, 293.15*kelvin);
         Li_UG_AB->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
-        Li_UG_AB->AddMaterial(Li6, loading);
+        Li_UG_AB->AddMaterial(myLi, loading);
         Li_UG_AB->AddMaterial(nat_Cl, m_Cl);
         Li_UG_AB->AddMaterial(Water, m_H2O);
         if(mptUG_AB) Li_UG_AB->SetMaterialPropertiesTable(mptUG_AB);      // TODO
         Li_UG_AB->GetIonisation()->SetBirksConstant(birksUG_AB);
-        LiLSs[loading] = Li_UG_AB;
+        xmats[mnm] = Li_UG_AB;
     }
-    return LiLSs[loading];
+    return xmats[mnm];
 }
 
 void MaterialsHelper::setupOptical() {

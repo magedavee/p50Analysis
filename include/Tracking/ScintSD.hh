@@ -2,7 +2,7 @@
 /// Assure header file is only loaded once
 #define SCINTSD_HH
 
-#include "ScintTankBuilder.hh"
+#include "ScintSegVol.hh"
 #include <G4VSensitiveDetector.hh>
 #include "WeightAverager.hh"
 
@@ -47,7 +47,7 @@ class ScintSD : public G4VSensitiveDetector {
 public:
     
     /// Constructor
-    ScintSD(G4String name, ScintTankBuilder& T);
+    ScintSD(G4String name, ScintSegVol& T);
 
     /// Initializes detector at start of event
     void Initialize(G4HCofThisEvent*);
@@ -74,7 +74,7 @@ protected:
     std::map<G4int, G4int> secondaries_counter;                 ///< count of previously-observed secondaries in each track
     uint nclusters;                                             ///< number of time-grouped ionization event clusters
     
-    ScintTankBuilder& myTank;                                   ///< scintillator tank reference
+    ScintSegVol& myScint;                                       ///< scintillator geometry reference
     int seg_id;                                                 ///< scintillator segment ID number
     G4ThreeVector worldPos;                                     ///< position in world coordinates
     G4ThreeVector localPos;                                     ///< position in scintillator coordinates

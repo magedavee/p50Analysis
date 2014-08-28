@@ -30,8 +30,8 @@ void IonisationHit::Display() const {
 
 ////////////////////////////////////////////////////////////////
 
-ScintSD::ScintSD(G4String name, ScintTankBuilder& T): G4VSensitiveDetector(name),
-time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0), myTank(T) { }
+ScintSD::ScintSD(G4String name, ScintSegVol& T): G4VSensitiveDetector(name),
+time_gap(20*ns), edep_threshold(100*keV), verbose(0), nclusters(0), myScint(T) { }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();
@@ -44,13 +44,12 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     
     G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
     // check that we are in scintillator proper, not sub-assemblies therein
-    G4LogicalVolume* log = hitVol->GetVolume()->GetLogicalVolume();
-    if(log != myTank.scint_log) return false;
+    if(hitVol->GetVolume()->GetLogicalVolume() != myScint.scint_log) return false;
     
     // world and local position
     worldPos = aStep->GetPreStepPoint()->GetPosition();
     localPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPos);
-    seg_id = myTank.getSegmentNum(localPos);
+    seg_id = myScint.getSegmentNum(localPos);
     
     G4bool notable = false;
     notable |= ProcessNeutronHits(aStep, H);

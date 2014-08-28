@@ -3,6 +3,7 @@
 #define MATERIALSHELPER_HH
 
 #include <map>
+#include <string>
 
 #include <G4Material.hh>
 #include <G4NistManager.hh>
@@ -52,8 +53,8 @@ public:
     G4Material* Concrete;       ///< Concrete
     G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
     
-    /// get 6Li-loaded liquid scintillator material
-    G4Material* get6LiLS(double loading = 0.007);
+    /// get 6Li-loaded liquid scintillator material (option for natural or enriched 6Li)
+    G4Material* get6LiLS(double loading = 0.007, bool enriched = true);
     
 protected:
     /// Constructor
@@ -62,7 +63,7 @@ protected:
     void setupOptical();
     
     static MaterialsHelper* theMatHelper;       ///< singleton instance
-    std::map<double, G4Material*> LiLSs;        ///< 6Li-loaded liquid scintillator concoctions
+    std::map<std::string, G4Material*> xmats;   ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
     
     G4MaterialPropertiesTable* mptUG_AB;        ///< optical properties for Ultima Gold AB scintillator
     double birksPC;                             ///< Birk's Law quenching constant for pseudocumene
