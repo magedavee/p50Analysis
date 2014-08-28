@@ -10,18 +10,18 @@ class SatoNiitaNeutrons {
 public:
     
     /// Constructor (default initialization to Nashville, TN location from Ziegler 1998)
-    SatoNiitaNeutrons() { setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2); }
+    SatoNiitaNeutrons() { setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2, 0.2); }
     
-    /// Set solar modulation potential ss, cutoff rigidity rc, atmospheric depth d
-    void setParameters(double ss, double rc, double d);
+    /// Set solar modulation potential ss, cutoff rigidity rc, atmospheric depth d, water fraction w
+    void setParameters(double ss, double rc, double d, double w);
     
     /// approximate conversion from altitude to atmospheric depth
     static double altitudeToDepth(double a) { return pow(10,-0.066044*a/km)*1033.7*g/cm2; }
     
     /// Calcuate energy-dependent spectrum terms at energy E
     double calcAirSpectrum(double E);
-    /// Calculate ground-level spectrum, for water weight fraction w (calls calcAirSpectrum)
-    double calcGroundSpectrum(double E, double w);
+    /// Calculate ground-level spectrum (calls calcAirSpectrum)
+    double calcGroundSpectrum(double E);
     
     double phi_L;       ///< Low-energy neutron flux (constant in E)
     double phi_B;       ///< "basic" neutron spectrum shape, 1/Lethargy
@@ -36,8 +36,12 @@ protected:
     
     const double s_max = 1.700*GV;      ///< solar modulation potential maximum
     const double s_min = 0.465*GV;      ///< solar modulation potential minimum
+    /***/ double s_mod;                 ///< solar modulation potential
+    /***/ double r_c;                   ///< cutoff rigidity
+    /***/ double depth;                 ///< atmospheric depth
     const double E_T = 0.025*eV;        ///< thermal neutron energy
-
+    /***/ double waterFrac;             ///< water fraction in ground
+    
     // Table 1, except b_i2mn[3], which has been changed from 0.292 to -0.292         | Table 3
     //                        0  1           2               3        4               | 5         6               7      8              9         10              11        12
     /***/ double a[13]    = { 0, 0.,         0.,             0.,      0.,               0.,       1.71e-4*cm2/g,  0.530, 0.00136*cm2/g, 0.,       0.,             0.,       0.0133*cm2/g };

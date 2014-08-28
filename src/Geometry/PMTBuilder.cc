@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-PMTBuilder::PMTBuilder(): XMLProvider("PMT"), diameter(8*2.54*cm), length(0),
+PMTBuilder::PMTBuilder(): Builder("PMT"), diameter(8*2.54*cm), length(0),
 outer_vis(G4Color(0.2,0.2,0.4)), capsule_vis(G4Color(1.0,1.0,0.0)) { }
 
 void PMTBuilder::construct() {
@@ -16,6 +16,7 @@ void PMTBuilder::construct() {
     double capsule_length = 0.66*length;        // length of vacuum capsule
     double capsule_radius = diameter/2. - 2.*mm;// radius of vacuum capsule
     double capsule_thick = 5.*mm;               // thickness of vacuum capsule
+    dim = G4ThreeVector(diameter,diameter,length);
     
     G4Tubs* pmt_tube = new G4Tubs("pmt_tube", 0, diameter/2., length/2., 0, 2*M_PI);
     main_log = new G4LogicalVolume(pmt_tube, MaterialsHelper::M().SS444, "PMT_main_log");

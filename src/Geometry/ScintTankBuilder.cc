@@ -14,7 +14,7 @@
 #include <G4PVPlacement.hh>
 #include <G4LogicalBorderSurface.hh>
 
-ScintTankBuilder::ScintTankBuilder(): XMLProvider("ScintTank"), main_log(NULL),
+ScintTankBuilder::ScintTankBuilder(): Builder("ScintTank"),
 tank_depth(65*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(25*cm), nSegX(8), nSegY(4), scint6LiLoading(0.007),
 tank_ui_dir("/geom/tank/"),
@@ -58,6 +58,8 @@ void ScintTankBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
 
 void ScintTankBuilder::construct() {
     
+    dim = G4ThreeVector(getWidthX(), getWidthY(), tank_depth);
+    
     ///////////////
     // acrylic tank
     G4Box* tank_box = new G4Box("tank_box", getWidthX()/2., getWidthY()/2., tank_depth/2.);
@@ -76,7 +78,9 @@ void ScintTankBuilder::construct() {
     // rods & separators lattice
     
     double sep_gap = mySlottedRod.r_inner + 1.*mm; // gap between edge of separators and center of rods
-    mySeparator.construct(seg_size - 2*sep_gap, tank_depth);
+    mySeparator.width = seg_size - 2*sep_gap;
+    mySeparator.length = tank_depth;
+    mySeparator.construct();
     mySlottedRod.construct(tank_depth, sep_gap, mySeparator.getThick());
     
     G4ThreeVector r0(-0.5*nSegX*seg_size, -0.5*nSegY*seg_size, 0);      // starting point for rod placement
@@ -126,7 +130,7 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
 }
 
 void ScintTankBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "depth", G4BestUnit(tank_depth,"Length"));
+    addAttr(E, "dim", G4BestUnit(dim,"Length"));
     addAttr(E, "seg_size", G4BestUnit(seg_size,"Length"));
     addAttr(E, "wall", G4BestUnit(tank_wall_thick,"Length"));
     addAttr(E, "buffer", G4BestUnit(ls_buffer_thick,"Length"));

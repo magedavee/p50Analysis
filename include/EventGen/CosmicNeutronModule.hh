@@ -26,9 +26,12 @@ protected:
     /// neutron flux direction distribution
     virtual G4ThreeVector proposeDirection();
     
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
+    
     TH1F* myDist;       ///< underlying energy distribution
-    double waterFrac;   ///< water fraction by weight in reflecting material
     double netFlux;     ///< total flux 1/cm^2/s
+    double area;        ///< originating surface area
 };
 
 #endif

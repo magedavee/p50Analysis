@@ -2,9 +2,9 @@
 /// Assure this header is only loaded once
 #define BUILDINGBUILDER_HH
 
+#include "Builder.hh"
 #include "ShieldBuilder.hh"
 #include "FluxCounterBuilder.hh"
-#include "XMLProvider.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VPhysicalVolume.hh>
@@ -16,7 +16,7 @@
 #include <G4UIcmdWithoutParameter.hh>
 
 /// Builder for building containing detector
-class BuildingBuilder: public G4UImessenger, public XMLProvider {
+class BuildingBuilder: public Builder, public G4UImessenger {
 public:
     /// Constructor
     BuildingBuilder();
@@ -27,10 +27,6 @@ public:
     /// Construct geometry
     void construct();
     
-    /// Get outer dimensions
-    G4ThreeVector getDimensions() const { return dim; }
-    
-    G4LogicalVolume* main_log;  ///< main mother volume: concrete building
     G4LogicalVolume* air_log;   ///< air space inside building
     G4VPhysicalVolume* det_phys;///< detector volume physical placement
     
@@ -48,7 +44,6 @@ public:
     
 private:
     
-    G4ThreeVector dim;          ///< outer dimensions
     G4VisAttributes wall_vis;   ///< visualization settings for shell
     
     G4UIdirectory building_ui_dir;      ///< UI directory for building-related commands

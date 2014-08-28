@@ -2,13 +2,13 @@
 /// Assure this header is loaded only once
 #define PMTBUILDER_HH
 
-#include "XMLProvider.hh"
+#include "Builder.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for a PMT, cylindrical and looking upwards to +z
-class PMTBuilder: public XMLProvider {
+class PMTBuilder: public Builder {
 public:
     /// Constructor
     PMTBuilder();
@@ -17,8 +17,6 @@ public:
     void construct();
     /// Get length
     double getLength() const { return length; }
-
-    G4LogicalVolume* main_log;  ///< main volume enclosing PMT
     
     double diameter;            ///< PMT diameter
     

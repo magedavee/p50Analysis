@@ -2,9 +2,9 @@
 /// Assure this header is only loaded once
 #define SHIELDBUILDER_HH
 
+#include "Builder.hh"
 #include "DetVolBuilder.hh"
 #include "Utilities.hh"
-#include "XMLProvider.hh"
 #include <vector>
 
 #include <G4LogicalVolume.hh>
@@ -33,7 +33,7 @@ protected:
 };
 
 /// Builder for shielding layers around detector
-class ShieldBuilder: public G4UImessenger, public XMLProvider {
+class ShieldBuilder: public Builder, public G4UImessenger {
 public:
     /// constructor
     ShieldBuilder();
@@ -43,19 +43,15 @@ public:
     
     /// Construct geometry
     void construct();
-    /// Get outer dimensions
-    G4ThreeVector getDimensions() const { return dim; }
     /// remove all shield layers
     void clearShield() { layers.clear(); }
     /// add shield layer
     void addLayer(const ShieldLayerSpec& sh) { layers.push_back(sh); }
     
-    G4LogicalVolume* main_log;                  ///< outermost volume layer
     DetVolBuilder myDet;                        ///< detector assembly
     
 protected:
     std::vector<ShieldLayerSpec> layers;        ///< descriptions of each layer
-    G4ThreeVector dim;                          ///< outermost dimensions
     
     G4UIdirectory shield_dir;                   ///< UI directory for shield commands
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers

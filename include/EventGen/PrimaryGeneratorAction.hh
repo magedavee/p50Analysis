@@ -18,6 +18,7 @@ class IBDModule;
 class FissionAntiNuModule;
 class CosmicMuonModule;
 class CosmicNeutronModule;
+class Cf252Module;
 
 /// Specification for a primary particle to throw
 struct primaryPtcl {
@@ -80,6 +81,8 @@ public:
     void loadCosmicMuonModule();
     /// load cosmic neutrons as current generator
     void loadCosmicNeutronModule();
+    /// load Cf252 neutron source as current generator
+    void loadCf252Module();
     
 protected:
     
@@ -94,6 +97,7 @@ protected:
     FissionAntiNuModule* myFisAntNuModule;      ///< Fission anti-neutrinos generator
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
+    Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
 
     G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 

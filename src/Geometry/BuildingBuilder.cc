@@ -7,10 +7,10 @@
 #include <G4RotationMatrix.hh>
 #include <G4PVPlacement.hh>
 
-BuildingBuilder::BuildingBuilder(): XMLProvider("Building"), main_log(NULL),
+BuildingBuilder::BuildingBuilder(): Builder("Building"),
 wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
 floor_thick(0.1*m), makeVacuum(false), makeBare(false), makeFluxTest(false),
-dim(), wall_vis(G4Colour(0.3, 0.4, 0.4)),
+wall_vis(G4Colour(0.3, 0.4, 0.4)),
 building_ui_dir("/geom/building/"),
 bareCmd("/geom/building/makeBare",this),
 vacuumCmd("/geom/building/makeVacuum",this),
@@ -32,7 +32,7 @@ void BuildingBuilder::construct() {
     
     myDetUnit.construct();
     
-    myFluxCounter.dim = G4ThreeVector(10*m,10*m,1*cm);
+    myFluxCounter.setDimensions(G4ThreeVector(10*m,10*m,1*cm));
     myFluxCounter.construct();
     
     G4ThreeVector airDim;
@@ -40,7 +40,7 @@ void BuildingBuilder::construct() {
         ceil_clearance = ceil_thick = 0;
         floor_thick = 2.*m;
         addChild(&myFluxCounter);
-        airDim = myFluxCounter.dim;
+        airDim = myFluxCounter.getDimensions();
     } else {
         addChild(&myDetUnit);
         airDim = myDetUnit.getDimensions();

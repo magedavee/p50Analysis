@@ -2,22 +2,25 @@
 /// Assure this header is loaded only once
 #define SLOTTEDRODBUILDER_HH
 
-#include "XMLProvider.hh"
+#include "Builder.hh"
 #include "OpticalSurfaceSetup.hh"
+
+#include <cassert>
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for slotted rods to hold separator panels
-class SlottedRodBuilder: public XMLProvider {
+class SlottedRodBuilder: public Builder {
 public:
     /// Constructor
     SlottedRodBuilder();
     
+    /// unused construct method
+    virtual void construct() { assert(false); }
     /// Construct geometry, given length, slot radius, slot width
     void construct(double l, double rslot, double wslot);
     
-    G4LogicalVolume* main_log;          ///< main mother volume
     OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
     
     double r_outer;             ///< outer radius

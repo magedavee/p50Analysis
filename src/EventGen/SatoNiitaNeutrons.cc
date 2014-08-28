@@ -2,7 +2,12 @@
 #include <cmath>
 #include <cassert>
 
-void SatoNiitaNeutrons::setParameters(double ss, double rc, double d) {
+void SatoNiitaNeutrons::setParameters(double ss, double rc, double d, double w) {
+    s_mod = ss;
+    r_c = rc;
+    depth = d;
+    waterFrac = w;
+    
     // Eq. (6): b_i1, b_i2 interpolated values between solar min and max
     b_i1[1] = (b_11mn*(s_max - ss) + b_11mx*(ss - s_min))/(s_max - s_min);
     for(int i=1; i<=4; i++)
@@ -32,9 +37,10 @@ double SatoNiitaNeutrons::calcAirSpectrum(double E) {
     return phi_inf = phi_B*phi_L;
 }
 
-double SatoNiitaNeutrons::calcGroundSpectrum(double E, double w) {
-    
+double SatoNiitaNeutrons::calcGroundSpectrum(double E) {
     calcAirSpectrum(E);
+
+    double w = waterFrac;
     
     // Eq. (12), corrected with missing "+"
     g_3 = pow(10., h_31 + h_32/(w+h_33))*MeV;

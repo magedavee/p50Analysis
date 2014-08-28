@@ -13,7 +13,7 @@ void ShieldLayerSpec::fillNode(TXMLEngine& E) {
     addAttr(E, "bottom", G4BestUnit(bottom_thick,"Length"));
 }
 
-ShieldBuilder::ShieldBuilder(): XMLProvider("Shield"),
+ShieldBuilder::ShieldBuilder(): Builder("Shield"),
 shield_dir("/geom/shield/"), clearCmd("/geom/shield/clear",this) {
     addLayer(ShieldLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
     addLayer(ShieldLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));

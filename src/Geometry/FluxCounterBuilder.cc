@@ -8,8 +8,7 @@
 #include <G4UnitsTable.hh>
 #include <G4Box.hh>
 
-FluxCounterBuilder::FluxCounterBuilder(): XMLProvider("FluxCounter"),
-main_log(NULL), dim(), main_vis(G4Color(1.,0.,0.)) {
+FluxCounterBuilder::FluxCounterBuilder(): Builder("FluxCounter"), main_vis(G4Color(1.,0.,0.)) {
 }
 
 void FluxCounterBuilder::construct() {

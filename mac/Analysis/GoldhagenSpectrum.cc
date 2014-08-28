@@ -38,7 +38,7 @@ TH1* loadGoldhagen(const string& fname) {
             continue;
         }
         bins.push_back(v[0]);
-        data.push_back(v[7]);
+        data.push_back(v[3]);
     }
     
     TH1F* foo = new TH1F("hGoldhagen", "Goldhagen surface neutron spectrum", bins.size()-1, &bins[0]);
@@ -46,6 +46,11 @@ TH1* loadGoldhagen(const string& fname) {
     foo->GetXaxis()->SetTitleOffset(1.45);
     foo->GetYaxis()->SetTitle("flux per energy, [1/cm^{2}/s/MeV]");
     foo->GetYaxis()->SetTitleOffset(1.45);
-    for(unsigned int i=0; i<bins.size()-1; i++) foo->SetBinContent(i+1,data[i]);
+    double netFlux = 0;
+    for(unsigned int i=0; i<bins.size()-1; i++) {
+        netFlux += data[i]*(bins[i+1]-bins[i]);
+        foo->SetBinContent(i+1,data[i]);
+    }
+    std::cout << "Loaded Goldhagen spectrum with net flux " << netFlux*1000 << " mHz/cm^2\n";
     return foo;
 }

@@ -1,13 +1,13 @@
 #ifndef FLUXCOUNTERBUILDER_HH
 #define FLUXCOUNTERBUILDER_HH
 
-#include "XMLProvider.hh"
+#include "Builder.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Class for toy models, evacuated flux-counting volume
-class FluxCounterBuilder: public XMLProvider {
+class FluxCounterBuilder: public Builder {
 public:
     /// Constructor
     FluxCounterBuilder();
@@ -15,8 +15,8 @@ public:
     /// Construct geometry
     void construct();
     
-    G4LogicalVolume* main_log;  ///< main mother volume, metal shell enclosure
-    G4ThreeVector dim;          ///< outer dimensions
+    /// Set dimensions
+    void setDimensions(G4ThreeVector d) { dim = d; }
     
 private:
     

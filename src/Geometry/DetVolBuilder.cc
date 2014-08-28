@@ -8,7 +8,7 @@
 #include <G4PVPlacement.hh>
 #include <G4Box.hh>
 
-DetVolBuilder::DetVolBuilder(): XMLProvider("DetVol"), main_log(NULL),
+DetVolBuilder::DetVolBuilder(): Builder("DetVol"),
 shell_thick(2*mm), buffer_thick(2*cm), shell_vis(G4Colour(1.0,0,1.0)) {
     myRot.rotateX(-90*deg);
     addChild(&myTank);

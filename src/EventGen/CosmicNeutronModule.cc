@@ -13,13 +13,12 @@
 
 CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "CosmicNeutron"),
-SurfaceThrower(myPGA->GetDetector()->theWorld),
-myDist(NULL), waterFrac(0.2) {
+SurfaceThrower(myPGA->GetDetector()->theWorld), myDist(NULL) {
     setSourceTarget(myPGA->GetDetector()->theWorld, myPGA->GetDetector()->building_phys);
     outer = false;
     
     //setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2);        // Nashville, TN
-    setParameters(s_min, 2.00*GeV, 1010.9*g/cm2);       // Goldhagen "Watson Roof"
+    setParameters(s_min, 2.00*GeV, 1010.9*g/cm2, 0.2);       // Goldhagen "Watson Roof"
 }
 
 void CosmicNeutronModule::GeneratePrimaries(G4Event* anEvent) {    
@@ -60,7 +59,8 @@ void CosmicNeutronModule::makeDistribution() {
     
     for(unsigned int i=1; i<=nBins; i++) {
         double E = myDist->GetBinCenter(i);
-        double EdPhidE = calcGroundSpectrum(E,waterFrac);
+        //double EdPhidE = calcGroundSpectrum(E);
+        double EdPhidE = calcAirSpectrum(E);
         //G4cout << g_1 << "\t" << g_2 << "\t" << G4BestUnit(g_3,"Energy") << "\t" << g_4 << "\t"<< G4BestUnit(g_5,"Energy") << "\n";
         assert(EdPhidE >= 0.);
         myDist->SetBinContent(i,EdPhidE*myDist->GetBinWidth(i)/E);
@@ -68,18 +68,29 @@ void CosmicNeutronModule::makeDistribution() {
         //    << "\tphi_T = " << phi_T << "\tf_G = " << f_G << "\tE*dPhi/dE = " << EdEdPhi << G4endl;
     }
     netFlux = myDist->Integral();
+    area = S->GetLogicalVolume()->GetSolid()->GetSurfaceArea();
 }
 
-G4ThreeVector CosmicNeutronModule::proposeDirection() {    
+G4ThreeVector CosmicNeutronModule::proposeDirection() {
     double phi = 2.*M_PI*G4UniformRand();
     double costheta;
     do { costheta = -G4UniformRand(); }
-    while(G4UniformRand() > pow(fabs(costheta),3));
+    while(G4UniformRand() > pow(fabs(costheta),3.));
     double sintheta = sqrt(1.-costheta*costheta);
     return G4ThreeVector(cos(phi)*sintheta, sin(phi)*sintheta, costheta);
 }
 
 G4double CosmicNeutronModule::GetGeneratorTime() const {
-    // return double(nAttempts) / S->GetLogicalVolume()->GetSolid()->GetSurfaceArea() / netFlux * M_PI/2.; // TODO: is this correct??
-    return double(nSurfaceThrows) / S->GetLogicalVolume()->GetSolid()->GetSurfaceArea() / netFlux; // TODO: is this correct??
+    return double(nAttempts) / area / netFlux;
+}
+
+void CosmicNeutronModule::fillNode(TXMLEngine& E) {
+    addAttr(E, "flux", to_str(netFlux*(1000*s*cm2))+" mHz/cm2");
+    addAttr(E, "area", G4BestUnit(area,"Surface"));
+    addAttr(E, "a_frac", double(nSurfaceThrows)/double(nAttempts));
+    addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
+    addAttr(E, "s_mod", G4BestUnit(s_mod,"Electric potential"));
+    addAttr(E, "depth", G4BestUnit(depth,"Mass/Surface"));
+    addAttr(E, "r_c", G4BestUnit(r_c,"Energy"));
+    addAttr(E, "w", waterFrac);
 }

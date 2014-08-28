@@ -11,7 +11,7 @@
 #include <cmath>
 #include <cassert>
 
-SlottedRodBuilder::SlottedRodBuilder(): XMLProvider("SlottedRod"), main_log(NULL),
+SlottedRodBuilder::SlottedRodBuilder(): Builder("SlottedRod"),
 r_outer(9.5*mm), r_inner(4*mm), length(0), r_slot(0), w_slot(0),
 rod_vis(G4Colour(1.0,1.0,0.5)) {
     myOptSurf.refl = 0.9;
@@ -27,7 +27,8 @@ void SlottedRodBuilder::construct(double l, double rslot, double wslot) {
     r_slot = rslot;
     w_slot = wslot;
     assert(r_inner < r_slot && r_slot < r_outer);
-    
+    dim = G4ThreeVector(2*r_outer, 2*r_outer, length);
+        
     G4Tubs* rod_tube = new G4Tubs("rod_tube", r_inner, r_outer, length/2., 0, 2*M_PI);
     G4Box* cutout_box = new G4Box("cutout_box", r_outer, w_slot/2., length);
     G4VSolid* rod_cut = rod_tube;

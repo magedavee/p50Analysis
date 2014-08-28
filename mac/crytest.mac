@@ -11,7 +11,7 @@
 #/phys/enableOptical
 
 #/geom/building/makeBare
-/geom/building/makeFluxTest
+#/geom/building/makeFluxTest
 #/geom/shield/clear
 
 /run/initialize
@@ -52,7 +52,7 @@
 /CRY/input subboxLength 5
 /CRY/update
 
-/generator/module_CosN
+#/generator/module_CosN
 
 /run/beamOn 1000
 
