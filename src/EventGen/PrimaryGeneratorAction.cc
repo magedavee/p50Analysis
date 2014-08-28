@@ -9,6 +9,8 @@
 #include "IBDModule.hh"
 #include "FissionAntiNuModule.hh"
 #include "CosmicMuonModule.hh"
+#include "Cf252Module.hh"
+#include "CosmicNeutronModule.hh"
 
 #include <math.h>
 #include <string>
@@ -27,8 +29,6 @@
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
 #include <G4ios.hh>
-
-#include "CosmicNeutronModule.hh"
 
 //////////////////////////////////////
 
@@ -54,7 +54,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():
 XMLProvider("PrimaryGenerator"),
 genModule(NULL), myCRYModule(NULL),
 myIBDModule(NULL), myFisAntNuModule(NULL),
-myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL) {
+myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) {
     verbose = 0;
     
     // Particle Gun
@@ -75,6 +75,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myFisAntNuModule) delete myFisAntNuModule;
     if(myCosmicMuonModule) delete myCosmicMuonModule;
     if(myCosmicNeutronModule) delete myCosmicNeutronModule;
+    if(myCf252Module) delete myCf252Module;
 }
 
 void PrimaryGeneratorAction::loadCRYModule() {
@@ -105,6 +106,12 @@ void PrimaryGeneratorAction::loadCosmicNeutronModule() {
     if(!myCosmicNeutronModule) myCosmicNeutronModule = new CosmicNeutronModule(this);
     G4cerr << "Using cosmic neutron event generator." << G4endl; 
     genModule = myCosmicNeutronModule;
+}
+
+void PrimaryGeneratorAction::loadCf252Module() {
+    if(!myCf252Module) myCf252Module = new Cf252Module(this);
+    G4cerr << "Using Cf252 event generator." << G4endl; 
+    genModule = myCf252Module;
 }
 
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {
