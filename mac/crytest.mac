@@ -18,8 +18,8 @@
 
 /run/initialize
 
-/vis/open OGLSXm
-#/vis/disable
+#/vis/open OGLSXm
+/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
@@ -37,7 +37,7 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/TestOut.root
+/output/filename /home/mpmendenhall/Analysis/ShortBaseline/Run_0.root
 
 /generator/module_CRY
 /CRY/input returnNeutrons 1
@@ -53,5 +53,5 @@
 
 /generator/module_Cf252
 
-/run/beamOn 10000
+/run/beamOn 100000
 
