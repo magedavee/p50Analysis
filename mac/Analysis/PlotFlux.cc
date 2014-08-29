@@ -60,7 +60,7 @@ public:
     }
     
     /// Fill from particle flux data
-    void Fill(EventPrimaryPtcl* pp) {
+    void Fill(ParticleVertex* pp) {
         p_dir->Fill(pp->p[0], pp->p[2]);
         E_hi->Fill(pp->E/1000.);
         if(hGoldhagen) {
@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
         T->GetEntry(ev);
         Int_t nPrim = evt->particles->GetEntriesFast();
         for(Int_t i=0; i<nPrim; i++) {
-            EventPrimaryPtcl* pp = (EventPrimaryPtcl*)evt->particles->At(i);
+            ParticleVertex* pp = (ParticleVertex*)evt->particles->At(i);
             
             Int_t PID = pp->PID;
             if(PID != 2112) continue;

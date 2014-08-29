@@ -15,6 +15,7 @@ static RootIO* instance = NULL;
 
 RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
     pmcevent = &mcevent;
+    pPrimPtcls = &primPtcls;
     pfluxCounter = &fluxCounter;
     G4cerr << "RootIO initialized." << G4endl;
 }
@@ -25,6 +26,7 @@ RootIO* RootIO::GetInstance() {
         instance = new RootIO();
         GetEvent().Clear();
         GetFlux().Clear();
+        GetPrim().Clear();
     }
     return instance;
 }
@@ -73,6 +75,7 @@ void RootIO::SetFileName(G4String filename) {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
    
     mcevent.Clear();
+    primPtcls.Clear();
     fluxCounter.Clear();
     
     if(run_action->GetRecordLevel() >= 0){
@@ -80,9 +83,10 @@ void RootIO::SetFileName(G4String filename) {
         outfile = new TFile(filename,"RECREATE");
         
         // set up output TTree
-        dataTree = new TTree("sblmc","Short Baseline MC data");
+        dataTree = new TTree("PG4","PROSPECT Geant4 simulation");
         dataTree->SetDirectory(outfile);
-        dataTree->Branch("MCEvent",&pmcevent);
+        dataTree->Branch("Evt",&pmcevent);
+        dataTree->Branch("Prim",&pPrimPtcls);
     }
 }
 

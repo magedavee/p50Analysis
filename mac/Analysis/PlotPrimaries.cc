@@ -42,7 +42,7 @@ public:
     }
     
     /// Fill from primaries data
-    void Fill(EventPrimaryPtcl* pp) {
+    void Fill(ParticleVertex* pp) {
         p_dir->Fill(pp->p[0], pp->p[1]);
         E_hi->Fill(pp->E/1000.);
     }
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
     // set readout branches
     Event* evt = new Event();
     T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
-    T->SetBranchAddress("MCEvent",&evt);
+    T->SetBranchAddress("Evt",&evt);
     
     map<Int_t, PrimaryHistograms> primHists;
     
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
         T->GetEntry(ev);
         Int_t nPrim = evt->Primaries->GetEntriesFast();
         for(Int_t i=0; i<nPrim; i++) {
-            EventPrimaryPtcl* pp = (EventPrimaryPtcl*)evt->Primaries->At(i);
+            ParticleVertex* pp = (ParticleVertex*)evt->Primaries->At(i);
             
             Int_t PID = pp->PID;
             map<Int_t, PrimaryHistograms>::iterator it = primHists.find(PID);

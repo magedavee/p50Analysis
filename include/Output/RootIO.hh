@@ -15,6 +15,8 @@ public:
     static RootIO* GetInstance();
     /// Get reference for current event
     static Event& GetEvent() { return GetInstance()->mcevent; }
+    /// Get reference for current event primaries
+    static ParticleEvent& GetPrim() { return GetInstance()->primPtcls; }
     /// Get reference for flux counter
     static ParticleEvent& GetFlux() { return GetInstance()->fluxCounter; }
     
@@ -24,12 +26,13 @@ public:
     void FillTree();
     
     /// Reset data to initial values
-    void Clear() { mcevent.Clear(); fluxCounter.Clear(); }
+    void Clear() { primPtcls.Clear(); mcevent.Clear(); fluxCounter.Clear(); }
     /// Set output file
     void SetFileName(G4String filename);
     /// Get output filename
     G4String GetFileName() const { return fname; }
 
+    ParticleEvent primPtcls;    ///< event primary particles fill point
     Event mcevent;              ///< event data fill point
     ParticleEvent fluxCounter;  ///< (optional) flux counter fill point
     
@@ -47,6 +50,7 @@ private:
     TFile* outfile;                     ///< output file
     TTree* dataTree;                    ///< output events TTree
     Event* pmcevent;                    ///< pointer to mcevent, for TTree setup
+    ParticleEvent* pPrimPtcls;          ///< pointer to primPtcls, for TTree setup
     ParticleEvent* pfluxCounter;        ///< pointer to fluxCounter, for TTree setup
 
 };

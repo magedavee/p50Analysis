@@ -1,6 +1,6 @@
 /control/verbose 0
-/run/verbose 2
-/generator/verbose 3
+/run/verbose 1
+/generator/verbose 0
 /event/verbose 0
 /tracking/verbose 0
 
@@ -11,14 +11,15 @@
 
 #/phys/enableOptical
 
+/geom/mode scintCell
 #/geom/building/makeBare
 #/geom/building/makeFluxTest
 #/geom/shield/clear
 
 /run/initialize
 
-#/vis/open OGLSXm
-/vis/disable
+/vis/open OGLSXm
+#/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
@@ -52,5 +53,5 @@
 
 /generator/module_Cf252
 
-/run/beamOn 100000
+/run/beamOn 10000
 

@@ -19,7 +19,7 @@ MaterialsHelper::MaterialsHelper() {
     nist = G4NistManager::Instance();
     
     nat_H  = nist->FindOrBuildMaterial("G4_H",  true);
-    nat_Li = nist->FindOrBuildMaterial("G4_Li", true);
+    //nat_Li = nist->FindOrBuildMaterial("G4_Li", true);
     nat_B  = nist->FindOrBuildMaterial("G4_B",  true);
     nat_C  = nist->FindOrBuildMaterial("G4_C",  true);
     nat_N  = nist->FindOrBuildMaterial("G4_N",  true);
@@ -37,8 +37,16 @@ MaterialsHelper::MaterialsHelper() {
     G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
     G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
     elLi6->AddIsotope(isoLi6,100.*perCent);
+    G4Element* elLi7  = new G4Element("eleLi7", "Li7", 1);
+    G4Isotope* isoLi7 = new G4Isotope("isoLi7", 3, 7, 7.01600455*g/mole);
+    elLi7->AddIsotope(isoLi7,100.*perCent);
+    
     Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
     Li6->AddElement(elLi6,1);
+    
+    nat_Li = new G4Material("nat_Li", 0.463*g/cm3, 2);
+    nat_Li->AddElement(elLi6,0.0811);
+    nat_Li->AddElement(elLi7,1-0.0811);
     
     double room_T = 293.15*kelvin; // materials "room temperature"
     
@@ -123,7 +131,7 @@ G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
     if(!xmats.count(mnm)) {
         G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator " << nm << " ...\n";
         G4Material* myLi = enriched? Li6 : nat_Li; 
-        double avgLiA = enriched? 6. : 0.0864*6 + .9135*7;      /// Li average mass
+        double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;/// Li average mass
         double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li
         double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;  /// mass fraction H2O from 8 molar LiCl solution
         G4Material* Li_UG_AB = new G4Material(mnm.c_str(), 0.98*g/cm3, 4, kStateLiquid, 293.15*kelvin);

@@ -83,7 +83,7 @@ vector<string> OutDirLoader::getFileList() const {
 }
 
 TChain* OutDirLoader::makeTChain() const {
-    TChain* T = new TChain("sblmc");
+    TChain* T = new TChain("PG4");
     T->SetDirectory(NULL);
     vector<string> v = getFileList();
     for(vector<string>::const_iterator it = v.begin(); it != v.end(); it++)

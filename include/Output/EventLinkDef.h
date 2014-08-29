@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class EventPrimaryPtcl+;
+#pragma link C++ class ParticleVertex+;
 #pragma link C++ class ParticleEvent+;
 #pragma link C++ class EventIoniCluster+;
 #pragma link C++ class EventNCapt+;

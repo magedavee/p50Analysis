@@ -7,7 +7,7 @@
 #include <cmath>
 
 ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.0075),
-length(5*2.54*cm), radius(2.5*2.54*cm), wall_thick(0.25*2.54*cm) { }
+length(5*2.54*cm), radius(2.5*2.54*cm), wall_thick(0.125*2.54*cm) { }
     
 void ScintCellBuilder::construct() {
     

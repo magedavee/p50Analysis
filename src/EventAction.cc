@@ -32,10 +32,11 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     if(reclevel >= 3 || (reclevel >= 2 && evt.nNCapts + evt.nIoniClusts > 0)) {
         
         // record event primaries information
+        ParticleEvent& prim = RootIO::GetPrim();
         for(G4int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
             const G4PrimaryVertex* v = anEvent->GetPrimaryVertex(i); 
             assert(v);
-            EventPrimaryPtcl p;
+            ParticleVertex p;
             for(uint j=0; j<3; j++) p.x[j] = v->GetPosition()[j];
             p.t = v->GetT0();
             for(G4int pn = 0; pn < v->GetNumberOfParticle(); pn++) {
@@ -47,7 +48,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
                 mom = mom.unit();
                 for(uint j=0; j<3; j++) p.p[j] = mom[j];
                 p.PID = pp->GetPDGcode();
-                evt.AddPrimary(p);
+                prim.AddParticle(p);
             }
         }
         

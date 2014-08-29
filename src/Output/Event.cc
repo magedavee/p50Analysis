@@ -3,7 +3,7 @@
 
 #include <TClonesArray.h>
 
-ClassImp(EventPrimaryPtcl)
+ClassImp(ParticleVertex)
 ClassImp(ParticleEvent)
 ClassImp(EventIoniCluster)
 ClassImp(EventNCapt)
@@ -18,24 +18,24 @@ ParticleEvent::~ParticleEvent() {
 }
 
 void ParticleEvent::Clear(Option_t*) {
-    if(!particles) particles = new TClonesArray("EventPrimaryPtcl",100);
+    if(!particles) particles = new TClonesArray("ParticleVertex",100);
     particles->Clear("C");
     nParticles = 0;
 }
 
-void ParticleEvent::AddParticle(const EventPrimaryPtcl& P) {
+void ParticleEvent::AddParticle(const ParticleVertex& P) {
     assert(particles);
-    new((*particles)[nParticles++]) EventPrimaryPtcl(P);
+    new((*particles)[nParticles++]) ParticleVertex(P);
 }
+
 
 Event::~Event() {
     if(iEvts) delete iEvts;
-    if(Primaries) delete Primaries;
+    if(nCapts) delete nCapts;
 }
 
 void Event::Clear(Option_t*) {
     
-    if(!Primaries) Primaries = new TClonesArray("EventPrimaryPtcl",100);
     if(!iEvts) iEvts = new TClonesArray("EventIoniCluster",1000);
     if(!nCapts) nCapts = new TClonesArray("EventNCapt",100);
     
@@ -44,20 +44,12 @@ void Event::Clear(Option_t*) {
     // Clear event arrays
     // "C" option recursively calls "Clear" on sub-objects
     
-    Primaries->Clear("C");
-    nPrimaries = 0;
-    
     iEvts->Clear("C");
     nIoniClusts = 0;
     EIoni = 0;
     
     nCapts->Clear("C");
     nNCapts = 0;
-}
-
-void Event::AddPrimary(const EventPrimaryPtcl& P) {
-    assert(Primaries);
-    new((*Primaries)[nPrimaries++]) EventPrimaryPtcl(P);
 }
 
 void Event::AddIoniCluster(const EventIoniCluster& tr) {

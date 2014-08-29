@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     TChain* T = D.makeTChain();
     Event* evt = new Event();
     T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
-    T->SetBranchAddress("MCEvent",&evt);
+    T->SetBranchAddress("Evt",&evt);
     
     // set up histograms
     TH2F* hit_xy = (TH2F*)f.add(new TH2F("hit_xy", "Hit positions", 300,-1200,1200, 300,-1200,1200));
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
         Int_t primTp = 0;
         hnPrim->Fill(nPrim);
         for(Int_t i=0; i<nPrim; i++) {
-            EventPrimaryPtcl* pp = (EventPrimaryPtcl*)evt->Primaries->At(i);
+            ParticleVertex* pp = (ParticleVertex*)evt->Primaries->At(i);
             prim_p->Fill(pp->p[0], pp->p[1]);
             
             primTp = pp->PID;

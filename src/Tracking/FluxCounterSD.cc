@@ -14,7 +14,7 @@ G4bool FluxCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     // particles entering volume only: previously in a different physical volume
     if(p0->GetPhysicalVolume() == p1->GetPhysicalVolume()) return false;
     
-    EventPrimaryPtcl P;
+    ParticleVertex P;
     P.PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     if(record_PIDs.size() && !record_PIDs.count(P.PID)) return false; // only particles on list
     

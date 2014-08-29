@@ -6,10 +6,10 @@
 class TClonesArray;
 
 /// Primary particle specification for ROOT output
-class EventPrimaryPtcl: public TObject {
+class ParticleVertex: public TObject {
 public:
     /// constructor
-    EventPrimaryPtcl(): PID(0), E(0), t(0) {}
+    ParticleVertex(): PID(0), E(0), t(0) {}
     
     Int_t PID;          ///< PDG particle ID code
     Double_t x[3];      ///< vertex position
@@ -17,7 +17,7 @@ public:
     Double_t E;         ///< kinetic energy
     Double_t t;         ///< initial time
     
-    ClassDef(EventPrimaryPtcl,1);
+    ClassDef(ParticleVertex,1);
 };
 
 /// Event containing a list of particles
@@ -34,7 +34,7 @@ public:
     /// Clear data for new event
     void Clear(Option_t *option ="");
     /// Add new particle data
-    void AddParticle(const EventPrimaryPtcl& P);
+    void AddParticle(const ParticleVertex& P);
     
     ClassDef(ParticleEvent,1);
 };
@@ -43,7 +43,7 @@ public:
 class EventIoniCluster: public TObject {
 public:
     /// constructor
-    EventIoniCluster(): E(0.), t(0.), dt(0.), vol(0) {}
+    EventIoniCluster(): E(0.), t(0.), dt(0.), vol(0), PID(0) {}
     
     Double_t E;         ///< deposited energy
     Double_t t;         ///< average time
@@ -51,8 +51,9 @@ public:
     Double_t x[3];      ///< average position
     Double_t dx[3];     ///< RMS position spread
     Int_t vol;          ///< volume ID number
+    Int_t PID;          ///< ionizing particle type
     
-    ClassDef(EventIoniCluster,1);
+    ClassDef(EventIoniCluster,2);
 };
 
 /// Neutron capture in event
@@ -78,7 +79,7 @@ class Event: public TObject {
 public:
     
     /// Constructor
-    Event(): N(0), nPrimaries(0), Primaries(NULL),
+    Event(): N(0),
     nIoniClusts(0), iEvts(NULL),
     nNCapts(0), nCapts(NULL) { }
     
@@ -87,9 +88,6 @@ public:
     
     Int_t N;                    ///< event number
     Double_t t;                 ///< event time
-    
-    Int_t nPrimaries;           ///< number of primaries
-    TClonesArray* Primaries;    ///< array of event primary particles
     
     Int_t nIoniClusts;          ///< number of ionization events
     TClonesArray* iEvts;        ///< array of event ionization events
@@ -100,14 +98,12 @@ public:
     
     /// Clear data for new event
     void Clear(Option_t *option ="");
-    /// Add new primary data
-    void AddPrimary(const EventPrimaryPtcl& P);
     /// Add new ionization cluster
     void AddIoniCluster(const EventIoniCluster& tr);
     /// Add new neutron capture
     void AddNCapt(const EventNCapt& n);
     
-    ClassDef(Event,2);
+    ClassDef(Event,3);
 };
 
 #endif

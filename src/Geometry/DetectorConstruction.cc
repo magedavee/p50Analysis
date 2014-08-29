@@ -9,8 +9,22 @@
 #include <G4Box.hh>
 #include <G4Sphere.hh>
 
+#include <cassert>
+
 DetectorConstruction::DetectorConstruction():
-XMLProvider("DetectorConstruction"), worldPad(0.2*m) {
+Builder("DetectorConstruction"), mode(PROSPECT), worldPad(0.4*m),
+geomDir("/geom/"), modeCmd("/geom/mode",this) {
+    modeCmd.SetGuidance("Set geometry mode.");
+    modeCmd.AvailableForStates(G4State_PreInit);
+    modeCmd.SetCandidates("PROSPECT scintCell");
+}
+
+void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &modeCmd) {
+        if(newValue == "PROSPECT") mode = PROSPECT;
+        else if(newValue == "scintCell") mode = TEST_CELL;
+        else G4cerr << "Unknown mode!" << G4endl;
+    } else G4cerr << "Unknown command!" << G4endl;
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
@@ -19,28 +33,30 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     myBuilding.construct();
     myTestCell.construct();
     
-    bool testCell = false;
-    Builder& myContents = testCell ? (Builder&)myTestCell : (Builder&)myBuilding;
+    Builder& myContents = (mode==PROSPECT) ? (Builder&)myBuilding : (Builder&)myTestCell;
     addChild(&myContents);
     
     dim = myContents.getDimensions() + G4ThreeVector(2,2,2)*worldPad;
     G4Box* world_box = new G4Box("world_box", dim[0]/2., dim[1]/2., dim[2]/2.);
-    G4LogicalVolume* world_log = new G4LogicalVolume(world_box, MaterialsHelper::M().Vacuum, "world_log");
+    G4LogicalVolume* world_log = new G4LogicalVolume(world_box, 
+                                                     (mode==TEST_CELL)? MaterialsHelper::M().Air : MaterialsHelper::M().Vacuum, "world_log");
     building_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myContents.main_log, "building_phys", world_log, false,  0);
     
-    if(testCell) {
-        G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, worldPad/4., 0, 2*M_PI, 0, M_PI);
+    if(mode == PROSPECT) {
+        myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
+        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
+        getScintLog()->SetSensitiveDetector(myScintSD);
+    } else if(mode == TEST_CELL) {
+        G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
         G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
-        ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,dim[2]/2.-worldPad/2.), sun_log, "sun_phys", world_log, false,  0);
+        ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", world_log, false,  0);
         
         // assign sensitive detector to scintillator
         myScintSD = new ScintSD("ScintSD", myTestCell);
         G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
         myTestCell.scint_log->SetSensitiveDetector(myScintSD);
     } else {
-        myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
-        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-        getScintLog()->SetSensitiveDetector(myScintSD);
+        assert(false);
     }
     
     G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
