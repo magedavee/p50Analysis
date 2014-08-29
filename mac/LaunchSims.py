@@ -11,6 +11,7 @@ class SB_MC_Launcher:
         self.settings["simName"] = simname
         self.settings["preinit"] = ""
         self.settings["reclevel"] = 2
+        self.template = "CRY_Template.mac"
         
     def set_dirs(self):
         self.bin_name = os.environ["SBMC_BIN"]
@@ -37,7 +38,7 @@ class SB_MC_Launcher:
             self.settings["outfile"] = "%s/%s.root"%(self.outdir, run_name)
             
             # fill in macro template
-            macrodat = open("CRY_Template.mac","r").read()%self.settings
+            macrodat = open(self.template,"r").read()%self.settings
             open(os.path.expanduser("%s/%s.mac"%(self.macro_dir,run_name)),"w").write(macrodat)
             
             # make job command
@@ -58,6 +59,7 @@ if __name__=="__main__":
     parser = OptionParser()
     parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False, help="kill running jobs")
     parser.add_option("--cry", dest="cry", action="store_true", default=False, help="CRY cosmic ray simulations")
+    parser.add_option("--testcell", dest="testcell", action="store_true", default=False, help="Scintillator test cell")
     
     options, args = parser.parse_args()
     if options.kill:
@@ -68,5 +70,10 @@ if __name__=="__main__":
         L = SB_MC_Launcher("Neutrons_FluxTest", 1e4)
         L.settings["preinit"] += "/geom/building/makeFluxTest\n"
         L.settings["reclevel"] = 3
+        L.launch_sims(4*6*5)
+    
+    if options.testcell:
+        L = SB_MC_Launcher("TestCell", 1e5)
+        L.template = "TestCell_Template.mac"
         L.launch_sims(4*6*5)
         

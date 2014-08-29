@@ -26,16 +26,6 @@
 using std::vector;
 using std::map;
 
-template<typename T, typename U>
-void display_map(const map<T,U>& m) {
-    U total = 0;
-    for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
-        std::cout << it->first << ":\t" << it->second << "\n";
-        total += it->second;       
-    }
-    std::cout << "Total:\t" << total << "\n";
-}
-
 int main(int argc, char** argv) {
     // load library describing data classes
     gSystem->Load("~/Applications/PG4/lib/libEventLib.so");

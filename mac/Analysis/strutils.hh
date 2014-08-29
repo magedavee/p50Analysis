@@ -8,9 +8,24 @@
 #include <sstream>
 #include <cctype>
 #include <algorithm>
+#include <map>
 
 using std::string;
 using std::vector;
+using std::map;
+
+template<typename T, typename U>
+void display_map(const map<T,U>& m, bool norm = true) {
+    U total = 0;
+    for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
+        if(!norm) std::cout << it->first << ":\t" << it->second << "\n";
+        total += it->second;       
+    }
+    std::cout << "Total:\t" << total << "\n";
+    if(norm)
+        for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++)
+            std::cout << it->first << ":\t" << it->second/double(total) << "\n";
+}
 
 /// utility function for converting to string
 template<typename T>

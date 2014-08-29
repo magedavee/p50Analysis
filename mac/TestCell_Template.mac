@@ -1,0 +1,15 @@
+/output/setRunNum %(run_num)i
+
+/vis/disable
+/output/setRecordLevel %(reclevel)i
+/run/verbose 0
+
+/geom/mode scintCell
+%(preinit)s
+
+/output/filename %(outfile)s
+/run/initialize
+
+/generator/module_Cf252
+
+/run/beamOn %(nevents)i
