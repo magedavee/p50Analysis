@@ -29,3 +29,4 @@ all: $(objects)
 .PHONY: clean
 clean:
 	-rm -f *.o
+	-rm -f MuVeto PlotFlux PlotPos PlotPrimaries TestCell
