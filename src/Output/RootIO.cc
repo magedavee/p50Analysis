@@ -93,6 +93,12 @@ void RootIO::addFluxBranch() {
     dataTree->Branch("Flux",&pfluxCounter);
 }
 
+void RootIO::addVetoIoniBranch() {
+    if(pvetoIoni) return; // already set up
+    G4cout << "RootIO Setting up 'VetoIoni' output branch...\n";
+    subObjs.push_back(pvetoIoni = &vetoIoni);
+    dataTree->Branch("VetoIoni",&pvetoIoni);
+}
 
 
 

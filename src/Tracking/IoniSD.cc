@@ -54,6 +54,8 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
 }
 
 void IoniSD::makeClusters(vector<IonisationHit*>& hits, vector<IoniCluster>& clusts) {
+    if(!hits.size()) return;
+    
     // time-order hit events
     std::sort(hits.begin(), hits.end(), compare_hit_times);
     

@@ -25,7 +25,9 @@ public:
     static NCaptEvent& GetNCapt() { return GetInstance()->scintNCapt; }
     /// Get reference for current event scintillator ionization
     static IoniClusterEvent& GetScIoni() { return GetInstance()->scintIoni; }
-   
+    /// Get reference for current event muon veto ionization
+    static IoniClusterEvent& GetVetoIoni() { return GetInstance()->vetoIoni; }
+    
     /// Write data to file
     void WriteFile();
     /// Add current Event to output TTree
@@ -43,6 +45,7 @@ public:
     ParticleEvent fluxCounter;  ///< (optional) flux counter fill point
     NCaptEvent scintNCapt;      ///< liquid scintillator neutron captures fill point
     IoniClusterEvent scintIoni; ///< liquid scintillator ionization fill point
+    IoniClusterEvent vetoIoni;  ///< muon veto panels ionization fill point
     
     /// record event numbering
     void addEvtBranch();
@@ -54,6 +57,8 @@ public:
     void addNCaptBranch();
     /// record fluxCounter contents
     void addFluxBranch();
+    /// record muon veto ionization
+    void addVetoIoniBranch();
     
 protected:
     /// Constructor; protected for singleton instantiation
@@ -71,6 +76,8 @@ private:
     ParticleEvent* pfluxCounter = NULL; ///< pointer to fluxCounter, for TTree setup
     NCaptEvent* pscintNCapt = NULL;     ///< pointer to scintNCapt, for TTree setup
     IoniClusterEvent* pscintIoni = NULL;///< pointer to scintIoni, for TTree setup
+    IoniClusterEvent* pvetoIoni = NULL; ///< pointer to vetoIoni, for TTree setup
+    
     std::vector<TObject*> subObjs;      ///< list of pointers to write points to Clear()
 };
 

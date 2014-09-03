@@ -13,6 +13,7 @@
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithoutParameter.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
 
 /// Specification for a shielding layer
 class ShieldLayerSpec: public XMLProvider {
@@ -55,6 +56,7 @@ protected:
     
     G4UIdirectory shield_dir;                   ///< UI directory for shield commands
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
+    G4UIcmdWithADoubleAndUnit vetoCmd;          ///< command to add muon veto shell layer
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

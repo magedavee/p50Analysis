@@ -59,6 +59,7 @@ if __name__=="__main__":
     parser = OptionParser()
     parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False, help="kill running jobs")
     parser.add_option("--cry", dest="cry", action="store_true", default=False, help="CRY cosmic ray simulations")
+    parser.add_option("--muveto", dest="muveto", action="store_true", default=False, help="Muon veto layer simulations")
     parser.add_option("--testcell", dest="testcell", action="store_true", default=False, help="Scintillator test cell")
     
     options, args = parser.parse_args()
@@ -71,6 +72,11 @@ if __name__=="__main__":
         L.settings["preinit"] += "/geom/building/makeFluxTest\n"
         L.settings["reclevel"] = 3
         L.launch_sims(4*6*5)
+        
+    if options.muveto:
+        L = SB_MC_Launcher("CRY_MuVeto", 1e5)
+        L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
+        L.launch_sims(4*6*24)
     
     if options.testcell:
         L = SB_MC_Launcher("TestCell", 1e5)

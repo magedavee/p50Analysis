@@ -5,10 +5,6 @@
 /output/setRecordLevel %(reclevel)i
 /run/verbose 0
 
-#/geom/building/makeBare
-#/geom/building/makeVacuum
-#/geom/shield/clear
-
 %(preinit)s
 
 /output/filename %(outfile)s
@@ -21,10 +17,10 @@
 /CRY/input returnGammas 1
 /CRY/input returnPions 1
 /CRY/input returnKaons 1
-/CRY/input date 11-7-2002
-/CRY/input latitude 41.2
+#/CRY/input date 11-7-2002
+#/CRY/input latitude 41.2
 #/CRY/input date 7-1-2016
-#/CRY/input latitude 90.0
+/CRY/input latitude 36.0
 /CRY/input altitude 0.0
 /CRY/input subboxLength 5
 /CRY/update

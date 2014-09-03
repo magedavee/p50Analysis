@@ -65,5 +65,4 @@ protected:
     G4ThreeVector localPos;     ///< position in scintillator coordinates
 };
 
-
 #endif
