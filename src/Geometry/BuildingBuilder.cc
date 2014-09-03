@@ -32,11 +32,10 @@ void BuildingBuilder::construct() {
     
     myDetUnit.construct();
     
-    myFluxCounter.setDimensions(G4ThreeVector(10*m,10*m,1*cm));
-    myFluxCounter.construct();
-    
     G4ThreeVector airDim;
     if(makeFluxTest) {
+        myFluxCounter.setDimensions(G4ThreeVector(10*m,10*m,1*cm));
+        myFluxCounter.construct();
         ceil_clearance = ceil_thick = 0;
         floor_thick = 2.*m;
         addChild(&myFluxCounter);
@@ -73,7 +72,7 @@ void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String) {
     if(command == &bareCmd) makeBare = true;
     else if(command == &vacuumCmd) makeVacuum = true; 
     else if(command == &fluxCmd) makeFluxTest = true; 
-    else G4cerr << "Unknown command!" << G4endl;
+    else G4cout << "Unknown command!" << G4endl;
 }
 
 void BuildingBuilder::fillNode(TXMLEngine& E) {

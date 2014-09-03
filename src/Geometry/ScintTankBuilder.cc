@@ -53,7 +53,7 @@ void ScintTankBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
     else if(command == &nsegYcmd) nSegY = nsegYcmd.GetNewIntValue(newValue);
     else if(command == &segWcmd)  seg_size = segWcmd.GetNewDoubleValue(newValue);
     else if(command == &scint6Licmd)  scint6LiLoading = scint6Licmd.GetNewDoubleValue(newValue);
-    else G4cerr << "Unknown command!" << G4endl;
+    else G4cout << "Unknown command!" << G4endl;
 }
 
 void ScintTankBuilder::construct() {
@@ -91,10 +91,10 @@ void ScintTankBuilder::construct() {
     G4RotationMatrix* rotSepY = new G4RotationMatrix();                 // rotation for y-aligned separators (memory leaked!)
     rotSepY->rotateX(90*deg); rotSepY->rotateY(90*deg);
     std::vector<G4PVPlacement*> seps;
-    for(uint nx = 0; nx <= nSegX; nx++) {
-        for(uint ny = 0; ny <= nSegY; ny++) {
+    for(unsigned int nx = 0; nx <= nSegX; nx++) {
+        for(unsigned int ny = 0; ny <= nSegY; ny++) {
             
-            uint copynum = nx + (nSegX+1)*ny;
+            unsigned int copynum = nx + (nSegX+1)*ny;
             
             G4PVPlacement* rod = new G4PVPlacement (NULL, r0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
                                                     mySlottedRod.main_log, "ScintTank_rod_phys_"+to_str(copynum),
@@ -113,11 +113,11 @@ void ScintTankBuilder::construct() {
     }
     
     // apply separator boundary reflections
-    for(uint i=0; i<seps.size(); i++)
+    for(unsigned int i=0; i<seps.size(); i++)
         new G4LogicalBorderSurface("SepOpticalBorder_"+to_str(i), scint_phys, seps[i], mySeparator.myOptSurf.S);
 }
 
-G4ThreeVector ScintTankBuilder::getSegmentPosition(uint n) const {
+G4ThreeVector ScintTankBuilder::getSegmentPosition(unsigned int n) const {
     assert(n<getNSeg());
     return G4ThreeVector( ((n%nSegX) - 0.5*nSegX + 0.5)*seg_size, ((n/nSegX) - 0.5*nSegY + 0.5)*seg_size, 0 );
 }

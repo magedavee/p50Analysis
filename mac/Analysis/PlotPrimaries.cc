@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     TChain* T = D.makeTChain();
     // set readout branches
     Event* evt = new Event();
-    T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
+    T->GetBranch("clusts")->SetAutoDelete(kFALSE);
     T->SetBranchAddress("Evt",&evt);
     
     map<Int_t, PrimaryHistograms> primHists;

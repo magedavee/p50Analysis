@@ -32,7 +32,7 @@ void ShieldBuilder::construct() {
     dim = myDet.getDimensions();
     
     // add each layer
-    uint nlayers = 0;
+    unsigned int nlayers = 0;
     for(std::vector<ShieldLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
         if(!it->mat) continue;
         nlayers++;
@@ -62,7 +62,7 @@ void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String) {
         }
         layers.clear();
         addLayer(S);
-    } else G4cerr << "Unknown command!" << G4endl;
+    } else G4cout << "Unknown command!" << G4endl;
 }
 
 void ShieldBuilder::fillNode(TXMLEngine& E) {

@@ -39,12 +39,12 @@
 InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 {
 
-  G4cerr << "Physical Volume Names:" << G4endl;
+  G4cout << "Physical Volume Names:" << G4endl;
   std::vector<G4VPhysicalVolume*>* volumes = G4PhysicalVolumeStore::GetInstance();
   std::vector<G4VPhysicalVolume*>::iterator itr = volumes->begin();
   for( ; itr != volumes->end(); itr++)
   {
-    G4cerr << (*itr)->GetName() << G4endl;
+    G4cout << (*itr)->GetName() << G4endl;
   }
 
 
@@ -68,7 +68,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 	// Establish initial target volume - defaults to world volume
   worldVolume = G4PhysicalVolumeStore::GetInstance()->at(0);
   targetName = target;
-  G4cerr << "TARGET IS " <<target<< "   " <<targetName<< G4endl;
+  G4cout << "TARGET IS " <<target<< "   " <<targetName<< G4endl;
   if(!(targetName == "")) { targetVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume(target); }
   else                    { targetVolume = 0; }
   if(!targetVolume)
@@ -155,7 +155,7 @@ void InverseBetaKinematics::SetReactionVolume(G4String target)			// Change inter
     targetVolume = theVolume;
     DToWRotation = FindTargetRotationWRTWorld();
     DToWTranslation = FindTargetTranslationWRTWorld();
-    G4cerr << "Inverse Beta Target set to " << targetName << "." << G4endl;
+    G4cout << "Inverse Beta Target set to " << targetName << "." << G4endl;
   }
   else { G4cout << "*** ATTENTION: Specified target volume not found. Inverse Beta Target kept as " << targetName << ". ***" << G4endl; }
 }

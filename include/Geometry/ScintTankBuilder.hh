@@ -26,13 +26,13 @@ public:
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
     /// get total number of segments
-    uint getNSeg() const { return nSegX*nSegY; }
+    unsigned int getNSeg() const { return nSegX*nSegY; }
     /// get total width in x
     double getWidthX() const { return nSegX*seg_size+2*(tank_wall_thick+ls_buffer_thick); }
     /// get total width in y
     double getWidthY() const { return nSegY*seg_size+2*(tank_wall_thick+ls_buffer_thick); }
     /// get position at center of numbered segment
-    G4ThreeVector getSegmentPosition(uint n) const;
+    G4ThreeVector getSegmentPosition(unsigned int n) const;
     /// get segment number at position in scintillator local coordinates
     int getSegmentNum(const G4ThreeVector& pos) const;
     
@@ -40,8 +40,8 @@ public:
     double tank_wall_thick;     ///< thickness of tank wall
     double ls_buffer_thick;     ///< thickness of scintillator buffer region around separators
     double seg_size;            ///< size of each segment in x-y plane
-    uint nSegX;                 ///< number of x segments
-    uint nSegY;                 ///< number of y segments
+    unsigned int nSegX;                 ///< number of x segments
+    unsigned int nSegY;                 ///< number of y segments
     double scint6LiLoading;     ///< loading fraction of 6Li in scintillator
     
     SlottedRodBuilder mySlottedRod;     ///< slotted rod for holding separators

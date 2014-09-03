@@ -29,7 +29,7 @@ void RunAction::SetRunNumber(G4int rnum) {
 
 void RunAction::BeginOfRunAction(const G4Run* aRun) {
     start_time = time(NULL);
-    G4cerr << "~~~~~ Run Number " << aRun->GetRunID() << " Initiated ~~~~~\n" << G4endl;
+    G4cout << "~~~~~ Run Number " << aRun->GetRunID() << " Initiated ~~~~~\n" << G4endl;
     CLHEP::HepRandom::setTheSeed(aRun->GetRunID()); // set unique random seed for run
 }
 

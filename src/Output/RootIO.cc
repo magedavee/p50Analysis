@@ -5,48 +5,45 @@
 #include <TTree.h>
 
 #include "RootIO.hh"
-#include "RunAction.hh"
 
-#include <G4RunManager.hh>
 #include <G4ios.hh>
 
 
 static RootIO* instance = NULL;
 
 RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
-    pmcevent = &mcevent;
-    pPrimPtcls = &primPtcls;
-    pfluxCounter = &fluxCounter;
-    G4cerr << "RootIO initialized." << G4endl;
+    dataTree = new TTree("PG4","PROSPECT Geant4 simulation");
+    dataTree->SetDirectory(NULL);
+    addPrimBranch();
+    addEvtBranch();
+    G4cout << "RootIO initialized. Remember to specify output filename." << G4endl;
+}
+
+void RootIO::Clear() {
+    for(auto it = subObjs.begin(); it != subObjs.end(); it++)
+        (*it)->Clear();
 }
 
 RootIO* RootIO::GetInstance() {
     if (instance == NULL) {
-        G4cerr << "Instantiating ROOT output instance" << G4endl;
+        G4cout << "Instantiating ROOT output instance" << G4endl;
         instance = new RootIO();
-        GetEvent().Clear();
-        GetFlux().Clear();
-        GetPrim().Clear();
     }
     return instance;
 }
 
 void RootIO::WriteFile() {
     if(!outfile) {
-        G4cerr << "No ROOT output file opened! Data not saved!" << G4endl;
+        G4cout << "No ROOT output file opened! Data not saved!" << G4endl;
         return;
     }
     
-    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-    assert(run_action);
-    if(run_action->GetRecordLevel() >= 0) {
-        std::cout << "Writing events to file and closing..." << std::endl;
-        if(dataTree) dataTree->Write();
-        outfile->Write();
-        outfile->Close();
-        delete outfile;
-        outfile = NULL;
-    }
+    std::cout << "Writing events to file '" << fname << "' and closing..." << std::endl;
+    if(dataTree) dataTree->Write();
+    outfile->Write();
+    outfile->Close();
+    delete outfile;
+    outfile = NULL;
 }
 
 void RootIO::FillTree() {
@@ -59,35 +56,49 @@ void RootIO::FillTree() {
     }
 }
 
+
+
+void RootIO::addEvtBranch() {
+    if(pmcevent) return; // already set up
+    G4cout << "RootIO Setting up 'Evt' output branch...\n";
+    subObjs.push_back(pmcevent = &mcevent);
+    dataTree->Branch("Evt",&pmcevent);
+}
+
+void RootIO::addPrimBranch() {
+    if(pprimPtcls) return; // already set up
+    G4cout << "RootIO Setting up 'Prim' output branch...\n";
+    subObjs.push_back(pprimPtcls = &primPtcls);
+    dataTree->Branch("Prim",&pprimPtcls);
+}
+
+void RootIO::addScIoniBranch() {
+    if(pscintIoni) return; // already set up
+    G4cout << "RootIO Setting up 'ScIoni' output branch...\n";
+    subObjs.push_back(pscintIoni = &scintIoni);
+    dataTree->Branch("ScIoni",&pscintIoni);
+}
+
+void RootIO::addNCaptBranch() {
+    if(pscintNCapt) return; // already set up
+    G4cout << "RootIO Setting up 'ScN' output branch...\n";
+    subObjs.push_back(pscintNCapt = &scintNCapt);
+    dataTree->Branch("ScN",&pscintNCapt);
+}
+
 void RootIO::addFluxBranch() {
-    if(!dataTree) {
-        std::cout << "*** Please set output file first!\n";
-        return;
-    }
-    std::cout << "RootIO Setting up 'Flux' output branch...\n";
-    assert(dataTree);
+    if(pfluxCounter) return; // already set up
+    G4cout << "RootIO Setting up 'Flux' output branch...\n";
+    subObjs.push_back(pfluxCounter = &fluxCounter);
     dataTree->Branch("Flux",&pfluxCounter);
 }
 
+
+
+
 void RootIO::SetFileName(G4String filename) {
-    
     fname = filename;
-    RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
-   
-    mcevent.Clear();
-    primPtcls.Clear();
-    fluxCounter.Clear();
-    
-    if(run_action->GetRecordLevel() >= 0){
-        G4cerr << "RootIO output file is set to " << filename << G4endl;
-        outfile = new TFile(filename,"RECREATE");
-        
-        // set up output TTree
-        dataTree = new TTree("PG4","PROSPECT Geant4 simulation");
-        dataTree->SetDirectory(outfile);
-        dataTree->Branch("Evt",&pmcevent);
-        dataTree->Branch("Prim",&pPrimPtcls);
-    }
+    G4cout << "RootIO: Setting output file to '" << fname << "'\n";
+    outfile = new TFile(filename,"RECREATE");
+    dataTree->SetDirectory(outfile);
 }
-
-

@@ -148,7 +148,7 @@ G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
 
 void MaterialsHelper::setupOptical() {
     
-    G4cerr << "Setting material optical properties..." << G4endl;
+    G4cout << "Setting material optical properties..." << G4endl;
     
     birksPC = 0.1*mm/MeV;
     birksPVT = 0.2*mm/MeV;

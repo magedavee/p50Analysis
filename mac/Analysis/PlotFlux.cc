@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
     
     // set readout branches
     ParticleEvent* evt = new ParticleEvent();
-    T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
+    T->GetBranch("clusts")->SetAutoDelete(kFALSE);
     T->SetBranchAddress("Flux",&evt);
     
     map<Int_t, FluxHistograms> primHists;

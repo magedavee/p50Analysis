@@ -68,7 +68,7 @@ CRYModule::~CRYModule() {
 void CRYModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     static std::string messageInput;
     if(command == cryInputCmd) { 
-        if(myPGA->GetVerbosity() >= 1) G4cerr << "CRY input command: " << newValue << G4endl;
+        if(myPGA->GetVerbosity() >= 1) G4cout << "CRY input command: " << newValue << G4endl;
         inputState = true;
         messageInput.append(newValue);
         messageInput.append(" ");
@@ -99,8 +99,8 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
         vect.clear();
         CRY_generator->genEvent(&vect);
         
-        uint n_muons = 0;
-        uint n_neutrons = 0;
+        unsigned int n_muons = 0;
+        unsigned int n_neutrons = 0;
         
         for ( unsigned j=0; j<vect.size(); j++) {
             
@@ -143,7 +143,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 void CRYModule::initCRY(const std::string& S) {
-    if(myPGA->GetVerbosity() >= 1) G4cerr << "Initializing CRY generator..." << G4endl;
+    if(myPGA->GetVerbosity() >= 1) G4cout << "Initializing CRY generator..." << G4endl;
     
     CRYSetup *setup = new CRYSetup(S, getenv("CRYDATA"));
     if(CRY_generator) delete CRY_generator;

@@ -6,8 +6,10 @@
 
 #pragma link C++ class ParticleVertex+;
 #pragma link C++ class ParticleEvent+;
-#pragma link C++ class EventIoniCluster+;
-#pragma link C++ class EventNCapt+;
+#pragma link C++ class IoniCluster+;
+#pragma link C++ class IoniClusterEvent+;
+#pragma link C++ class NCapt+;
+#pragma link C++ class NCaptEvent+;
 #pragma link C++ class Event+;
 
 #include <vector>

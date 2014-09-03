@@ -19,7 +19,7 @@ void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {
 }
 
 void XMLProvider::writeToFile(const string& fname) {
-    G4cerr << "Writing XML output '" << fname << "'" << G4endl;
+    G4cout << "Writing XML output '" << fname << "'" << G4endl;
     
     TXMLEngine E;
     genNode(E, NULL);

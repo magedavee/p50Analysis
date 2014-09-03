@@ -73,7 +73,7 @@ int main(int argc,char** argv) {
     if(argc > 1) { // Execute the argument macro file if specified in arguments
         G4String command = "/control/execute ";
         G4String macfile_name = argv[1];
-        G4cerr << "Starting macro" << G4endl;
+        G4cout << "Starting macro" << G4endl;
         UI->ApplyCommand(command+macfile_name); 
     } else { // otherwise, apply default initialization
 #ifdef G4UI_USE
@@ -82,13 +82,13 @@ int main(int argc,char** argv) {
         UI->ApplyCommand("/event/verbose 0");
         UI->ApplyCommand("/tracking/verbose 0");
         
-        G4cerr << "Starting UI session" << G4endl;
+        G4cout << "Starting UI session" << G4endl;
         G4UIExecutive* ui = new G4UIExecutive(argc,argv);
         ui->SessionStart();
         delete ui;
         // TODO: figure out why program segfaults if exiting here before /run/initialize
 #else
-        G4cerr << "Not compiled with UI available; please specify a macro." << G4endl;
+        G4cout << "Not compiled with UI available; please specify a macro." << G4endl;
 #endif
     }
 

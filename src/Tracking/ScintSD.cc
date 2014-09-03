@@ -20,18 +20,12 @@
 #include <G4HadronicProcessType.hh>
 #include <G4ios.hh>
 
-////////////////////////////////////////////////////////////////
-
-void IonisationHit::Display() const {
-    G4cerr << "Hit E=" << G4BestUnit(sum_w,"Energy") 
-    << " at t=" << G4BestUnit(GetTime(),"Time") << "( " << G4BestUnit(GetDTime(),"Time")
-    << ")\tx=[ " << G4BestUnit(GetPos(),"Length") << "] { " << G4BestUnit(GetDPos(),"Length") << "}" << G4endl;
+ScintSD::ScintSD(G4String name, ScintSegVol& T):
+G4VSensitiveDetector(name), verbose(0), myScint(T) {
+    time_gap = 1*ns;
+    RootIO::GetInstance()->addScIoniBranch();
+    RootIO::GetInstance()->addNCaptBranch();
 }
-
-////////////////////////////////////////////////////////////////
-
-ScintSD::ScintSD(G4String name, ScintSegVol& T): G4VSensitiveDetector(name),
-time_gap(1*ns), edep_threshold(10*keV), verbose(0), myScint(T) { }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();
@@ -45,15 +39,13 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     // check that we are in scintillator proper, not sub-assemblies therein
     if(hitVol->GetVolume()->GetLogicalVolume() != myScint.scint_log) return false;
     
-    // world and local position
-    worldPos = aStep->GetPreStepPoint()->GetPosition();
-    localPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPos);
+    collectHitInfo(aStep);
     seg_id = myScint.getSegmentNum(localPos);
-    PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     
-    G4bool notable = false;
-    notable |= ProcessNeutronHits(aStep, H);
-    notable |= ProcessIoniHits(aStep, H);
+    G4bool notable = ProcessNeutronHits(aStep, H);
+    IonisationHit* I = ProcessIoniHits(aStep);
+    notable |= (I != NULL);
+    if(I)  hit_history[std::pair<G4int,G4int>(PID,seg_id)].push_back(I);
     secondaries_counter[aStep->GetTrack()->GetTrackID()] = aStep->GetSecondary()->size();
     
     return notable;
@@ -70,8 +62,8 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     
     if(verbose >= 2) PDS->DumpInfo();
     
-    EventNCapt nc;
-    for(uint i=0; i<3; i++) nc.x[i] = localPos[i];
+    NCapt nc;
+    for(unsigned int i=0; i<3; i++) nc.x[i] = localPos[i];
     nc.t = aStep->GetPostStepPoint()->GetGlobalTime();
     nc.vol = seg_id;
     nc.E = aStep->GetPreStepPoint()->GetKineticEnergy();
@@ -95,7 +87,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
             G4int Z = pt->GetAtomicNumber();
             G4int A = pt->GetAtomicMass();
             if(verbose >= 2) {
-                G4cerr << "\tFragment: " << pt->GetParticleType() << "/" << pt->GetParticleSubType()
+                G4cout << "\tFragment: " << pt->GetParticleType() << "/" << pt->GetParticleSubType()
                 << " (" << Z << "," << A << ") " << G4BestUnit((*it)->GetKineticEnergy(),"Energy") << G4endl;
             }
             nc.capt_Z += Z;
@@ -104,10 +96,10 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     }
     
     if(isCapt || (nc.capt_Z == 3 && nc.capt_A == 7)) {
-        RootIO::GetEvent().AddNCapt(nc);
+        RootIO::GetNCapt().AddNCapt(nc);
     
         if(verbose >= 2) {
-            G4cerr << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPos,"Length") << "] with "
+            G4cout << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPos,"Length") << "] with "
                 << nc.Ngamma << " gammas ( E=" << G4BestUnit(nc.Egamma,"Energy")
                 << ") of " << nc.Nprod << " final products; total (A,Z)=(" << nc.capt_A << "," << nc.capt_Z << ")" << G4endl;
         }
@@ -117,72 +109,19 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     } else return false;
 }
 
-G4bool ScintSD::ProcessIoniHits(G4Step* aStep, G4TouchableHistory*) {
-
-    G4double E = aStep->GetTotalEnergyDeposit()-aStep->GetNonIonizingEnergyDeposit();
-    if(!E) return false;
-    
-    IonisationHit* aHit = new IonisationHit();
-    
-    aHit->SetEnergy(E);
-    aHit->SetLength(aStep->GetStepLength());
-    aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime());
-    aHit->SetPos(localPos);
-    
-    // record hits to volume listing
-    aHit->record();
-    pair<G4int,G4int> i(PID,seg_id);
-    hit_history[i].push_back(aHit);
-    
-    return true;
-}
-
-EventIoniCluster hitToCluster(IonisationHit* h, G4int pid, G4int detvol) {
-    EventIoniCluster c;
-    c.E = h->GetEnergyDeposit();
-    c.t = h->GetTime();
-    c.dt = h->GetDTime();
-    c.PID = pid;
-    for(uint i=0; i<3; i++) { c.x[i] = h->GetPos()[i]; c.dx[i] = h->GetDPos()[i]; }
-    c.vol = detvol;
-    return c;
-}
-
-bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return a->GetTime() < b->GetTime(); }
-bool compare_ioni_times(const EventIoniCluster& a, const EventIoniCluster& b) { return a.t < b.t; }
+bool compare_ioni_times(const IoniCluster& a, const IoniCluster& b) { return a.t < b.t; }
 
 void ScintSD::EndOfEvent(G4HCofThisEvent*) {
     
-    /////////////////////////////////////////////
-    // organize ionizing deposition into clusters
-    
-    vector<EventIoniCluster> clusts;
-    
     if(verbose >= 2 && hit_history.size())
-        G4cerr << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
-    for(auto it = hit_history.begin(); it != hit_history.end(); it++) {
-        
-        // time-order hit events
-        std::sort(it->second.begin(), it->second.end(), compare_hit_times);
-        
-        // group into timing clusters
-        auto ihit = it->second.begin();
-        IonisationHit* prevHit = *ihit;
-        ihit++;
-        for(; ihit != it->second.end(); ihit++) {
-            if((*ihit)->GetTime() > prevHit->GetTime() + time_gap) {
-                if(prevHit->GetEnergyDeposit() > edep_threshold) clusts.push_back(hitToCluster(prevHit, it->first.first, it->first.second));
-                else delete prevHit;
-                prevHit = *ihit;
-            } else {
-                *prevHit += **ihit;
-                delete *ihit;
-            }
-        }
-        if(prevHit->GetEnergyDeposit() > edep_threshold) clusts.push_back(hitToCluster(prevHit, it->first.first, it->first.second));
-        else delete prevHit;
-    }
+        G4cout << "Processing ionization hits in " << hit_history.size() << " volumes." << G4endl;
     
+    vector<IoniCluster> clusts;
+    for(auto it = hit_history.begin(); it != hit_history.end(); it++) {
+        PID = it->first.first;
+        seg_id = it->first.second;
+        makeClusters(it->second, clusts);
+    }
     std::sort(clusts.begin(), clusts.end(), compare_ioni_times);
-    for(auto it = clusts.begin(); it != clusts.end(); it++)  RootIO::GetEvent().AddIoniCluster(*it);
+    for(auto it = clusts.begin(); it != clusts.end(); it++)  RootIO::GetScIoni().AddIoniCluster(*it);
 }

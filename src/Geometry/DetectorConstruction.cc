@@ -23,13 +23,13 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
     if(command == &modeCmd) {
         if(newValue == "PROSPECT") mode = PROSPECT;
         else if(newValue == "scintCell") mode = TEST_CELL;
-        else G4cerr << "Unknown mode!" << G4endl;
-    } else G4cerr << "Unknown command!" << G4endl;
+        else G4cout << "Unknown mode!" << G4endl;
+    } else G4cout << "Unknown command!" << G4endl;
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
-    G4cerr << "Starting detector construction..." << G4endl;
+    G4cout << "Starting detector construction..." << G4endl;
     myBuilding.construct();
     myTestCell.construct();
     
@@ -61,7 +61,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
-    G4cerr << "Detector construction complete." << G4endl;
+    G4cout << "Detector construction complete." << G4endl;
     
     // need to return the physical World Volume
     theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), world_log, "world_phys", NULL, false,  0);
@@ -76,7 +76,7 @@ void DetectorConstruction::fillNode(TXMLEngine& E) {
 /*
 void DetectorConstruction::ConstructSDs() {
     
-    G4cerr << "Setting up sensitive detectors..." << G4endl;
+    G4cout << "Setting up sensitive detectors..." << G4endl;
     
     scintHitInner = new G4MultiFunctionalDetector("scintHitInner");
     SegmentPMT = new G4MultiFunctionalDetector("SegmentPMT");
@@ -101,7 +101,7 @@ void DetectorConstruction::ConstructSDs() {
         0.260, 0.265, 0.271, 0.276, 0.281, 0.285, 0.288, 0.291, 0.293, 0.294, 0.295
     };
     if(QE >= 0) {
-        G4cerr << "CHANGING QE to " << QE << G4endl;
+        G4cout << "CHANGING QE to " << QE << G4endl;
         QE = QE<1. ? QE:1;
         for(int i=0;i<nSize;i++) QEff3[i] = QE;
     }

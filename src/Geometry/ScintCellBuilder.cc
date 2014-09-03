@@ -7,8 +7,34 @@
 #include <cmath>
 
 ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.0075),
-length(5*2.54*cm), radius(2.5*2.54*cm), wall_thick(0.125*2.54*cm) { }
+length(5*2.54*cm), radius(2.5*2.54*cm), wall_thick(0.125*2.54*cm),
+cellDir("/geom/testcell/"),
+lengthCmd("/geom/testcell/length",this),
+radiusCmd("/geom/testcell/radius",this),
+wallThickCmd("/geom/testcell/wall",this),
+loadingCmd("/geom/testcell/loading",this) {
     
+    lengthCmd.SetGuidance("Set test cell length.");
+    lengthCmd.AvailableForStates(G4State_PreInit);
+
+    radiusCmd.SetGuidance("Set test cell radius.");
+    radiusCmd.AvailableForStates(G4State_PreInit);
+    
+    wallThickCmd.SetGuidance("Set test cell wall thickness.");
+    wallThickCmd.AvailableForStates(G4State_PreInit);
+    
+    loadingCmd.SetGuidance("Set test cell Li loading.");
+    loadingCmd.AvailableForStates(G4State_PreInit);
+}
+
+void ScintCellBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &lengthCmd) length = lengthCmd.GetNewDoubleValue(newValue);
+    else if(command == &radiusCmd) radius = radiusCmd.GetNewDoubleValue(newValue);
+    else if(command == &wallThickCmd) wall_thick = wallThickCmd.GetNewDoubleValue(newValue);
+    else if(command == &loadingCmd) scintLiLoading = loadingCmd.GetNewDoubleValue(newValue);
+    else G4cout << "Unknown command!" << G4endl;
+}
+ 
 void ScintCellBuilder::construct() {
     
     dim = G4ThreeVector(2*radius, 2*radius, length);
@@ -20,7 +46,7 @@ void ScintCellBuilder::construct() {
     scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(scintLiLoading,false), "ScintCell_scint_log");
     new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintCell_scint_phys", main_log, false, 0, false);
 }
-    
+
 void ScintCellBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
     addAttr(E, "wall", G4BestUnit(wall_thick,"Length"));

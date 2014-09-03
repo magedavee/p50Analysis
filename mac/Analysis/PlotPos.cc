@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
     Event* evt = new Event();
-    T->GetBranch("iEvts")->SetAutoDelete(kFALSE);
+    T->GetBranch("clusts")->SetAutoDelete(kFALSE);
     T->SetBranchAddress("Evt",&evt);
     
     // set up histograms
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
         Int_t nNCapts = evt->nCapts->GetEntriesFast();
         Int_t nNCaptInVol = 0;
         for(Int_t i=0; i<nNCapts; i++) {
-            EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
+            NCapt* nc = (NCapt*)evt->nCapts->At(i);
             nCaptZA[10000 * nc->capt_Z + nc->capt_A] += 1;
             capt_times.push_back(nc->t);
             nNCaptInVol += nc->vol >= 0;
@@ -150,13 +150,13 @@ int main(int argc, char** argv) {
         
         // ionization
         map<Int_t, double> volIoni; // Ionization accumulator by volume
-        Int_t nIoni = evt->iEvts->GetEntriesFast();
+        Int_t nIoni = evt->clusts->GetEntriesFast();
         if(evt->EIoni) {
             hEIoni->Fill(evt->EIoni);
             hEIoniLo->Fill(evt->EIoni);
         }
         for(Int_t i=0; i<nIoni; i++) {
-            EventIoniCluster* ei = (EventIoniCluster*)evt->iEvts->At(i);
+            IoniCluster* ei = (IoniCluster*)evt->clusts->At(i);
             if(ei->vol >= 0) {
                 hit_xy->Fill(ei->x[0], ei->x[1]);
                 hit_zy->Fill(ei->x[2], ei->x[1]);
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
             if(isFakeIBD) {
                 hFakeIBD->Fill(nPrim);
                 for(Int_t i=0; i<nNCapts; i++) {
-                    EventNCapt* nc = (EventNCapt*)evt->nCapts->At(i);
+                    NCapt* nc = (NCapt*)evt->nCapts->At(i);
                     ncapt_xy->Fill(nc->x[0]/1000.,nc->x[1]/1000.);
                     ncapt_y->Fill(nc->x[1]/1000.);
                 }

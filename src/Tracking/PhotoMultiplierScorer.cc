@@ -70,7 +70,7 @@ G4bool PhotoMultiplierScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 	  G4double tPhoton = aStep->GetPostStepPoint()->GetGlobalTime();
 	  OpticalHit* aHit = new OpticalHit();
 	  aHit->SetVolume(aStep->GetTrack()->GetVolume()->GetName());
-	  //	  G4cerr << "PH SCORE\t" <<aStep->GetTrack()->GetVolume()->GetName()<< G4endl;
+	  //	  G4cout << "PH SCORE\t" <<aStep->GetTrack()->GetVolume()->GetName()<< G4endl;
 	  aHit->SetEnergy(ePhoton);
 	  aHit->SetTime(tPhoton);
 	  

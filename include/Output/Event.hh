@@ -24,7 +24,7 @@ public:
 class ParticleEvent: public TObject {
 public:
     /// Constructor
-    ParticleEvent(): nParticles(0), particles(NULL) { }
+    ParticleEvent(): nParticles(0), particles(NULL) { Clear(); }
     /// Destructor
     ~ParticleEvent();
     
@@ -40,10 +40,10 @@ public:
 };
 
 /// Ionization energy deposition in event
-class EventIoniCluster: public TObject {
+class IoniCluster: public TObject {
 public:
     /// constructor
-    EventIoniCluster(): E(0.), t(0.), dt(0.), vol(0), PID(0) {}
+    IoniCluster(): E(0.), t(0.), dt(0.), vol(0), PID(0) {}
     
     Double_t E;         ///< deposited energy
     Double_t t;         ///< average time
@@ -53,14 +53,36 @@ public:
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
     
-    ClassDef(EventIoniCluster,2);
+    ClassDef(IoniCluster,2);
+};
+
+/// Event containing a list of ionization clusters
+class IoniClusterEvent: public TObject {
+public:
+    
+    /// Constructor
+    IoniClusterEvent(): nIoniClusts(0), clusts(NULL) { Clear(); }
+    
+    /// Destructor
+    ~IoniClusterEvent();
+    
+    /// Clear data for new event
+    void Clear(Option_t *option ="");
+    /// Add new ionization cluster
+    void AddIoniCluster(const IoniCluster& tr);
+    
+    Int_t nIoniClusts;          ///< number of ionization events
+    TClonesArray* clusts;       ///< array of event ionization events
+    Double_t EIoni;             ///< total ionization deposited energy
+    
+    ClassDef(IoniClusterEvent,1);
 };
 
 /// Neutron capture in event
-class EventNCapt: public TObject {
+class NCapt: public TObject {
 public:
     /// constructor
-    EventNCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), capt_A(0), capt_Z(0), vol(0) { }
+    NCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), capt_A(0), capt_Z(0), vol(0) { }
     
     Double_t t;         ///< time of capture
     Double_t E;         ///< kinetic energy at capture
@@ -72,38 +94,42 @@ public:
     Int_t capt_Z;       ///< capture nucleus Z
     Int_t vol;          ///< volume ID number
     
-    ClassDef(EventNCapt,2);
+    ClassDef(NCapt,1);
 };
 
-class Event: public TObject {
+/// Event containing a list of neutron captures
+class NCaptEvent: public TObject {
 public:
-    
     /// Constructor
-    Event(): N(0),
-    nIoniClusts(0), iEvts(NULL),
-    nNCapts(0), nCapts(NULL) { }
-    
+    NCaptEvent(): nNCapts(0), nCapts(NULL) { Clear(); }
     /// Destructor
-    ~Event();
-    
-    Int_t N;                    ///< event number
-    Double_t t;                 ///< event time
-    
-    Int_t nIoniClusts;          ///< number of ionization events
-    TClonesArray* iEvts;        ///< array of event ionization events
-    Double_t EIoni;             ///< total ionization deposited energy
+    ~NCaptEvent();
     
     Int_t nNCapts;              ///< number of neutron captures
     TClonesArray* nCapts;       ///< array of neutron capture events
     
     /// Clear data for new event
     void Clear(Option_t *option ="");
-    /// Add new ionization cluster
-    void AddIoniCluster(const EventIoniCluster& tr);
     /// Add new neutron capture
-    void AddNCapt(const EventNCapt& n);
+    void AddNCapt(const NCapt& n);
     
-    ClassDef(Event,3);
+    ClassDef(NCaptEvent,1);
+};
+
+/// Basic event header information
+class Event: public TObject {
+public:
+    
+    /// Constructor
+    Event(): N(0), t(0) { }
+    
+    Int_t N;            ///< event number
+    Double_t t;         ///< event time
+    
+    /// Clear data for new event
+    void Clear(Option_t* ="") { N = t = 0; }
+  
+    ClassDef(Event,4);
 };
 
 #endif

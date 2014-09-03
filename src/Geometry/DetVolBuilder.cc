@@ -55,7 +55,7 @@ void DetVolBuilder::construct() {
     new G4PVPlacement(lid_flip, G4ThreeVector(0,0,-lid_z), myLid.main_log, "DetVol_lid_phys_1", inner_log, true, 1, true);
     
     double pmt_z = (myTank.tank_depth + myPMT.getLength())/2. + myLid.getThick();
-    for(uint i=0; i<myTank.getNSeg(); i++) {
+    for(unsigned int i=0; i<myTank.getNSeg(); i++) {
         G4ThreeVector pos = myTank.getSegmentPosition(i);
         new G4PVPlacement(lid_flip, G4ThreeVector(pos[0],pos[1],pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i), inner_log, true, 2*i, true);
         new G4PVPlacement(NULL, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), inner_log, true, 2*i+1, true);

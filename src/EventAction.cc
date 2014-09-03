@@ -28,8 +28,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
-    Event& evt = RootIO::GetEvent();
-    if(reclevel >= 3 || (reclevel >= 2 && evt.nNCapts + evt.nIoniClusts > 0)) {
+    if(reclevel >= 3 || (reclevel >= 2 &&  RootIO::GetNCapt().nNCapts +  RootIO::GetScIoni().nIoniClusts > 0)) {
         
         // record event primaries information
         ParticleEvent& prim = RootIO::GetPrim();
@@ -37,7 +36,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
             const G4PrimaryVertex* v = anEvent->GetPrimaryVertex(i); 
             assert(v);
             ParticleVertex p;
-            for(uint j=0; j<3; j++) p.x[j] = v->GetPosition()[j];
+            for(unsigned int j=0; j<3; j++) p.x[j] = v->GetPosition()[j];
             p.t = v->GetT0();
             for(G4int pn = 0; pn < v->GetNumberOfParticle(); pn++) {
                 const G4PrimaryParticle* pp = v->GetPrimary(pn);
@@ -46,7 +45,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
                 G4double mass = pp->GetMass();
                 p.E = sqrt(mom.mag2()+mass*mass)-mass;
                 mom = mom.unit();
-                for(uint j=0; j<3; j++) p.p[j] = mom[j];
+                for(unsigned int j=0; j<3; j++) p.p[j] = mom[j];
                 p.PID = pp->GetPDGcode();
                 prim.AddParticle(p);
             }
