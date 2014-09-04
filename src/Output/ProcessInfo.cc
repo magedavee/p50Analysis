@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <G4Version.hh>
 
 void ProcessInfo::fillNode(TXMLEngine& E) {
     uid_t uid = getuid();
@@ -15,4 +16,5 @@ void ProcessInfo::fillNode(TXMLEngine& E) {
     char nm[1024];
     gethostname(nm, 1024);
     addAttr(E, "host", nm);
+    addAttr(E, "Geant4", G4Version);
 }
