@@ -23,7 +23,7 @@ CRYModule::CRYModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "CRY"
 CRY_generator(NULL), inputState(false), primpoint(false), neutronOnly(false) {
    
     const DetectorConstruction* detect = dynamic_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    zOffset = detect->myBuilding.getDimensions()[2]/2.;
+    zOffset = detect->getDimensions()[2]/2.;
     
     CRYDir = new G4UIdirectory("/CRY/");
     CRYDir->SetGuidance("CRY initialization");

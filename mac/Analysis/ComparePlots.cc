@@ -14,12 +14,10 @@ void ComparePlots() {
     gStyle->SetOptStat("");
     
     vector<string> fnames;
-    // /home/mpmendenhall/Analysis/ShortBaseline/CRY_
-    fnames.push_back("/home/mpmendenhall/tmp/bare/Out.root");
-    fnames.push_back("/home/mpmendenhall/tmp/shielded/Out.root");
-    fnames.push_back("/home/mpmendenhall/tmp/Pb6cm/Out.root");
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/CRY_MuVeto_All/Plots/MuVetoOut.root");
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/CRY_MuVeto/Plots/MuVetoOut.root");
         
-    string hname = "hTimeCorr";
+    string hname = "hVetoSpec";
     
     vector<TH1*> hs;
     for(int i=0; i<fnames.size(); i++) {
@@ -28,6 +26,9 @@ void ComparePlots() {
         assert(f);
         TH1* h = (TH1*)f->Get(hname.c_str());
         assert(h);
+        
+        hs.push_back(h);
+        continue;
         
         char projname[1024];
         sprintf(projname,"px_%i",i);
@@ -41,11 +42,14 @@ void ComparePlots() {
         h->Fit(expFit,"0R"); // "0" = do NOT automatically draw "hist"
         h->GetFunction(fitname.c_str())->ResetBit(TF1::kNotDraw); // make "projname" visible (= 1<<9)
         
-        hs.push_back(h);
+        
     }
     
-    for(int i=0; i<hs.size(); i++)
+    for(int i=0; i<hs.size(); i++) {
+        hs[i]->SetMaximum(200);
+        hs[i]->SetLineColor(4-2*i);
         hs[i]->Draw(i?"Same":"");
+    }
     
     gPad->Print((hname+".pdf").c_str());
 }

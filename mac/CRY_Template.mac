@@ -21,7 +21,7 @@
 /CRY/input date 7-1-2016
 /CRY/input latitude 36.0
 /CRY/input altitude 0.0
-/CRY/input subboxLength 5
+/CRY/input subboxLength 20
 /CRY/update
 
 /run/beamOn %(nevents)i

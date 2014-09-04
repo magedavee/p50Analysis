@@ -79,3 +79,5 @@ void BuildingBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "mode", makeBare? "bare" : makeVacuum? "vacuum" : "normal");
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
+
+

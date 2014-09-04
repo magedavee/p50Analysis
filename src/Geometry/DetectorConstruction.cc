@@ -12,7 +12,7 @@
 #include <cassert>
 
 DetectorConstruction::DetectorConstruction():
-Builder("DetectorConstruction"), mode(PROSPECT), worldPad(0.4*m),
+Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.4*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
@@ -33,14 +33,19 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     myBuilding.construct();
     myTestCell.construct();
     
+    addChild(&worldShell);
     Builder& myContents = (mode==PROSPECT) ? (Builder&)myBuilding : (Builder&)myTestCell;
     addChild(&myContents);
     
-    dim = myContents.getDimensions() + G4ThreeVector(2,2,2)*worldPad;
-    G4Box* world_box = new G4Box("world_box", dim[0]/2., dim[1]/2., dim[2]/2.);
-    G4LogicalVolume* world_log = new G4LogicalVolume(world_box, 
-                                                     (mode==TEST_CELL)? MaterialsHelper::M().Air : MaterialsHelper::M().Vacuum, "world_log");
-    building_phys = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), myContents.main_log, "building_phys", world_log, false,  0);
+    if(mode==TEST_CELL) {
+        worldShell.mat = MaterialsHelper::M().Air;
+    } else {
+        worldShell.mat = MaterialsHelper::M().Vacuum;
+    }
+    
+    dim = myContents.getDimensions();
+    main_log = myContents.main_log;
+    building_phys = worldShell.wrap(main_log, dim, "world");
     
     if(mode == PROSPECT) {
         myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
@@ -49,7 +54,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     } else if(mode == TEST_CELL) {
         G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
         G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
-        ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", world_log, false,  0);
+        ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", main_log, false,  0);
         
         // assign sensitive detector to scintillator
         myScintSD = new ScintSD("ScintSD", myTestCell);
@@ -64,13 +69,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4cout << "Detector construction complete." << G4endl;
     
     // need to return the physical World Volume
-    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), world_log, "world_phys", NULL, false,  0);
+    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), main_log, "world_phys", NULL, false,  0);
     return theWorld;
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {
+    addAttr(E, "mode", (mode==TEST_CELL)?"TestCell":"PROSPECT");
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
-    addAttr(E, "pad", G4BestUnit(worldPad,"Length"));
 }
 
 /*

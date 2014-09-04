@@ -40,7 +40,7 @@ public:
     G4VPhysicalVolume* theWorld;        ///< world volume
     G4VPhysicalVolume* ptclSrc;         ///< optional event generator source volume
     G4VPhysicalVolume* building_phys;   ///< physical building placement
-    double worldPad;                    ///< "padding" width of vacuum around "building"
+    ShellLayerSpec worldShell;          ///< world outer vacuum layer dimensions
     
 private:
     

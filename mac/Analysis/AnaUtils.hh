@@ -9,6 +9,7 @@
 #include <TSystem.h>
 #include <TClonesArray.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TCanvas.h>
 #include <TStyle.h>
 
