@@ -5,11 +5,13 @@
 
 #include <iostream>
 #include <sys/stat.h>
+#include <math.h>
 
 #include <TSystem.h>
 #include <TClonesArray.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TF1.h>
 #include <TCanvas.h>
 #include <TStyle.h>
 
