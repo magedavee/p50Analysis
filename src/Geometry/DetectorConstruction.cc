@@ -16,13 +16,14 @@ Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.4*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT scintCell");
+    modeCmd.SetCandidates("PROSPECT scintCell slab");
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &modeCmd) {
         if(newValue == "PROSPECT") mode = PROSPECT;
         else if(newValue == "scintCell") mode = TEST_CELL;
+        else if(newValue == "slab") mode = SLAB;
         else G4cout << "Unknown mode!" << G4endl;
     } else G4cout << "Unknown command!" << G4endl;
 }
@@ -30,17 +31,20 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Starting detector construction..." << G4endl;
-    myBuilding.construct();
-    myTestCell.construct();
-    
+   
     addChild(&worldShell);
-    Builder& myContents = (mode==PROSPECT) ? (Builder&)myBuilding : (Builder&)myTestCell;
+    
+    Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding    
+                                : mode==SLAB ? (Builder&)mySlab
+                                : (Builder&)myTestCell );
+    myContents.construct();
     addChild(&myContents);
     
     if(mode==TEST_CELL) {
         worldShell.mat = MaterialsHelper::M().Air;
-    } else {
+    } else if(mode==SLAB) {
         worldShell.mat = MaterialsHelper::M().Vacuum;
+        worldShell.bottom_thick =  worldShell.top_thick;
     }
     
     dim = myContents.getDimensions();
@@ -60,8 +64,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myScintSD = new ScintSD("ScintSD", myTestCell);
         G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
         myTestCell.scint_log->SetSensitiveDetector(myScintSD);
-    } else {
-        assert(false);
     }
     
     G4cout << *(G4Material::GetMaterialTable()); // print list of all materials

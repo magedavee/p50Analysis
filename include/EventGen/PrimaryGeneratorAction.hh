@@ -71,6 +71,8 @@ public:
     DetectorConstruction* GetDetector() const { return detect; }
     G4int GetVerbosity() const { return verbose; }
     
+    /// load particle gun as current generator
+    void loadGunModule();
     /// load CRY as current generator
     void loadCRYModule();              
     /// load Inverse Beta Decay as current generator

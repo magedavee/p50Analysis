@@ -5,6 +5,7 @@
 #include "Builder.hh"
 #include "BuildingBuilder.hh"
 #include "ScintCellBuilder.hh"
+#include "ScatterSlabBuilder.hh"
 #include "ScintSD.hh"
 
 #include <G4VUserDetectorConstruction.hh>
@@ -32,11 +33,14 @@ public:
     
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector
-        TEST_CELL       ///< scintillator testing cell
+        TEST_CELL,      ///< scintillator testing cell
+        SLAB            ///< material slab
     } mode;             ///< what kind of system to construct
     
     BuildingBuilder myBuilding;         ///< building containing detector
-    ScintCellBuilder myTestCell;        ///< test scintillator cell
+    ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
+    ScatterSlabBuilder mySlab;          ///< toy slab geometry
+    
     G4VPhysicalVolume* theWorld;        ///< world volume
     G4VPhysicalVolume* ptclSrc;         ///< optional event generator source volume
     G4VPhysicalVolume* building_phys;   ///< physical building placement

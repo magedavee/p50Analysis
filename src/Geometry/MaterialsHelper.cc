@@ -129,7 +129,7 @@ MaterialsHelper::MaterialsHelper() {
 G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
     std::string mnm = "UG_AB-"+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {
-        G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator " << nm << " ...\n";
+        G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) Ultima Gold AB scintillator " << mnm << " ...\n";
         G4Material* myLi = enriched? Li6 : nat_Li; 
         double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;/// Li average mass
         double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li

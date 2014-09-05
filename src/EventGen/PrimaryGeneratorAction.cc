@@ -78,6 +78,11 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myCf252Module) delete myCf252Module;
 }
 
+void PrimaryGeneratorAction::loadGunModule() {
+    G4cout << "Using default particle gun event generator." << G4endl;
+    genModule = NULL;
+}
+
 void PrimaryGeneratorAction::loadCRYModule() {
     if(!myCRYModule) myCRYModule = new CRYModule(this);
     G4cout << "Using CRY event generator module; remember to provide setup!" << G4endl; 
@@ -133,5 +138,7 @@ void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
     if(genModule) {
         addChild(genModule);
         addAttr(E,"time",G4BestUnit(genModule->GetGeneratorTime(), "Time"));
+    } else {
+        addAttr(E,"time",G4BestUnit(1*s, "Time"));
     }
 }

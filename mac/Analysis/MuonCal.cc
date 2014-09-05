@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     hSpec->GetYaxis()->SetTitleOffset(1.45);
     
     TH1F* hSpec2 = (TH1F*)f.add(new TH1F("hSpec2","Scintillator ionization spectrum", 400, 0, 200));
-    hSpec2->SetLineColor(2);
+    hSpec->SetLineColor(2);
     
     TH1F* hdz = (TH1F*)f.add(new TH1F("hdz","Ionization position spread over cell", 200, 0, 200));
     hdz->GetXaxis()->SetTitle("RMS position spread [mm]");
@@ -92,7 +92,11 @@ int main(int argc, char** argv) {
         for(auto it = volIoni.begin(); it != volIoni.end(); it++) {
             if(it->second > 10) nThresh10++;
             if(it->second > 40) nThresh40++;
-            if(it->first == 16) hSpec->Fill(it->second);
+            if(it->first == 12) hSpec->Fill(it->second);
+            int vol = it->first;
+            if(vol == 12
+                && !(volIoni.count(vol-1) && volIoni[vol-1]>1)
+                && !(volIoni.count(vol+1) && volIoni[vol+1]>1) ) hSpec2->Fill(it->second);
         }
         if(nThresh10) hMult10->Fill(nThresh10);
         if(nThresh40) hMult40->Fill(nThresh40);
@@ -107,10 +111,11 @@ int main(int argc, char** argv) {
     
     hSpec->Sumw2();
     hSpec->Scale(1./hSpec->GetBinWidth(1)/simtime);
-    hSpec2->Sumw2();
-    hSpec2->Scale(1./hSpec2->GetBinWidth(1)/simtime/32);
+    //hSpec2->Sumw2();
+    hSpec2->Scale(1./hSpec2->GetBinWidth(1)/simtime);
     
     TF1 lFit("lFit","landau",43,100);
+    lFit.SetLineColor(1);
     hSpec->Fit(&lFit,"RE");
     
     double mpv = lFit.GetParameter(1);
@@ -118,9 +123,10 @@ int main(int argc, char** argv) {
     double res_per_hr = (d_mpv/mpv)*sqrt(simtime/3600);
     cout << "dE/E = " << res_per_hr << " per hour\n";
     
+    hSpec->SetMinimum(0);
     hSpec->SetMaximum(1);
     hSpec->Draw();
-    //hSpec2->Draw("Same");
+    hSpec2->Draw("Same");
     cout << "Total rate " << hSpec->Integral("width") << " Hz\n";
     gPad->Print((outpath+"/ScintSpec.pdf").c_str());
     
