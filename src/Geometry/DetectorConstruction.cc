@@ -12,7 +12,7 @@
 #include <cassert>
 
 DetectorConstruction::DetectorConstruction():
-Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.4*m),
+Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
@@ -45,6 +45,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     } else if(mode==SLAB) {
         worldShell.mat = MaterialsHelper::M().Vacuum;
         worldShell.bottom_thick =  worldShell.top_thick;
+    } else if(mode==PROSPECT) {
+        worldShell.side_thick = 25*m;
     }
     
     dim = myContents.getDimensions();

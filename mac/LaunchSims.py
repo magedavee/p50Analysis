@@ -61,6 +61,7 @@ if __name__=="__main__":
     parser.add_option("--cry", dest="cry", action="store_true", default=False, help="CRY cosmic ray simulations")
     parser.add_option("--muveto", dest="muveto", action="store_true", default=False, help="Muon veto layer simulations")
     parser.add_option("--testcell", dest="testcell", action="store_true", default=False, help="Scintillator test cell")
+    parser.add_option("--nscatter", dest="nscatter", action="store_true", default=False, help="neutron scattering tests")
     
     options, args = parser.parse_args()
     if options.kill:
@@ -84,3 +85,12 @@ if __name__=="__main__":
         L.template = "TestCell_Template.mac"
         L.launch_sims(4*6*5)
         
+    if options.nscatter:
+        for E in ["10 MeV","1 keV","1 eV","0.02 eV"]:
+            for (m,t) in [("G4_Water","1 cm"), ("Lithium6","1 um"), ("solidCl", "1 mm"), ("UG_AB", "1 cm")]:
+                L = SB_MC_Launcher(("nScatter %s %s %s"%(m,t,E)).replace(" ","_"), 1e5)
+                L.template = "ScatterSlab_Template.mac"
+                L.settings["gun_energy"] = E
+                L.settings["slab_mat"] = m
+                L.settings["slab_thick"] = t
+                L.launch_sims(4*10)

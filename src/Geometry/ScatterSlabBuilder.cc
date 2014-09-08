@@ -21,6 +21,10 @@ matCmd("/geom/slab/material",this) {
     
     matCmd.SetGuidance("Set scattering slab material.");
     matCmd.AvailableForStates(G4State_PreInit);
+    
+    // funny materials for testing purposes
+    G4Material* solidCl = new G4Material("solidCl", 1*g/cm3, 1, kStateSolid, MaterialsHelper::M().room_T);
+    solidCl->AddMaterial(MaterialsHelper::M().nat_Cl, 1.0);
 }
 
 void ScatterSlabBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {

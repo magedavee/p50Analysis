@@ -1,38 +1,20 @@
-#/output/setRunNum %(run_num)i
-/output/setRunNum 0
-
-#/output/setRecordLevel %(reclevel)i
+/output/setRunNum %(run_num)i
 /output/setRecordLevel 3
 /run/verbose 0
+/vis/disable
 
 /geom/mode slab
-/geom/slab/material G4_WATER
-/geom/slab/thickness 10 cm
-#%(preinit)s
+/geom/slab/material %(slab_mat)s
+/geom/slab/thickness %(slab_thick)s
+%(preinit)s
 
-#/output/filename %(outfile)s
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/Run_0.root
+/output/filename %(outfile)s
 /run/initialize
-
-#/vis/disable
-/vis/open OGLSXm
-/vis/viewer/set/style     wireframe
-/vis/viewer/set/culling   global false
-/vis/viewer/set/auxiliaryEdge 1
-/vis/drawVolume
-/vis/viewer/set/upThetaPhi 0 0
-/vis/viewer/set/viewpointThetaPhi 90 90
-/vis/scene/add/trajectories
-/vis/scene/add/hits
-/vis/scene/endOfEventAction accumulate -1
 
 /generator/module_gun
 /gun/particle neutron
-/gun/energy 1 MeV
+/gun/energy %(gun_energy)s
 /gun/direction 0 0 1
 /gun/position 0 0 0 m
 
-/generator/verbose 5
-
-#/run/beamOn %(nevents)i
-/run/beamOn 1000
+/run/beamOn %(nevents)i

@@ -15,6 +15,7 @@ MaterialsHelper& MaterialsHelper::M() {
 MaterialsHelper::MaterialsHelper() {
     
     G4cout << "Initializing materials..." << G4endl;
+    room_T = 293.15*kelvin;
     
     nist = G4NistManager::Instance();
     
@@ -41,14 +42,12 @@ MaterialsHelper::MaterialsHelper() {
     G4Isotope* isoLi7 = new G4Isotope("isoLi7", 3, 7, 7.01600455*g/mole);
     elLi7->AddIsotope(isoLi7,100.*perCent);
     
-    Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
+    Li6 = new G4Material("Lithium6", 1.0*g/cm3, 1, kStateSolid, room_T);
     Li6->AddElement(elLi6,1);
     
     nat_Li = new G4Material("nat_Li", 0.463*g/cm3, 2);
     nat_Li->AddElement(elLi6,0.0811);
     nat_Li->AddElement(elLi7,1-0.0811);
-    
-    double room_T = 293.15*kelvin; // materials "room temperature"
     
     Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     

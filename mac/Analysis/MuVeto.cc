@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
                 IoniCluster* eiv = (IoniCluster*)vion->clusts->At(iv);
                 if(eiv->E < veto_thresh) continue;
                 double dtime = nc->t - eiv->t;
-                isVetoed |= (-1e3 <= dtime && dtime <= 1e6);
+                isVetoed |= (-3e3 <= dtime && dtime <= 12e3);
                 htMuToN->Fill(dtime);
                 if(isolhit) htMuToIBD->Fill(dtime);
             }

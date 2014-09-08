@@ -14,12 +14,16 @@ void ComparePlots() {
     gStyle->SetOptStat("");
     
     vector<string> fnames;
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/CRY_MuVeto_All/Plots/MuVetoOut.root");
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/CRY_MuVeto/Plots/MuVetoOut.root");
+    string matnm = "Lithium6_1_um";
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_10_MeV/Plots/nScatterOut.root");
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_1_keV/Plots/nScatterOut.root");
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_1_eV/Plots/nScatterOut.root");
+    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_0.02_eV/Plots/nScatterOut.root");
         
-    string hname = "hVetoSpec";
+    string hname = "hTrans";
     
     vector<TH1*> hs;
+    double mx =0;
     for(int i=0; i<fnames.size(); i++) {
         cout << fnames[i] << "\n";
         TFile* f = new TFile(fnames[i].c_str(),"READ");
@@ -27,6 +31,7 @@ void ComparePlots() {
         TH1* h = (TH1*)f->Get(hname.c_str());
         assert(h);
         
+        if(h->GetMaximum()>mx) mx = h->GetMaximum();
         hs.push_back(h);
         continue;
         
@@ -46,10 +51,12 @@ void ComparePlots() {
     }
     
     for(int i=0; i<hs.size(); i++) {
-        hs[i]->SetMaximum(200);
-        hs[i]->SetLineColor(4-2*i);
+        hs[i]->SetMaximum(2*mx);
+        hs[i]->SetLineColor(1+i);
         hs[i]->Draw(i?"Same":"");
     }
     
-    gPad->Print((hname+".pdf").c_str());
+    gPad->SetLogy(true);
+    gPad->SetLogx(true);
+    gPad->Print((hname+"_"+matnm+".pdf").c_str());
 }
