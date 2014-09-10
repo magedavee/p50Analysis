@@ -51,8 +51,7 @@ MaterialsHelper::MaterialsHelper() {
     
     Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     
-    Air = new G4Material("Air", 1.204*kg/m3, 1, kStateGas, room_T);
-    Air->AddMaterial(nist->FindOrBuildMaterial("G4_AIR", true, true), 100.*perCent);
+    Air = nist->FindOrBuildMaterial("G4_AIR", true, true);
     
     MinOil = new G4Material("Mineral Oil CH1.1", 0.877*g/cm3, 2, kStateLiquid, room_T);
     MinOil->AddMaterial(nat_C, 91.53*perCent);
@@ -104,6 +103,7 @@ MaterialsHelper::MaterialsHelper() {
     Quartz->AddMaterial(nat_O, 0.5326);
     
     Concrete = nist->FindOrBuildMaterial("G4_CONCRETE");
+    
     /*
     Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, room_T);
     Concrete->AddMaterial(nat_Si, 0.227915);

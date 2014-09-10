@@ -17,6 +17,7 @@ geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
     modeCmd.SetCandidates("PROSPECT scintCell slab");
+    worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -43,7 +44,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     if(mode==TEST_CELL) {
         worldShell.mat = MaterialsHelper::M().Air;
     } else if(mode==SLAB) {
-        worldShell.mat = MaterialsHelper::M().Vacuum;
         worldShell.bottom_thick =  worldShell.top_thick;
     } else if(mode==PROSPECT) {
         worldShell.side_thick = 25*m;

@@ -4,6 +4,7 @@
 #include "XMLInfo.hh"
 
 #include <iostream>
+#include <fstream>
 #include <sys/stat.h>
 #include <math.h>
 
@@ -15,6 +16,7 @@
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TStyle.h>
+#include <TLegend.h>
 
 using std::cout;
 using std::map;
