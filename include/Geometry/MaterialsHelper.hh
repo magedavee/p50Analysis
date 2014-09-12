@@ -18,6 +18,8 @@ public:
     G4NistManager* nist;        ///< NIST materials DB
     double room_T;              ///< materials "room temperature"
     
+    G4Element* elLi6;           ///< pure 6Li
+    
     G4Material* nat_H;          ///< natural hydrogen
     G4Material* nat_Li;         ///< natural lithium
     G4Material* Li6;            ///< isotopically pure 6Li

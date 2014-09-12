@@ -57,8 +57,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     addChild(phys);
     writeToFile(R->GetFileName()+".xml");
     children.clear();
-    
-    R->WriteFile();
 }
 
 void RunAction::SetPrimariesOnly() {

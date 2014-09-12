@@ -1,6 +1,6 @@
 #include "PhysicsList.hh"
 
-PhysicsList::PhysicsList(): QGSP_BERT_HP(), XMLProvider("Physics"),
+PhysicsList::PhysicsList(): XMLProvider("Physics"),
 myMessenger(new PhysicsListMessenger(this)), myOptPhys(NULL) {
 }
 

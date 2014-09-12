@@ -35,7 +35,7 @@ MaterialsHelper::MaterialsHelper() {
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
     nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
     
-    G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
+    elLi6  = new G4Element("eleLi6", "Li6", 1);
     G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
     elLi6->AddIsotope(isoLi6,100.*perCent);
     G4Element* elLi7  = new G4Element("eleLi7", "Li7", 1);
@@ -43,7 +43,7 @@ MaterialsHelper::MaterialsHelper() {
     elLi7->AddIsotope(isoLi7,100.*perCent);
     
     Li6 = new G4Material("Lithium6", 1.0*g/cm3, 1, kStateSolid, room_T);
-    Li6->AddElement(elLi6,1);
+    Li6->AddElement(elLi6,100.*perCent);
     
     nat_Li = new G4Material("nat_Li", 0.463*g/cm3, 2);
     nat_Li->AddElement(elLi6,0.0811);

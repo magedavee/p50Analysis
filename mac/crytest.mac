@@ -21,8 +21,8 @@
 
 /run/initialize
 
-/vis/open OGLSXm
-#/vis/disable
+#/vis/open OGLSXm
+/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
 /vis/viewer/set/culling   global false
@@ -55,4 +55,5 @@
 #/generator/module_Cf252
 
 /run/beamOn 500
-
+/process/list
+/process/dump neutronInelastic neutron

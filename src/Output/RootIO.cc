@@ -106,5 +106,6 @@ void RootIO::SetFileName(G4String filename) {
     fname = filename;
     G4cout << "RootIO: Setting output file to '" << fname << "'\n";
     outfile = new TFile(filename,"RECREATE");
+    outfile->cd();
     dataTree->SetDirectory(outfile);
 }

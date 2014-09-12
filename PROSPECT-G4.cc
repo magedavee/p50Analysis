@@ -22,6 +22,8 @@
 #include "EventAction.hh"
 #include "SteppingVerbose.hh"
 #include "PhysicsList.hh"
+#include "XSDump.hh"
+#include "RootIO.hh"
 
 int main(int argc,char** argv) {
     
@@ -59,6 +61,8 @@ int main(int argc,char** argv) {
     EventAction* event_action = new EventAction();
     run_manager->SetUserAction(event_action);
     
+    XSDump myXSDump;
+    
 #ifdef G4VIS_USE
     // Initialize visualization
     G4VisManager* vis_manager = new G4VisExecutive;
@@ -91,6 +95,8 @@ int main(int argc,char** argv) {
         G4cout << "Not compiled with UI available; please specify a macro." << G4endl;
 #endif
     }
+    
+    myXSDump.makeXSdata();
 
     // Job termination and freeing of storage space
 #ifdef G4VIS_USE
@@ -98,6 +104,8 @@ int main(int argc,char** argv) {
 #endif
     delete run_manager;
     // All other processes owned and deleted by G4RunManager
+    
+    RootIO::GetInstance()->WriteFile();
     
     return 0;
 }

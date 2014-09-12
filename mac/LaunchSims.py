@@ -87,7 +87,7 @@ if __name__=="__main__":
         
     if options.nscatter:
         for E in ["10 MeV","1 keV","1 eV","0.02 eV"]:
-            for (m,t) in [("solidCl", "1 cm")]: # ("G4_WATER","1 cm"), ("Lithium6","1 um"), ("solidCl", "1 cm"), ("UG_AB", "1 cm")]:
+            for (m,t) in [("Lithium6", "1 mm")]: # ("G4_WATER","1 cm"), ("Lithium6","1 um"), ("solidCl", "1 cm"), ("UG_AB", "1 cm")]:
                 L = SB_MC_Launcher(("nScatter %s %s %s"%(m,t,E)).replace(" ","_"), 1e5)
                 L.template = "ScatterSlab_Template.mac"
                 L.settings["gun_energy"] = E
