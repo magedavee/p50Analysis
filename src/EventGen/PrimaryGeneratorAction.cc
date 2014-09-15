@@ -11,6 +11,7 @@
 #include "CosmicMuonModule.hh"
 #include "Cf252Module.hh"
 #include "CosmicNeutronModule.hh"
+#include "GenPtclModule.hh"
 
 #include <math.h>
 #include <string>
@@ -61,6 +62,10 @@ myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) {
     particle_gun = new G4ParticleGun(1);
     particle_gun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
 
+    particle_source = new G4GeneralParticleSource();
+    particle_source->SetNumberOfParticles(1);
+    particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
+
     detect = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     myMessenger = new PrimaryGeneratorMessenger(this);
 }
@@ -68,6 +73,7 @@ myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) {
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     delete particle_gun;
+    delete particle_source;
     delete myMessenger;
     
     if(myCRYModule) delete myCRYModule;
@@ -114,18 +120,24 @@ void PrimaryGeneratorAction::loadCf252Module() {
     genModule = myCf252Module;
 }
 
+void PrimaryGeneratorAction::loadGPSModule() {
+  if(!myGPSModule) myGPSModule = new GenPtclModule(this);
+    G4cout << "Using G4GeneralParticleSource." << G4endl; 
+    genModule = myGPSModule;
+}
+
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {
     verbose = v;
     if(verbose > 1) G4cout << "PrimaryGeneratorAction verbosity set to " << v << "." << G4endl;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-    if(genModule) {
-        genModule->GeneratePrimaries(anEvent);
-    } else {
-        assert(particle_gun);
-        particle_gun->GeneratePrimaryVertex(anEvent);
-    }
+  if(genModule) {
+    genModule->GeneratePrimaries(anEvent);
+  } else {
+    assert(particle_gun);
+    particle_gun->GeneratePrimaryVertex(anEvent);
+  }
 }
 
 void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {

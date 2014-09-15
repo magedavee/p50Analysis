@@ -31,6 +31,7 @@ private:
     G4UIcmdWithoutParameter* moduleCosMucmd;
     G4UIcmdWithoutParameter* moduleCosNcmd;
     G4UIcmdWithoutParameter* moduleCf252cmd;
+  G4UIcmdWithoutParameter* moduleGPScmd;
 };
 
 #endif

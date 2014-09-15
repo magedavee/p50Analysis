@@ -51,6 +51,10 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen
     moduleCf252cmd = new G4UIcmdWithoutParameter("/generator/module_Cf252",this);
     moduleCf252cmd->SetGuidance("Use Cf252 neutron event generator");
     moduleCf252cmd->AvailableForStates(G4State_Idle);
+
+    moduleGPScmd = new G4UIcmdWithoutParameter("/generator/module_GPS",this);
+    moduleGPScmd->SetGuidance("Use G4GeneralParticleSource");
+    moduleGPScmd->AvailableForStates(G4State_Idle);
 }
 
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
@@ -64,6 +68,7 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger() {
     delete moduleCosMucmd;
     delete moduleCosNcmd;
     delete moduleCf252cmd;
+    delete moduleGPScmd;
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -74,5 +79,6 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == moduleCosMucmd) generator->loadCosmicMuonModule();
     else if(command == moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == moduleCf252cmd) generator->loadCf252Module();
+    else if(command == moduleGPScmd) generator->loadGPSModule();
     else G4cout << "Command not found." << G4endl;
 }
