@@ -1,0 +1,20 @@
+/output/setRunNum %(run_num)i
+/output/setRecordLevel 3
+/run/verbose 0
+/vis/disable
+
+/geom/mode slab
+/geom/slab/material %(slab_mat)s
+/geom/slab/thickness %(slab_thick)s
+%(preinit)s
+
+/output/filename %(outfile)s
+/run/initialize
+
+/generator/module_gun
+/gun/particle neutron
+/gun/energy %(gun_energy)s
+/gun/direction 0 0 1
+/gun/position 0 0 0 m
+
+/run/beamOn %(nevents)i

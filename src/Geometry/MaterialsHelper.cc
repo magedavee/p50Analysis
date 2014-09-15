@@ -15,6 +15,7 @@ MaterialsHelper& MaterialsHelper::M() {
 MaterialsHelper::MaterialsHelper() {
     
     G4cout << "Initializing materials..." << G4endl;
+    room_T = 293.15*kelvin;
     
     nist = G4NistManager::Instance();
     
@@ -34,26 +35,23 @@ MaterialsHelper::MaterialsHelper() {
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
     nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
     
-    G4Element* elLi6  = new G4Element("eleLi6", "Li6", 1);
+    elLi6  = new G4Element("eleLi6", "Li6", 1);
     G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
     elLi6->AddIsotope(isoLi6,100.*perCent);
     G4Element* elLi7  = new G4Element("eleLi7", "Li7", 1);
     G4Isotope* isoLi7 = new G4Isotope("isoLi7", 3, 7, 7.01600455*g/mole);
     elLi7->AddIsotope(isoLi7,100.*perCent);
     
-    Li6 = new G4Material("Lithium6", 0.463*g/cm3, 1);
-    Li6->AddElement(elLi6,1);
+    Li6 = new G4Material("Lithium6", 1.0*g/cm3, 1, kStateSolid, room_T);
+    Li6->AddElement(elLi6,100.*perCent);
     
     nat_Li = new G4Material("nat_Li", 0.463*g/cm3, 2);
     nat_Li->AddElement(elLi6,0.0811);
     nat_Li->AddElement(elLi7,1-0.0811);
     
-    double room_T = 293.15*kelvin; // materials "room temperature"
-    
     Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     
-    Air = new G4Material("Air", 1.204*kg/m3, 1, kStateGas, room_T);
-    Air->AddMaterial(nist->FindOrBuildMaterial("G4_AIR", true, true), 100.*perCent);
+    Air = nist->FindOrBuildMaterial("G4_AIR", true, true);
     
     MinOil = new G4Material("Mineral Oil CH1.1", 0.877*g/cm3, 2, kStateLiquid, room_T);
     MinOil->AddMaterial(nat_C, 91.53*perCent);
@@ -105,6 +103,7 @@ MaterialsHelper::MaterialsHelper() {
     Quartz->AddMaterial(nat_O, 0.5326);
     
     Concrete = nist->FindOrBuildMaterial("G4_CONCRETE");
+    
     /*
     Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, room_T);
     Concrete->AddMaterial(nat_Si, 0.227915);
@@ -129,7 +128,7 @@ MaterialsHelper::MaterialsHelper() {
 G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
     std::string mnm = "UG_AB-"+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {
-        G4cout << "Bulding 6Li-loaded (" << loading << "% by weight) Ultima Gold AB scintillator " << nm << " ...\n";
+        G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) Ultima Gold AB scintillator " << mnm << " ...\n";
         G4Material* myLi = enriched? Li6 : nat_Li; 
         double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;/// Li average mass
         double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li
