@@ -23,7 +23,7 @@
 #
 # Set up geometric specifications
 
-/generator/module_GPS
+/generator/module_gps
 
 # Define optical processes
 #
