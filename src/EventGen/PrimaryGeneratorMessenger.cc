@@ -17,7 +17,8 @@ moduleIBDcmd("/generator/module_IBD",this),
 moduleFisANucmd("/generator/module_FisANu",this),
 moduleCosMucmd("/generator/module_CosMu",this),
 moduleCosNcmd("/generator/module_CosN",this),
-moduleCf252cmd("/generator/module_Cf252",this) {
+moduleCf252cmd("/generator/module_Cf252",this),
+moduleGPScmd("/generator/module_gps",this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -51,6 +52,9 @@ moduleCf252cmd("/generator/module_Cf252",this) {
     
     moduleCf252cmd.SetGuidance("Use Cf252 neutron event generator");
     moduleCf252cmd.AvailableForStates(G4State_Idle);
+
+    moduleGPScmd.SetGuidance("Use G4GeneralParticleSource generator");
+    moduleGPScmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -62,5 +66,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleCosMucmd) generator->loadCosmicMuonModule();
     else if(command == &moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == &moduleCf252cmd) generator->loadCf252Module();
+    else if(command == moduleGPScmd) generator->loadGPSModule();
+
     else G4cout << "Command not found." << G4endl;
 }

@@ -15,11 +15,11 @@ public:
     GenPtclModule(PrimaryGeneratorAction* P);
     
     /// throw event particles
-    virtual void GeneratePrimaries(G4Event*) { assert(false); } //TODO
+  void GeneratePrimaries(G4Event*);
     
 protected:
     
-    G4GeneralParticleSource mySrc;      ///< particle source
+  //  G4GeneralParticleSource* mySrc;      ///< particle source
     
 };
 

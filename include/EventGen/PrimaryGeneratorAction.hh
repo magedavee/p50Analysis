@@ -10,6 +10,7 @@
 
 class G4Event;
 class G4ParticleGun;
+class G4GeneralParticleSource;
 class PrimaryGeneratorMessenger;
 class DetectorConstruction;
 
@@ -19,6 +20,7 @@ class FissionAntiNuModule;
 class CosmicMuonModule;
 class CosmicNeutronModule;
 class Cf252Module;
+class GenPtclModule;
 
 /// Specification for a primary particle to throw
 struct primaryPtcl {
@@ -68,6 +70,7 @@ public:
     void GeneratePrimaries(G4Event* anEvent);
 
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
+  G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
     DetectorConstruction* GetDetector() const { return detect; }
     G4int GetVerbosity() const { return verbose; }
     
@@ -85,6 +88,8 @@ public:
     void loadCosmicNeutronModule();
     /// load Cf252 neutron source as current generator
     void loadCf252Module();
+  /// load G4GeneralParticleSource
+    void loadGPSModule();
     
 protected:
     
@@ -100,10 +105,11 @@ protected:
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
-
+  GenPtclModule* myGPSModule;                   ///< G4GeneralParticleSource grnerator
     G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
     G4ParticleGun* particle_gun;
+  G4GeneralParticleSource* particle_source;		// GPS
     DetectorConstruction* detect;
     PrimaryGeneratorMessenger* myMessenger;
 };
