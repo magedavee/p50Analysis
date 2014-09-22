@@ -51,13 +51,14 @@ public:
     G4Material* PVT;            ///< Polyvinyl Toluene scintillator
     G4Material* RawPsiCumene;   ///< un-doped pseudocumene scintillator base
     G4Material* UG_AB;          ///< Ultima Gold AB scintillator
+    G4Material* EJ309;          ///< Eljen EJ-309 liquid scintillator
     G4Material* SS444;          ///< Stainless Steel 444
     G4Material* Quartz;         ///< Quartz
     G4Material* Concrete;       ///< Concrete
     G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
     
-    /// get 6Li-loaded liquid scintillator material (option for natural or enriched 6Li)
-    G4Material* get6LiLS(double loading = 0.007, bool enriched = true);
+    /// get 6Li-loaded version of scintillator (option for natural or enriched 6Li)
+    G4Material* get6LiLS(G4Material* base, double loading, bool enriched = true);
     
 protected:
     /// Constructor
