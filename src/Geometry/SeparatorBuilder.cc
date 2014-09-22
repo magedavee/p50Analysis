@@ -7,7 +7,7 @@
 #include <cassert>
 
 SeparatorBuilder::SeparatorBuilder(): Builder("Separator"),
-width(0), length(0), totalThick(5*mm), cfThick(3*mm), sep_vis(G4Colour(0.9,0.9,0.9)) {
+width(0), length(0), totalThick(1.5*mm), cfThick(0.5*mm), sep_vis(G4Colour(0.9,0.9,0.9)) {
     addChild(&myOptSurf);
     myOptSurf.refl = 0.96;
 }
