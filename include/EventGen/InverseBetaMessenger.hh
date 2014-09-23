@@ -60,6 +60,7 @@ class InverseBetaMessenger: public G4UImessenger		// This class inherits functio
     G4UIcmdWithADoubleAndUnit* invMonoECmd;
     G4UIcmdWithABool* invNeutCmd;
     G4UIcmdWithABool* invPosiCmd;
+    G4UIcmdWithABool* invSeqCmd;
     G4UIcommand* invProdCmd;
     G4UIcmdWith3Vector* invDirectCmd;
     G4UIcmdWithAnInteger* invVerbCmd;

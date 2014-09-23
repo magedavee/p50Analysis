@@ -61,6 +61,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   fMonoEnergy = false;
   Neutrons = true;
   Positrons = true;
+  Sequential=false;
 
   fission_gen = new FissionAntiNuModule(NULL); assert(false);
   inv_messenger = new InverseBetaMessenger(this);
@@ -176,10 +177,12 @@ void InverseBetaKinematics::SetAntiNeutrinoSpectrum(G4double U5, G4double U8, G4
   {
 	// Passes values to FissionAntiNuModule object otherwise
     fission_gen->SetAntiNeutrinoSpectrum(U5,U8,P3,P4);
-    G4double pcU5 = 100*(fission_gen->GetUranium235Content(true));
-    G4double pcU8 = 100*(fission_gen->GetUranium238Content(true));
+    G4double pcU5 = 100*(fission_gen->GetUranium235Content(true));  
+    G4double pcU8 = 100*(fission_gen->GetUranium238Content(true));  
     G4double pcP3 = 100*(fission_gen->GetPlutonium239Content(true));
     G4double pcP4 = 100*(fission_gen->GetPlutonium241Content(true));
+ 
+
     if(verbose > 0)
     { G4cout << "Spectrum currently set to --- Uranium-235: " << pcU5 << "%, Uranium-238: " << pcU8 << "%, Plutonium-239: " << pcP3 << "%, Plutonium-241: " << pcP4 << "%" << G4endl; }
   }
@@ -209,7 +212,7 @@ void InverseBetaKinematics::ToggleNeutronGeneration(G4bool neutron)
 {
   Neutrons = neutron;
   if(Neutrons) { G4cout << "Neutron generation enabled. Simulation will shoot neutrons according to this module's distribution." << G4endl; }
-  else if(!Neutrons && ! Positrons) { G4cout << "*** WARNING: Simulation currently does not shoot any particles. Program may crash if run in this state! ***" << G4endl; }
+  else if(!Neutrons && ! Positrons && !Sequential) { G4cout << "*** WARNING: Simulation currently does not shoot any particles. Program may crash if run in this state! ***" << G4endl; }
   else { G4cout << "Neutron generation disabled. Simulation will not shoot neutrons generated through this module's distribution." << G4endl; }
 }
 
@@ -218,8 +221,16 @@ void InverseBetaKinematics::TogglePositronGeneration(G4bool positron)
 {
   Positrons = positron;
   if(Positrons) { G4cout << "Positron generation enabled. Simulation will shoot positrons according to this module's distribution." << G4endl; }
-  else if(!Neutrons && ! Positrons) { G4cout << "*** WARNING: Simulation currently does not shoot any particles. Program may crash if run in this state! ***" << G4endl; }
+  else if(!Neutrons && ! Positrons && !Sequential) { G4cout << "*** WARNING: Simulation currently does not shoot any particles. Program may crash if run in this state! ***" << G4endl; }
   else { G4cout << "Positron generation disabled. Simulation will not shoot positrons generated through this module's distribution." << G4endl; }
+}
+
+void InverseBetaKinematics::ToggleSequentialGeneration(G4bool sequential)
+{
+  Sequential = sequential;
+  if(Sequential) { G4cout << "Sequential generation enabled. Simulation will shoot positrons and neutrons according to this module's distribution." << G4endl;}
+  else if(!Neutrons && ! Positrons && !Sequential) { G4cout << "*** WARNING: Simulation currently does not shoot any particles. Program may crash if run in this state! ***" << G4endl; }
+  else { G4cout << "Sequential generation disabled. Simulation will not shoot particles generated through this module's distribution." << G4endl; }
 }
 
 	// ****** Generate Initial Particle Vector ****** //

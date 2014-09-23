@@ -46,6 +46,7 @@ class InverseBetaKinematics
     void ToggleFission(G4bool flip) { fMonoEnergy = !flip; };
     void ToggleNeutronGeneration(G4bool);
     void TogglePositronGeneration(G4bool);
+    void ToggleSequentialGeneration(G4bool);
 
     G4String GetReactionVolumeName() { return targetName; };
     G4VPhysicalVolume* GetTargetPhysicalVolume() { return targetVolume; };
@@ -56,6 +57,7 @@ class InverseBetaKinematics
     G4double GetSpectrumPu241Content(G4bool frac = false) const;
     G4bool IsNeutronGenerated() const { return Neutrons; };
     G4bool IsPositronGenerated() const { return Positrons; };
+  G4bool IsSequentialGenerated() const { return Sequential; };
 
     G4ThreeVector GenerateReactionPosition() const;
     std::vector<G4double>* GenerateReactionKinematics() const;
@@ -91,6 +93,7 @@ class InverseBetaKinematics
     G4bool fMonoEnergy;			// Flag to specify mono-energetic antineutrinos
     G4bool Neutrons;			// Flag to specify neutron production
     G4bool Positrons;			// Flag to specify positron production
+    G4bool Sequential;			// Flag to specify sequential positron and neutron production
 
     FissionAntiNuModule* fission_gen;
     InverseBetaMessenger* inv_messenger;

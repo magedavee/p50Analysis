@@ -73,6 +73,12 @@ InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta)
   invPosiCmd->SetDefaultValue(true);
   invPosiCmd->AvailableForStates(G4State_Idle);
 
+  invSeqCmd = new G4UIcmdWithABool("/generator/module/inverseBeta/setSequential",this);
+  invSeqCmd->SetGuidance("Set module configuration to generate inverse reaction positrons and neutrons.");
+  invSeqCmd->SetParameterName("sequential",true);
+  invSeqCmd->SetDefaultValue(true);
+  invSeqCmd->AvailableForStates(G4State_Idle);
+
   G4UIparameter* param;		// Custom command definition
 
   invProdCmd = new G4UIcommand("/generator/module/inverseBeta/setFuelComposition",this);
@@ -124,6 +130,7 @@ InverseBetaMessenger::~InverseBetaMessenger()
   delete invMonoECmd;
   delete invNeutCmd;
   delete invPosiCmd;
+  delete invSeqCmd;
   delete invProdCmd;
   delete invDirectCmd;
   delete invVerbCmd;
@@ -153,10 +160,16 @@ void InverseBetaMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
   {
     generator->TogglePositronGeneration(invPosiCmd->GetNewBoolValue(newValue));
   }
+  else if(command == invSeqCmd)
+  {
+    generator->ToggleSequentialGeneration(invSeqCmd->GetNewBoolValue(newValue));
+  }
   else if(command == invProdCmd)
   {
     G4Tokenizer next(newValue);		// Tokenizer splits input string into delimited sections
     G4double setU = StoD(next()); G4double setUr = StoD(next()); G4double setPu = StoD(next()); G4double setPU = StoD(next());
+    G4cout << "Simulation to be set to use antineutrino spectrum from fissions in the following split \n" 
+           << "--- U235: " << setU << " U238: " << setUr << " Pu239: " << setPu << " Pu241: " << setPU << " ---" << G4endl;
     generator->SetAntiNeutrinoSpectrum(setU,setUr,setPu,setPU); 
     G4cout << "Simulation set to use antineutrino spectrum from fissions in the following split \n" 
            << "--- U235: " << setU << " U238: " << setUr << " Pu239: " << setPu << " Pu241: " << setPU << " ---" << G4endl;
@@ -196,6 +209,7 @@ void InverseBetaMessenger::ResetModuleCommands()		// Removes commands related to
   UI_manager->RemoveCommand(invMonoECmd);
   UI_manager->RemoveCommand(invNeutCmd);
   UI_manager->RemoveCommand(invPosiCmd);
+  UI_manager->RemoveCommand(invSeqCmd);
   UI_manager->RemoveCommand(invProdCmd);
   UI_manager->RemoveCommand(invDirectCmd);
   UI_manager->RemoveCommand(invVerbCmd);
@@ -208,6 +222,7 @@ void InverseBetaMessenger::ResetModuleCommands()		// Removes commands related to
   invMonoECmd = 0;
   invNeutCmd = 0;
   invPosiCmd = 0;
+  invSeqCmd = 0;
   invProdCmd = 0;
   invDirectCmd = 0;
   invVerbCmd = 0;

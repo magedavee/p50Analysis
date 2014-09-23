@@ -39,12 +39,26 @@ G4double FissionAntiNuModule::GenerateAntiNeutrinoEnergy() const {
         energy = 8.*G4UniformRand() + 1.5;
         
         // Calculate acceptance value - NormFactor is the maximum value of distribution to obtain a fraction
-        G4double Phi = 0.; G4double NormFactor = 0.0;
-        Phi += U235*CalculateU235Spectrum(energy); NormFactor += U235*1.936;
-        Phi += Pu239*CalculatePu239Spectrum(energy); NormFactor += Pu239*1.489;
-        Phi += Pu241*CalculatePu241Spectrum(energy); NormFactor += Pu241*1.490;
-        Phi += U238*CalculateU238Spectrum(energy); NormFactor += U238*1.742;
-        Probability = Phi / NormFactor;
+        G4double Phi = 0.; G4double NormFactor = 0.0;  G4double xsec = 0.0;
+        Phi += U235*CalculateU235Spectrum(energy);// NormFactor += U235*1.936;
+        Phi += Pu239*CalculatePu239Spectrum(energy);// NormFactor += Pu239*1.489;
+        Phi += Pu241*CalculatePu241Spectrum(energy);// NormFactor += Pu241*1.490;
+        Phi += U238*CalculateU238Spectrum(energy);// NormFactor += U238*1.742;
+
+	//    NormFactor += U235*2.07217;
+	//    NormFactor += Pu239*1.49546;     // equation 9 in Vogel and Beacom
+	//    NormFactor += Pu241*1.98477;
+	//    NormFactor += U238*2.82543;
+	//    xsec = (energy-1.294)*(sqrt((energy-1.294)*(energy-1.294)-0.511*0.511));
+	
+	G4double f = 1.0, g = 1.26, M = 938.27;
+	NormFactor += U235*12.2194;
+	NormFactor += Pu239*8.86737;
+	NormFactor += Pu241*11.7241;         // equation 18 in Vogel and Beacom
+	NormFactor += U238*16.5902;
+	xsec = ((f*f+3*g*g) + (f*f-g*g)*1.294/M + 3*(f*f-g*g)*(energy-1.294)/M)*(energy-1.294)*(energy-1.294);
+	
+	Probability = xsec*Phi / NormFactor;
     } while (randNo > Probability);               // Acceptance condition
 
     return energy*MeV;
@@ -77,14 +91,17 @@ G4double FissionAntiNuModule::CalculateU238Spectrum(G4double eNu) const {
 void FissionAntiNuModule::SetAntiNeutrinoSpectrum(G4double U5, G4double U8, G4double P3, G4double P4) {
     if(U5 <= 0. && U8 <= 0. && P3 <= 0. && P4 <= 0.) { G4cout << "*** ATTENTION: Invalid composition of fission material for antineutrino spectrum. Previous composition kept. ***" << G4endl; }
     else {
+     
         if(U5 >= 0.) { U235 = U5; } else { U235 = 0.; G4cout << "*** WARNING: Uranium-235 content (first entry) of composition is negative. Uranium-235 content set to zero. ***" << G4endl; }
         if(U8 >= 0.) { U238 = U8; } else { U238 = 0.; G4cout << "*** WARNING: Uranium-238 content (second entry) of composition is negative. Uranium-238 content set to zero. ***" << G4endl; }
-        if(P3 >= 0.) { Pu239 = P3; } else { Pu239 = 0.; G4cout << "*** WARNING: Plutonium-239 content (third entry) of composition is negative. Plutonium-239 content set to zero. ***" << G4endl; }
-        if(P4 >= 0.) { Pu241 = P4; } else { Pu241 = 0.; G4cout << "*** WARNING: Plutonium-241 content (fourth entry) of composition is negative. Plutonium-241 content set to zero. ***" << G4endl; }
-        if(myPGA->GetVerbosity() > 1) {
+        if(P3 >= 0.) { Pu239 = P3;  } else { Pu239 = 0.; G4cout << "*** WARNING: Plutonium-239 content (third entry) of composition is negative. Plutonium-239 content set to zero. ***" << G4endl; }
+        if(P4 >= 0.) { Pu241 = P4;} else { Pu241 = 0.; G4cout << "*** WARNING: Plutonium-241 content (fourth entry) of composition is negative. Plutonium-241 content set to zero. ***" << G4endl; }
+
+    /*    if(myPGA->GetVerbosity() > 1) {
             G4cout << "Simulation set to use antineutrino spectrum from fissions in the following split \n" 
             << "--- U235: " << U235 << " U238: " << U238 << " Pu239: " << Pu239 << " Pu241: " << Pu241 << " ---" << G4endl;
-        }
+        }*/
+
     }
 }
 

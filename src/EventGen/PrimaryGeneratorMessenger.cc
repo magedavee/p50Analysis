@@ -8,8 +8,8 @@
 
 #include "G4ios.hh"
 
-PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen_action): generator(gen_action),
-genDir("/generator/"),
+PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen_action): generator(gen_action), 
+genDir("/generator/"), 
 verbCmd("/generator/verbose",this),
 moduleGuncmd("/generator/module_gun",this),
 moduleCRYcmd("/generator/module_CRY",this),
@@ -66,7 +66,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleCosMucmd) generator->loadCosmicMuonModule();
     else if(command == &moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == &moduleCf252cmd) generator->loadCf252Module();
-    else if(command == moduleGPScmd) generator->loadGPSModule();
+    else if(command == &moduleGPScmd) generator->loadGPSModule();
 
     else G4cout << "Command not found." << G4endl;
 }

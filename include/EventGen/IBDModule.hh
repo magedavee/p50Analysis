@@ -16,6 +16,9 @@ public:
 
 protected:
     InverseBetaKinematics inverse_beta; ///< kinematics code for events
+  std::vector<G4double>* kinematics;
+  G4bool primary;
+  G4ThreeVector position;
 };
 
 #endif

@@ -22,7 +22,7 @@ private:
     
     PrimaryGeneratorAction* generator;          ///< generator being controlled
     G4UIdirectory genDir;                       ///< UI directory for generator commands
-
+  
     G4UIcmdWithAnInteger verbCmd;               ///< UI command for setting verbosity
     G4UIcmdWithoutParameter moduleGuncmd;       ///< UI command for using "particle gun" generator
     G4UIcmdWithoutParameter moduleCRYcmd;       ///< UI command for using CRY cosmic ray generator
@@ -31,7 +31,7 @@ private:
     G4UIcmdWithoutParameter moduleCosMucmd;     ///< UI command for using cosmic muon generator
     G4UIcmdWithoutParameter moduleCosNcmd;      ///< UI command for using cosmic neutron generator
     G4UIcmdWithoutParameter moduleCf252cmd;     ///< UI command for using Cf252 neutron generator
-    G4UIcmdWithoutParameter* moduleGPScmd;      ///< UI command for using the G4GeneralParticleSource generator
+    G4UIcmdWithoutParameter moduleGPScmd;      ///< UI command for using the G4GeneralParticleSource generator
 
 };
 
