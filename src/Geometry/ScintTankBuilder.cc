@@ -15,8 +15,8 @@
 #include <G4LogicalBorderSurface.hh>
 
 ScintTankBuilder::ScintTankBuilder(): ScintSegVol("ScintTank"),
-tank_depth(65*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
-seg_size(25*cm), nSegX(8), nSegY(4), scint6LiLoading(0.007),
+tank_depth(100*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
+seg_size(14.4*cm), nSegX(14), nSegY(10), scint6LiLoading(0.001),
 tank_ui_dir("/geom/tank/"),
 nsegXcmd("/geom/tank/nSegX",this),
 nsegYcmd("/geom/tank/nSegY",this),
@@ -70,7 +70,7 @@ void ScintTankBuilder::construct() {
     // liquid scintillator volume
     
     G4Box* scint_box = new G4Box("scint_box", getWidthX()/2.-tank_wall_thick, getWidthY()/2.-tank_wall_thick, tank_depth/2.);
-    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(scint6LiLoading), "ScintTank_scint_log");
+    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scint6LiLoading), "ScintTank_scint_log");
     scint_log->SetVisAttributes(&scint_vis);
     G4PVPlacement* scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
     

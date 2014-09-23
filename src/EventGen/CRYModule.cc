@@ -98,6 +98,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
     do {
         vect.clear();
         CRY_generator->genEvent(&vect);
+        double t0 = CRY_generator->timeSimulated()*s;
         
         unsigned int n_muons = 0;
         unsigned int n_neutrons = 0;
@@ -107,7 +108,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
             // determine whether to process trajectory
             bool good_point = true;
             /*
-             *            i f(fCRYpoint) {    *
+             *            if(fCRYpoint) {    *
              *            //find pointing vector
              *            G4double ray = sqrt((*vect)[j]->x()*(*vect)[j]->x()+(*vect)[j]->y()*(*vect)[j]->y()+(cryZoffset*cryZoffset));
              *       G4double px = (*vect)[j]->x()+ray*(*vect)[j]->u();
@@ -124,7 +125,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
                 p.KE = vect[j]->ke()*MeV;
                 p.pos = G4ThreeVector(vect[j]->x()*m, vect[j]->y()*m, zOffset);
                 p.mom = G4ThreeVector(vect[j]->u(), vect[j]->v(), vect[j]->w());
-                p.t = vect[j]->t()*s;
+                p.t = vect[j]->t()*s-t0;
                 v.push_back(p);
                 
                 n_muons += (abs(p.PDGid) == 13);

@@ -50,10 +50,11 @@ public:
     Double_t dt;        ///< RMS timing spread
     Double_t x[3];      ///< average position
     Double_t dx[3];     ///< RMS position spread
+    Double_t l;         ///< track length
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
     
-    ClassDef(IoniCluster,2);
+    ClassDef(IoniCluster,3);
 };
 
 /// Event containing a list of ionization clusters

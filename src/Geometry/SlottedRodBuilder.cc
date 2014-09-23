@@ -12,7 +12,7 @@
 #include <cassert>
 
 SlottedRodBuilder::SlottedRodBuilder(): Builder("SlottedRod"),
-r_outer(9.5*mm), r_inner(4*mm), length(0), r_slot(0), w_slot(0),
+r_outer(5*mm), r_inner(1*mm), length(0), r_slot(0), w_slot(0),
 rod_vis(G4Colour(1.0,1.0,0.5)) {
     myOptSurf.refl = 0.9;
     myOptSurf.lobe = 0.9;

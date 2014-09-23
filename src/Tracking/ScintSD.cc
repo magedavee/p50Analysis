@@ -40,7 +40,7 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     if(hitVol->GetVolume()->GetLogicalVolume() != myScint.scint_log) return false;
     
     collectHitInfo(aStep);
-    seg_id = myScint.getSegmentNum(localPos);
+    seg_id = myScint.getSegmentNum(localPrePos);
     
     G4bool notable = ProcessNeutronHits(aStep, H);
     IonisationHit* I = ProcessIoniHits(aStep);
@@ -63,7 +63,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     if(verbose >= 2) PDS->DumpInfo();
     
     NCapt nc;
-    for(unsigned int i=0; i<3; i++) nc.x[i] = localPos[i];
+    for(unsigned int i=0; i<3; i++) nc.x[i] = localPrePos[i];
     nc.t = aStep->GetPostStepPoint()->GetGlobalTime();
     nc.vol = seg_id;
     nc.E = aStep->GetPreStepPoint()->GetKineticEnergy();
@@ -99,7 +99,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
         RootIO::GetNCapt().AddNCapt(nc);
     
         if(verbose >= 2) {
-            G4cout << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPos,"Length") << "] with "
+            G4cout << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPrePos,"Length") << "] with "
                 << nc.Ngamma << " gammas ( E=" << G4BestUnit(nc.Egamma,"Energy")
                 << ") of " << nc.Nprod << " final products; total (A,Z)=(" << nc.capt_A << "," << nc.capt_Z << ")" << G4endl;
         }

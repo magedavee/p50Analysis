@@ -1,6 +1,5 @@
 ////////////////////////////////////////////
 // ROOT macro example for MC output analysis
-// export PG4_DIR=../PROSPECT-G4/; export LD_LIBRARY_PATH=./lib/:$LD_LIBRARY_PATH
 
 #include <map>
 #include <vector>

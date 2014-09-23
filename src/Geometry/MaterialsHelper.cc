@@ -74,6 +74,10 @@ MaterialsHelper::MaterialsHelper() {
     UG_AB->AddMaterial(nat_O, 13.8*perCent);
     UG_AB->AddMaterial(nat_P, 0.1*perCent);
     
+    EJ309 = new G4Material("EJ309", 0.959*g/cm3, 2, kStateLiquid, room_T);
+    EJ309->AddMaterial(nat_C, 90.578*perCent);
+    EJ309->AddMaterial(nat_H, 9.422*perCent);
+    
     PMMA = nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true);
     PMMA_black = new G4Material("PMMA_black", PMMA->GetDensity(), PMMA);
     PMMA_white = new G4Material("PMMA_white", PMMA->GetDensity(), PMMA);
@@ -125,22 +129,43 @@ MaterialsHelper::MaterialsHelper() {
     setupOptical();
 }
 
-G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
-    std::string mnm = "UG_AB-"+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
+G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enriched) {
+    assert(base);
+    if(!base) return NULL;
+    
+    std::string mnm = base->GetName()+std::string("-")+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {
-        G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) Ultima Gold AB scintillator " << mnm << " ...\n";
-        G4Material* myLi = enriched? Li6 : nat_Li; 
-        double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;/// Li average mass
-        double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li
-        double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;  /// mass fraction H2O from 8 molar LiCl solution
-        G4Material* Li_UG_AB = new G4Material(mnm.c_str(), 0.98*g/cm3, 4, kStateLiquid, 293.15*kelvin);
-        Li_UG_AB->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
-        Li_UG_AB->AddMaterial(myLi, loading);
-        Li_UG_AB->AddMaterial(nat_Cl, m_Cl);
-        Li_UG_AB->AddMaterial(Water, m_H2O);
-        if(mptUG_AB) Li_UG_AB->SetMaterialPropertiesTable(mptUG_AB);      // TODO
-        Li_UG_AB->GetIonisation()->SetBirksConstant(birksUG_AB);
-        xmats[mnm] = Li_UG_AB;
+        G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) scintillator " << mnm << " ...\n";
+        G4Material* myLi = enriched? Li6 : nat_Li;
+        
+        G4Material* Li_Scint = NULL;
+        
+        if(base == UG_AB) {
+            double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;    /// Li average mass
+            double m_Cl = loading*35.45/avgLiA;                         /// mass fraction Cl, by ratio of masses to Li
+            double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;   /// mass fraction H2O from 8 molar LiCl solution
+            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 4, kStateLiquid, room_T);
+            Li_Scint->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
+            Li_Scint->AddMaterial(myLi, loading);
+            Li_Scint->AddMaterial(nat_Cl, m_Cl);
+            Li_Scint->AddMaterial(Water, m_H2O);
+        } else if(base == EJ309) {
+            double frac_H2O = 0.07*loading/0.001;
+            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 3, kStateLiquid, room_T);
+            Li_Scint->AddMaterial(base, 1.-loading-frac_H2O);
+            Li_Scint->AddMaterial(Water, frac_H2O);
+            Li_Scint->AddMaterial(myLi, loading);
+        } else {
+            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 2, kStateLiquid, room_T);
+            Li_Scint->AddMaterial(base, 1.-loading);
+            Li_Scint->AddMaterial(myLi, loading);
+        }
+        
+        Li_Scint->SetMaterialPropertiesTable(base->GetMaterialPropertiesTable());
+        Li_Scint->GetIonisation()->SetBirksConstant(base->GetIonisation()->GetBirksConstant());
+        
+        xmats[mnm] = Li_Scint;
+        
     }
     return xmats[mnm];
 }
@@ -148,10 +173,6 @@ G4Material* MaterialsHelper::get6LiLS(double loading, bool enriched) {
 void MaterialsHelper::setupOptical() {
     
     G4cout << "Setting material optical properties..." << G4endl;
-    
-    birksPC = 0.1*mm/MeV;
-    birksPVT = 0.2*mm/MeV;
-    birksUG_AB = 0.1*mm/MeV; // TODO
     
     // NOTE: The emission spectra had to be modified from manufaturer specifications
     //       as the Scintillation process samples the photon energy uniformly in photon energy
@@ -216,9 +237,13 @@ void MaterialsHelper::setupOptical() {
     mptCumene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPC, nEntries);           // Abosrption Length of Material
     
     RawPsiCumene->SetMaterialPropertiesTable(mptCumene);
-    RawPsiCumene->GetIonisation()->SetBirksConstant(birksPC);
+    RawPsiCumene->GetIonisation()->SetBirksConstant(0.1*mm/MeV);
 
-    mptUG_AB = NULL; // TODO
+    ////////////////////////
+    UG_AB->GetIonisation()->SetBirksConstant(0.1*mm/MeV); // TODO
+    
+    ////////////////////////
+    EJ309->GetIonisation()->SetBirksConstant(0.1*mm/MeV); // TODO
     
     //////////////////////////////////////////////////////////////////
     // Anthracene-doped Polyvinyltoluene Plastic Scintillator - EJ-500
@@ -255,7 +280,7 @@ void MaterialsHelper::setupOptical() {
     mptToluene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPVT, nEntries);             // Abosrption Length of Material
     
     PVT->SetMaterialPropertiesTable(mptToluene);
-    PVT->GetIonisation()->SetBirksConstant(birksPVT);
+    PVT->GetIonisation()->SetBirksConstant(0.2*mm/MeV);
     
     /////////////////////
     // Plexiglass Windows

@@ -1,6 +1,5 @@
 ///////////////////////////////////////////////////////////
 // Standalone program for plotting MC primaries information
-// export PG4_DIR=../PROSPECT-G4/; export LD_LIBRARY_PATH=./lib/:$LD_LIBRARY_PATH
 
 #include <map>
 #include <utility>

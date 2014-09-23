@@ -61,8 +61,10 @@ protected:
         
     int PID = 0;                ///< PDG particle ID
     int seg_id = 0;             ///< scintillator segment ID number
-    G4ThreeVector worldPos;     ///< position in world coordinates
-    G4ThreeVector localPos;     ///< position in scintillator coordinates
+    G4ThreeVector worldPrePos;  ///< pre-step position in world coordinates
+    G4ThreeVector worldPostPos; ///< post-step position in world coordinates
+    G4ThreeVector localPrePos;  ///< pre-step position in scintillator coordinates
+    G4ThreeVector localPostPos; ///< post-step position in scintillator coordinates
 };
 
 #endif
