@@ -68,11 +68,6 @@ protected:
     
     static MaterialsHelper* theMatHelper;       ///< singleton instance
     std::map<std::string, G4Material*> xmats;   ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
-    
-    G4MaterialPropertiesTable* mptUG_AB;        ///< optical properties for Ultima Gold AB scintillator
-    double birksPC;                             ///< Birk's Law quenching constant for pseudocumene
-    double birksPVT;                            ///< Birk's Law quenching constant for PVT
-    double birksUG_AB;                          ///< Birk's Law quenching constant for Ultima Gold AB
 };
 
 

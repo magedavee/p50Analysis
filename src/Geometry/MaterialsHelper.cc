@@ -141,15 +141,14 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
         G4Material* Li_Scint = NULL;
         
         if(base == UG_AB) {
-            double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;/// Li average mass
-            double m_Cl = loading*35.45/avgLiA;                     /// mass fraction Cl, by ratio of masses to Li
-            double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;  /// mass fraction H2O from 8 molar LiCl solution
+            double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;    /// Li average mass
+            double m_Cl = loading*35.45/avgLiA;                         /// mass fraction Cl, by ratio of masses to Li
+            double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;   /// mass fraction H2O from 8 molar LiCl solution
             Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 4, kStateLiquid, room_T);
             Li_Scint->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
             Li_Scint->AddMaterial(myLi, loading);
             Li_Scint->AddMaterial(nat_Cl, m_Cl);
             Li_Scint->AddMaterial(Water, m_H2O);
-            Li_Scint->GetIonisation()->SetBirksConstant(birksUG_AB);
         } else if(base == EJ309) {
             double frac_H2O = 0.07*loading/0.001;
             Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 3, kStateLiquid, room_T);
@@ -174,10 +173,6 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
 void MaterialsHelper::setupOptical() {
     
     G4cout << "Setting material optical properties..." << G4endl;
-    
-    birksPC = 0.1*mm/MeV;
-    birksPVT = 0.2*mm/MeV;
-    birksUG_AB = 0.1*mm/MeV; // TODO
     
     // NOTE: The emission spectra had to be modified from manufaturer specifications
     //       as the Scintillation process samples the photon energy uniformly in photon energy
@@ -242,9 +237,13 @@ void MaterialsHelper::setupOptical() {
     mptCumene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPC, nEntries);           // Abosrption Length of Material
     
     RawPsiCumene->SetMaterialPropertiesTable(mptCumene);
-    RawPsiCumene->GetIonisation()->SetBirksConstant(birksPC);
+    RawPsiCumene->GetIonisation()->SetBirksConstant(0.1*mm/MeV);
 
-    mptUG_AB = NULL; // TODO
+    ////////////////////////
+    UG_AB->GetIonisation()->SetBirksConstant(0.1*mm/MeV); // TODO
+    
+    ////////////////////////
+    EJ309->GetIonisation()->SetBirksConstant(0.1*mm/MeV); // TODO
     
     //////////////////////////////////////////////////////////////////
     // Anthracene-doped Polyvinyltoluene Plastic Scintillator - EJ-500
@@ -281,7 +280,7 @@ void MaterialsHelper::setupOptical() {
     mptToluene->AddProperty("ABSLENGTH", PhotonEnergy, AbsLengthPVT, nEntries);             // Abosrption Length of Material
     
     PVT->SetMaterialPropertiesTable(mptToluene);
-    PVT->GetIonisation()->SetBirksConstant(birksPVT);
+    PVT->GetIonisation()->SetBirksConstant(0.2*mm/MeV);
     
     /////////////////////
     // Plexiglass Windows
