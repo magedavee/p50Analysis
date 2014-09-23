@@ -19,9 +19,11 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
         CLHEP::HepRandom::showEngineStatus();
     }
     
-    // Clear prior event data
+    // Clear prior event data (keeping time set by event generator)
+    double tGen = RootIO::GetEvent().t;
     RootIO::GetInstance()->Clear();
     RootIO::GetEvent().N = eventNumber;
+    RootIO::GetEvent().t = tGen;
 }
 
 void EventAction::EndOfEventAction(const G4Event* anEvent) {

@@ -20,6 +20,7 @@ IoniCluster hitToCluster(IonisationHit* h, G4int pid, G4int detvol) {
     c.E = h->GetEnergyDeposit();
     c.t = h->GetTime();
     c.dt = h->GetDTime();
+    c.l = h->GetLength();
     c.PID = pid;
     for(unsigned int i=0; i<3; i++) { c.x[i] = h->GetPos()[i]; c.dx[i] = h->GetDPos()[i]; }
     c.vol = detvol;
@@ -34,22 +35,30 @@ IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(10*keV) { }
 
 void IoniSD::collectHitInfo(G4Step* aStep) {
     G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
-    worldPos = aStep->GetPreStepPoint()->GetPosition();
-    localPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPos);
+    worldPrePos = aStep->GetPreStepPoint()->GetPosition();
+    worldPostPos = aStep->GetPostStepPoint()->GetPosition();
+    localPrePos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPrePos);
+    localPostPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPostPos);
     PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 }
 
 IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
     G4double E = aStep->GetTotalEnergyDeposit()-aStep->GetNonIonizingEnergyDeposit();
-    if(!E) return NULL;
+    if(E <= 0) return NULL;
     
     IonisationHit* aHit = new IonisationHit();
     
-    aHit->SetEnergy(E);
-    aHit->SetLength(aStep->GetStepLength());
-    aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+0.5*aStep->GetDeltaTime());
-    aHit->SetPos(localPos);
-    aHit->record();
+    // split up track segment to produce spread information on single-segment tracks
+    const unsigned int nsplit = 3;
+    for(unsigned int i=0; i<nsplit; i++) {
+        double l = (i+0.5)/double(nsplit);
+        aHit->SetEnergy(E/nsplit);
+        aHit->SetLength(aStep->GetStepLength()/nsplit);
+        aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+l*aStep->GetDeltaTime());
+        aHit->SetPos(localPrePos*(1.-l)+localPostPos*l);
+        aHit->record();
+    }
+    
     return aHit;
 }
 

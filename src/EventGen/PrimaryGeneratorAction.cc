@@ -139,6 +139,7 @@ void PrimaryGeneratorAction::SetVerbosity(G4int v) {
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if(genModule) {
     genModule->GeneratePrimaries(anEvent);
+    RootIO::GetEvent().t = genModule->GetGeneratorTime();
   } else {
     assert(particle_gun);
     particle_gun->GeneratePrimaryVertex(anEvent);
