@@ -150,13 +150,20 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
             Li_Scint->AddMaterial(nat_Cl, m_Cl);
             Li_Scint->AddMaterial(Water, m_H2O);
             Li_Scint->GetIonisation()->SetBirksConstant(birksUG_AB);
+        } else if(base == EJ309) {
+            double frac_H2O = 0.07*loading/0.001;
+            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 3, kStateLiquid, room_T);
+            Li_Scint->AddMaterial(base, 1.-loading-frac_H2O);
+            Li_Scint->AddMaterial(Water, frac_H2O);
+            Li_Scint->AddMaterial(myLi, loading);
         } else {
             Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 2, kStateLiquid, room_T);
             Li_Scint->AddMaterial(base, 1.-loading);
             Li_Scint->AddMaterial(myLi, loading);
         }
         
-        Li_Scint->SetMaterialPropertiesTable(base->GetMaterialPropertiesTable());      // TODO
+        Li_Scint->SetMaterialPropertiesTable(base->GetMaterialPropertiesTable());
+        Li_Scint->GetIonisation()->SetBirksConstant(base->GetIonisation()->GetBirksConstant());
         
         xmats[mnm] = Li_Scint;
         
