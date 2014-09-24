@@ -51,12 +51,12 @@ G4double FissionAntiNuModule::GenerateAntiNeutrinoEnergy() const {
 	//    NormFactor += U238*2.82543;
 	//    xsec = (energy-1.294)*(sqrt((energy-1.294)*(energy-1.294)-0.511*0.511));
 	
-	G4double f = 1.0, g = 1.26, M = 938.27;
+	const G4double ff = 1.0*1.0, gg = 1.26*1.26, M = 938.27;
 	NormFactor += U235*12.2194;
 	NormFactor += Pu239*8.86737;
 	NormFactor += Pu241*11.7241;         // equation 18 in Vogel and Beacom
 	NormFactor += U238*16.5902;
-	xsec = ((f*f+3*g*g) + (f*f-g*g)*1.294/M + 3*(f*f-g*g)*(energy-1.294)/M)*(energy-1.294)*(energy-1.294);
+	xsec = ((ff+3*gg) + (ff-gg)*1.294/M + 3*(ff-gg)*(energy-1.294)/M)*(energy-1.294)*(energy-1.294);
 	
 	Probability = xsec*Phi / NormFactor;
     } while (randNo > Probability);               // Acceptance condition
