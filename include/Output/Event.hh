@@ -54,6 +54,9 @@ public:
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
     
+    /// energy-weighted sum
+    void operator+=(const IoniCluster& r);
+    
     ClassDef(IoniCluster,3);
 };
 

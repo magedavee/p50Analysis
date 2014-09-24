@@ -97,7 +97,7 @@ MaterialsHelper::MaterialsHelper() {
     LiPoly->AddMaterial(Polyeth, 95.0*perCent);
     LiPoly->AddMaterial(nat_Li, 5.0*perCent);
     
-    SS444 = new G4Material("Stainless Steel Type 444", 8.*g/cm3, 3, kStateSolid, room_T);
+    SS444 = new G4Material("SS444", 8.*g/cm3, 3, kStateSolid, room_T);
     SS444->AddMaterial(nat_Fe, 80.*perCent);
     SS444->AddMaterial(nat_Cr, 18.*perCent);
     SS444->AddMaterial(nat_Mo, 2.*perCent);

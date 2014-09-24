@@ -1,6 +1,7 @@
 #include "Event.hh"
 #include <cassert>
 #include <iostream>
+#include <cmath>
 
 #include <TClonesArray.h>
 
@@ -29,6 +30,24 @@ void ParticleEvent::Clear(Option_t*) {
 void ParticleEvent::AddParticle(const ParticleVertex& P) {
     assert(particles);
     new((*particles)[nParticles++]) ParticleVertex(P);
+}
+
+////////////////////////////////////////////
+//------------------------------------------
+////////////////////////////////////////////
+
+void IoniCluster::operator+=(const IoniCluster& r) {
+    Double_t EE = E + r.E;
+    dt = ((dt*dt+t*t)*E + (r.dt*r.dt+r.t*r.t)*r.E)/EE;
+    t = (t*E+r.t*r.E)/EE;
+    dt = sqrt(dt - t*t);
+    l += r.l;
+    for(unsigned int i=0; i<3; i++) {
+        dx[i] = ((dx[i]*dx[i]+x[i]*x[i])*E + (r.dx[i]*r.dx[i]+r.x[i]*r.x[i])*r.E)/EE;
+        x[i] = (x[i]*E+r.x[i]*r.E)/EE;
+        dx[i] = sqrt(dx[i] - x[i]*x[i]);
+    }
+    E = EE;
 }
 
 ////////////////////////////////////////////
