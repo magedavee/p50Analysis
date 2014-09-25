@@ -67,7 +67,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   inv_messenger = new InverseBetaMessenger(this);
 
 	// Establish initial target volume - defaults to world volume
-  worldVolume = G4PhysicalVolumeStore::GetInstance()->at(0);
+  worldVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("world_phys");
   targetName = target;
   G4cout << "TARGET IS " <<target<< "   " <<targetName<< G4endl;
   if(!(targetName == "")) { targetVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume(target); }
@@ -103,6 +103,9 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() << "\tY: "
 	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax() << "\tZ: "
 	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax() << "\n"
+	 << "\t   Target Volume Center:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[0] << "\tY: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[1] << "\tZ: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[2] << "\n"
 	 << "*************************************************************************************\n"
          << G4endl;
 }
@@ -269,6 +272,7 @@ G4ThreeVector InverseBetaKinematics::GenerateReactionPosition() const
   posPropose = (*DToWRotation)*posPropose;
   posPropose += *DToWTranslation;
  	// Return ThreeVector with interaction coordinates
+  
   return posPropose;
 }
 
@@ -444,6 +448,7 @@ G4RotationMatrix* InverseBetaKinematics::FindTargetRotationWRTWorld() const		// 
 	// ****** Calculate Target Volume Translation ****** //
 G4ThreeVector* InverseBetaKinematics::FindTargetTranslationWRTWorld() const		// Determines if logical volume has been translated into place in the world - obtains translation vector
 {
+  G4cerr<<"Translating"<<G4endl;
 	// Generate null translation vector to start the stack
   G4ThreeVector* translation = new G4ThreeVector(0.,0.,0.);
   G4VPhysicalVolume* currentVolume = worldVolume;
@@ -451,11 +456,12 @@ G4ThreeVector* InverseBetaKinematics::FindTargetTranslationWRTWorld() const		// 
   if(targetVolume) {
     do {
       *translation += currentVolume->GetObjectTranslation();	// Applies current volume translation vector to stack
+      G4cerr<<currentVolume->GetName()<<"\t"<<translation[0]<<"\t"<<translation[1]<<"\t"<<translation[2]<<G4endl;
 
 	// Grabs each daughter volume and checks if target volume is contained within it
-      /* G4LogicalVolume* currentLogical = currentVolume->GetLogicalVolume();
-       * G4int noDaughters = currentLogical->GetNoDaughters();
-       * if(noDaughters != 0)
+      G4LogicalVolume* currentLogical = currentVolume->GetLogicalVolume();
+        G4int noDaughters = currentLogical->GetNoDaughters();
+        if(noDaughters != 0)
       {
         for(G4int i = 0; i < noDaughters; i++)
         {
@@ -463,8 +469,8 @@ G4ThreeVector* InverseBetaKinematics::FindTargetTranslationWRTWorld() const		// 
           if(currentVolume->GetLogicalVolume()->IsAncestor(targetVolume) || currentVolume == targetVolume) break;
         }
       }
-      else { currentVolume = targetVolume; }	// Assumes current volume is target volume if it has no daughter volumes*/
-      currentVolume = targetVolume; 
+      else { currentVolume = targetVolume; }	// Assumes current volume is target volume if it has no daughter volumes
+       //   currentVolume = targetVolume; 
     } while (!(currentVolume == targetVolume));
     *translation += currentVolume->GetObjectTranslation();
   }
@@ -657,6 +663,9 @@ void InverseBetaKinematics::PrintAllParameters() const
 	 << "\t   Target Volume Dimensions:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmax() - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetXmin() << "\tY: "
 	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetYmin() << "\tZ: "
 	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmax()  - targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetZmin() << "\n"
+	 << "\t   Target Volume Center:     X: " <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[0] << "\tY: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[1] << "\tZ: "
+	 <<  targetVolume->GetLogicalVolume()->GetSolid()->GetExtent().GetExtentCenter()[2] << "\n"
          << "*************************************************************************************\n"
          << G4endl;
 }

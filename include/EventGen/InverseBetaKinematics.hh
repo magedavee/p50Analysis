@@ -49,7 +49,8 @@ class InverseBetaKinematics
     void ToggleSequentialGeneration(G4bool);
 
     G4String GetReactionVolumeName() { return targetName; };
-    G4VPhysicalVolume* GetTargetPhysicalVolume() { return targetVolume; };
+    G4VPhysicalVolume* GetTargetPhysicalVolume(){ return targetVolume; };
+    G4VPhysicalVolume* GetWorldPhysicalVolume(){ return worldVolume; };
     G4ThreeVector GetAntiNeutrinoDirection() const { return antiNuDir; };
     G4double GetSpectrumU235Content(G4bool frac = false) const;
     G4double GetSpectrumU238Content(G4bool frac = false) const;
