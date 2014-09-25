@@ -76,9 +76,8 @@ if __name__=="__main__":
         L.launch_sims(4*6*5)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_SteelShell", 1e5)
+        L = SB_MC_Launcher("CRY_MuVeto_PbTank", 1e6)
         #L.settings["reclevel"] = 3
-        L.settings["preinit"] += "/geom/shield/nshell 2.54 cm\n"
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
         L.launch_sims(4*6*50)
     

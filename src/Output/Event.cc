@@ -50,6 +50,10 @@ void IoniCluster::operator+=(const IoniCluster& r) {
     E = EE;
 }
 
+Double_t IoniCluster::dxtot() const {
+    return sqrt(dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
+}
+
 ////////////////////////////////////////////
 //------------------------------------------
 ////////////////////////////////////////////

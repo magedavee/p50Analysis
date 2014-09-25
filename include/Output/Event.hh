@@ -56,6 +56,8 @@ public:
     
     /// energy-weighted sum
     void operator+=(const IoniCluster& r);
+    /// total position spread in all axes
+    Double_t dxtot() const;
     
     ClassDef(IoniCluster,3);
 };

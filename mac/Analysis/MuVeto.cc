@@ -34,6 +34,7 @@ public:
         
         for(int i=0; i<3; i++) {
             h[i]->GetYaxis()->SetTitleOffset(1.4);
+            hProf[i] = NULL;
         }
     }
     
@@ -56,10 +57,22 @@ public:
         gPad->Print((bpath+"_yz.pdf").c_str());
     }
     
+    void makeProf() {
+        hProf[0] = h_xy->ProjectionX();
+        hProf[1] = h_yz->ProjectionX();
+        hProf[2] = h_xz->ProjectionY();
+        for(int i=0; i<3; i++) {
+            hProf[i]->Scale(1./hProf[i]->GetXaxis()->GetBinWidth(1));
+            hProf[i]->SetLineColor(2+i);
+        }
+    }
+    
     TH2F* h_xy;
     TH2F* h_xz;
     TH2F* h_yz;
     TH2F* h[3];
+    
+    TH1* hProf[3];
 };
 
 int main(int argc, char** argv) {
@@ -90,10 +103,10 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&snc);
     
     // set up histograms
-    TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 100, 0, 20, 100, 0, 0.01));
+    TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 20, 100, 0, 10));
     hSingles->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
-    hSingles->GetYaxis()->SetTitle("Pseuso-PSD parameter");
-    hSingles->GetYaxis()->SetTitleOffset(1.45);
+    hSingles->GetYaxis()->SetTitle("PSD proxy [mm/MeV]");
+    //hSingles->GetYaxis()->SetTitleOffset(1.45);
     
     TH1F* hCoinc[2];
     TH1F* hIBDSpec[2];
@@ -125,11 +138,12 @@ int main(int argc, char** argv) {
     htMuToIBD->GetYaxis()->SetTitle("Event rate [mHz/ns]");
     htMuToIBD->SetLineColor(2);
     
-    TH1F* hPrimE = (TH1F*)f.add(logHist("hPrimE","Cosmic neutron energies inducing `IBD-like' events", 100, 1e-9, 1e6));
-    hPrimE->GetXaxis()->SetTitle("primary energy [MeV]");
+    TH1F* hPrimE = (TH1F*)f.add(logHist("hPrimE","Cosmic neutrons inducing `IBD-like' events", 100, 1e-3, 1e4));
+    hPrimE->GetXaxis()->SetTitle("primary neutron energy [MeV]");
+    hPrimE->GetXaxis()->SetTitleOffset(1.3);
     
-    ProfileHistos hIBDpos(200,2,"hIBDpos","IBD-like event positions","[m]");
-    ProfileHistos hIBDposPV(200,2,"hIBDposPV","IBD-like event positions","[m]");
+    ProfileHistos hIBDpos(200,1.5,"hIBDpos","IBD-like event positions","[m]");
+    ProfileHistos hIBDposPV(200,1.5,"hIBDposPV","IBD-like event positions","[m]");
     
     double veto_thresh = 5;     //< muon veto trigger threshold energy, MeV
     
@@ -153,8 +167,9 @@ int main(int argc, char** argv) {
             if(pp->PID == 2112) nEnergy = pp->E;
         }
         //if(primCounter[2112]) continue; // non-neutron only
-        if(nPrim>1 || !primCounter[2112]) continue; // neutron events only
-        
+        //if(nPrim>1 || !primCounter[2112]) continue; // neutron events only
+        //if(nPrim>1 || !primCounter[-13]) continue; // mu^+ only
+
         if(vion->EIoni) hVetoSpec->Fill(vion->EIoni);
         
         vector<IoniCluster> scintHits;
@@ -172,17 +187,17 @@ int main(int argc, char** argv) {
         map<Int_t, Int_t> volHits;
         for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
             if(its->vol < 0) continue;
-            if(its->E < 0.1) continue;
-            
+            if(its->E < 0.5) continue;
             volHits[its->vol]++;
             
-            double psd = its->dt/its->E;
+            //if(fabs(its->x[0]) > 144*6 || fabs(its->x[1]) > 144*4 || fabs(its->x[2]) > 400) continue;
+            
+            double psd = its->dxtot()*sqrt(12)/its->E;
             hSingles->Fill(its->E, psd);
             
-            if(4.0 < its->E && its->E < 5.0 && psd < 0.002) nCaptHits.push_back(*its);
-            else if(0.5 < its->E && psd < 0.002) recoilHits.push_back(*its);
-            
-            if(0.1 < its->E && its->E < 20. && 0.004 < psd) eLikeHits.push_back(*its);
+            if(4.5 < its->E && its->E < 5.0 && psd < 1) nCaptHits.push_back(*its);
+            else if(0.5 < its->E && psd < 1) recoilHits.push_back(*its);
+            if(0.1 < its->E && its->E < 20. && 1 < psd) eLikeHits.push_back(*its);
         }
         
         if(volHits.size() != 1) continue; // single-segment events only
@@ -226,12 +241,13 @@ int main(int argc, char** argv) {
     // draw results
     
     hSingles->Scale(1./hSingles->GetYaxis()->GetBinWidth(1)/hSingles->GetXaxis()->GetBinWidth(1)/simtime);
-    hSingles->SetMinimum(10);
-    hSingles->SetMaximum(1e5);
+    hSingles->SetMinimum(0.1);
+    hSingles->SetMaximum(100);
     hSingles->Draw("Col Z");
     gPad->SetLogz(true);
     gPad->Print((outpath+"/Singles.pdf").c_str());
     gPad->SetLogz(false);
+    
     
     hVetoSpec->Scale(1./hVetoSpec->GetBinWidth(1)/simtime);
     hVetoSpec->SetMaximum(500.);
@@ -239,11 +255,13 @@ int main(int argc, char** argv) {
     cout << "Total veto rate " << hVetoSpec->Integral("width") << " Hz\n";
     gPad->Print((outpath+"/VetoSpec.pdf").c_str());
     
+    double nIBDcounts = hCoinc[false]->Integral();
     for(int i=0; i<2; i++) hCoinc[i]->Scale(1000./hCoinc[i]->GetXaxis()->GetBinWidth(1)/simtime);
     hCoinc[false]->Draw();
     hCoinc[true]->Draw("Same");
     gPad->Print((outpath+"/Coincidences.pdf").c_str());
-    cout << "IBD-like rate: " << hCoinc[0]->Integral("width") << " mHz\n";
+    double IBDrate = hCoinc[0]->Integral("width");
+    cout << "IBD-like rate: " << IBDrate << " (" << int(IBDrate/sqrt(nIBDcounts)) << ") mHz\n";
     cout << "Passed veto: " << hCoinc[1]->Integral("width") << " mHz\n";
     
     htMuToIBD->Scale(1000./htMuToIBD->GetBinWidth(1)/simtime);
@@ -255,20 +273,21 @@ int main(int argc, char** argv) {
     hIBDSpec[true]->Draw("Same");
     gPad->Print((outpath+"/IBDSpectrum.pdf").c_str());
     
-    TH1* yProf = hIBDpos.h_yz->ProjectionX();
-    yProf->Scale(1./yProf->GetXaxis()->GetBinWidth(1)/simtime);
-    yProf->GetYaxis()->SetTitle("Event rate [Hz/m]");
-    yProf->Draw();
     
-    TH1* yProfPV = hIBDposPV.h_yz->ProjectionX();
-    yProfPV->Scale(1./yProfPV->GetXaxis()->GetBinWidth(1)/simtime);
-    yProfPV->SetLineColor(2);
-    yProfPV->Draw("Same");
-    
+    hIBDpos.makeProf();
+    for(int i=0; i<3; i++) {
+        hIBDpos.hProf[i]->Scale(1./simtime);
+        hIBDpos.hProf[i]->GetXaxis()->SetTitle("event position [m]");
+        hIBDpos.hProf[i]->GetYaxis()->SetTitle("rate [Hz/m]");
+    }
+    hIBDpos.hProf[1]->Draw();
+    hIBDpos.hProf[0]->Draw("Same");
+    hIBDpos.hProf[2]->Draw("Same");
     gPad->Print((outpath+"/IBDPos.pdf").c_str());
     
     gPad->SetLogx(true);
-    hPrimE->Scale(1./simtime);
+    hPrimE->Scale(1000./simtime);
+    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
     hPrimE->Draw();
     gPad->Print((outpath+"/nPrimE.pdf").c_str());
     

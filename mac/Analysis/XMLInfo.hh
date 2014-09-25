@@ -4,6 +4,7 @@
 #include <TXMLEngine.h>
 #include <TChain.h>
 
+#include <climits>
 #include <string>
 #include <vector>
 #include <map>
@@ -36,7 +37,7 @@ protected:
 class OutDirLoader {
 public:
     /// Constructor
-    OutDirLoader(const std::string& basepath);
+    OutDirLoader(const std::string& basepath, unsigned int limit = INT_MAX);
     
     /// get list of run numbers in directory
     std::vector<int> getRunlist() const;

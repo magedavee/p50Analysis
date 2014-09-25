@@ -77,7 +77,7 @@ void ScintTankBuilder::construct() {
     ////////////////////////////
     // rods & separators lattice
     
-    double sep_gap = mySlottedRod.r_inner + 1.*mm; // gap between edge of separators and center of rods
+    double sep_gap = mySlottedRod.r_inner + 0.5*mm; // gap between edge of separators and center of rods
     mySeparator.width = seg_size - 2*sep_gap;
     mySeparator.length = tank_depth;
     mySeparator.construct();
