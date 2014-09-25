@@ -12,7 +12,8 @@
 ShieldBuilder::ShieldBuilder(): Builder("Shield"),
 shield_dir("/geom/shield/"),
 clearCmd("/geom/shield/clear",this),
-vetoCmd("/geom/shield/muveto",this) {
+vetoCmd("/geom/shield/muveto",this),
+nshellCmd("/geom/shield/nshell",this) {
     addLayer(ShellLayerSpec(5*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.)));
     addLayer(ShellLayerSpec(10*cm, MaterialsHelper::M().LiPoly, G4Colour(1.,0.,0.)));
     addLayer(ShellLayerSpec(3*cm, MaterialsHelper::M().nat_Pb, G4Colour(0.,1.,0.)));
@@ -24,6 +25,9 @@ vetoCmd("/geom/shield/muveto",this) {
     
     vetoCmd.SetGuidance("Construct muon veto 'shield' layer");
     vetoCmd.AvailableForStates(G4State_PreInit);
+    
+    nshellCmd.SetGuidance("Construct neutron steel shield layer");
+    nshellCmd.AvailableForStates(G4State_PreInit);
 }
 
 void ShieldBuilder::construct() {
@@ -63,6 +67,9 @@ void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String newvalue) {
         addLayer(S);
     } else if(command == &vetoCmd) {
         ShellLayerSpec S(vetoCmd.GetNewDoubleValue(newvalue), MaterialsHelper::M().PVT, G4Colour(1.,0.,0.));
+        addLayer(S);
+    } else if(command == &nshellCmd) {
+        ShellLayerSpec S(vetoCmd.GetNewDoubleValue(newvalue), MaterialsHelper::M().SS444, G4Colour(1.,1.,0.));
         addLayer(S);
     } else G4cout << "Unknown command!" << G4endl;
 }

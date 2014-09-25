@@ -33,11 +33,12 @@ public:
     DetVolBuilder myDet;                        ///< detector assembly
     
 protected:
-    std::vector<ShellLayerSpec> layers;        ///< descriptions of each layer
+    std::vector<ShellLayerSpec> layers;         ///< descriptions of each layer
     
     G4UIdirectory shield_dir;                   ///< UI directory for shield commands
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
     G4UIcmdWithADoubleAndUnit vetoCmd;          ///< command to add muon veto shell layer
+    G4UIcmdWithADoubleAndUnit nshellCmd;        ///< command to add neutron shield steel shell layer
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

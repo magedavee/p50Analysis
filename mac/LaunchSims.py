@@ -25,7 +25,7 @@ class SB_MC_Launcher:
         os.system("mkdir -p %s"%self.log_dir)
         
         
-    def launch_sims(self, nruns):
+    def launch_sims(self, nruns, rnmin=0):
         
         self.set_dirs()
         
@@ -43,7 +43,8 @@ class SB_MC_Launcher:
             
             # make job command
             onejob = "%s %s/%s.mac"%(self.bin_name, self.macro_dir, run_name)
-            jobsout.write(onejob+" > %s/%s.txt 2>&1\n"%(self.log_dir, run_name))
+            if rn >= rnmin:
+                jobsout.write(onejob+" > %s/%s.txt 2>&1\n"%(self.log_dir, run_name))
         
         jobsout.close()
         
@@ -75,10 +76,10 @@ if __name__=="__main__":
         L.launch_sims(4*6*5)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_NewTiming", 1e5)
+        L = SB_MC_Launcher("CRY_MuVeto_PbTank", 1e6)
         #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.launch_sims(4*6)
+        L.launch_sims(4*6*50)
     
     if options.testcell:
         L = SB_MC_Launcher("TestCell", 1e5)

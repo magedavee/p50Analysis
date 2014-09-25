@@ -54,6 +54,11 @@ public:
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
     
+    /// energy-weighted sum
+    void operator+=(const IoniCluster& r);
+    /// total position spread in all axes
+    Double_t dxtot() const;
+    
     ClassDef(IoniCluster,3);
 };
 

@@ -1,6 +1,7 @@
 // export LD_LIBRARY_PATH=../../../PG4/lib/:$LD_LIBRARY_PATH
 
 #include "AnaUtils.hh"
+#include "strutils.hh"
 
 bool checkVeto(double t, const std::vector<double>& vt, double dt0, double dt1) {
     for(auto itv = vt.begin(); itv != vt.end(); itv++)
@@ -8,9 +9,9 @@ bool checkVeto(double t, const std::vector<double>& vt, double dt0, double dt1) 
     return false;
 }
 
-void dispVFrac(int* vcounts, const std::string& suffix) {
-    cout << "Vetoed " << vcounts[true] << "/" << vcounts[false] << " ("
-        << double(vcounts[true])/vcounts[false] << ") " << suffix << "\n";
+void dispVFrac(double* vcounts, const std::string& suffix) {
+    double nVetoed = vcounts[false]-vcounts[true];
+    cout << "Vetoed " << nVetoed << "/" << vcounts[false] << " (" << nVetoed/vcounts[false] << ") " << suffix << "\n";
 }
 
 class ProfileHistos {
@@ -33,6 +34,7 @@ public:
         
         for(int i=0; i<3; i++) {
             h[i]->GetYaxis()->SetTitleOffset(1.4);
+            hProf[i] = NULL;
         }
     }
     
@@ -55,10 +57,22 @@ public:
         gPad->Print((bpath+"_yz.pdf").c_str());
     }
     
+    void makeProf() {
+        hProf[0] = h_xy->ProjectionX();
+        hProf[1] = h_yz->ProjectionX();
+        hProf[2] = h_xz->ProjectionY();
+        for(int i=0; i<3; i++) {
+            hProf[i]->Scale(1./hProf[i]->GetXaxis()->GetBinWidth(1));
+            hProf[i]->SetLineColor(2+i);
+        }
+    }
+    
     TH2F* h_xy;
     TH2F* h_xz;
     TH2F* h_yz;
     TH2F* h[3];
+    
+    TH1* hProf[3];
 };
 
 int main(int argc, char** argv) {
@@ -89,6 +103,27 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&snc);
     
     // set up histograms
+    TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 20, 100, 0, 10));
+    hSingles->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
+    hSingles->GetYaxis()->SetTitle("PSD proxy [mm/MeV]");
+    //hSingles->GetYaxis()->SetTitleOffset(1.45);
+    
+    TH1F* hCoinc[2];
+    TH1F* hIBDSpec[2];
+    for(unsigned int i=0; i<2; i++) {
+        hCoinc[i] = (TH1F*)f.add(new TH1F(("hCoinc_"+to_str(i)).c_str(),"IBD-like coincidences", 100, -100, 300));
+        hCoinc[i]->GetXaxis()->SetTitle("t_{n} - t_{e} [#mus]");
+        hCoinc[i]->GetYaxis()->SetTitle("Event rate [mHz/#mus]");
+        hCoinc[i]->GetYaxis()->SetTitleOffset(1.45);
+        hCoinc[i]->SetLineColor(4-2*i);
+        
+        hIBDSpec[i] = (TH1F*)f.add(new TH1F(("hIBDSpec"+to_str(i)).c_str(),"IBD-like spectrum", 100, 0, 20));
+        hIBDSpec[i]->GetXaxis()->SetTitle("Prompt ionization [MeV]");
+        hIBDSpec[i]->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
+        hIBDSpec[i]->GetYaxis()->SetTitleOffset(1.45);
+        hIBDSpec[i]->SetLineColor(4-2*i);
+    }
+
     TH1F* hVetoSpec = (TH1F*)f.add(new TH1F("hVetoSpec","Muon Veto ionization", 400, 0, 50));
     hVetoSpec->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
     hVetoSpec->GetYaxis()->SetTitle("Event rate [Hz/MeV]");
@@ -98,33 +133,19 @@ int main(int argc, char** argv) {
     htMuToScint->GetXaxis()->SetTitle("t_{scint}-t_{veto} [ns]");
     htMuToScint->GetYaxis()->SetTitle("Event rate [Hz/ns]");
     
-    TH1F* htMuToN = (TH1F*)f.add(new TH1F("htMuToN","Timing between veto ionization and neutron capture", 100, -10, 200));
-    htMuToN->GetXaxis()->SetTitle("t_{ncapt}-t_{veto} [#mus]");
-    htMuToN->GetYaxis()->SetTitle("Event rate [Hz/#mus]");
-    
-    TH1F* htMuToIBD = (TH1F*)f.add(new TH1F("htMuToIBD","Timing between veto ionization and `IDB-like' capture", 100, -10, 200));
-    htMuToIBD->GetXaxis()->SetTitle("t_{ncapt}-t_{veto} [#mus]");
-    htMuToIBD->GetYaxis()->SetTitle("Event rate [Hz/#mus]");
+    TH1F* htMuToIBD = (TH1F*)f.add(new TH1F("htMuToIBD","Timing between veto ionization and `IBD-like' event", 100, -100, 100));
+    htMuToIBD->GetXaxis()->SetTitle("t_{IBD}-t_{veto} [ns]");
+    htMuToIBD->GetYaxis()->SetTitle("Event rate [mHz/ns]");
     htMuToIBD->SetLineColor(2);
     
-    ProfileHistos hvpos(200,2,"hvpos","Veto ionization positions","[m]");
-    ProfileHistos hvnpos(50,2,"hvnpos","Veto ionization positions","[m]");
+    TH1F* hPrimE = (TH1F*)f.add(logHist("hPrimE","Cosmic neutrons inducing `IBD-like' events", 100, 1e-3, 1e4));
+    hPrimE->GetXaxis()->SetTitle("primary neutron energy [MeV]");
+    hPrimE->GetXaxis()->SetTitleOffset(1.3);
     
-    TH1F* posOff_x = (TH1F*)f.add(new TH1F("posOff_x","Position offset between veto and detector", 100, -4, 4));
-    posOff_x->GetXaxis()->SetTitle("x_{veto}-x_{det} [m]");
-    posOff_x->GetYaxis()->SetTitle("Event rate [Hz/m]");
-    posOff_x->SetLineColor(2);
-    //
-    TH1F* posOff_y = (TH1F*)f.add(new TH1F("posOff_y","Position offset between veto and detector", 100, -4, 4));
-    posOff_y->GetXaxis()->SetTitle("y_{veto}-y_{det} [m]");
-    posOff_y->GetYaxis()->SetTitle("Event rate [Hz/m]");
-    
+    ProfileHistos hIBDpos(200,1.5,"hIBDpos","IBD-like event positions","[m]");
+    ProfileHistos hIBDposPV(200,1.5,"hIBDposPV","IBD-like event positions","[m]");
     
     double veto_thresh = 5;     //< muon veto trigger threshold energy, MeV
-    int nIoniV[2] = {0,0};
-    int nNCaptV[2] = {0,0};
-    int nIBDV[2] = {0,0};
-    
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -136,133 +157,139 @@ int main(int argc, char** argv) {
         snc->Clear();
         T->GetEntry(ev);
         
-        Int_t nPrim = prim->particles->GetEntriesFast();
-        Int_t nVeto = vion->clusts->GetEntriesFast();
-        Int_t nNCapts = snc->nCapts->GetEntriesFast();
-        Int_t nScint = sion->clusts->GetEntriesFast();
-        
         // primaries
         map<int,int> primCounter;
+        Int_t nPrim = prim->particles->GetEntriesFast();
+        double nEnergy = 0;
         for(Int_t i=0; i<nPrim; i++) {
             ParticleVertex* pp = (ParticleVertex*)prim->particles->At(i);
             primCounter[pp->PID]++;
+            if(pp->PID == 2112) nEnergy = pp->E;
         }
         //if(primCounter[2112]) continue; // non-neutron only
         //if(nPrim>1 || !primCounter[2112]) continue; // neutron events only
-        
+        //if(nPrim>1 || !primCounter[-13]) continue; // mu^+ only
+
         if(vion->EIoni) hVetoSpec->Fill(vion->EIoni);
         
-        // scintillator hits
-        map<Int_t, double> volIoni; // Ionization accumulator by volume
-        for(Int_t i=0; i<nScint; i++) {
-            IoniCluster* ei = (IoniCluster*)sion->clusts->At(i);
-            volIoni[ei->vol] += ei->E;
+        vector<IoniCluster> scintHits;
+        map<Int_t, double> volIoni = mergeIoniHits(sion->clusts, scintHits, 5.);
+        
+        vector<IoniCluster> vetoHits;
+        map<Int_t, double> vetoIoni = mergeIoniHits(vion->clusts, vetoHits, 5.);
+        for(auto itv = vetoHits.begin(); itv != vetoHits.end(); itv++)
+            hVetoSpec->Fill(itv->E);
+        
+        // classify scintillator hits
+        vector<IoniCluster> nCaptHits;
+        vector<IoniCluster> recoilHits;
+        vector<IoniCluster> eLikeHits;
+        map<Int_t, Int_t> volHits;
+        for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
+            if(its->vol < 0) continue;
+            if(its->E < 0.5) continue;
+            volHits[its->vol]++;
             
-            if(ei->vol < 0 || ei->E < 0.2) continue;
-            nIoniV[false]++;
+            //if(fabs(its->x[0]) > 144*6 || fabs(its->x[1]) > 144*4 || fabs(its->x[2]) > 400) continue;
             
-            // coincident veto hits
-            bool isVetoed = false;
-            for(Int_t iv=0; iv<nVeto; iv++) {
-                IoniCluster* eiv = (IoniCluster*)vion->clusts->At(iv);
-                if(eiv->E < veto_thresh) continue;
-                double dtime = ei->t - eiv->t;
-                isVetoed |= (-3 <= dtime && dtime <= 12);
-                htMuToScint->Fill(dtime);
-                if(eiv->x[2] > 900.) {
-                    posOff_x->Fill((eiv->x[0]-ei->x[0])/1000.);
-                    posOff_y->Fill((eiv->x[1]-ei->x[2])/1000.);
+            double psd = its->dxtot()*sqrt(12)/its->E;
+            hSingles->Fill(its->E, psd);
+            
+            if(4.5 < its->E && its->E < 5.0 && psd < 1) nCaptHits.push_back(*its);
+            else if(0.5 < its->E && psd < 1) recoilHits.push_back(*its);
+            if(0.1 < its->E && its->E < 20. && 1 < psd) eLikeHits.push_back(*its);
+        }
+        
+        if(volHits.size() != 1) continue; // single-segment events only
+        
+        // coincidences
+        int nIBD = 0;
+        for(auto ite = eLikeHits.begin(); ite != eLikeHits.end(); ite++) {
+            for(auto itn = nCaptHits.begin(); itn != nCaptHits.end(); itn++) {
+                if(ite->vol != itn->vol) continue; // require n/e coincidences in same volume
+                nIBD++;
+                hIBDpos.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
+                hIBDSpec[false]->Fill(ite->E);
+                hCoinc[false]->Fill( (itn->t - ite->t)/1000. );
+                
+                bool isVetoed = false;
+                for(auto itv = vetoHits.begin(); itv != vetoHits.end(); itv++) {
+                    if(itv->E < veto_thresh) continue;
+                    double dt = ite->t - itv->t;
+                    htMuToIBD->Fill(dt);
+                    if(0 < dt && dt < 50) isVetoed = true;
+                }
+                if(!isVetoed) {
+                    hIBDSpec[true]->Fill(ite->E);
+                    hCoinc[true]->Fill( (itn->t - ite->t)/1000. );
+                    hIBDposPV.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
                 }
             }
-            nIoniV[true] += isVetoed;
-        }
-        bool isolhit = isIsolatedSegment(volIoni);
-        
-        // veto hits
-        for(Int_t iv=0; iv<nVeto; iv++) {
-            IoniCluster* eiv = (IoniCluster*)vion->clusts->At(iv);
-            hvpos.Fill(eiv->x[0]/1000,eiv->x[1]/1000,eiv->x[2]/1000);
-            if(nNCapts) hvnpos.Fill(eiv->x[0]/1000,eiv->x[1]/1000,eiv->x[2]/1000);
-            
-            if(eiv->E < veto_thresh) continue;
-            
-            // coincident neutron captures
-            for(int in = 0; in < nNCapts; in++) {
-                NCapt* nc = (NCapt*)snc->nCapts->At(in);
-                if(nc->vol < 0) continue;
-                htMuToN->Fill((nc->t - eiv->t)/1000.);
-                if(isolhit) htMuToIBD->Fill((nc->t - eiv->t)/1000.);
-            }
         }
         
-        // neutron captures
-        for(Int_t i=0; i<nNCapts; i++) {
-            NCapt* nc = (NCapt*)snc->nCapts->At(i);
-            if(nc->vol < 0) continue;
-            
-            nNCaptV[false]++;
-            nIBDV[false] += isolhit;
-            
-            // coincident veto hits
-            bool isVetoed = false;
-            for(Int_t iv=0; iv<nVeto; iv++) {
-                IoniCluster* eiv = (IoniCluster*)vion->clusts->At(iv);
-                if(eiv->E < veto_thresh) continue;
-                double dtime = nc->t - eiv->t;
-                isVetoed |= (-3e3 <= dtime && dtime <= 12e3);
-                htMuToN->Fill(dtime);
-                if(isolhit) htMuToIBD->Fill(dtime);
-            }
-            nNCaptV[true] += isVetoed;
-            nIBDV[true] += isolhit && isVetoed;
-        }
-    
+        if(nIBD) hPrimE->Fill(nEnergy);
     }
     
-    dispVFrac(nIoniV,"ionization events");
-    dispVFrac(nNCaptV,"neutron captures");
+    // vetoed events in energy range of interest
+    int b1 = hIBDSpec[false]->FindBin(2.0);
+    int b2 = hIBDSpec[false]->FindBin(5.0);
+    double nIBDV[2] = {0,0};
+    for(int i=0; i<2; i++) nIBDV[i] = hIBDSpec[i]->Integral(b1,b2);
     dispVFrac(nIBDV,"IBD-like");
     
     ///////////////
     // draw results
     
+    hSingles->Scale(1./hSingles->GetYaxis()->GetBinWidth(1)/hSingles->GetXaxis()->GetBinWidth(1)/simtime);
+    hSingles->SetMinimum(0.1);
+    hSingles->SetMaximum(100);
+    hSingles->Draw("Col Z");
+    gPad->SetLogz(true);
+    gPad->Print((outpath+"/Singles.pdf").c_str());
+    gPad->SetLogz(false);
+    
+    
     hVetoSpec->Scale(1./hVetoSpec->GetBinWidth(1)/simtime);
     hVetoSpec->SetMaximum(500.);
     hVetoSpec->Draw();
-    cout << "Total coincidence rate " << hVetoSpec->Integral("width") << " Hz\n";
+    cout << "Total veto rate " << hVetoSpec->Integral("width") << " Hz\n";
     gPad->Print((outpath+"/VetoSpec.pdf").c_str());
-
-    htMuToScint->Scale(1./htMuToScint->GetBinWidth(1)/simtime);
-    htMuToScint->Draw();
-    gPad->Print((outpath+"/IoniTiming.pdf").c_str());
     
-    posOff_x->Scale(1./posOff_x->GetBinWidth(1)/simtime);
-    posOff_y->Scale(1./posOff_y->GetBinWidth(1)/simtime);
-    posOff_x->Draw();
-    posOff_y->Draw("Same");
-    gPad->Print((outpath+"/PosOffset.pdf").c_str());
+    double nIBDcounts = hCoinc[false]->Integral();
+    for(int i=0; i<2; i++) hCoinc[i]->Scale(1000./hCoinc[i]->GetXaxis()->GetBinWidth(1)/simtime);
+    hCoinc[false]->Draw();
+    hCoinc[true]->Draw("Same");
+    gPad->Print((outpath+"/Coincidences.pdf").c_str());
+    double IBDrate = hCoinc[0]->Integral("width");
+    cout << "IBD-like rate: " << IBDrate << " (" << int(IBDrate/sqrt(nIBDcounts)) << ") mHz\n";
+    cout << "Passed veto: " << hCoinc[1]->Integral("width") << " mHz\n";
     
-    gPad->SetLogy(true);
-    htMuToN->Scale(1./htMuToN->GetBinWidth(1)/simtime);
-    htMuToIBD->Scale(1./htMuToIBD->GetBinWidth(1)/simtime);
-    htMuToN->SetMinimum(1e-4);
-    htMuToN->Draw();
-    htMuToIBD->Draw("Same");
-    cout << "Neutron capture coincidence rate " << htMuToN->Integral("width") << " Hz\n";
-    cout << "IBD-like capture coincidence rate " << htMuToIBD->Integral("width") << " Hz\n";
-    gPad->Print((outpath+"/NCaptTiming.pdf").c_str());
+    htMuToIBD->Scale(1000./htMuToIBD->GetBinWidth(1)/simtime);
+    htMuToIBD->Draw();
+    gPad->Print((outpath+"/IBDVetoTiming.pdf").c_str());
     
-    gPad->SetLogy(false);
-    gPad->SetCanvasSize(700,700);
-    gPad->SetRightMargin(0.15);
+    for(int i=0; i<2; i++) hIBDSpec[i]->Scale(1000./hIBDSpec[i]->GetBinWidth(1)/simtime);
+    hIBDSpec[false]->Draw();
+    hIBDSpec[true]->Draw("Same");
+    gPad->Print((outpath+"/IBDSpectrum.pdf").c_str());
     
-    hvpos.ScaleBinsize();
-    hvpos.Scale(1./simtime);
-    hvpos.SetMaximum(100);
-    hvpos.Print("Col Z",outpath+"/VetoPos");
     
-    hvnpos.ScaleBinsize();
-    hvnpos.Scale(1./simtime);
-    hvnpos.SetMaximum(4);
-    hvnpos.Print("Col Z",outpath+"/VetoPosN");
+    hIBDpos.makeProf();
+    for(int i=0; i<3; i++) {
+        hIBDpos.hProf[i]->Scale(1./simtime);
+        hIBDpos.hProf[i]->GetXaxis()->SetTitle("event position [m]");
+        hIBDpos.hProf[i]->GetYaxis()->SetTitle("rate [Hz/m]");
+    }
+    hIBDpos.hProf[1]->Draw();
+    hIBDpos.hProf[0]->Draw("Same");
+    hIBDpos.hProf[2]->Draw("Same");
+    gPad->Print((outpath+"/IBDPos.pdf").c_str());
+    
+    gPad->SetLogx(true);
+    hPrimE->Scale(1000./simtime);
+    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
+    hPrimE->Draw();
+    gPad->Print((outpath+"/nPrimE.pdf").c_str());
+    
+    return 0;
 }

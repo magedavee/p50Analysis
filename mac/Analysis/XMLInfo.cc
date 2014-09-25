@@ -54,7 +54,7 @@ double XMLInfo::fromUnits(const string& s) const {
     return x*it->second;
 }
 
-OutDirLoader::OutDirLoader(const string& basepath): bpath(basepath) {
+OutDirLoader::OutDirLoader(const string& basepath, unsigned int limit): bpath(basepath) {
     std::cout << "Loading directory '" << basepath << "'...\n";
     vector<string> flist = listdir(basepath);
     for(auto it = flist.begin(); it != flist.end(); it++) {
@@ -64,6 +64,7 @@ OutDirLoader::OutDirLoader(const string& basepath): bpath(basepath) {
             if(vv.size() == 2)
                 myInfo[atoi(vv[1].c_str())] = new XMLInfo(basepath+"/"+*it);
         }
+        if(myInfo.size() >= limit) break;
     }
     std::cout << "\tTotal simulation time: " << getTotalGenTime() << " s\n";
 }
