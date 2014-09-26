@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
     // load data into TChain
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
-    if(!D.getTotalGenTime()) { std::cout << "Oops, zero simulated time! Goodbye.\n"; return -1; }
+    if(!D.genTime) { std::cout << "Oops, zero simulated time! Goodbye.\n"; return -1; }
     
     // set readout branches
     ParticleEvent* evt = new ParticleEvent();
@@ -180,10 +180,8 @@ int main(int argc, char** argv) {
     }
     
     // produce output
-    double totalTime = D.getTotalGenTime();
-    for(map<Int_t, FluxHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++) {
-        it->second.Draw(outpath, totalTime);
-    }
+    for(map<Int_t, FluxHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++)
+        it->second.Draw(outpath, D.genTime);
         
     return 0;
 }

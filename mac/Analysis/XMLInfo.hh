@@ -17,8 +17,10 @@ public:
     /// Destructor
     ~XMLInfo();
     
-    /// Get event generator "real" time
+    /// Get event generator "real" time, Geant4 units [ns]
     double getGenTime();
+    /// get scintillator segmentation; returns segment size
+    double getSegments(int& nx, int& ny);
     
 protected:
     TXMLEngine E;               ///< ROOT XML reader engine
@@ -27,6 +29,8 @@ protected:
     
     /// find named child node of given node
     XMLNodePointer_t findChild(XMLNodePointer_t N, const std::string& nm);
+    /// recursively search whole tree for first such named node
+    XMLNodePointer_t findChildRecursive(XMLNodePointer_t N, const std::string& nm);
     
     /// parse Geant4 string with units
     double fromUnits(const std::string& s) const;
@@ -47,8 +51,19 @@ public:
     
     /// make TChain from files in directory
     TChain* makeTChain() const;
+
+    /// get representative XMLInfo file
+    XMLInfo* getXML() { return myInfo.size()? myInfo.begin()->second : NULL; }
     
-    double getTotalGenTime();
+    /// convert volume number to x,y segment number
+    void volToXY(int v, int& x, int& y) const { if(v < 0) x = y = -1; else { x = v%nx; y = v/nx; } }
+    /// check if segments are (non-diagonal) adjacent
+    bool isAdjacent(int v1, int v2) const;
+    
+    double genTime;     ///< total event generator "real" time, [s]
+    double segSize;     ///< segment short-dimension size [mm]
+    int nx;             ///< scintillator x segmentation
+    int ny;             ///< scintillator y segmentation
     
 protected:
     std::map<int, XMLInfo*> myInfo;     ///< XML files info

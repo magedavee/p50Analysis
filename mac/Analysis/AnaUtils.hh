@@ -2,6 +2,7 @@
 #include "PathUtils.hh"
 #include "Event.hh"
 #include "XMLInfo.hh"
+#include "strutils.hh"
 
 #include <iostream>
 #include <fstream>

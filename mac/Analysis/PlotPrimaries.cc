@@ -1,29 +1,7 @@
 ///////////////////////////////////////////////////////////
 // Standalone program for plotting MC primaries information
 
-#include <map>
-#include <utility>
-#include <string>
-#include <cassert>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <cmath>
-#include <sstream>
-
-#include "Event.hh"
-#include "XMLInfo.hh"
-#include "FileKeeper.hh"
-#include "strutils.hh"
-
-#include <TCanvas.h>
-#include <TSystem.h>
-#include <TClonesArray.h>
-#include <TStyle.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TF1.h>
-
-using std::map;
+#include "AnaUtils.hh"
 
 /// Collection of histograms to generate for a primary particle type
 class PrimaryHistograms {
@@ -34,16 +12,16 @@ public:
         
         p_dir = (TH2F*)F.add(new TH2F(("prim_p_"+pn).c_str(), "Momentum direction", 100,-1.2,1.2, 100,-1.2,1.2));
         
-        E_hi = (TH1F*)F.add(new TH1F(("E_hi_"+pn).c_str(),"Energy spectrum", 500, 0, 5));
-        E_hi->GetXaxis()->SetTitle("kinetic energy [GeV]");
-        E_hi->GetYaxis()->SetTitle("rate [Hz/GeV]");
-        E_hi->GetYaxis()->SetTitleOffset(1.45);
+        Espec = (TH1F*)F.add(logHist("Espec_"+pn, "Energy spectrum", 300, 1e-6, 1e8));
+        Espec->GetXaxis()->SetTitle("kinetic energy [MeV]");
+        Espec->GetYaxis()->SetTitle("rate [Hz/bin]");
+        Espec->GetYaxis()->SetTitleOffset(1.45);
     }
     
     /// Fill from primaries data
     void Fill(ParticleVertex* pp) {
         p_dir->Fill(pp->p[0], pp->p[1]);
-        E_hi->Fill(pp->E/1000.);
+        Espec->Fill(pp->E);
     }
     
     /// Process and draw
@@ -53,22 +31,25 @@ public:
         
         gStyle->SetOptStat("");
         
-        E_hi->Scale(1./E_hi->GetBinWidth(1)/t);
-        E_hi->Draw();
+        Espec->Scale(1./t);
+        Espec->Draw();
+        gPad->SetLogx(true);
         gPad->SetLogy(true);
-        gPad->Print((outpath+"/E_hi_"+pn+".pdf").c_str());
-        
-        gPad->SetLogy(false);
-        gPad->SetCanvasSize(700,700);
-        
-        p_dir->Draw("Col Z");
-        gPad->Print((outpath+"/p_Direction_"+pn+".pdf").c_str());
+        gPad->Print((outpath+"/Espec_"+pn+".pdf").c_str());
+       
+        if(0) {
+            gPad->SetLogy(false);
+            gPad->SetCanvasSize(700,700);
+            
+            p_dir->Draw("Col Z");
+            gPad->Print((outpath+"/p_Direction_"+pn+".pdf").c_str());
+        }
 
     }
     
     int PID;            ///< PDG particle ID
     TH2F* p_dir;        ///< momentum direction
-    TH1F* E_hi;         ///< Energy, high-energy range
+    TH1F* Espec;        ///< Energy spectrum
 };
 
 int main(int argc, char** argv) {
@@ -86,35 +67,44 @@ int main(int argc, char** argv) {
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
     // set readout branches
-    Event* evt = new Event();
-    T->GetBranch("clusts")->SetAutoDelete(kFALSE);
-    T->SetBranchAddress("Evt",&evt);
+    ParticleEvent* prim = new ParticleEvent();
+    T->SetBranchAddress("Prim",&prim);
     
     map<Int_t, PrimaryHistograms> primHists;
     
     // scan events
+    
     Long64_t nentries = T->GetEntries();
+    map<int,int> primSingles;
+    map<map<int,int>, int> primCombos;
     std::cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
-        evt->Clear();
+        prim->Clear();
         T->GetEntry(ev);
-        Int_t nPrim = evt->Primaries->GetEntriesFast();
+        
+        // primaries
+        map<int,int> primCounter;
+        Int_t nPrim = prim->particles->GetEntriesFast();
         for(Int_t i=0; i<nPrim; i++) {
-            ParticleVertex* pp = (ParticleVertex*)evt->Primaries->At(i);
-            
+            ParticleVertex* pp = (ParticleVertex*)prim->particles->At(i);
             Int_t PID = pp->PID;
+            primCounter[PID]++;
+            primSingles[PID]++;
             map<Int_t, PrimaryHistograms>::iterator it = primHists.find(PID);
             if(it == primHists.end())
                 it = primHists.insert(std::pair<Int_t, PrimaryHistograms>(PID,PrimaryHistograms(f,PID))).first;
             it->second.Fill(pp);
         }
+        primCombos[primCounter]++;
     }
+    cout << "\n\nSingles:\n";
+    display_map(primSingles);
+    cout << "\n\nCombinations:\n";
+    display_map(primCombos,-1,1e-4);
     
     // produce output
-    double totalTime = D.getTotalGenTime();
-    for(map<Int_t, PrimaryHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++) {
-        it->second.Draw(outpath, totalTime);
-    }
+    for(map<Int_t, PrimaryHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++)
+        it->second.Draw(outpath, D.genTime);
 
     return 0;
 }

@@ -8,14 +8,15 @@ XMLInfo::XMLInfo(const string& fname) {
     myDoc = E.ParseFile(fname.c_str());
     docRoot = E.DocGetRootElement(myDoc);
     
-    // cgs units
-    unitconv["s"] = 1.;
-    unitconv["ms"] = 1e-3;
-    unitconv["us"] = 1e-6;
-    unitconv["ns"] = 1e-9;
-    unitconv["m"] = 100.;
-    unitconv["cm"] = 1.;
-    unitconv["mm"] = 0.1;
+    // Geant4 units
+    unitconv["s"] = 1e9;
+    unitconv["ms"] = 1e6;
+    unitconv["us"] = 1e3;
+    unitconv["ns"] = 1;
+    unitconv["m"] = 1000;
+    unitconv["cm"] = 10;
+    unitconv["mm"] = 1;
+    unitconv["fm"] = 1e-12;
 }
 
 XMLInfo::~XMLInfo() {
@@ -29,6 +30,16 @@ double XMLInfo::getGenTime() {
     return fromUnits(E.GetAttr(gnode,"time"));
 }
 
+double XMLInfo::getSegments(int& nx, int& ny) {
+    nx = ny = 0;
+    XMLNodePointer_t gnode = findChildRecursive(docRoot,"ScintTank");
+    assert(gnode);
+    if(!gnode) return 0;
+    nx = atoi(E.GetAttr(gnode,"nSegX"));
+    ny = atoi(E.GetAttr(gnode,"nSegY"));
+    return fromUnits(E.GetAttr(gnode,"seg_size"));
+}
+
 XMLNodePointer_t XMLInfo::findChild(XMLNodePointer_t N, const string& nm) {
     if(!N) return NULL;
     //std::cout << "Searching for child node '" << nm << "'...\n";
@@ -36,6 +47,19 @@ XMLNodePointer_t XMLInfo::findChild(XMLNodePointer_t N, const string& nm) {
     while(C) {
         //std::cout << "\t" <<  E.GetNodeName(C) << "\n";
         if(nm == E.GetNodeName(C)) return C;
+        C = E.GetNext(C);
+    }
+    return NULL;
+}
+
+XMLNodePointer_t XMLInfo::findChildRecursive(XMLNodePointer_t N, const string& nm) {
+    if(!N) return NULL;
+    XMLNodePointer_t nd = findChild(N,nm);
+    if(nd) return nd;
+    XMLNodePointer_t C = E.GetChild(N);
+    while(C) {
+        nd = findChildRecursive(C,nm);
+        if(nd) return nd;
         C = E.GetNext(C);
     }
     return NULL;
@@ -54,19 +78,29 @@ double XMLInfo::fromUnits(const string& s) const {
     return x*it->second;
 }
 
-OutDirLoader::OutDirLoader(const string& basepath, unsigned int limit): bpath(basepath) {
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+
+OutDirLoader::OutDirLoader(const string& basepath, unsigned int limit): 
+genTime(0), segSize(0), nx(0), ny(0), bpath(basepath) {
     std::cout << "Loading directory '" << basepath << "'...\n";
     vector<string> flist = listdir(basepath);
+    genTime = 0;
     for(auto it = flist.begin(); it != flist.end(); it++) {
         auto v = split(*it,".");
         if(v.size() >= 2 && v.back()=="xml") {
             auto vv = split(v[0],"_");
-            if(vv.size() == 2)
-                myInfo[atoi(vv[1].c_str())] = new XMLInfo(basepath+"/"+*it);
+            if(vv.size() == 2) {
+                XMLInfo* x = new XMLInfo(basepath+"/"+*it);
+                genTime += x->getGenTime()*1e-9;
+                if(!nx) segSize = x->getSegments(nx,ny);
+                myInfo[atoi(vv[1].c_str())] = x;
+            }
         }
         if(myInfo.size() >= limit) break;
     }
-    std::cout << "\tTotal simulation time: " << getTotalGenTime() << " s\n";
+    std::cout << "\tTotal simulation time: " << genTime << " s\n";
 }
 
 vector<int> OutDirLoader::getRunlist() const {
@@ -92,9 +126,9 @@ TChain* OutDirLoader::makeTChain() const {
     return T;
 }
 
-double OutDirLoader::getTotalGenTime() {
-    double t = 0;
-    for(std::map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
-        t += it->second->getGenTime();
-    return t;
+bool OutDirLoader::isAdjacent(int v1, int v2) const {
+    int x1,y1,x2,y2;
+    volToXY(v1,x1,y1);
+    volToXY(v2,x2,y2);
+    return (abs(x1-x2) == 1 && y1==y2) || (x1==x2 && abs(y1-y2) == 1);
 }
