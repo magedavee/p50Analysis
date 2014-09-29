@@ -1,6 +1,16 @@
 #include "strutils.hh"
 #include <stdlib.h>
 
+ostream& operator<<(ostream& os, const map<int,int>& m) {
+    os << "(";
+    for(auto it = m.begin(); it != m.end(); it++) {
+        os << " " << it->first;
+        if(it->second > 1) os << "x" << it->second;
+    }
+    os << " )";
+    return os;
+}
+
 string itosRN(int i) {
         if(!i) return "0";
         string s;

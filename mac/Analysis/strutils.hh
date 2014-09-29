@@ -13,18 +13,28 @@
 using std::string;
 using std::vector;
 using std::map;
+using std::ostream;
+
+ostream& operator<<(ostream& os, const map<int,int>& m);
 
 template<typename T, typename U>
-void display_map(const map<T,U>& m, bool norm = true) {
+void display_map(const map<T,U>& m, double norm = -1, double thresh = 0) {
     U total = 0;
     for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
         if(!norm) std::cout << it->first << ":\t" << it->second << "\n";
         total += it->second;       
     }
-    std::cout << "Total:\t" << total << "\n";
-    if(norm)
-        for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++)
-            std::cout << it->first << ":\t" << it->second/double(total) << "\n";
+    std::cout << "\n--- Total:\t" << total/norm << " (" << total << ")---\n";
+    if(norm) {
+        if(norm == -1) norm = total;
+        double others = 0;
+        for(typename map<T,U>::const_iterator it = m.begin(); it != m.end(); it++) {
+            double f = it->second/norm;
+            if(f>=thresh) std::cout << it->first << ":\t" << f << " (" << it->second << ")\n";
+            else others += f;
+        }
+        if(others) std::cout << "others: " << others << "\n";
+    }
 }
 
 /// utility function for converting to string

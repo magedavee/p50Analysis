@@ -16,7 +16,6 @@ int main(int argc, char** argv) {
     // load data into TChain
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
-    double simtime = D.getTotalGenTime();
     // set readout branches
     ParticleEvent* prim = new ParticleEvent();
     T->SetBranchAddress("Prim",&prim);
@@ -103,16 +102,16 @@ int main(int argc, char** argv) {
 
     }
     
-    hMult10->Scale(1./simtime);
-    hMult40->Scale(1./simtime);
+    hMult10->Scale(1./D.genTime);
+    hMult40->Scale(1./D.genTime);
     hMult40->Draw();
     hMult10->Draw("Same");
     gPad->Print((outpath+"/CellMult.pdf").c_str());
     
     hSpec->Sumw2();
-    hSpec->Scale(1./hSpec->GetBinWidth(1)/simtime);
+    hSpec->Scale(1./hSpec->GetBinWidth(1)/D.genTime);
     //hSpec2->Sumw2();
-    hSpec2->Scale(1./hSpec2->GetBinWidth(1)/simtime);
+    hSpec2->Scale(1./hSpec2->GetBinWidth(1)/D.genTime);
     
     TF1 lFit("lFit","landau",43,100);
     lFit.SetLineColor(1);
@@ -120,7 +119,7 @@ int main(int argc, char** argv) {
     
     double mpv = lFit.GetParameter(1);
     double d_mpv = lFit.GetParError(1);
-    double res_per_hr = (d_mpv/mpv)*sqrt(simtime/3600);
+    double res_per_hr = (d_mpv/mpv)*sqrt(D.genTime/3600);
     cout << "dE/E = " << res_per_hr << " per hour\n";
     
     hSpec->SetMinimum(0);
@@ -130,9 +129,9 @@ int main(int argc, char** argv) {
     cout << "Total rate " << hSpec->Integral("width") << " Hz\n";
     gPad->Print((outpath+"/ScintSpec.pdf").c_str());
     
-    hdz->Scale(1./hdz->GetBinWidth(1)/simtime/32);
-    hdx->Scale(1./hdx->GetBinWidth(1)/simtime/32);
-    hdy->Scale(1./hdy->GetBinWidth(1)/simtime/32);
+    hdz->Scale(1./hdz->GetBinWidth(1)/D.genTime/32);
+    hdx->Scale(1./hdx->GetBinWidth(1)/D.genTime/32);
+    hdy->Scale(1./hdy->GetBinWidth(1)/D.genTime/32);
     hdy->Draw();
     hdz->Draw("Same");
     hdx->Draw("Same");
