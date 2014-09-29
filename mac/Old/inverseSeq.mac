@@ -15,24 +15,41 @@
 #
 
 # Visualization commands
+
 #/control/execute vis.mac
 /vis/disable
+#/vis/open OGLSQt
+
+
+/phys/enableOptical
+
+#/geom/tank/nSegX 1
+#/geom/tank/nSegY 1
+
 #
 # Set up geometric specifications
+#/geom/tank/scint6Li 0.005
 /run/initialize
+#/vis/drawVolume
+#/vis/scene/add/trajectories
+#/vis/scene/add/hits
+#/vis/scene/endOfEventAction accumulate -1
+
 #
 # Set up antinu simulation
 /generator/module_IBD
 #/generator/module/inverseBeta/setReactionVolume ScintTank_scint_box
+/generator/module/inverseBeta/setReactionVolume ScintTank_scint_phys
 /generator/module/inverseBeta/setFissionSpectrum true
 #/generator/module/inverseBeta/setAntinuEnergy 4 MeV
-#/generator/module/inverseBeta/setNeutrons false
+#/generator/module/inverseBeta/setNeutrons true
 #/generator/module/inverseBeta/setPositrons false
 /generator/module/inverseBeta/setSequential true
+#/generator/module/inverseBeta/setSequential false
 /generator/module/inverseBeta/setFuelComposition 100 0 0 0
 /generator/module/inverseBeta/printParameters
 /output/setRecordLevel 3
-/output/filename ~/Analysis/PROSPECT/Simulation/Data/inverseSeq.root
+/output/filename ~/Analysis/PROSPECT/Simulation/Data/inverseSeq2.root
 
 # Run the simulation
-/run/beamOn 100000
+/run/beamOn 1000000

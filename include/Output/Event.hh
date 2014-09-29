@@ -24,7 +24,7 @@ public:
 class ParticleEvent: public TObject {
 public:
     /// Constructor
-    ParticleEvent(): nParticles(0), particles(NULL) { Clear(); }
+  ParticleEvent(): nParticles(0), particles(NULL) { Clear(""); }
     /// Destructor
     ~ParticleEvent();
     
@@ -67,7 +67,7 @@ class IoniClusterEvent: public TObject {
 public:
     
     /// Constructor
-    IoniClusterEvent(): nIoniClusts(0), clusts(NULL) { Clear(); }
+    IoniClusterEvent(): nIoniClusts(0), clusts(NULL) { Clear(""); }
     
     /// Destructor
     ~IoniClusterEvent();
@@ -107,7 +107,7 @@ public:
 class NCaptEvent: public TObject {
 public:
     /// Constructor
-    NCaptEvent(): nNCapts(0), nCapts(NULL) { Clear(); }
+    NCaptEvent(): nNCapts(0), nCapts(NULL) { Clear(""); }
     /// Destructor
     ~NCaptEvent();
     
@@ -134,7 +134,6 @@ public:
     
     /// Clear data for new event
     void Clear(Option_t* ="") { N = t = 0; }
-  
     ClassDef(Event,4);
 };
 

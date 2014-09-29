@@ -20,6 +20,7 @@ class FissionAntiNuModule;
 class CosmicMuonModule;
 class CosmicNeutronModule;
 class Cf252Module;
+class SimpleBGModule;
 class GenPtclModule;
 
 /// Specification for a primary particle to throw
@@ -88,6 +89,8 @@ public:
     void loadCosmicNeutronModule();
     /// load Cf252 neutron source as current generator
     void loadCf252Module();
+  /// load SimpleBG gamma source as current generator
+    void loadSimpleBGModule();
   /// load G4GeneralParticleSource
     void loadGPSModule();
     
@@ -105,6 +108,7 @@ protected:
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
+  SimpleBGModule* mySimpleBGModule;                 ///<SimpleBG gammasource generator
   GenPtclModule* myGPSModule;                   ///< G4GeneralParticleSource grnerator
     G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
