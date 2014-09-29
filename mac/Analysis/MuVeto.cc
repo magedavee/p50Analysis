@@ -75,6 +75,14 @@ public:
     TH1* hProf[3];
 };
 
+bool isAdjacentPair(const map<Int_t, Int_t>& volHits, const OutDirLoader& D) {
+    if(volHits.size() != 2) return false;
+    auto it = volHits.begin();
+    int v1 = it->first;
+    int v2 = (++it)->first;
+    return D.isAdjacent(v1,v2);
+}
+
 int main(int argc, char** argv) {
     // load library describing data classes
     gSystem->Load("libEventLib.so");
@@ -98,8 +106,8 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("VetoIoni",&vion);
     IoniClusterEvent* sion = new IoniClusterEvent();
     T->SetBranchAddress("ScIoni",&sion);
-    NCaptEvent* snc = new NCaptEvent();
-    T->SetBranchAddress("ScN",&snc);
+    NCaptEvent* scn = new NCaptEvent();
+    T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
     TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 20, 100, 0, 10));
@@ -150,6 +158,8 @@ int main(int argc, char** argv) {
     map<int,int> trigVeto;
     map<int,int> trigScint[2];
     map<int,int> trigIBD[2];
+    map<int,int> nCapts;
+    map<int,int> nNCapts;
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -158,8 +168,10 @@ int main(int argc, char** argv) {
         prim->Clear();
         vion->Clear();
         sion->Clear();
-        snc->Clear();
+        scn->Clear();
         T->GetEntry(ev);
+        
+        if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
         
         // primaries
         map<int,int> primCounter;
@@ -174,6 +186,16 @@ int main(int argc, char** argv) {
         }
         if(nPrim > 1) PID = 0;
 
+        // neutron captures
+        Int_t nNCapt = scn->nCapts->GetEntriesFast();
+        int nCaptInVol = 0;
+        for(Int_t i=0; i<nNCapt; i++) {
+            NCapt* nc = (NCapt*)scn->nCapts->At(i);
+            nCaptInVol += (nc->vol >= 0);
+        }
+        nNCapts[nCaptInVol]++;
+        if(nCaptInVol) nCapts[PID]++;
+        
         if(vion->EIoni) hVetoSpec->Fill(vion->EIoni);
         
         vector<IoniCluster> scintHits;
@@ -215,7 +237,10 @@ int main(int argc, char** argv) {
             if(!nVetoTrigs) trigScint[true][PID]++;
         }
         
-        if(volHits.size() != 1) continue; // single-segment events only
+        // single- or adjacent-segments-only events
+        if(isAdjacentPair(volHits,D)) {
+            eLikeHits = mergeIoniHits(eLikeHits, 5.);
+        } else if(volHits.size() != 1) continue;
         
         // coincidences
         int nIBD = 0;
@@ -248,6 +273,8 @@ int main(int argc, char** argv) {
         if(nIBD) hPrimE->Fill(nEnergy);
     }
     
+    cout << "\n\n";
+    
     // vetoed events in energy range of interest
     int b1 = hIBDSpec[false]->FindBin(2.0);
     int b2 = hIBDSpec[false]->FindBin(5.0);
@@ -261,6 +288,10 @@ int main(int argc, char** argv) {
     for(int i=0; i<2; i++) display_map(trigScint[i],D.genTime);
     cout << "\n\nIBD triggers:\n";
     for(int i=0; i<2; i++) display_map(trigIBD[i],D.genTime);
+    cout << "\n\nNeutron captures:\n";
+    display_map(nCapts,D.genTime);
+    //cout << "\n\nNumber of neutron captures in event:\n";
+    //display_map(nNCapts,D.genTime);
     
     ///////////////
     // draw results

@@ -38,3 +38,6 @@ TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, doubl
 
 /// merge ionization events into single history; return total in each volume
 map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max);
+
+/// merge ionization events into single history, regardless of volume
+vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max);

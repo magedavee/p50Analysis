@@ -37,6 +37,20 @@ TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, doubl
 
 bool compare_hit_times(const IoniCluster& a, const IoniCluster& b) { return a.t < b.t; }
 
+vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max) {
+    vector<IoniCluster> vOut;
+    if(!hts.size()) return vOut;
+    auto it = hts.begin();
+    vOut.push_back(*(it++));
+    for(; it != hts.end(); it++) {
+        if(it->t > vOut.back().t + dt_max)
+            vOut.push_back(*it);
+        else
+            vOut.back() += *it;
+    }
+    return vOut;
+}
+
 map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max) {
     
     map<Int_t, double> volIoni;

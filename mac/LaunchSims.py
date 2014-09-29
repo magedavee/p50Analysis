@@ -76,10 +76,11 @@ if __name__=="__main__":
         L.launch_sims(4*6*5)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_All", 1e5)
-        L.settings["reclevel"] = 3
+        L = SB_MC_Launcher("CRY_MuVeto_1m_Ceil", 1e6)
+        #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.launch_sims(4*4)
+        L.settings["preinit"] += "/geom/building/ceilthick 1 m\n"
+        L.launch_sims(4*6*100)
     
     if options.testcell:
         L = SB_MC_Launcher("TestCell", 1e5)
