@@ -9,7 +9,7 @@
 #include <G4PVPlacement.hh>
 #include <G4SDManager.hh>
 
-ShieldBuilder::ShieldBuilder(): Builder("Shield"),
+ShieldBuilder::ShieldBuilder(): ShellLayerBuilder("Shield"),
 shield_dir("/geom/shield/"),
 clearCmd("/geom/shield/clear",this),
 vetoCmd("/geom/shield/muveto",this),
@@ -31,21 +31,11 @@ nshellCmd("/geom/shield/nshell",this) {
 }
 
 void ShieldBuilder::construct() {
-    
     myDet.construct();
-    main_log = myDet.main_log;
-    dim = myDet.getDimensions();
+    constructLayers(myDet);
     
-    // add each layer
-    unsigned int nlayers = 0;
+    // muon veto layer
     for(std::vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
-        if(!it->mat) continue;
-        nlayers++;
-        
-        it->wrap(main_log, dim, "Shield_layer_"+to_str(nlayers));        
-        addChild(&(*it));
-        
-        // muon veto layer
         if(it->mat == MaterialsHelper::M().PVT) {
             RootIO::GetInstance()->addVetoIoniBranch();
             MuVetoSD* V = new MuVetoSD("MuVetoSD",main_log);

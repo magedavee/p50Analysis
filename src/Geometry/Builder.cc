@@ -1,4 +1,5 @@
 #include "Builder.hh"
+#include "Utilities.hh"
 #include <G4UnitsTable.hh>
 #include <G4Box.hh>
 #include <G4PVPlacement.hh>
@@ -20,4 +21,21 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
                                                   child, nm+"_phys", s_log, false, 0, true);
     child = s_log;
     return cplace;
+}
+
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+
+void ShellLayerBuilder::constructLayers(Builder& contents) {
+    main_log = contents.main_log;
+    dim = contents.getDimensions();
+    
+    unsigned int nlayers = 0;
+    for(std::vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+        if(!it->mat) continue;
+        nlayers++;
+        it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));        
+        addChild(&(*it));
+    }
 }

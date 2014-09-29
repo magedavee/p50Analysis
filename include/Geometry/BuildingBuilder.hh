@@ -13,10 +13,11 @@
 
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
 #include <G4UIcmdWithoutParameter.hh>
 
 /// Builder for building containing detector
-class BuildingBuilder: public Builder, public G4UImessenger {
+class BuildingBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// Constructor
     BuildingBuilder();
@@ -26,10 +27,7 @@ public:
     
     /// Construct geometry
     void construct();
-    
-    G4LogicalVolume* air_log;   ///< air space inside building
-    G4VPhysicalVolume* det_phys;///< detector volume physical placement
-    
+        
     double wall_thick;          ///< thickness of building side walls
     double wall_clearance;      ///< space from side walls to detector
     double ceil_thick;          ///< thickness of ceiling above detector
@@ -44,13 +42,13 @@ public:
     
 private:
     
-    G4VisAttributes wall_vis;   ///< visualization settings for shell
-    
     G4UIdirectory building_ui_dir;      ///< UI directory for building-related commands
+    
+    G4UIcmdWithADoubleAndUnit ceilCmd;  ///< UI command for ceiling thickness
     G4UIcmdWithoutParameter bareCmd;    ///< UI command to make zero-size building
     G4UIcmdWithoutParameter vacuumCmd;  ///< UI command to turn building materials into vacuum
     G4UIcmdWithoutParameter fluxCmd;    ///< UI command to substitute flux-measuring volume for real detector
-    
+        
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
 };

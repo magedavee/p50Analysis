@@ -15,7 +15,7 @@
 #include <G4UIcmdWithADoubleAndUnit.hh>
 
 /// Builder for shielding layers around detector
-class ShieldBuilder: public Builder, public G4UImessenger {
+class ShieldBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// constructor
     ShieldBuilder();
@@ -27,14 +27,10 @@ public:
     void construct();
     /// remove all shield layers
     void clearShield() { layers.clear(); }
-    /// add shield layer
-    void addLayer(const ShellLayerSpec& sh) { layers.push_back(sh); }
     
     DetVolBuilder myDet;                        ///< detector assembly
     
 protected:
-    std::vector<ShellLayerSpec> layers;         ///< descriptions of each layer
-    
     G4UIdirectory shield_dir;                   ///< UI directory for shield commands
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
     G4UIcmdWithADoubleAndUnit vetoCmd;          ///< command to add muon veto shell layer
