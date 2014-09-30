@@ -28,8 +28,8 @@ public:
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
-    /// Get reference to active scintillator volume
-    G4LogicalVolume* getScintLog() const { return myBuilding.myDetUnit.myDet.myTank.scint_log; }
+    /// Get reference to active scintillator volume (or equivalent)
+    ScintSegVol* getScint();
     
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector

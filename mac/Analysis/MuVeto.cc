@@ -131,6 +131,11 @@ int main(int argc, char** argv) {
         hIBDSpec[i]->SetLineColor(4-2*i);
     }
 
+    TH1F* hOuterSpec = (TH1F*)f.add(new TH1F("hOuterSpec","Outer scintillator ionization", 100, 0, 40));
+    hOuterSpec->GetXaxis()->SetTitle("energy deposition [MeV]");
+    hOuterSpec->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
+    hOuterSpec->GetYaxis()->SetTitleOffset(1.45);
+    
     TH1F* hVetoSpec = (TH1F*)f.add(new TH1F("hVetoSpec","Muon Veto ionization", 400, 0, 50));
     hVetoSpec->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
     hVetoSpec->GetYaxis()->SetTitle("Event rate [Hz/MeV]");
@@ -150,7 +155,6 @@ int main(int argc, char** argv) {
     hPrimE->GetXaxis()->SetTitleOffset(1.3);
     
     ProfileHistos hIBDpos(200,1.5,"hIBDpos","IBD-like event positions","[m]");
-    ProfileHistos hIBDposPV(200,1.5,"hIBDposPV","IBD-like event positions","[m]");
     
     double veto_thresh = 5;     //< muon veto trigger threshold energy, MeV
     
@@ -238,7 +242,7 @@ int main(int argc, char** argv) {
         }
         
         // single- or adjacent-segments-only events
-        if(isAdjacentPair(volHits,D)) {
+        if(false && isAdjacentPair(volHits,D)) {
             eLikeHits = mergeIoniHits(eLikeHits, 5.);
         } else if(volHits.size() != 1) continue;
         
@@ -251,8 +255,10 @@ int main(int argc, char** argv) {
                 nIBD++;
                 trigIBD[false][PID]++;
                 hIBDpos.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
+                bool isOuterLayer = (fabs(ite->x[0]) > 144*6 || fabs(ite->x[1]) > 144*4);
                 hIBDSpec[false]->Fill(ite->E);
                 hCoinc[false]->Fill( (itn->t - ite->t)/1000. );
+                if(isOuterLayer) hOuterSpec->Fill(volIoni[-1]);
                 
                 bool isVetoed = false;
                 for(auto itv = vetoHits.begin(); itv != vetoHits.end(); itv++) {
@@ -265,7 +271,6 @@ int main(int argc, char** argv) {
                     trigIBD[true][PID]++;
                     hIBDSpec[true]->Fill(ite->E);
                     hCoinc[true]->Fill( (itn->t - ite->t)/1000. );
-                    hIBDposPV.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
                 }
             }
         }
@@ -329,6 +334,10 @@ int main(int argc, char** argv) {
     hIBDSpec[true]->Draw("Same");
     gPad->Print((outpath+"/IBDSpectrum.pdf").c_str());
     
+    hOuterSpec->Scale(1000./hOuterSpec->GetBinWidth(1)/D.genTime);
+    hOuterSpec->SetMaximum(100);
+    hOuterSpec->Draw();
+    gPad->Print((outpath+"/IBDOuterSpectrum.pdf").c_str());
     
     hIBDpos.makeProf();
     for(int i=0; i<3; i++) {

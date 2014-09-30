@@ -95,4 +95,5 @@ if __name__=="__main__":
                 L.settings["gun_energy"] = E
                 L.settings["slab_mat"] = m
                 L.settings["slab_thick"] = t
+                L.settings["reclevel"] = 3
                 L.launch_sims(4*10)

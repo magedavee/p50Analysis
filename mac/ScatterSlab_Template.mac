@@ -1,5 +1,5 @@
 /output/setRunNum %(run_num)i
-/output/setRecordLevel 3
+/output/setRecordLevel %(reclevel)i
 /run/verbose 0
 /vis/disable
 

@@ -29,6 +29,13 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
     } else G4cout << "Unknown command!" << G4endl;
 }
 
+ScintSegVol* DetectorConstruction::getScint() {
+    if(mode == PROSPECT) return &myBuilding.myDetUnit.myDet.myTank;
+    else if(mode == TEST_CELL) return &myTestCell;
+    else if(mode == SLAB) return &mySlab;
+    return NULL;
+}
+
 G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Starting detector construction..." << G4endl;
@@ -53,19 +60,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     main_log = myContents.main_log;
     building_phys = worldShell.wrap(main_log, dim, "world");
     
-    if(mode == PROSPECT) {
-        myScintSD = new ScintSD("ScintSD", myBuilding.myDetUnit.myDet.myTank);
-        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-        getScintLog()->SetSensitiveDetector(myScintSD);
-    } else if(mode == TEST_CELL) {
+    if(mode == TEST_CELL) {
         G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
         G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
         ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", main_log, false,  0);
-        
-        // assign sensitive detector to scintillator
-        myScintSD = new ScintSD("ScintSD", myTestCell);
+    }
+    
+    if(getScint()) {
+        myScintSD = new ScintSD("ScintSD", *getScint());
         G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-        myTestCell.scint_log->SetSensitiveDetector(myScintSD);
+        getScint()->scint_log->SetSensitiveDetector(myScintSD);
     }
     
     G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
