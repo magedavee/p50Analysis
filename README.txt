@@ -78,6 +78,7 @@ Analysis
 Example analysis scripts and a Makefile are contained in the mac/Analysis/ directory.
 The Makefile, when "make" is run without arguments, will compile a few analysis utility
 '.o' files containing functions/classes useful for many analysis tasks.
+These shared utilities are in mac/Analysis/Common.
 
 Running "make <progname>" will compile <progname>.cc linked with the analysis
 utilities and other necessary libraries (including the Event.hh classes).

@@ -7,7 +7,6 @@
 
 #include <cassert>
 
-#include <G4LogicalVolume.hh>
 #include <G4VisAttributes.hh>
 
 /// Builder for slotted rods to hold separator panels

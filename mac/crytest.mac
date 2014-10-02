@@ -17,7 +17,7 @@
 /geom/shield/clear
 #/geom/shield/muveto 4 cm
 
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/Run_0.root
+/output/filename crytest.root
 
 /run/initialize
 

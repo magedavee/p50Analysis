@@ -22,9 +22,9 @@ void DetVolBuilder::construct() {
     myLid.construct(myTank);
     myPMT.construct();
     
-    G4ThreeVector airDim(myTank.getWidthX() + 2*buffer_thick,
-                         myTank.getWidthY() + 2*buffer_thick,
-                         myTank.tank_depth + 2*(buffer_thick+myLid.getThick()+myPMT.getLength()));
+    G4ThreeVector airDim = myTank.getDimensions();
+    airDim += G4ThreeVector(2*buffer_thick, 2*buffer_thick,
+                            2*(buffer_thick+myLid.getThick()+myPMT.getLength()));
         
     dim = myRot * airDim;
     dim = G4ThreeVector(fabs(dim[0])+2*shell_thick, fabs(dim[1])+2*shell_thick, fabs(dim[2])+2*shell_thick);
