@@ -4,7 +4,7 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/output/setRunNum 0
+/output/setRunNum 101
 
 /output/setRecordLevel 2
 #/output/primariesOnly
@@ -12,10 +12,10 @@
 #/phys/enableOptical
 
 #/geom/mode scintCell
-#/geom/building/makeBare
+/geom/building/makeBare
 #/geom/building/makeFluxTest
-#/geom/shield/clear
-/geom/shield/muveto 4 cm
+/geom/shield/clear
+#/geom/shield/muveto 4 cm
 
 /output/filename /home/mpmendenhall/Analysis/ShortBaseline/Run_0.root
 
@@ -49,9 +49,7 @@
 /CRY/input date 11-7-2002
 /CRY/input latitude 41.2
 /CRY/input altitude 0
-/CRY/input subboxLength 20
+/CRY/input subboxLength 2
 /CRY/update
 
-#/generator/module_Cf252
-
-/run/beamOn 100
+/run/beamOn 5

@@ -12,7 +12,7 @@
 /run/initialize
 
 /generator/module_gun
-/gun/particle neutron
+/gun/particle %(particle)s
 /gun/energy %(gun_energy)s
 /gun/direction 0 0 1
 /gun/position 0 0 0 m

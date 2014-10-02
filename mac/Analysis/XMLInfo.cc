@@ -37,7 +37,6 @@ double XMLInfo::getCalcTime() {
 double XMLInfo::getSegments(int& nx, int& ny) {
     nx = ny = 0;
     XMLNodePointer_t gnode = findChildRecursive(docRoot,"ScintTank");
-    assert(gnode);
     if(!gnode) return 0;
     nx = atoi(E.GetAttr(gnode,"nSegX"));
     ny = atoi(E.GetAttr(gnode,"nSegY"));
