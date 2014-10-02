@@ -7,12 +7,14 @@
 .SUFFIXES: .c .cc .cpp .o
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
-	-I. -I../../include/Output/ 
+	-I. -ICommon/ -I../../include/Output/ 
 LDFLAGS =  -L. -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib `root-config --libs` -lXMLIO
 
 #
 # things to build
 #
+
+VPATH = Common/
 
 Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o PathUtils.o strutils.o XMLInfo.o
 objects = $(Utils)

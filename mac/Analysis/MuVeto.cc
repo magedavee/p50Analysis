@@ -339,9 +339,16 @@ int main(int argc, char** argv) {
     hOuterSpec->Draw();
     gPad->Print((outpath+"/IBDOuterSpectrum.pdf").c_str());
     
+    gPad->SetLogx(true);
+    hPrimE->Scale(1000./D.genTime);
+    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
+    hPrimE->Draw();
+    gPad->Print((outpath+"/nPrimE.pdf").c_str());
+    gPad->SetLogx(false);
+    
+    hIBDpos.Scale(1./D.genTime);
     hIBDpos.makeProf();
     for(int i=0; i<3; i++) {
-        hIBDpos.hProf[i]->Scale(1./D.genTime);
         hIBDpos.hProf[i]->GetXaxis()->SetTitle("event position [m]");
         hIBDpos.hProf[i]->GetYaxis()->SetTitle("rate [Hz/m]");
     }
@@ -350,11 +357,8 @@ int main(int argc, char** argv) {
     hIBDpos.hProf[2]->Draw("Same");
     gPad->Print((outpath+"/IBDPos.pdf").c_str());
     
-    gPad->SetLogx(true);
-    hPrimE->Scale(1000./D.genTime);
-    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
-    hPrimE->Draw();
-    gPad->Print((outpath+"/nPrimE.pdf").c_str());
+    gPad->SetCanvasSize(700,700);
+    hIBDpos.Print("Col",outpath+"/IBDPos");
     
     return 0;
 }

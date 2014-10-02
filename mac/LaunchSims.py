@@ -3,6 +3,7 @@
 from optparse import OptionParser
 import os
 from math import *
+from random import shuffle
 
 class SB_MC_Launcher:
     
@@ -112,12 +113,13 @@ if __name__=="__main__":
                 L.launch_sims(4*10)
                 
     if options.proton:
-        nruns = 4*10
-        L = SB_MC_Launcher("protonScint", 1e5)
+        nruns = 4*100
+        L = SB_MC_Launcher("protonScint", 5e4)
         L.template = "ScatterSlab_Template.mac"
         L.settings["particle"] = "proton"
         L.settings["slab_mat"] = "EJ309-0.1wt%-6Li"
         L.settings["slab_thick"] = "2 cm"
-        L.vary_E = ["%.2f MeV"%x for x in logrange(nruns,1,1000)]
+        L.vary_E = ["%.3f MeV"%x for x in logrange(nruns,1,2000)]
+        shuffle(L.vary_E)
         L.launch_sims(nruns)
         
