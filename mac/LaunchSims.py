@@ -83,17 +83,19 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher("Neutrons_FluxTest", 1e4)
-        L.settings["preinit"] += "/geom/building/makeFluxTest\n"
-        L.settings["reclevel"] = 3
-        L.launch_sims(4*6*5)
+        L = SB_MC_Launcher("CRY_TinyPinwheeled", 1e6)
+        #L.settings["preinit"] += "/geom/building/makeFluxTest\n"
+        L.settings["preinit"] += "/geom/tank/nSegX 3\n"
+        L.settings["preinit"] += "/geom/tank/nSegY 3\n"
+        L.settings["preinit"] += "/geom/building/makeBare\n"
+        L.settings["preinit"] += "/geom/shield/clear\n"
+        L.launch_sims(4*6*100)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_1m_Ceil", 1e6)
+        L = SB_MC_Launcher("CRY_MuVeto", 1e5)
         #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.settings["preinit"] += "/geom/building/ceilthick 1 m\n"
-        L.launch_sims(4*6*100)
+        L.launch_sims(4*6*10)
     
     if options.testcell:
         L = SB_MC_Launcher("TestCell", 1e5)

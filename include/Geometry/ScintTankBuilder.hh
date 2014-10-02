@@ -18,7 +18,7 @@
 class ScintTankBuilder: public ScintSegVol, public G4UImessenger {
 public:
     /// Constructor
-    ScintTankBuilder();
+    ScintTankBuilder(const std::string& snm = "ScintTank");
     
     /// Construct geometry
     void construct();
@@ -46,8 +46,6 @@ public:
 protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
-    
-private:
     
     G4UIdirectory tank_ui_dir;          ///< UI directory for tank-related commands
     G4UIcmdWithAnInteger nsegXcmd;      ///< UI command for number of x segments

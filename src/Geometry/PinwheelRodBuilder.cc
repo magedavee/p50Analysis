@@ -13,7 +13,7 @@
 #include <cassert>
 
 PinwheelRodBuilder::PinwheelRodBuilder(): Builder("PinwheelRod"), length(0),
-w_inner(6*mm), r_hole(2*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(3*mm),
+w_inner(6*mm), r_hole(2*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
 rod_vis(G4Colour(1.0,1.0,0.5)) {
     myOptSurf.refl = 0.9;
     myOptSurf.lobe = 0.9;
@@ -29,11 +29,11 @@ void PinwheelRodBuilder::construct() {
     
     // extrusion cross-section
     std::vector<G4TwoVector> vertices;
-    vertices.push_back(G4TwoVector(-0.5*w_inner, w_total));
-    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, w_total));
-    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, w_total-t_hook));
-    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, w_total-t_hook));
-    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, w_inner));
+    vertices.push_back(G4TwoVector(-0.5*w_inner, 0.5*w_total));
+    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, 0.5*w_total));
+    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, 0.5*w_total-t_hook));
+    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, 0.5*w_total-t_hook));
+    vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, 0.5*w_inner));
     size_t nvert = vertices.size();
     int nrot = 4;
     for(int i=1; i<nrot; i++) {
@@ -45,10 +45,10 @@ void PinwheelRodBuilder::construct() {
             vertices.push_back(G4TwoVector(cs*v[0]-sn*v[1], sn*v[0]+cs*v[1]));
         }
     }
-    G4ExtrudedSolid* extruded = new G4ExtrudedSolid("pwrod_extruded", vertices, length, G4TwoVector(), 1, G4TwoVector(), 1);
+    G4ExtrudedSolid* extruded = new G4ExtrudedSolid("pwrod_extruded", vertices, length/2, G4TwoVector(), 1, G4TwoVector(), 1);
     
     // bore out central hole
-    G4Tubs* center_tube = new G4Tubs("pwrod_center_tube", 0, r_hole, length/2., 0, 2*M_PI);
+    G4Tubs* center_tube = new G4Tubs("pwrod_center_tube", 0, r_hole, length, 0, 2*M_PI);
     G4VSolid* bored = new G4SubtractionSolid("pwrod_bored", extruded, center_tube);
     
     main_log = new G4LogicalVolume(bored, MaterialsHelper::M().PEEK, "PinwheelRod_main_Log");

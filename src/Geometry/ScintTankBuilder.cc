@@ -14,7 +14,7 @@
 #include <G4PVPlacement.hh>
 #include <G4LogicalBorderSurface.hh>
 
-ScintTankBuilder::ScintTankBuilder(): ScintSegVol("ScintTank"),
+ScintTankBuilder::ScintTankBuilder(const std::string& snm): ScintSegVol(snm),
 tank_depth(100*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(14.4*cm), nSegX(14), nSegY(10), scint6LiLoading(0.001),
 tank_ui_dir("/geom/tank/"),

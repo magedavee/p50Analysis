@@ -76,3 +76,58 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
     
     return volIoni;
 }
+
+
+/////////////////////////////////////
+/////////////////////////////////////
+/////////////////////////////////////
+
+
+ProfileHistos::ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const std::string& u) {
+    h_xy = new TH2F((nm+"_xy").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+    h_xy->GetXaxis()->SetTitle(("x position "+u).c_str());
+    h_xy->GetYaxis()->SetTitle(("y position "+u).c_str());
+    h[0] = h_xy;
+        
+    h_xz = new TH2F((nm+"_xz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+    h_xz->GetXaxis()->SetTitle(("x position "+u).c_str());
+    h_xz->GetYaxis()->SetTitle(("z position "+u).c_str());
+    h[1] = h_xz;
+    
+    h_yz = new TH2F((nm+"_yz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+    h_yz->GetXaxis()->SetTitle(("y position "+u).c_str());
+    h_yz->GetYaxis()->SetTitle(("z position "+u).c_str());
+    h[2] = h_yz;
+    
+    for(int i=0; i<3; i++) {
+        h[i]->GetYaxis()->SetTitleOffset(1.4);
+        hProf[i] = NULL;
+    }
+}
+
+void ProfileHistos::Fill(double x, double y, double z, double w) {
+    h_xy->Fill(x,y,w);
+    h_xz->Fill(x,z,w);
+    h_yz->Fill(y,z,w);
+}
+
+void ProfileHistos::Print(const char* opt, const string& bpath) {
+    h_xy->Draw(opt);
+    gPad->Print((bpath+"_xy.pdf").c_str());
+    h_xz->Draw(opt);
+    gPad->Print((bpath+"_xz.pdf").c_str());
+    h_yz->Draw(opt);
+    gPad->Print((bpath+"_yz.pdf").c_str());
+}
+
+void ProfileHistos::makeProf() {
+    hProf[0] = h_xy->ProjectionX();
+    hProf[1] = h_yz->ProjectionX();
+    hProf[2] = h_xz->ProjectionY();
+    for(int i=0; i<3; i++) {
+        hProf[i]->Scale(1./hProf[i]->GetXaxis()->GetBinWidth(1));
+        hProf[i]->SetLineColor(2+i);
+    }
+}
+
+  
