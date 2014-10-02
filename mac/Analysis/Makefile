@@ -8,7 +8,7 @@
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
 	-I. -ICommon/ -I../../include/Output/ 
-LDFLAGS =  -L. -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib `root-config --libs` -lXMLIO
+LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lXMLIO
 
 #
 # things to build
