@@ -31,7 +31,7 @@
 
 /vis/viewer/set/upThetaPhi 0 0
 /vis/viewer/set/viewpointThetaPhi 90 90
-/vis/viewer/zoom 15
+/vis/viewer/zoom 500
 
 #/vis/scene/add/axes
 #/vis/scene/add/scale

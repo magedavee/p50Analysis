@@ -33,6 +33,7 @@ public:
     int getSegmentNum(const G4ThreeVector& pos) const;
     
     double tank_depth;          ///< scintillator depth in long (z) direction
+    double gc_thick;            ///< "gamma catcher" scintillator thickness
     double tank_wall_thick;     ///< thickness of tank wall
     double ls_buffer_thick;     ///< thickness of scintillator buffer region around separators
     double seg_size;            ///< size of each segment in x-y plane
@@ -42,6 +43,7 @@ public:
     
     SlottedRodBuilder mySlottedRod;     ///< slotted rod for holding separators
     SeparatorBuilder mySeparator;       ///< separator panels
+    G4LogicalVolume* gammacatcher_log;  ///< "gamma catcher" at scintillator ends
     
 protected:
     /// XML output contents
@@ -53,6 +55,7 @@ protected:
     G4UIcmdWithADoubleAndUnit segWcmd;  ///< UI command for segment width
     G4UIcmdWithADouble scint6Licmd;     ///< UI command for 6Li loading in scintillator
     G4VisAttributes tank_vis;           ///< visualization settings for tank
+    G4VisAttributes gc_vis;             ///< visualization settings for gamma catcher
     G4VisAttributes scint_vis;          ///< visualization settings for scintillator volume
 };
 

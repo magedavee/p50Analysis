@@ -15,7 +15,7 @@
 #include <G4LogicalBorderSurface.hh>
 
 ScintTankBuilder::ScintTankBuilder(const std::string& snm): ScintSegVol(snm),
-tank_depth(100*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
+tank_depth(108*cm), gc_thick(4*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(14.4*cm), nSegX(14), nSegY(10), scint6LiLoading(0.001),
 tank_ui_dir("/geom/tank/"),
 nsegXcmd("/geom/tank/nSegX",this),
@@ -23,6 +23,7 @@ nsegYcmd("/geom/tank/nSegY",this),
 segWcmd("/geom/tank/segSize",this),
 scint6Licmd("/geom/tank/scint6Li",this),
 tank_vis(G4Colour(0.6,0.6,0.6)),
+gc_vis(G4Colour(1.0,0.5,1.0)),
 scint_vis(G4Colour(0.5,0.5,1.0)) {
     
     tank_ui_dir.SetGuidance("Scintillator tank settings");
@@ -68,6 +69,13 @@ void ScintTankBuilder::construct() {
     main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
     
+    ////////////////
+    // gamma catcher
+    double gc_width = seg_size-mySeparator.totalThick;
+    G4Box* gc_box = new G4Box("gc_box", gc_width/2, gc_width/2, gc_thick/2);
+    gammacatcher_log = new G4LogicalVolume(gc_box, MaterialsHelper::M().PMMA, "gammacatcher_log");
+    gammacatcher_log->SetVisAttributes(&gc_vis);
+    
     /////////////////////////////
     // liquid scintillator volume
     
@@ -83,7 +91,7 @@ void ScintTankBuilder::construct() {
     mySeparator.width = seg_size - 2*sep_gap;
     mySeparator.length = tank_depth;
     mySeparator.construct();
-    mySlottedRod.construct(tank_depth, sep_gap, mySeparator.totalThick);
+    mySlottedRod.construct(tank_depth-2*gc_thick, sep_gap, mySeparator.totalThick);
     
     G4ThreeVector r0(-0.5*nSegX*seg_size, -0.5*nSegY*seg_size, 0);      // starting point for rod placement
     G4ThreeVector sx0 = r0 + G4ThreeVector(seg_size/2., 0, 0);          // starting point for x-aligned separators
@@ -100,6 +108,14 @@ void ScintTankBuilder::construct() {
                                                     mySlottedRod.main_log, "ScintTank_rod_phys_"+to_str(copynum),
                                                     scint_log, true, copynum, true);
             new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, mySlottedRod.myOptSurf.S);
+            
+            if(nx < nSegX && ny < nSegY) {
+                for(int sgn = -1; sgn <= 1; sgn += 2) {
+                    new G4PVPlacement (NULL, r0 + G4ThreeVector((nx+0.5)*seg_size, (ny+0.5)*seg_size, sgn*(tank_depth-gc_thick)/2.),
+                                        gammacatcher_log, "ScintTank_gc_phys_"+to_str(2*copynum + (sgn+1)/2),
+                                        scint_log, true, 2*copynum + (sgn+1)/2, true);
+                }
+            }
             
             if(nx < nSegX)
                 seps.push_back(new G4PVPlacement (rotSepX, sx0 + G4ThreeVector(nx*seg_size, ny*seg_size, 0),
@@ -132,6 +148,7 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
 void ScintTankBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
     addAttr(E, "seg_size", G4BestUnit(seg_size,"Length"));
+    addAttr(E, "gc_thick", G4BestUnit(gc_thick,"Length"));
     addAttr(E, "wall", G4BestUnit(tank_wall_thick,"Length"));
     addAttr(E, "buffer", G4BestUnit(ls_buffer_thick,"Length"));
     addAttr(E, "scint", scint_log->GetMaterial()->GetName());

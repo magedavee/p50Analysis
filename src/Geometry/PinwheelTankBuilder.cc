@@ -26,7 +26,7 @@ void PinwheelTankBuilder::construct() {
     // rods & separators dimensions
     
     myPinwheelRod.t_panel = mySeparator.totalThick;
-    myPinwheelRod.length = tank_depth;
+    myPinwheelRod.length = tank_depth - 2*gc_thick;
     myPinwheelRod.construct();
     
     mySeparator.width = seg_size + myPinwheelRod.w_inner - 2*myPinwheelRod.t_end;
@@ -51,6 +51,13 @@ void PinwheelTankBuilder::construct() {
     G4Box* tank_box = new G4Box("tank_box", dim[0]/2., dim[1]/2., dim[2]/2.);
     main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
+    
+    ////////////////
+    // gamma catcher
+    double gc_width = seg_size-mySeparator.totalThick;
+    G4Box* gc_box = new G4Box("gc_box", gc_width/2, gc_width/2, gc_thick/2);
+    gammacatcher_log = new G4LogicalVolume(gc_box, MaterialsHelper::M().PMMA, "gammacatcher_log");
+    gammacatcher_log->SetVisAttributes(&gc_vis);
     
     /////////////////////////////
     // liquid scintillator volume
@@ -79,6 +86,14 @@ void PinwheelTankBuilder::construct() {
                                                     myPinwheelRod.main_log, "ScintTank_rod_phys_"+to_str(copynum),
                                                     scint_log, true, copynum, true);
             new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myPinwheelRod.myOptSurf.S);
+            
+            if(nx < nSegX && ny < nSegY) {
+                for(int sgn = -1; sgn <= 1; sgn += 2) {
+                    new G4PVPlacement (&rotRod, r0 + G4ThreeVector((nx+0.5)*lat_size, (ny+0.5)*lat_size, sgn*(tank_depth-gc_thick)/2.),
+                                       gammacatcher_log, "ScintTank_gc_phys_"+to_str(2*copynum + (sgn+1)/2),
+                                       scint_log, true, 2*copynum + (sgn+1)/2, true);
+                }
+            }
             
             if(nx < nSegX)
                 seps.push_back(new G4PVPlacement(rotSepX, sx0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
