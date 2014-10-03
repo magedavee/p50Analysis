@@ -84,12 +84,13 @@ if __name__=="__main__":
 
     if options.cry:
         L = SB_MC_Launcher("CRY_TinyPinwheeled", 1e6)
-        #L.settings["preinit"] += "/geom/building/makeFluxTest\n"
         L.settings["preinit"] += "/geom/tank/nSegX 3\n"
         L.settings["preinit"] += "/geom/tank/nSegY 3\n"
         L.settings["preinit"] += "/geom/building/makeBare\n"
         L.settings["preinit"] += "/geom/shield/clear\n"
-        L.launch_sims(4*6*100)
+        L.settings["preinit"] += "/geom/pwrod/width 4 cm\n"
+        L.settings["preinit"] += "/geom/separator/thick 1 cm\n"
+        L.launch_sims(4*6*10)
         
     if options.muveto:
         L = SB_MC_Launcher("CRY_MuVeto", 1e5)

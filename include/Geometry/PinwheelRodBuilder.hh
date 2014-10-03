@@ -8,16 +8,21 @@
 #include <cassert>
 
 #include <G4VisAttributes.hh>
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
 
 /// Builder for "pinwheel" rods to hold separator panels
 /// See doc/Geometry/Pinwheel_Rod.svg
-class PinwheelRodBuilder: public Builder {
+class PinwheelRodBuilder: public Builder, public G4UImessenger {
 public:
     /// Constructor
     PinwheelRodBuilder();
     
     /// Construct geometry
     virtual void construct();
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
     
     OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
     
@@ -32,7 +37,9 @@ public:
 protected:
     
     G4VisAttributes rod_vis;    ///< visualization settings
-
+    G4UIdirectory ui_dir;       ///< UI directory for pinwheel-rod-related commands
+    G4UIcmdWithADoubleAndUnit w_in_cmd; ///< UI command for inner width
+    
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
 };

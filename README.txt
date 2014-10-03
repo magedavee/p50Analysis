@@ -28,9 +28,10 @@ cmake <path to project source directory>
 make -j<number of processors on your computer>
 
 executable is placed in ./bin/ directory, and a library for ROOT to read output objects is in ./lib/
-You'll need to tell your computer to look in ./lib/ when searching for libraries; you can do this with:
+You'll need to tell your computer to look in ./lib/ when searching for libraries, by:
 
-export LD_LIBRARY_PATH=<path to install directory>/lib/:$LD_LIBRARY_PATH
+export PG4_LIB_DIR=<path to install directory>/lib/
+export LD_LIBRARY_PATH=${PG4_LIB_DIR}:${LD_LIBRARY_PATH}
 
 
 Running

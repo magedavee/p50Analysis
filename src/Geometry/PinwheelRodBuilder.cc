@@ -14,11 +14,24 @@
 
 PinwheelRodBuilder::PinwheelRodBuilder(): Builder("PinwheelRod"), length(0),
 w_inner(6*mm), r_hole(2*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
-rod_vis(G4Colour(1.0,1.0,0.5)) {
+rod_vis(G4Colour(1.0,1.0,0.5)),
+ui_dir("/geom/pwrod/"),
+w_in_cmd("/geom/pwrod/width",this) {
     myOptSurf.refl = 0.9;
     myOptSurf.lobe = 0.9;
     myOptSurf.spike = 0.1;
     addChild(&myOptSurf);
+    
+    ui_dir.SetGuidance("Pinwheel rod settings");
+    ui_dir.AvailableForStates(G4State_PreInit);
+    
+    w_in_cmd.SetGuidance("Set the width of pinwheel rod square core");
+    w_in_cmd.SetDefaultValue(w_inner);
+    w_in_cmd.AvailableForStates(G4State_PreInit);
+}
+
+void PinwheelRodBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &w_in_cmd)  w_inner = w_in_cmd.GetNewDoubleValue(newValue);
 }
 
 void PinwheelRodBuilder::construct() {
@@ -26,6 +39,8 @@ void PinwheelRodBuilder::construct() {
     
     double w_total = w_inner + 2*(t_panel+t_hook);
     dim = G4ThreeVector(w_total, w_total, length);
+    
+    G4cout << "Building pinwheeled rod...\n";
     
     // extrusion cross-section
     std::vector<G4TwoVector> vertices;
@@ -53,6 +68,8 @@ void PinwheelRodBuilder::construct() {
     
     main_log = new G4LogicalVolume(bored, MaterialsHelper::M().PEEK, "PinwheelRod_main_Log");
     main_log->SetVisAttributes(&rod_vis);
+    
+    G4cout << "\tPinwheeled rod complete." << G4cout;
 }
 
 void PinwheelRodBuilder::fillNode(TXMLEngine& E) {

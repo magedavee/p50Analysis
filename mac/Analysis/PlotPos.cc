@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
-    ProfileHistos hPos(400,1.5,"hPos","event positions","[m]");
+    ProfileHistos hPos(200,0.6,"hPos","event positions","[m]");
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
         Int_t nNCapt = scn->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapt; i++) {
             NCapt* nc = (NCapt*)scn->nCapts->At(i);
-            if(nc->vol<0 || nc->vol == 4) continue;
+            if(nc->vol != -1 && !(nc->vol%2)) continue;
             hPos.Fill(nc->x[0]/1000., nc->x[1]/1000., nc->x[2]/1000.);
         }
     }

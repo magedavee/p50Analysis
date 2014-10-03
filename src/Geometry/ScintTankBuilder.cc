@@ -83,7 +83,7 @@ void ScintTankBuilder::construct() {
     mySeparator.width = seg_size - 2*sep_gap;
     mySeparator.length = tank_depth;
     mySeparator.construct();
-    mySlottedRod.construct(tank_depth, sep_gap, mySeparator.getThick());
+    mySlottedRod.construct(tank_depth, sep_gap, mySeparator.getDimensions()[2]);
     
     G4ThreeVector r0(-0.5*nSegX*seg_size, -0.5*nSegY*seg_size, 0);      // starting point for rod placement
     G4ThreeVector sx0 = r0 + G4ThreeVector(seg_size/2., 0, 0);          // starting point for x-aligned separators

@@ -25,7 +25,7 @@ void PinwheelTankBuilder::construct() {
     ///////////////////////////////
     // rods & separators dimensions
     
-    myPinwheelRod.t_panel = mySeparator.getThick();
+    myPinwheelRod.t_panel = mySeparator.totalThick;
     myPinwheelRod.length = tank_depth;
     myPinwheelRod.construct();
     
@@ -34,7 +34,7 @@ void PinwheelTankBuilder::construct() {
     mySeparator.construct();
     
     // rod lattice spacing
-    double w_eff = myPinwheelRod.w_inner + mySeparator.getThick();
+    double w_eff = myPinwheelRod.w_inner + myPinwheelRod.t_panel;
     lat_size = sqrt(w_eff*w_eff + seg_size*seg_size);
     // rotation angle
     theta_pw = atan(w_eff/seg_size);
@@ -111,7 +111,7 @@ int PinwheelTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     // relative to rod lattice segment center
     G4TwoVector x(pos[0] - (nx + 0.5 - 0.5*nSegX)*lat_size, pos[1] - (ny + 0.5 - 0.5*nSegY)*lat_size);
     // rotated to pinwheeled segment coordinates
-    x = G4TwoVector(cos_pw*x[0]+sin_pw*x[1], sin_pw*x[0]-cos_pw*x[1]);
+    x = G4TwoVector(cos_pw*x[0]-sin_pw*x[1], sin_pw*x[0]+cos_pw*x[1]);
     
     // adjust coordinates in adjacent squares
     if(x[0] > seg_size/2) nx++;
