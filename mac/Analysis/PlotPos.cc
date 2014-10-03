@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
         Int_t nNCapt = scn->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapt; i++) {
             NCapt* nc = (NCapt*)scn->nCapts->At(i);
-            if(!(nc->vol%2)) continue;
+            if(nc->vol >= 0 && !(nc->vol%2)) continue;
             hnPos.Fill(nc->x[0]/1000., nc->x[1]/1000., nc->x[2]/1000.);
         }
     }
@@ -76,8 +76,8 @@ int main(int argc, char** argv) {
     gPad->SetLogz(true);
     hIPos.ScaleBinsize();
     hIPos.Scale(1./D.genTime);
-    //hIPos.SetMinimum(100);
-    //hIPos.SetMaximum(100000);
+    hIPos.SetMinimum(100);
+    hIPos.SetMaximum(100000);
     hIPos.Print("Col Z",outpath+"/IoniPos");
     
     return 0;

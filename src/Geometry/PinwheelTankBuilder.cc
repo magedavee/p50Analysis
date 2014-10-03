@@ -68,9 +68,7 @@ void PinwheelTankBuilder::construct() {
     G4ThreeVector sx0 = r0 + G4ThreeVector(lat_size/2., 0, 0);          // starting point for x-aligned separators
     G4ThreeVector sy0 = r0 + G4ThreeVector(0, lat_size/2., 0);          // starting point for y-aligned separators
     G4RotationMatrix* rotSepX = new G4RotationMatrix();                 // rotation for x-aligned separators (memory leaked!)
-    rotSepX->rotateX(90*deg); rotSepX->rotateY(-theta_pw);
-    G4RotationMatrix* rotSepY = new G4RotationMatrix();                 // rotation for y-aligned separators (memory leaked!)
-    rotSepY->rotateX(90*deg); rotSepY->rotateY(90*deg-theta_pw);
+    rotSepX->rotateZ(90*deg+theta_pw);
     std::vector<G4PVPlacement*> seps;
     for(unsigned int nx = 0; nx <= nSegX; nx++) {
         for(unsigned int ny = 0; ny <= nSegY; ny++) {
@@ -87,7 +85,7 @@ void PinwheelTankBuilder::construct() {
                                                   mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
                                                   scint_log, true, copynum, true));
             if(ny < nSegY)
-                seps.push_back(new G4PVPlacement(rotSepY, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
+                seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
                                                   mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
                                                   scint_log, true, copynum, true));
         }

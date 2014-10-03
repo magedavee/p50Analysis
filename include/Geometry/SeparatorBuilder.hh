@@ -22,9 +22,9 @@ public:
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
-    double width;               ///< panel width (x)
-    double length;              ///< panel length (y)
-    double totalThick;          ///< total assembly thickness (z)
+    double width;               ///< panel width (y)
+    double length;              ///< panel length (z)
+    double totalThick;          ///< total assembly thickness (x)
     double cfThick;             ///< carbon fiber core thickness
     OpticalSurfaceSetup myOptSurf;      ///< optical surface specifications
     
