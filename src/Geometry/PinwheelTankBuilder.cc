@@ -1,30 +1,13 @@
 #include "PinwheelTankBuilder.hh"
-#include "Utilities.hh"
 
-#include <cassert>
-#include <vector>
 #include <cmath>
-
-#include "MaterialsHelper.hh"
-
-#include <G4SystemOfUnits.hh>
-#include <G4UnitsTable.hh>
-#include <G4LogicalVolume.hh>
-#include <G4Box.hh>
-#include <G4RotationMatrix.hh>
-#include <G4TwoVector.hh>
-#include <G4PVPlacement.hh>
-#include <G4LogicalBorderSurface.hh>
 
 PinwheelTankBuilder::PinwheelTankBuilder(): ScintTankBuilder("ScintTank") {
     addChild(&myPinwheelRod);
 }
 
-void PinwheelTankBuilder::construct() {
-    
-    ///////////////////////////////
-    // rods & separators dimensions
-    
+void PinwheelTankBuilder::setupDividers() {
+    myRod = &myPinwheelRod;
     myPinwheelRod.t_panel = mySeparator.totalThick;
     myPinwheelRod.length = tank_depth - 2*gc_thick;
     myPinwheelRod.construct();
@@ -38,109 +21,4 @@ void PinwheelTankBuilder::construct() {
     lat_size = sqrt(w_eff*w_eff + seg_size*seg_size);
     // rotation angle
     theta_pw = atan(w_eff/seg_size);
-    cos_pw = cos(theta_pw);
-    sin_pw = sin(theta_pw);
-    rotRod.rotateZ(theta_pw);
-    
-    dim = G4ThreeVector(nSegX*lat_size+2*(tank_wall_thick+ls_buffer_thick), 
-                        nSegY*lat_size+2*(tank_wall_thick+ls_buffer_thick),
-                        tank_depth);
-    
-    ///////////////
-    // acrylic tank
-    G4Box* tank_box = new G4Box("tank_box", dim[0]/2., dim[1]/2., dim[2]/2.);
-    main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
-    main_log->SetVisAttributes(&tank_vis);
-    
-    ////////////////
-    // gamma catcher
-    double gc_width = seg_size-mySeparator.totalThick;
-    G4Box* gc_box = new G4Box("gc_box", gc_width/2, gc_width/2, gc_thick/2);
-    gammacatcher_log = new G4LogicalVolume(gc_box, MaterialsHelper::M().PMMA, "gammacatcher_log");
-    gammacatcher_log->SetVisAttributes(&gc_vis);
-    
-    /////////////////////////////
-    // liquid scintillator volume
-    
-    G4Box* scint_box = new G4Box("scint_box", dim[0]/2.-tank_wall_thick, dim[1]/2.-tank_wall_thick, dim[2]/2.);
-    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scint6LiLoading), "ScintTank_scint_log");
-    scint_log->SetVisAttributes(&scint_vis);
-    G4PVPlacement* scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
-    
-    
-    ///////////////////
-    // pinwheel lattice
-    
-    G4ThreeVector r0(-0.5*nSegX*lat_size, -0.5*nSegY*lat_size, 0);      // starting point for rod placement
-    G4ThreeVector sx0 = r0 + G4ThreeVector(lat_size/2., 0, 0);          // starting point for x-aligned separators
-    G4ThreeVector sy0 = r0 + G4ThreeVector(0, lat_size/2., 0);          // starting point for y-aligned separators
-    G4RotationMatrix* rotSepX = new G4RotationMatrix();                 // rotation for x-aligned separators (memory leaked!)
-    rotSepX->rotateZ(90*deg+theta_pw);
-    std::vector<G4PVPlacement*> seps;
-    for(unsigned int nx = 0; nx <= nSegX; nx++) {
-        for(unsigned int ny = 0; ny <= nSegY; ny++) {
-            
-            unsigned int copynum = nx + (nSegX+1)*ny;
-            
-            G4PVPlacement* rod = new G4PVPlacement(&rotRod, r0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                    myPinwheelRod.main_log, "ScintTank_rod_phys_"+to_str(copynum),
-                                                    scint_log, true, copynum, true);
-            new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myPinwheelRod.myOptSurf.S);
-            
-            if(nx < nSegX && ny < nSegY) {
-                for(int sgn = -1; sgn <= 1; sgn += 2) {
-                    new G4PVPlacement (&rotRod, r0 + G4ThreeVector((nx+0.5)*lat_size, (ny+0.5)*lat_size, sgn*(tank_depth-gc_thick)/2.),
-                                       gammacatcher_log, "ScintTank_gc_phys_"+to_str(2*copynum + (sgn+1)/2),
-                                       scint_log, true, 2*copynum + (sgn+1)/2, true);
-                }
-            }
-            
-            if(nx < nSegX)
-                seps.push_back(new G4PVPlacement(rotSepX, sx0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                  mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
-                                                  scint_log, true, copynum, true));
-            if(ny < nSegY)
-                seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                  mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
-                                                  scint_log, true, copynum, true));
-        }
-    }
-    
-    // apply separator boundary reflections
-    for(unsigned int i=0; i<seps.size(); i++)
-        new G4LogicalBorderSurface("SepOpticalBorder_"+to_str(i), scint_phys, seps[i], mySeparator.myOptSurf.S);
-}
-
-G4ThreeVector PinwheelTankBuilder::getSegmentPosition(unsigned int n) const {
-    assert(n<getNSeg());
-    return G4ThreeVector( ((n%nSegX) - 0.5*nSegX + 0.5)*lat_size, ((n/nSegX) - 0.5*nSegY + 0.5)*lat_size, 0 );
-}
-
-int PinwheelTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
-    // rod lattice coordinates
-    int nx = floor(pos[0]/lat_size + nSegX/2.);
-    int ny = floor(pos[1]/lat_size + nSegY/2.);
-    
-    // position relative to rod lattice segment center
-    G4TwoVector x(pos[0] - (nx + 0.5 - 0.5*nSegX)*lat_size, pos[1] - (ny + 0.5 - 0.5*nSegY)*lat_size);
-    // rod center holes, plus a little bit of positioning slop
-    if( pow(fabs(x[0])-0.5*lat_size,2) + pow(fabs(x[1])-0.5*lat_size,2) <= pow(myPinwheelRod.r_hole,2) ) return -2;
-    // rotated to pinwheeled segment coordinates
-    x = G4TwoVector(cos_pw*x[0]-sin_pw*x[1], sin_pw*x[0]+cos_pw*x[1]);
-    
-    // adjust coordinates in adjacent squares
-    if(x[0] > seg_size/2) nx++;
-    else if(x[0] < -seg_size/2) nx--;
-    if(x[1] > seg_size/2) ny++;
-    else if(x[1] < -seg_size/2) ny--;
-    
-    // outside lattice
-    if(nx < 0 || nx >= (int)nSegX || ny < 0 || ny >= (int)nSegY) return -1;
-    
-    return nx + nSegX*ny;
-}
-
-void PinwheelTankBuilder::fillNode(TXMLEngine& E) {
-    ScintTankBuilder::fillNode(E);
-    addAttr(E, "lat_size", G4BestUnit(lat_size,"Length"));
 }

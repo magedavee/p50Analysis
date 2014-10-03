@@ -19,24 +19,11 @@ public:
     /// Constructor
     PinwheelTankBuilder();
     
-    /// Construct geometry
-    virtual void construct();
-    
-    /// get position at center of numbered segment
-    virtual G4ThreeVector getSegmentPosition(unsigned int n) const;
-    /// get segment number at position in scintillator local coordinates
-    virtual int getSegmentNum(const G4ThreeVector& pos) const;
-    
-    PinwheelRodBuilder myPinwheelRod; ///< pinwheel rod for holding separators
+    PinwheelRodBuilder myPinwheelRod;   ///< pinwheel rod for holding separators
     
 protected:
     
-    double theta_pw, sin_pw, cos_pw;    ///< pinwheeling rotation angle
-    double lat_size;                    ///< rod lattice spacing
-    G4RotationMatrix rotRod;            ///< rotation matrix for rods
-    
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
+    virtual void setupDividers();       ///< calculate dimensions and construct dividers
 };
 
 #endif

@@ -3,8 +3,8 @@
 #define SCINTTANKBUILDER_HH
 
 #include "ScintSegVol.hh"
-#include "SeparatorBuilder.hh"
 #include "SlottedRodBuilder.hh"
+#include "SeparatorBuilder.hh"
 
 #include <G4UImessenger.hh>
 #include <G4LogicalVolume.hh>
@@ -14,7 +14,7 @@
 #include <G4UIcmdWithADoubleAndUnit.hh>
 #include <G4VisAttributes.hh>
 
-/// Builder for tank holding liquid scintillator and reflector lattice
+/// Base class for divider-segmented scintillator tank (possibly pinwheeled)
 class ScintTankBuilder: public ScintSegVol, public G4UImessenger {
 public:
     /// Constructor
@@ -41,11 +41,18 @@ public:
     unsigned int nSegY;         ///< number of y segments
     double scint6LiLoading;     ///< loading fraction of 6Li in scintillator
     
-    SlottedRodBuilder mySlottedRod;     ///< slotted rod for holding separators
+    Builder* myRod;                     ///< slotted rod for holding separators
     SeparatorBuilder mySeparator;       ///< separator panels
     G4LogicalVolume* gammacatcher_log;  ///< "gamma catcher" at scintillator ends
     
 protected:
+    /// calculate dimensions and construct rod/dividers
+    virtual void setupDividers() = 0;   
+    
+    double theta_pw, sin_pw, cos_pw;    ///< pinwheeling rotation angle
+    double lat_size;                    ///< rod lattice spacing; possibly different from segment size
+    G4RotationMatrix rotRod;            ///< rotation matrix for rods
+    
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
     
@@ -59,4 +66,17 @@ protected:
     G4VisAttributes scint_vis;          ///< visualization settings for scintillator volume
 };
 
+/// square-lattice tank with slotted rods
+class SquareTankBuilder: public ScintTankBuilder {
+public:
+    /// Constructor
+    SquareTankBuilder(): ScintTankBuilder("SquareTank") { addChild(&mySlottedRod); }
+    
+    SlottedRodBuilder mySlottedRod;     ///< slotted rod separator holder
+    
+protected:
+    /// calculate dimensions and construct rod/dividers
+    virtual void setupDividers();
+};
+    
 #endif
