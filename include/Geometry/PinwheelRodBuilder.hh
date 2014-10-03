@@ -39,6 +39,7 @@ protected:
     G4VisAttributes rod_vis;    ///< visualization settings
     G4UIdirectory ui_dir;       ///< UI directory for pinwheel-rod-related commands
     G4UIcmdWithADoubleAndUnit w_in_cmd; ///< UI command for inner width
+    G4UIcmdWithADoubleAndUnit hole_cmd; ///< UI command for hole radius
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

@@ -108,8 +108,10 @@ int PinwheelTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     int nx = floor(pos[0]/lat_size + nSegX/2.);
     int ny = floor(pos[1]/lat_size + nSegY/2.);
     
-    // relative to rod lattice segment center
+    // position relative to rod lattice segment center
     G4TwoVector x(pos[0] - (nx + 0.5 - 0.5*nSegX)*lat_size, pos[1] - (ny + 0.5 - 0.5*nSegY)*lat_size);
+    // rod center holes, plus a little bit of positioning slop
+    if( pow(fabs(x[0])-0.5*lat_size,2) + pow(fabs(x[1])-0.5*lat_size,2) <= pow(myPinwheelRod.r_hole,2) ) return -2;
     // rotated to pinwheeled segment coordinates
     x = G4TwoVector(cos_pw*x[0]-sin_pw*x[1], sin_pw*x[0]+cos_pw*x[1]);
     
@@ -119,6 +121,7 @@ int PinwheelTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     if(x[1] > seg_size/2) ny++;
     else if(x[1] < -seg_size/2) ny--;
     
+    // outside lattice
     if(nx < 0 || nx >= (int)nSegX || ny < 0 || ny >= (int)nSegY) return -1;
     
     return nx + nSegX*ny;

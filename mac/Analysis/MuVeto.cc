@@ -23,9 +23,7 @@ bool isAdjacentPair(const map<Int_t, Int_t>& volHits, const OutDirLoader& D) {
 }
 
 int main(int argc, char** argv) {
-    // load library describing data classes
-    gSystem->Load("libEventLib.so");
-    
+    gSystem->Load("libEventLib.so"); // load library describing data classes
     gStyle->SetOptStat("");
     
     std::string inPath = ".";

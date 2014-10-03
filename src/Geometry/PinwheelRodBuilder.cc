@@ -16,7 +16,8 @@ PinwheelRodBuilder::PinwheelRodBuilder(): Builder("PinwheelRod"), length(0),
 w_inner(6*mm), r_hole(2*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
 rod_vis(G4Colour(1.0,1.0,0.5)),
 ui_dir("/geom/pwrod/"),
-w_in_cmd("/geom/pwrod/width",this) {
+w_in_cmd("/geom/pwrod/width",this),
+hole_cmd("/geom/pwrod/r_hole",this) {
     myOptSurf.refl = 0.9;
     myOptSurf.lobe = 0.9;
     myOptSurf.spike = 0.1;
@@ -28,10 +29,15 @@ w_in_cmd("/geom/pwrod/width",this) {
     w_in_cmd.SetGuidance("Set the width of pinwheel rod square core");
     w_in_cmd.SetDefaultValue(w_inner);
     w_in_cmd.AvailableForStates(G4State_PreInit);
+    
+    hole_cmd.SetGuidance("Set the radius of pinwheel rod inner hole");
+    hole_cmd.SetDefaultValue(r_hole);
+    hole_cmd.AvailableForStates(G4State_PreInit);
 }
 
 void PinwheelRodBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &w_in_cmd)  w_inner = w_in_cmd.GetNewDoubleValue(newValue);
+    else if(command == &hole_cmd)  r_hole = hole_cmd.GetNewDoubleValue(newValue);
 }
 
 void PinwheelRodBuilder::construct() {
@@ -63,8 +69,11 @@ void PinwheelRodBuilder::construct() {
     G4ExtrudedSolid* extruded = new G4ExtrudedSolid("pwrod_extruded", vertices, length/2, G4TwoVector(), 1, G4TwoVector(), 1);
     
     // bore out central hole
-    G4Tubs* center_tube = new G4Tubs("pwrod_center_tube", 0, r_hole, length, 0, 2*M_PI);
-    G4VSolid* bored = new G4SubtractionSolid("pwrod_bored", extruded, center_tube);
+    G4VSolid* bored = extruded;
+    if(r_hole) {
+        G4Tubs* center_tube = new G4Tubs("pwrod_center_tube", 0, r_hole, length, 0, 2*M_PI);
+        bored = new G4SubtractionSolid("pwrod_bored", extruded, center_tube);
+    }
     
     main_log = new G4LogicalVolume(bored, MaterialsHelper::M().PEEK, "PinwheelRod_main_Log");
     main_log->SetVisAttributes(&rod_vis);

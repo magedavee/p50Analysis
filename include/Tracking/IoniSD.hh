@@ -64,6 +64,7 @@ protected:
     G4ThreeVector worldPrePos;  ///< pre-step position in world coordinates
     G4ThreeVector worldPostPos; ///< post-step position in world coordinates
     G4ThreeVector localPrePos;  ///< pre-step position in scintillator coordinates
+    G4ThreeVector localMidPos;  ///< mid-point of step in scintillator coordinates
     G4ThreeVector localPostPos; ///< post-step position in scintillator coordinates
 };
 

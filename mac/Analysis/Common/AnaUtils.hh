@@ -54,6 +54,8 @@ public:
     void Scale(double s) { for(int i=0; i<3; i++) h[i]->Scale(s); }
     /// set z range maximum
     void SetMaximum(double m) { for(int i=0; i<3; i++) h[i]->SetMaximum(m); }
+    /// set z range minimum
+    void SetMinimum(double m) { for(int i=0; i<3; i++) h[i]->SetMinimum(m); }
     
     /// fill data point
     void Fill(double x, double y, double z, double w=1.);

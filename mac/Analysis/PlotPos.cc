@@ -15,9 +15,9 @@ using std::vector;
 using std::map;
 
 int main(int argc, char** argv) {
-    // load library describing data classes
-    gSystem->Load("~/Applications/PG4/lib/libEventLib.so");
-    
+    gSystem->Load("libEventLib.so"); // load library describing data classes
+    gStyle->SetOptStat("");
+        
     std::string inPath = ".";
     if(argc == 2) inPath = argv[1];
     std::string outpath = inPath + "/Plots/";
@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
-    ProfileHistos hPos(200,0.6,"hPos","event positions","[m]");
+    ProfileHistos hIPos(500,0.5,"hIPos","ionization average positions","[m]");
+    ProfileHistos hnPos(500,0.5,"hnPos","neutron capture positions","[m]");
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -43,34 +44,41 @@ int main(int argc, char** argv) {
     for (Long64_t ev=0; ev<nentries; ev++) {
         if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
         
+        scn->Clear();
         sion->Clear();
         T->GetEntry(ev);
 
-        /*
         // scintillator hits
         Int_t nScint = sion->clusts->GetEntriesFast();
         for(Int_t i=0; i<nScint; i++) {
             IoniCluster* ei = (IoniCluster*)sion->clusts->At(i);
-            if(ei->vol < 0) continue;
-            hPos.Fill(ei->x[0]/1000., ei->x[1]/1000., ei->x[2]/1000.);
+            //if(!(ei->vol%2)) continue;
+            hIPos.Fill(ei->x[0]/1000., ei->x[1]/1000., ei->x[2]/1000.);
         }
-        */
         
         // neutron captures
         Int_t nNCapt = scn->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapt; i++) {
             NCapt* nc = (NCapt*)scn->nCapts->At(i);
-            if(nc->vol != -1 && !(nc->vol%2)) continue;
-            hPos.Fill(nc->x[0]/1000., nc->x[1]/1000., nc->x[2]/1000.);
+            if(!(nc->vol%2)) continue;
+            hnPos.Fill(nc->x[0]/1000., nc->x[1]/1000., nc->x[2]/1000.);
         }
     }
     
-    hPos.h_xy->Draw();
+    hnPos.h_xy->Draw();
     gPad->SetCanvasSize(700,700);
     
-    hPos.ScaleBinsize();
-    hPos.Scale(1./D.genTime);
-    hPos.Print("Col",outpath+"/IoniPos");
+    hnPos.ScaleBinsize();
+    hnPos.Scale(1./D.genTime);
+    hnPos.SetMaximum(80);
+    hnPos.Print("Col",outpath+"/nCapPos");
+    
+    gPad->SetLogz(true);
+    hIPos.ScaleBinsize();
+    hIPos.Scale(1./D.genTime);
+    //hIPos.SetMinimum(100);
+    //hIPos.SetMaximum(100000);
+    hIPos.Print("Col Z",outpath+"/IoniPos");
     
     return 0;
 }

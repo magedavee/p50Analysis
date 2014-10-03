@@ -20,7 +20,7 @@ using std::map;
 
 int main(int argc, char** argv) {
     
-    gSystem->Load("~/Applications/PG4/lib/libEventLib.so");
+    gSystem->Load("libEventLib.so");
     gStyle->SetOptStat("");
     
     std::string inPath = ".";

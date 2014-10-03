@@ -39,7 +39,7 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     
     G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
     if(hitVol->GetVolume()->GetLogicalVolume() != myScint.scint_log) seg_id = -1000000; // special segment ID for "dead" material
-    else seg_id = myScint.getSegmentNum(localPrePos);
+    else seg_id = myScint.getSegmentNum(localMidPos);
     
     G4bool notable = ProcessNeutronHits(aStep, H);
     IonisationHit* I = ProcessIoniHits(aStep);

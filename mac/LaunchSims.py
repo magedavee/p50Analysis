@@ -89,6 +89,7 @@ if __name__=="__main__":
         L.settings["preinit"] += "/geom/building/makeBare\n"
         L.settings["preinit"] += "/geom/shield/clear\n"
         L.settings["preinit"] += "/geom/pwrod/width 4 cm\n"
+        L.settings["preinit"] += "/geom/pwrod/r_hole 1.5 cm\n"
         L.settings["preinit"] += "/geom/separator/thick 1 cm\n"
         L.launch_sims(4*6*10)
         
