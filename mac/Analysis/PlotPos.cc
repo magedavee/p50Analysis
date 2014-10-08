@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
-    ProfileHistos hIPos(500,0.5,"hIPos","ionization average positions","[m]");
-    ProfileHistos hnPos(500,0.5,"hnPos","neutron capture positions","[m]");
+    ProfileHistos hIPos(500,1.0,"hIPos","ionization average positions","[m]");
+    ProfileHistos hnPos(500,1.0,"hnPos","neutron capture positions","[m]");
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
         Int_t nScint = sion->clusts->GetEntriesFast();
         for(Int_t i=0; i<nScint; i++) {
             IoniCluster* ei = (IoniCluster*)sion->clusts->At(i);
-            //if(!(ei->vol%2)) continue;
+            if(!(-2000 < ei->vol && ei->vol <= -1000)) continue;
             hIPos.Fill(ei->x[0]/1000., ei->x[1]/1000., ei->x[2]/1000.);
         }
         

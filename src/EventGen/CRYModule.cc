@@ -146,11 +146,17 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
 void CRYModule::initCRY(const std::string& S) {
     if(myPGA->GetVerbosity() >= 1) G4cout << "Initializing CRY generator..." << G4endl;
     
-    CRYSetup *setup = new CRYSetup(S, getenv("CRYDATA"));
+    const char* cdatapath = getenv("CRYDATA");
+    if(!cdatapath) {
+        G4cout << "Environment variable 'CRYDATA' missing!" << G4endl;
+        exit(-1);
+    }
+    CRYSetup* setup = new CRYSetup(S, cdatapath);
     if(CRY_generator) delete CRY_generator;
     CRY_generator = new CRYGenerator(setup);
     
     // set random number generator
+    G4cout << "Initializing CRY RNG...\n" << G4endl;
     RNGWrapper<CLHEP::HepRandomEngine>::set(CLHEP::HepRandom::getTheEngine(),&CLHEP::HepRandomEngine::flat);
     setup->setRandomFunction(RNGWrapper<CLHEP::HepRandomEngine>::rng);
     inputState = false;

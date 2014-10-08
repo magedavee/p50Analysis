@@ -66,18 +66,19 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", main_log, false,  0);
     }
     
-    if(getScint()) {
-        myScintSD = new ScintSD("ScintSD", *getScint());
-        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-        getScint()->scint_log->SetSensitiveDetector(myScintSD);
-    }
-    
     G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
     G4cout << "Detector construction complete." << G4endl;
     
     // need to return the physical World Volume
     theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), main_log, "world_phys", NULL, false,  0);
+    
+    if(getScint()) {
+        myScintSD = new ScintSD("ScintSD", *getScint(), theWorld);
+        G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
+        getScint()->setScintSD(myScintSD);
+    }
+    
     return theWorld;
 }
 

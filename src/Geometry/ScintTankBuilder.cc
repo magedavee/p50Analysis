@@ -89,7 +89,7 @@ void ScintTankBuilder::construct() {
     G4Box* scint_box = new G4Box("scint_box", dim[0]/2.-tank_wall_thick, dim[1]/2.-tank_wall_thick, dim[2]/2.);
     scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scint6LiLoading), "ScintTank_scint_log");
     scint_log->SetVisAttributes(&scint_vis);
-    G4PVPlacement* scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
+    scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintTank_scint_phys", main_log, false, 0, false);
     
     
     ///////////////////
@@ -108,7 +108,7 @@ void ScintTankBuilder::construct() {
             G4PVPlacement* rod = new G4PVPlacement(&rotRod, r0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
                                                    myRod->main_log, "ScintTank_rod_phys_"+to_str(copynum),
                                                    scint_log, true, copynum, true);
-            // new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myRod->myOptSurf.S); // TODO!
+            new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myRod->myOptSurf.S);
             
             if(nx < nSegX && ny < nSegY) {
                 for(int sgn = -1; sgn <= 1; sgn += 2) {
@@ -122,14 +122,14 @@ void ScintTankBuilder::construct() {
                 seps.push_back(new G4PVPlacement(rotSepX, sx0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
                                                  mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
                                                  scint_log, true, copynum, true));
-                if(ny < nSegY)
-                    seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                     mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
-                                                     scint_log, true, copynum, true));
+            if(ny < nSegY)
+                seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
+                                                 mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
+                                                 scint_log, true, copynum, true));
         }
     }
     
-    // apply separator boundary reflections
+    // apply separator boundary reflections; TODO gamma catchers, or try SkinSurface on separators
     for(unsigned int i=0; i<seps.size(); i++)
         new G4LogicalBorderSurface("SepOpticalBorder_"+to_str(i), scint_phys, seps[i], mySeparator.myOptSurf.S);
 }
@@ -145,11 +145,10 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     int ny = floor(pos[1]/lat_size + nSegY/2.);
 
     if(theta_pw) {
-        PinwheelRodBuilder& PR = dynamic_cast<PinwheelRodBuilder&>(*myRod); // TODO this in better place more elegantly
         // position relative to rod lattice segment center
         G4TwoVector x(pos[0] - (nx + 0.5 - 0.5*nSegX)*lat_size, pos[1] - (ny + 0.5 - 0.5*nSegY)*lat_size);
         // rod center holes, plus a little bit of positioning slop
-        if( pow(fabs(x[0])-0.5*lat_size,2) + pow(fabs(x[1])-0.5*lat_size,2) <= pow(PR.r_hole,2) ) return -2;
+        if( pow(fabs(x[0])-0.5*lat_size,2) + pow(fabs(x[1])-0.5*lat_size,2) <= pow(myRod->r_hole,2) ) return -2;
         // rotated to pinwheeled segment coordinates
         x = G4TwoVector(cos_pw*x[0]-sin_pw*x[1], sin_pw*x[0]+cos_pw*x[1]);
         
@@ -162,8 +161,14 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     
     // outside lattice
     if(nx < 0 || nx >= (int)nSegX || ny < 0 || ny >= (int)nSegY) return -1;
+	
+	int segnum = nx + nSegX*ny;
+	
+	// gamma catcher
+	if(pos[2] < -(tank_depth-2*gc_thick)/2.) return -(1000+segnum);
+	if(pos[2] > (tank_depth-2*gc_thick)/2.) return -(2000+segnum);
     
-    return nx + nSegX*ny;
+    return segnum;
 }
 
 void ScintTankBuilder::fillNode(TXMLEngine& E) {
@@ -188,7 +193,7 @@ void ScintTankBuilder::fillNode(TXMLEngine& E) {
 ///////////////////////////////
 
 void SquareTankBuilder::setupDividers() {
-    double sep_gap = mySlottedRod.r_inner + 0.5*mm; // gap between edge of separators and center of rods
+    double sep_gap = mySlottedRod.r_hole + 0.5*mm; // gap between edge of separators and center of rods
     mySeparator.width = seg_size - 2*sep_gap;
     mySeparator.length = tank_depth;
     mySeparator.construct();

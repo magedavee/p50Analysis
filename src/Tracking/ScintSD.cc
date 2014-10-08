@@ -19,12 +19,14 @@
 #include <G4ProcessType.hh>
 #include <G4HadronicProcessType.hh>
 #include <G4ios.hh>
+#include <G4PhysicalVolumeStore.hh>
 
-ScintSD::ScintSD(G4String name, ScintSegVol& T):
+ScintSD::ScintSD(G4String name, ScintSegVol& T, G4VPhysicalVolume* W):
 G4VSensitiveDetector(name), verbose(0), myScint(T) {
     time_gap = 1*ns;
     RootIO::GetInstance()->addScIoniBranch();
     RootIO::GetInstance()->addNCaptBranch();
+    W2S.setParentChild(W, T.scint_phys);
 }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
@@ -37,9 +39,7 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     
     collectHitInfo(aStep);
     
-    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
-    if(hitVol->GetVolume()->GetLogicalVolume() != myScint.scint_log) seg_id = -1000000; // special segment ID for "dead" material
-    else seg_id = myScint.getSegmentNum(localMidPos);
+    seg_id = myScint.getSegmentNum(localMidPos);
     
     G4bool notable = ProcessNeutronHits(aStep, H);
     IonisationHit* I = ProcessIoniHits(aStep);

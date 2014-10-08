@@ -11,7 +11,7 @@
 
 #/phys/enableOptical
 
-#/geom/mode scintCell
+
 /geom/building/makeBare
 #/geom/building/makeFluxTest
 /geom/shield/clear
@@ -21,7 +21,8 @@
 
 /run/initialize
 
-/vis/open OGLSXm
+#/vis/open OGLSXm
+/vis/open OGLSX
 #/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
@@ -30,8 +31,9 @@
 /vis/drawVolume
 
 /vis/viewer/set/upThetaPhi 0 0
-/vis/viewer/set/viewpointThetaPhi 90 90
-/vis/viewer/zoom 500
+#/vis/viewer/set/viewpointThetaPhi 90 90
+/vis/viewer/set/viewpointThetaPhi 90 0
+/vis/viewer/zoom 20
 
 #/vis/scene/add/axes
 #/vis/scene/add/scale
@@ -52,4 +54,4 @@
 /CRY/input subboxLength 2
 /CRY/update
 
-/run/beamOn 5
+/run/beamOn 1000

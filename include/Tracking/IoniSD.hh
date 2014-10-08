@@ -2,8 +2,11 @@
 #define IONISD_HH
 
 #include "WeightAverager.hh"
+#include "GeomHelper.hh"
+
 #include <map>
 #include <vector>
+
 #include <G4VSensitiveDetector.hh>
 
 class G4Step;
@@ -61,6 +64,7 @@ protected:
         
     int PID = 0;                ///< PDG particle ID
     int seg_id = 0;             ///< scintillator segment ID number
+    GeomHelper W2S;				///< world-to-scintillator coordinates helper
     G4ThreeVector worldPrePos;  ///< pre-step position in world coordinates
     G4ThreeVector worldPostPos; ///< post-step position in world coordinates
     G4ThreeVector localPrePos;  ///< pre-step position in scintillator coordinates

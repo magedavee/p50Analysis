@@ -2,6 +2,7 @@
 
 #include <G4LogicalVolume.hh>
 #include <G4VSolid.hh>
+#include <G4ios.hh>
 
 #include <cassert>
 
@@ -10,6 +11,7 @@ void GeomHelper::calcChildOffset() {
     transCtoP = G4ThreeVector();
     
     if(!P || !C) return;
+    G4cout << "Calculating transform from " << P->GetName() << " to " << C->GetName() << G4endl;
     
     while(P != C) {
         G4LogicalVolume* currentLogical = P->GetLogicalVolume();
@@ -24,11 +26,12 @@ void GeomHelper::calcChildOffset() {
     }
     
     rotPtoC = rotCtoP.inverse();
+    G4cout << rotCtoP << transCtoP << G4endl;
 }
 
 G4ThreeVector GeomHelper::coordCtoP(G4ThreeVector x) const {
-    x += transCtoP;
     x *= rotCtoP;
+    x += transCtoP;
     return x;
 }
 

@@ -18,7 +18,6 @@
 #include <TCanvas.h>
 #include <TStyle.h>
 #include <TLegend.h>
-#include <Rtypes.h>
 
 using std::cout;
 using std::map;

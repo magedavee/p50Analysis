@@ -9,7 +9,6 @@ class SB_MC_Launcher:
     
     def __init__(self, simname, nevt):
         self.settings = {"nevents":nevt, "run_num":0}
-        self.n_parallel = 4
         self.settings["simName"] = simname
         self.settings["preinit"] = ""
         self.settings["reclevel"] = 2
@@ -60,7 +59,7 @@ class SB_MC_Launcher:
         
         print "Running simulation jobs..."
         os.system("cat "+parallel_jobfile)
-        os.system("nice -n 15 parallel -P %i < "%(self.n_parallel)+parallel_jobfile)
+        os.system("nice -n 15 parallel < "+parallel_jobfile)
         os.system("rm "+parallel_jobfile)
 
 
@@ -85,13 +84,13 @@ if __name__=="__main__":
     if options.cry:
         L = SB_MC_Launcher("CRY_TinyPinwheeled", 1e6)
         L.settings["preinit"] += "/geom/tank/nSegX 3\n"
-        L.settings["preinit"] += "/geom/tank/nSegY 3\n"
+        L.settings["preinit"] += "/geom/tank/nSegY 4\n"
         L.settings["preinit"] += "/geom/building/makeBare\n"
         L.settings["preinit"] += "/geom/shield/clear\n"
         L.settings["preinit"] += "/geom/pwrod/width 4 cm\n"
         L.settings["preinit"] += "/geom/pwrod/r_hole 1.5 cm\n"
         L.settings["preinit"] += "/geom/separator/thick 1 cm\n"
-        L.launch_sims(4*6*10)
+        L.launch_sims(4)
         
     if options.muveto:
         L = SB_MC_Launcher("CRY_MuVeto", 1e5)

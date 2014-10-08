@@ -9,8 +9,26 @@
 
 #include <G4VisAttributes.hh>
 
+/// Base class for separator-holding rods
+class RodBuilder: public Builder {
+public:
+    /// Constructor
+    RodBuilder(const std::string& bnm);
+    
+    OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
+    
+    double length;              		///< rod length
+    double r_hole;						///< inner hole radius
+    
+protected:
+    G4VisAttributes rod_vis;			///< visualization settings
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
+};
+
 /// Builder for slotted rods to hold separator panels
-class SlottedRodBuilder: public Builder {
+class SlottedRodBuilder: public RodBuilder {
 public:
     /// Constructor
     SlottedRodBuilder();
@@ -20,16 +38,12 @@ public:
     /// Construct geometry, given length, slot radius, slot width
     void construct(double l, double rslot, double wslot);
     
-    OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
-    
     double r_outer;             ///< outer radius
-    double r_inner;             ///< inner radius
 
 protected:
-    double length;              ///< rod length
+    
     double r_slot;              ///< radius to innermost edge of each slot
-    double w_slot;              ///< width of slot   
-    G4VisAttributes rod_vis;    ///< visualization settings
+    double w_slot;              ///< width of slot
 
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

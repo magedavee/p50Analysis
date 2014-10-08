@@ -24,6 +24,8 @@ public:
     void construct();
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
+    /// assign SD to scintillator volumes
+    virtual void setScintSD(G4VSensitiveDetector* SD) { ScintSegVol::setScintSD(SD); gammacatcher_log->SetSensitiveDetector(SD); }
     
     /// get total number of segments
     unsigned int getNSeg() const { return nSegX*nSegY; }
@@ -41,9 +43,10 @@ public:
     unsigned int nSegY;         ///< number of y segments
     double scint6LiLoading;     ///< loading fraction of 6Li in scintillator
     
-    Builder* myRod;                     ///< slotted rod for holding separators
+    RodBuilder* myRod;                  ///< slotted rod for holding separators
     SeparatorBuilder mySeparator;       ///< separator panels
     G4LogicalVolume* gammacatcher_log;  ///< "gamma catcher" at scintillator ends
+    G4RotationMatrix rotRod;            ///< rotation matrix for rods
     
 protected:
     /// calculate dimensions and construct rod/dividers
@@ -51,7 +54,6 @@ protected:
     
     double theta_pw, sin_pw, cos_pw;    ///< pinwheeling rotation angle
     double lat_size;                    ///< rod lattice spacing; possibly different from segment size
-    G4RotationMatrix rotRod;            ///< rotation matrix for rods
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

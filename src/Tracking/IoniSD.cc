@@ -34,11 +34,10 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(10*keV) { }
 
 void IoniSD::collectHitInfo(G4Step* aStep) {
-    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
     worldPrePos = aStep->GetPreStepPoint()->GetPosition(); // track occurred in this volume
     worldPostPos = aStep->GetPostStepPoint()->GetPosition();
-    localPrePos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPrePos);
-    localPostPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPostPos);
+    localPrePos = W2S.coordPtoC(worldPrePos);
+    localPostPos = W2S.coordPtoC(worldPostPos);
     localMidPos = (localPrePos + localPostPos)*0.5;
     PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 }

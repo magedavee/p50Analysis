@@ -2,8 +2,7 @@
 /// Assure this header is loaded only once
 #define PINWHEELRODBUILDER_HH
 
-#include "Builder.hh"
-#include "OpticalSurfaceSetup.hh"
+#include "SlottedRodBuilder.hh"
 
 #include <cassert>
 
@@ -14,7 +13,7 @@
 
 /// Builder for "pinwheel" rods to hold separator panels
 /// See doc/Geometry/Pinwheel_Rod.svg
-class PinwheelRodBuilder: public Builder, public G4UImessenger {
+class PinwheelRodBuilder: public RodBuilder, public G4UImessenger {
 public:
     /// Constructor
     PinwheelRodBuilder();
@@ -24,11 +23,7 @@ public:
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
-    OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
-    
-    double length;      ///< rod length
     double w_inner;     ///< inner square width
-    double r_hole;      ///< central hole radius
     double t_end;       ///< thickness at end of separator panel
     double t_panel;     ///< thickness of slot for separator panel
     double t_hook;      ///< thickness of hook over separator panel
@@ -36,7 +31,6 @@ public:
 
 protected:
     
-    G4VisAttributes rod_vis;    ///< visualization settings
     G4UIdirectory ui_dir;       ///< UI directory for pinwheel-rod-related commands
     G4UIcmdWithADoubleAndUnit w_in_cmd; ///< UI command for inner width
     G4UIcmdWithADoubleAndUnit hole_cmd; ///< UI command for hole radius

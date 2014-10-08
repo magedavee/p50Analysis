@@ -12,16 +12,11 @@
 #include <cmath>
 #include <cassert>
 
-PinwheelRodBuilder::PinwheelRodBuilder(): Builder("PinwheelRod"), length(0),
-w_inner(6*mm), r_hole(2*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
-rod_vis(G4Colour(1.0,1.0,0.5)),
+PinwheelRodBuilder::PinwheelRodBuilder(): RodBuilder("PinwheelRod"),
+w_inner(6*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
 ui_dir("/geom/pwrod/"),
 w_in_cmd("/geom/pwrod/width",this),
 hole_cmd("/geom/pwrod/r_hole",this) {
-    myOptSurf.refl = 0.9;
-    myOptSurf.lobe = 0.9;
-    myOptSurf.spike = 0.1;
-    addChild(&myOptSurf);
     
     ui_dir.SetGuidance("Pinwheel rod settings");
     ui_dir.AvailableForStates(G4State_PreInit);
@@ -45,9 +40,7 @@ void PinwheelRodBuilder::construct() {
     
     double w_total = w_inner + 2*(t_panel+t_hook);
     dim = G4ThreeVector(w_total, w_total, length);
-    
-    G4cout << "Building pinwheeled rod...\n";
-    
+        
     // extrusion cross-section
     std::vector<G4TwoVector> vertices;
     vertices.push_back(G4TwoVector(-0.5*w_inner, 0.5*w_total));
@@ -77,16 +70,13 @@ void PinwheelRodBuilder::construct() {
     
     main_log = new G4LogicalVolume(bored, MaterialsHelper::M().PEEK, "PinwheelRod_main_Log");
     main_log->SetVisAttributes(&rod_vis);
-    
-    G4cout << "\tPinwheeled rod complete." << G4cout;
 }
 
 void PinwheelRodBuilder::fillNode(TXMLEngine& E) {
+    RodBuilder::fillNode(E);
     addAttr(E, "w_inner", G4BestUnit(w_inner,"Length"));
-    addAttr(E, "r_hole", G4BestUnit(r_hole,"Length"));
     addAttr(E, "t_end", G4BestUnit(t_end,"Length"));
     addAttr(E, "t_panel", G4BestUnit(t_panel,"Length"));
     addAttr(E, "t_hook", G4BestUnit(t_hook,"Length"));
     addAttr(E, "l_hook", G4BestUnit(l_hook,"Length"));
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
