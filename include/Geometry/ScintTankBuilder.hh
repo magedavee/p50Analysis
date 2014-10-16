@@ -25,7 +25,7 @@ public:
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
     /// assign SD to scintillator volumes
-    virtual void setScintSD(G4VSensitiveDetector* SD) { ScintSegVol::setScintSD(SD); gammacatcher_log->SetSensitiveDetector(SD); }
+    virtual void setScintSD(G4VSensitiveDetector* SD);
     
     /// get total number of segments
     unsigned int getNSeg() const { return nSegX*nSegY; }
@@ -64,6 +64,7 @@ protected:
     G4UIcmdWithAnInteger nsegXcmd;      ///< UI command for number of x segments
     G4UIcmdWithAnInteger nsegYcmd;      ///< UI command for number of y segments
     G4UIcmdWithADoubleAndUnit segWcmd;  ///< UI command for segment width
+    G4UIcmdWithADoubleAndUnit gcTcmd;   ///< UI command for gamma catcher width
     G4UIcmdWithADouble scint6Licmd;     ///< UI command for 6Li loading in scintillator
     G4VisAttributes tank_vis;           ///< visualization settings for tank
     G4VisAttributes gc_vis;             ///< visualization settings for gamma catcher

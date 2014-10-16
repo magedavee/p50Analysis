@@ -17,12 +17,13 @@
 #include <G4LogicalBorderSurface.hh>
 
 ScintTankBuilder::ScintTankBuilder(const std::string& snm): ScintSegVol(snm),
-tank_depth(119*cm), gc_thick(9.5*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
+tank_depth(120*cm), gc_thick(0*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(14.4*cm), nSegX(14), nSegY(10), scint6LiLoading(0.001), theta_pw(0),
 tank_ui_dir("/geom/tank/"),
 nsegXcmd("/geom/tank/nSegX",this),
 nsegYcmd("/geom/tank/nSegY",this),
 segWcmd("/geom/tank/segSize",this),
+gcTcmd("/geom/tank/gcThick",this),
 scint6Licmd("/geom/tank/scint6Li",this),
 tank_vis(G4Colour(0.6,0.6,0.6)),
 gc_vis(G4Colour(1.0,0.5,1.0)),
@@ -43,6 +44,10 @@ scint_vis(G4Colour(0.5,0.5,1.0)) {
     segWcmd.SetDefaultValue(seg_size);
     segWcmd.AvailableForStates(G4State_PreInit);
     
+    gcTcmd.SetGuidance("Set thickness of gamma catchers");
+    gcTcmd.SetDefaultValue(gc_thick);
+    gcTcmd.AvailableForStates(G4State_PreInit);
+    
     scint6Licmd.SetGuidance("Scintillator 6Li loading fraction by mass");
     scint6Licmd.SetDefaultValue(scint6LiLoading);
     scint6Licmd.AvailableForStates(G4State_PreInit);
@@ -54,6 +59,7 @@ void ScintTankBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &nsegXcmd)      nSegX = nsegXcmd.GetNewIntValue(newValue);
     else if(command == &nsegYcmd) nSegY = nsegYcmd.GetNewIntValue(newValue);
     else if(command == &segWcmd)  seg_size = segWcmd.GetNewDoubleValue(newValue);
+    else if(command == &gcTcmd)  gc_thick = gcTcmd.GetNewDoubleValue(newValue);
     else if(command == &scint6Licmd)  scint6LiLoading = scint6Licmd.GetNewDoubleValue(newValue);
     else G4cout << "Unknown command!" << G4endl;
 }
@@ -77,9 +83,12 @@ void ScintTankBuilder::construct() {
     main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
     
-    setupGammaCatcher();
-    gammacatcher_log->SetVisAttributes(&gc_vis);
     
+    if(gc_thick) {
+        setupGammaCatcher();
+        gammacatcher_log->SetVisAttributes(&gc_vis);
+    } else gammacatcher_log = NULL;
+        
     /////////////////////////////
     // liquid scintillator volume
     G4Box* scint_box = new G4Box("scint_box", dim[0]/2.-tank_wall_thick, dim[1]/2.-tank_wall_thick, dim[2]/2.);
@@ -106,7 +115,7 @@ void ScintTankBuilder::construct() {
                                                    scint_log, true, copynum, true);
             new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myRod->myOptSurf.S);
             
-            if(nx < nSegX && ny < nSegY) {
+            if(gammacatcher_log && nx < nSegX && ny < nSegY) {
                 for(int sgn = -1; sgn <= 1; sgn += 2) {
                     new G4PVPlacement (&rotRod, r0 + G4ThreeVector((nx+0.5)*lat_size, (ny+0.5)*lat_size, sgn*(tank_depth-gc_thick)/2.),
                                        gammacatcher_log, "ScintTank_gc_phys_"+to_str(2*copynum + (sgn+1)/2),
@@ -133,6 +142,11 @@ void ScintTankBuilder::construct() {
 G4ThreeVector ScintTankBuilder::getSegmentPosition(unsigned int n) const {
     assert(n<getNSeg());
     return G4ThreeVector( ((n%nSegX) - 0.5*nSegX + 0.5)*lat_size, ((n/nSegX) - 0.5*nSegY + 0.5)*lat_size, 0 );
+}
+
+void ScintTankBuilder::setScintSD(G4VSensitiveDetector* SD) {
+    ScintSegVol::setScintSD(SD);
+    if(gammacatcher_log) gammacatcher_log->SetSensitiveDetector(SD);
 }
 
 int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {

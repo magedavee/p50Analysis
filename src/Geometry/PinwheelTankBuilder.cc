@@ -3,18 +3,22 @@
 #include <cmath>
 
 #include <G4ExtrudedSolid.hh>
+#include <G4SystemOfUnits.hh>
 
 PinwheelTankBuilder::PinwheelTankBuilder(): ScintTankBuilder("ScintTank") {
     addChild(&myPinwheelRod);
 }
 
 void PinwheelTankBuilder::setupDividers() {
+    
+    double rod_tolerance = 1*um; // wiggle room for rod-to-separator clearance
+    
     myRod = &myPinwheelRod;
-    myPinwheelRod.t_panel = mySeparator.totalThick;
+    myPinwheelRod.t_panel = mySeparator.totalThick + rod_tolerance;
     myPinwheelRod.length = tank_depth;
     myPinwheelRod.construct();
     
-    mySeparator.width = seg_size + myPinwheelRod.w_inner - 2*myPinwheelRod.t_end;
+    mySeparator.width = seg_size + myPinwheelRod.w_inner - 2*myPinwheelRod.t_end - rod_tolerance;
     mySeparator.length = tank_depth;
     mySeparator.construct();
     
