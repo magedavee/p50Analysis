@@ -22,8 +22,10 @@ public:
     PinwheelRodBuilder myPinwheelRod;   ///< pinwheel rod for holding separators
     
 protected:
-    
-    virtual void setupDividers();       ///< calculate dimensions and construct dividers
+    /// calculate dimensions and construct dividers
+    virtual void setupDividers();
+    /// construct gamma catcher geometry
+    virtual void setupGammaCatcher();
 };
 
 #endif

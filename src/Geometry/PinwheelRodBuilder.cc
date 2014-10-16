@@ -12,6 +12,20 @@
 #include <cmath>
 #include <cassert>
 
+void rotvert(std::vector<G4TwoVector>& vertices, unsigned int nrot) {
+    size_t nvert = vertices.size();
+    for(int i=1; i<nrot; i++) {
+        double th = -i*2*M_PI/nrot;
+        double cs = cos(th);
+        double sn = sin(th);
+        for(size_t j=0; j<nvert; j++) {
+            const G4TwoVector& v = vertices[j];
+            vertices.push_back(G4TwoVector(cs*v[0]-sn*v[1], sn*v[0]+cs*v[1]));
+        }
+    }
+}
+
+
 PinwheelRodBuilder::PinwheelRodBuilder(): RodBuilder("PinwheelRod"),
 w_inner(6*mm), t_end(1*mm), t_panel(0), t_hook(1*mm), l_hook(2*mm),
 ui_dir("/geom/pwrod/"),
@@ -48,17 +62,7 @@ void PinwheelRodBuilder::construct() {
     vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, 0.5*w_total-t_hook));
     vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, 0.5*w_total-t_hook));
     vertices.push_back(G4TwoVector(-0.5*w_inner + t_end, 0.5*w_inner));
-    size_t nvert = vertices.size();
-    int nrot = 4;
-    for(int i=1; i<nrot; i++) {
-        double th = -i*2*M_PI/nrot;
-        double cs = cos(th);
-        double sn = sin(th);
-        for(size_t j=0; j<nvert; j++) {
-            const G4TwoVector& v = vertices[j];
-            vertices.push_back(G4TwoVector(cs*v[0]-sn*v[1], sn*v[0]+cs*v[1]));
-        }
-    }
+    rotvert(vertices,4);
     G4ExtrudedSolid* extruded = new G4ExtrudedSolid("pwrod_extruded", vertices, length/2, G4TwoVector(), 1, G4TwoVector(), 1);
     
     // bore out central hole

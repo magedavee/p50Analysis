@@ -77,11 +77,7 @@ void ScintTankBuilder::construct() {
     main_log = new G4LogicalVolume(tank_box, MaterialsHelper::M().PMMA_black, "ScintTank_main_log");
     main_log->SetVisAttributes(&tank_vis);
     
-    ////////////////
-    // gamma catcher
-    double gc_width = seg_size-mySeparator.totalThick;
-    G4Box* gc_box = new G4Box("gc_box", gc_width/2, gc_width/2, gc_thick/2);
-    gammacatcher_log = new G4LogicalVolume(gc_box, MaterialsHelper::M().PMMA, "gammacatcher_log");
+    setupGammaCatcher();
     gammacatcher_log->SetVisAttributes(&gc_vis);
     
     /////////////////////////////
@@ -200,4 +196,10 @@ void SquareTankBuilder::setupDividers() {
     mySlottedRod.construct(tank_depth-2*gc_thick, sep_gap, mySeparator.totalThick);
     
     myRod = &mySlottedRod;
+}
+
+void SquareTankBuilder::setupGammaCatcher() {
+    double gc_width = seg_size-mySeparator.totalThick;
+    G4Box* gc_box = new G4Box("gc_box", gc_width/2, gc_width/2, gc_thick/2);
+    gammacatcher_log = new G4LogicalVolume(gc_box, MaterialsHelper::M().PMMA, "gammacatcher_log");
 }

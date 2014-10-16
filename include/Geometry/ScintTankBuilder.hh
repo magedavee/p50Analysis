@@ -50,7 +50,9 @@ public:
     
 protected:
     /// calculate dimensions and construct rod/dividers
-    virtual void setupDividers() = 0;   
+    virtual void setupDividers() = 0;
+    /// construct gamma catcher geometry
+    virtual void setupGammaCatcher() = 0;
     
     double theta_pw, sin_pw, cos_pw;    ///< pinwheeling rotation angle
     double lat_size;                    ///< rod lattice spacing; possibly different from segment size
@@ -79,6 +81,8 @@ public:
 protected:
     /// calculate dimensions and construct rod/dividers
     virtual void setupDividers();
+    /// construct gamma catcher geometry
+    virtual void setupGammaCatcher();
 };
     
 #endif

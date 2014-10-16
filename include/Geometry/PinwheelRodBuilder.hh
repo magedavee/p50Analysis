@@ -10,6 +10,7 @@
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithADoubleAndUnit.hh>
+#include <G4TwoVector.hh>
 
 /// Builder for "pinwheel" rods to hold separator panels
 /// See doc/Geometry/Pinwheel_Rod.svg
@@ -38,5 +39,8 @@ protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
 };
+
+/// create multiple rotated copies of vertices
+void rotvert(std::vector<G4TwoVector>& vertices, unsigned int nrot);
 
 #endif
