@@ -16,8 +16,8 @@ public:
     /// assign SD to scintillator volumes
     virtual void setScintSD(G4VSensitiveDetector* SD) { scint_log->SetSensitiveDetector(SD); }
     
-    G4LogicalVolume* scint_log;		///< liquid scintillator logical volume
-    G4VPhysicalVolume* scint_phys;	///< liquid scintillator physical volume
+    G4LogicalVolume* scint_log;         ///< liquid scintillator logical volume
+    G4VPhysicalVolume* scint_phys;      ///< liquid scintillator physical volume
 };
 
 #endif

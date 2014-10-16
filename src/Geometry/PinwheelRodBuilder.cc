@@ -14,7 +14,7 @@
 
 void rotvert(std::vector<G4TwoVector>& vertices, unsigned int nrot) {
     size_t nvert = vertices.size();
-    for(int i=1; i<nrot; i++) {
+    for(unsigned int i=1; i<nrot; i++) {
         double th = -i*2*M_PI/nrot;
         double cs = cos(th);
         double sn = sin(th);

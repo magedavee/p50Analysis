@@ -16,7 +16,7 @@ Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT scintCell slab");
+    modeCmd.SetCandidates("PROSPECT scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
@@ -25,6 +25,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         if(newValue == "PROSPECT") mode = PROSPECT;
         else if(newValue == "scintCell") mode = TEST_CELL;
         else if(newValue == "slab") mode = SLAB;
+        else if(newValue == "sphere") mode = SPHERE;
         else G4cout << "Unknown mode!" << G4endl;
     } else G4cout << "Unknown command!" << G4endl;
 }
@@ -33,6 +34,7 @@ ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myBuilding.myDetUnit.myDet.myTank;
     else if(mode == TEST_CELL) return &myTestCell;
     else if(mode == SLAB) return &mySlab;
+    else if(mode == SPHERE) return &mySphere;
     return NULL;
 }
 
@@ -44,7 +46,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding    
                                 : mode==SLAB ? (Builder&)mySlab
-                                : (Builder&)myTestCell );
+                                : mode==TEST_CELL ? (Builder&)myTestCell
+                                : (Builder&)mySphere );
     myContents.construct();
     addChild(&myContents);
     
@@ -54,11 +57,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         worldShell.bottom_thick =  worldShell.top_thick;
     } else if(mode==PROSPECT) {
         worldShell.side_thick = 25*m;
+    } else if(mode==SPHERE) {
+        worldShell.bottom_thick =  worldShell.top_thick = worldShell.side_thick = 0.5*m;
     }
     
     dim = myContents.getDimensions();
     main_log = myContents.main_log;
     building_phys = worldShell.wrap(main_log, dim, "world");
+    
+    if(mode==SPHERE) mySphere.scint_phys = building_phys;
     
     if(mode == TEST_CELL) {
         G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
