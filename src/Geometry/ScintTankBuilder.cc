@@ -171,12 +171,12 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     
     // outside lattice
     if(nx < 0 || nx >= (int)nSegX || ny < 0 || ny >= (int)nSegY) return -1;
-	
-	int segnum = nx + nSegX*ny;
-	
-	// gamma catcher
-	if(pos[2] < -(tank_depth-2*gc_thick)/2.) return -(1000+segnum);
-	if(pos[2] > (tank_depth-2*gc_thick)/2.) return -(2000+segnum);
+    
+    int segnum = nx + nSegX*ny;
+            
+    // gamma catcher
+    if(pos[2] < -(tank_depth-2*gc_thick)/2.) return -(1000+segnum);
+    if(pos[2] > (tank_depth-2*gc_thick)/2.) return -(2000+segnum);
     
     return segnum;
 }

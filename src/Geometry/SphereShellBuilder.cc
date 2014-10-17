@@ -11,7 +11,28 @@
 #include <G4Sphere.hh>
 
 SphereShellBuilder::SphereShellBuilder(): ScintSegVol("SphereShells"),
-myMat(NULL), radius(100*cm), ndivs(100) { }
+myMat(NULL), radius(100*cm), ndivs(100),
+sphereDir("/geom/sphere/"),
+radiusCmd("/geom/sphere/radius",this),
+segCmd("/geom/sphere/nshells",this),
+matCmd("/geom/sphere/material",this) {
+    
+    radiusCmd.SetGuidance("Set sphere radius.");
+    radiusCmd.AvailableForStates(G4State_PreInit);
+    
+    segCmd.SetGuidance("Set number of spherical shells.");
+    segCmd.AvailableForStates(G4State_PreInit);
+    
+    matCmd.SetGuidance("Set sphere material.");
+    matCmd.AvailableForStates(G4State_PreInit);
+}
+
+void SphereShellBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &radiusCmd) radius = radiusCmd.GetNewDoubleValue(newValue);
+    else if(command == &segCmd) ndivs = segCmd.GetNewIntValue(newValue);
+    else if(command == &matCmd) myMat = G4Material::GetMaterial(newValue);
+    else G4cout << "Unknown command!" << G4endl;
+}
 
 void SphereShellBuilder::construct() {
     
