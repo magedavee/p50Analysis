@@ -24,6 +24,7 @@
 ScintSD::ScintSD(G4String name, ScintSegVol& T, G4VPhysicalVolume* W):
 G4VSensitiveDetector(name), verbose(0), myScint(T) {
     time_gap = 1*ns;
+    mat_n = T.scint_log->GetMaterial()->GetElectronDensity()/(6.022e23/cm3);
     RootIO::GetInstance()->addScIoniBranch();
     RootIO::GetInstance()->addNCaptBranch();
     W2S.setParentChild(W, T.scint_phys);
@@ -33,6 +34,7 @@ void ScintSD::Initialize(G4HCofThisEvent*) {
     verbose = G4RunManager::GetRunManager()->GetVerboseLevel();
     hit_history.clear();
     secondaries_counter.clear();
+    parent_dEdx.clear();
 }
 
 G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {

@@ -47,6 +47,8 @@ void IoniCluster::operator+=(const IoniCluster& r) {
         x[i] = (x[i]*E+r.x[i]*r.E)/EE;
         dx[i] = sqrt(dx[i] - x[i]*x[i]);
     }
+    EdEdx += r.EdEdx;
+    EdEdx2 += r.EdEdx2;
     E = EE;
 }
 
