@@ -4,24 +4,25 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/output/setRunNum 0
+/output/setRunNum 101
 
 /output/setRecordLevel 2
 #/output/primariesOnly
 
 #/phys/enableOptical
 
-#/geom/mode scintCell
-#/geom/building/makeBare
-#/geom/building/makeFluxTest
-#/geom/shield/clear
-/geom/shield/muveto 4 cm
 
-/output/filename /home/mpmendenhall/Analysis/ShortBaseline/Run_0.root
+/geom/building/makeBare
+#/geom/building/makeFluxTest
+/geom/shield/clear
+#/geom/shield/muveto 4 cm
+
+/output/filename crytest.root
 
 /run/initialize
 
 /vis/open OGLSXm
+#/vis/open OGLSX
 #/vis/disable
 #/vis/ogl/set/displayListLimit 50000
 /vis/viewer/set/style     wireframe
@@ -31,7 +32,8 @@
 
 /vis/viewer/set/upThetaPhi 0 0
 /vis/viewer/set/viewpointThetaPhi 90 90
-/vis/viewer/zoom 15
+#/vis/viewer/set/viewpointThetaPhi 90 0
+/vis/viewer/zoom 500
 
 #/vis/scene/add/axes
 #/vis/scene/add/scale
@@ -49,9 +51,7 @@
 /CRY/input date 11-7-2002
 /CRY/input latitude 41.2
 /CRY/input altitude 0
-/CRY/input subboxLength 20
+/CRY/input subboxLength 2
 /CRY/update
 
-#/generator/module_Cf252
-
-/run/beamOn 10000
+/run/beamOn 10

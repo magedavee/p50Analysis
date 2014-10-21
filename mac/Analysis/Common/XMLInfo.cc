@@ -30,10 +30,13 @@ double XMLInfo::getGenTime() {
     return fromUnits(E.GetAttr(gnode,"time"));
 }
 
+double XMLInfo::getCalcTime() {
+    return atof(E.GetAttr(docRoot,"t_end"))-atof(E.GetAttr(docRoot,"t_start"));
+}
+
 double XMLInfo::getSegments(int& nx, int& ny) {
     nx = ny = 0;
     XMLNodePointer_t gnode = findChildRecursive(docRoot,"ScintTank");
-    assert(gnode);
     if(!gnode) return 0;
     nx = atoi(E.GetAttr(gnode,"nSegX"));
     ny = atoi(E.GetAttr(gnode,"nSegY"));
@@ -83,7 +86,7 @@ double XMLInfo::fromUnits(const string& s) const {
 ///////////////////////////////////////////////////////
 
 OutDirLoader::OutDirLoader(const string& basepath, unsigned int limit): 
-genTime(0), segSize(0), nx(0), ny(0), bpath(basepath) {
+genTime(0), calcTime(0), segSize(0), nx(0), ny(0), bpath(basepath) {
     std::cout << "Loading directory '" << basepath << "'...\n";
     vector<string> flist = listdir(basepath);
     genTime = 0;
@@ -94,13 +97,14 @@ genTime(0), segSize(0), nx(0), ny(0), bpath(basepath) {
             if(vv.size() == 2) {
                 XMLInfo* x = new XMLInfo(basepath+"/"+*it);
                 genTime += x->getGenTime()*1e-9;
+                calcTime += x->getCalcTime();
                 if(!nx) segSize = x->getSegments(nx,ny);
                 myInfo[atoi(vv[1].c_str())] = x;
             }
         }
         if(myInfo.size() >= limit) break;
     }
-    std::cout << "\tTotal simulation time: " << genTime << " s\n";
+    std::cout << "\tTotal simulation time: " << genTime << " s calculated in " << calcTime/3600 << " h\n";
 }
 
 vector<int> OutDirLoader::getRunlist() const {

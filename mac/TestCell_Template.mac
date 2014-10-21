@@ -10,6 +10,6 @@
 /output/filename %(outfile)s
 /run/initialize
 
-/generator/module_Cf252
+%(generator)s
 
 /run/beamOn %(nevents)i

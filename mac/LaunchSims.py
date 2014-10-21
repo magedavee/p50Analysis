@@ -2,16 +2,18 @@
 
 from optparse import OptionParser
 import os
+from math import *
+from random import shuffle
 
 class SB_MC_Launcher:
     
     def __init__(self, simname, nevt):
         self.settings = {"nevents":nevt, "run_num":0}
-        self.n_parallel = 4
         self.settings["simName"] = simname
         self.settings["preinit"] = ""
         self.settings["reclevel"] = 2
         self.template = "CRY_Template.mac"
+        self.vary_E = None
         
     def set_dirs(self):
         self.bin_name = os.environ["SBMC_BIN"]
@@ -32,8 +34,16 @@ class SB_MC_Launcher:
         # set up macros for each job
         parallel_jobfile = "%s/jobs.txt"%self.log_dir
         jobsout = open(parallel_jobfile,"w")
+        
         for rn in range(nruns):
+            
             self.settings["run_num"] += 1
+            if rn < rnmin:
+                continue
+            
+            if self.vary_E:
+                self.settings["gun_energy"] = self.vary_E[rn]
+            
             run_name = "Run_%i"%self.settings["run_num"]
             self.settings["outfile"] = "%s/%s.root"%(self.outdir, run_name)
             
@@ -43,18 +53,19 @@ class SB_MC_Launcher:
             
             # make job command
             onejob = "%s %s/%s.mac"%(self.bin_name, self.macro_dir, run_name)
-            if rn >= rnmin:
-                jobsout.write(onejob+" > %s/%s.txt 2>&1\n"%(self.log_dir, run_name))
+            jobsout.write(onejob+" > %s/%s.txt 2>&1\n"%(self.log_dir, run_name))
         
         jobsout.close()
         
         print "Running simulation jobs..."
         os.system("cat "+parallel_jobfile)
-        os.system("nice -n 15 parallel -P %i < "%(self.n_parallel)+parallel_jobfile)
+        os.system("nice -n 15 parallel < "+parallel_jobfile)
         os.system("rm "+parallel_jobfile)
 
 
-
+def logrange(n,x0,x1):
+    return [exp(log(x0)*(1-l)+log(x1)*l) for l in [x/float(n-1) for x in range(n)]]
+    
 if __name__=="__main__":
     
     parser = OptionParser()
@@ -63,6 +74,7 @@ if __name__=="__main__":
     parser.add_option("--muveto", dest="muveto", action="store_true", default=False, help="Muon veto layer simulations")
     parser.add_option("--testcell", dest="testcell", action="store_true", default=False, help="Scintillator test cell")
     parser.add_option("--nscatter", dest="nscatter", action="store_true", default=False, help="neutron scattering tests")
+    parser.add_option("--proton", dest="proton", action="store_true", default=False, help="proton interactions tests")
     
     options, args = parser.parse_args()
     if options.kill:
@@ -70,21 +82,40 @@ if __name__=="__main__":
         exit(0)
 
     if options.cry:
-        L = SB_MC_Launcher("Neutrons_FluxTest", 1e4)
-        L.settings["preinit"] += "/geom/building/makeFluxTest\n"
-        L.settings["reclevel"] = 3
-        L.launch_sims(4*6*5)
+        L = SB_MC_Launcher("CRY_TinyPinwheeled", 1e6)
+        L.settings["preinit"] += "/geom/tank/nSegX 3\n"
+        L.settings["preinit"] += "/geom/tank/nSegY 4\n"
+        L.settings["preinit"] += "/geom/building/makeBare\n"
+        L.settings["preinit"] += "/geom/shield/clear\n"
+        L.settings["preinit"] += "/geom/pwrod/width 4 cm\n"
+        L.settings["preinit"] += "/geom/pwrod/r_hole 1.5 cm\n"
+        L.settings["preinit"] += "/geom/separator/thick 1 cm\n"
+        L.launch_sims(4)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_All", 1e5)
-        L.settings["reclevel"] = 3
+        L = SB_MC_Launcher("CRY_MuVeto_dEdx", 1e5)
+        #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.launch_sims(4*4)
+        L.launch_sims(4*6*10)
     
     if options.testcell:
-        L = SB_MC_Launcher("TestCell", 1e5)
-        L.template = "TestCell_Template.mac"
-        L.launch_sims(4*6*5)
+        for nergy in [0.5,1,1.5,2,2.5,3.5,4,4.5,5,5.5,6,8,10]:
+            L = SB_MC_Launcher("TestCell_n_%g_MeV"%nergy, 1e4)
+            L.template = "TestCell_Template.mac"
+            
+            #L.settings["generator"] = "/generator/module_Cf252"
+            
+            L.settings["preinit"] += "/geom/testcell/radius 6.35 cm\n"
+            L.settings["preinit"] += "/geom/testcell/length 20 cm\n"
+            L.settings["preinit"] += "/geom/testcell/loading 0\n"
+            
+            L.settings["generator"] = "/generator/module_gun\n"
+            L.settings["generator"] += "/gun/particle neutron\n"
+            L.settings["generator"] += "/gun/energy %g MeV\n"%nergy
+            L.settings["generator"] += "/gun/direction 0 0 1\n"
+            L.settings["generator"] += "/gun/position 0 0 -1 m\n"
+            
+            L.launch_sims(4*2)
         
     if options.nscatter:
         for E in ["10 MeV","1 keV","1 eV","0.02 eV"]:
@@ -94,4 +125,18 @@ if __name__=="__main__":
                 L.settings["gun_energy"] = E
                 L.settings["slab_mat"] = m
                 L.settings["slab_thick"] = t
+                L.settings["particle"] = "neutron"
+                L.settings["reclevel"] = 3
                 L.launch_sims(4*10)
+                
+    if options.proton:
+        nruns = 4*100
+        L = SB_MC_Launcher("protonScint", 5e4)
+        L.template = "ScatterSlab_Template.mac"
+        L.settings["particle"] = "proton"
+        L.settings["slab_mat"] = "EJ309-0.1wt%-6Li"
+        L.settings["slab_thick"] = "2 cm"
+        L.vary_E = ["%.3f MeV"%x for x in logrange(nruns,1,2000)]
+        shuffle(L.vary_E)
+        L.launch_sims(nruns)
+        

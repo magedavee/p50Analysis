@@ -12,19 +12,18 @@ DetVolBuilder::DetVolBuilder(): Builder("DetVol"),
 shell_thick(2*mm), buffer_thick(2*cm), shell_vis(G4Colour(1.0,0,1.0)) {
     myRot.rotateX(-90*deg);
     addChild(&myTank);
-    addChild(&myLid);
     addChild(&myPMT);
 }
 
 void DetVolBuilder::construct() {
     
     myTank.construct();
-    myLid.construct(myTank);
+    myPMT.block_width = myTank.seg_size - myTank.mySeparator.totalThick;
     myPMT.construct();
     
-    G4ThreeVector airDim(myTank.getWidthX() + 2*buffer_thick,
-                         myTank.getWidthY() + 2*buffer_thick,
-                         myTank.tank_depth + 2*(buffer_thick+myLid.getThick()+myPMT.getLength()));
+    G4ThreeVector airDim = myTank.getDimensions();
+    airDim += G4ThreeVector(2*buffer_thick, 2*buffer_thick,
+                            2*(buffer_thick+myPMT.getDimensions()[2]));
         
     dim = myRot * airDim;
     dim = G4ThreeVector(fabs(dim[0])+2*shell_thick, fabs(dim[1])+2*shell_thick, fabs(dim[2])+2*shell_thick);
@@ -48,17 +47,14 @@ void DetVolBuilder::construct() {
     // internal components
     
     new G4PVPlacement(NULL, G4ThreeVector(), myTank.main_log, "DetVol_tank_phys", inner_log, false, 0, true);
-    double lid_z = (myTank.tank_depth + myLid.getThick())/2.;
-    new G4PVPlacement(NULL, G4ThreeVector(0,0,lid_z), myLid.main_log, "DetVol_lid_phys_0", inner_log, true, 0, true);
-    G4RotationMatrix* lid_flip = new G4RotationMatrix();
-    lid_flip->rotateX(180*deg);
-    new G4PVPlacement(lid_flip, G4ThreeVector(0,0,-lid_z), myLid.main_log, "DetVol_lid_phys_1", inner_log, true, 1, true);
     
-    double pmt_z = (myTank.tank_depth + myPMT.getLength())/2. + myLid.getThick();
+    G4RotationMatrix* pmt_flip = new G4RotationMatrix(myTank.rotRod);
+    pmt_flip->rotateX(180*deg);
+    double pmt_z = (myTank.tank_depth + myPMT.getDimensions()[2])/2.;
     for(unsigned int i=0; i<myTank.getNSeg(); i++) {
         G4ThreeVector pos = myTank.getSegmentPosition(i);
-        new G4PVPlacement(lid_flip, G4ThreeVector(pos[0],pos[1],pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i), inner_log, true, 2*i, true);
-        new G4PVPlacement(NULL, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), inner_log, true, 2*i+1, true);
+        new G4PVPlacement(pmt_flip, G4ThreeVector(pos[0],pos[1],pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i), inner_log, true, 2*i, true);
+        new G4PVPlacement(&myTank.rotRod, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), inner_log, true, 2*i+1, true);
     }
 }
 

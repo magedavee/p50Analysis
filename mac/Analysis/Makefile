@@ -7,12 +7,14 @@
 .SUFFIXES: .c .cc .cpp .o
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
-	-I. -I../../include/Output/ 
-LDFLAGS =  -L. -L/home/mpmendenhall/Applications/PG4/lib/ -lEventLib `root-config --libs` -lXMLIO
+	-I. -ICommon/ -I../../include/Output/ 
+LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXMLIO
 
 #
 # things to build
 #
+
+VPATH = Common/:Private/
 
 Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o PathUtils.o strutils.o XMLInfo.o
 objects = $(Utils)
@@ -29,4 +31,4 @@ all: $(objects)
 .PHONY: clean
 clean:
 	-rm -f *.o
-	-rm -f MuVeto PlotFlux PlotPos PlotPrimaries TestCell
+	-rm -f MuonCal MuVeto nScatter PlotFlux PlotPos PlotPrimaries PlotXS ProtonSlab TestCell

@@ -4,7 +4,7 @@
 
 #include "Builder.hh"
 #include "ScintTankBuilder.hh"
-#include "TankLidBuilder.hh"
+#include "PinwheelTankBuilder.hh"
 #include "PMTBuilder.hh"
 
 #include <G4LogicalVolume.hh>
@@ -23,8 +23,7 @@ public:
     double shell_thick;         ///< thickness of shell wall
     double buffer_thick;        ///< gap size between shell and internal assembly
     
-    ScintTankBuilder myTank;    ///< scintillator tank with dividers
-    TankLidBuilder myLid;       ///< lid to place on either side of tank
+    PinwheelTankBuilder myTank; ///< scintillator tank with dividers
     PMTBuilder myPMT;           ///< PMTs to place on each segment
     
 private:

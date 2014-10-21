@@ -19,6 +19,8 @@ public:
     
     /// Get event generator "real" time, Geant4 units [ns]
     double getGenTime();
+    /// Get simulation wall clock running time [s]
+    double getCalcTime();
     /// get scintillator segmentation; returns segment size
     double getSegments(int& nx, int& ny);
     
@@ -61,6 +63,7 @@ public:
     bool isAdjacent(int v1, int v2) const;
     
     double genTime;     ///< total event generator "real" time, [s]
+    double calcTime;    ///< total calculation time [s]
     double segSize;     ///< segment short-dimension size [mm]
     int nx;             ///< scintillator x segmentation
     int ny;             ///< scintillator y segmentation

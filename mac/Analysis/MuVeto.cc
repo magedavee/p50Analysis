@@ -14,71 +14,16 @@ void dispVFrac(double* vcounts, const std::string& suffix) {
     cout << "Vetoed " << nVetoed << "/" << vcounts[false] << " (" << nVetoed/vcounts[false] << ") " << suffix << "\n";
 }
 
-class ProfileHistos {
-public:
-    ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const std::string& u) {
-        h_xy = new TH2F((nm+"_xy").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
-        h_xy->GetXaxis()->SetTitle(("x position "+u).c_str());
-        h_xy->GetYaxis()->SetTitle(("y position "+u).c_str());
-        h[0] = h_xy;
-
-        h_xz = new TH2F((nm+"_xz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
-        h_xz->GetXaxis()->SetTitle(("x position "+u).c_str());
-        h_xz->GetYaxis()->SetTitle(("z position "+u).c_str());
-        h[1] = h_xz;
-
-        h_yz = new TH2F((nm+"_yz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
-        h_yz->GetXaxis()->SetTitle(("y position "+u).c_str());
-        h_yz->GetYaxis()->SetTitle(("z position "+u).c_str());
-        h[2] = h_yz;
-        
-        for(int i=0; i<3; i++) {
-            h[i]->GetYaxis()->SetTitleOffset(1.4);
-            hProf[i] = NULL;
-        }
-    }
-    
-    void ScaleBinsize() { for(int i=0; i<3; i++) h[i]->Scale(1./h[i]->GetXaxis()->GetBinWidth(1)/h[i]->GetYaxis()->GetBinWidth(1)); }
-    void Scale(double s) { for(int i=0; i<3; i++) h[i]->Scale(s); }
-    void SetMaximum(double m) { for(int i=0; i<3; i++) h[i]->SetMaximum(m); }
-    
-    void Fill(double x, double y, double z, double w=1.) {
-        h_xy->Fill(x,y,w);
-        h_xz->Fill(x,z,w);
-        h_yz->Fill(y,z,w);
-    }
-    
-    void Print(const char* opt, const string& bpath) {
-        h_xy->Draw(opt);
-        gPad->Print((bpath+"_xy.pdf").c_str());
-        h_xz->Draw(opt);
-        gPad->Print((bpath+"_xz.pdf").c_str());
-        h_yz->Draw(opt);
-        gPad->Print((bpath+"_yz.pdf").c_str());
-    }
-    
-    void makeProf() {
-        hProf[0] = h_xy->ProjectionX();
-        hProf[1] = h_yz->ProjectionX();
-        hProf[2] = h_xz->ProjectionY();
-        for(int i=0; i<3; i++) {
-            hProf[i]->Scale(1./hProf[i]->GetXaxis()->GetBinWidth(1));
-            hProf[i]->SetLineColor(2+i);
-        }
-    }
-    
-    TH2F* h_xy;
-    TH2F* h_xz;
-    TH2F* h_yz;
-    TH2F* h[3];
-    
-    TH1* hProf[3];
-};
+bool isAdjacentPair(const map<Int_t, Int_t>& volHits, const OutDirLoader& D) {
+    if(volHits.size() != 2) return false;
+    auto it = volHits.begin();
+    int v1 = it->first;
+    int v2 = (++it)->first;
+    return D.isAdjacent(v1,v2);
+}
 
 int main(int argc, char** argv) {
-    // load library describing data classes
-    gSystem->Load("libEventLib.so");
-    
+    gSystem->Load("libEventLib.so"); // load library describing data classes
     gStyle->SetOptStat("");
     
     std::string inPath = ".";
@@ -98,8 +43,8 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("VetoIoni",&vion);
     IoniClusterEvent* sion = new IoniClusterEvent();
     T->SetBranchAddress("ScIoni",&sion);
-    NCaptEvent* snc = new NCaptEvent();
-    T->SetBranchAddress("ScN",&snc);
+    NCaptEvent* scn = new NCaptEvent();
+    T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
     TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 20, 100, 0, 10));
@@ -123,6 +68,11 @@ int main(int argc, char** argv) {
         hIBDSpec[i]->SetLineColor(4-2*i);
     }
 
+    TH1F* hOuterSpec = (TH1F*)f.add(new TH1F("hOuterSpec","Outer scintillator ionization", 100, 0, 40));
+    hOuterSpec->GetXaxis()->SetTitle("energy deposition [MeV]");
+    hOuterSpec->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
+    hOuterSpec->GetYaxis()->SetTitleOffset(1.45);
+    
     TH1F* hVetoSpec = (TH1F*)f.add(new TH1F("hVetoSpec","Muon Veto ionization", 400, 0, 50));
     hVetoSpec->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
     hVetoSpec->GetYaxis()->SetTitle("Event rate [Hz/MeV]");
@@ -142,7 +92,6 @@ int main(int argc, char** argv) {
     hPrimE->GetXaxis()->SetTitleOffset(1.3);
     
     ProfileHistos hIBDpos(200,1.5,"hIBDpos","IBD-like event positions","[m]");
-    ProfileHistos hIBDposPV(200,1.5,"hIBDposPV","IBD-like event positions","[m]");
     
     double veto_thresh = 5;     //< muon veto trigger threshold energy, MeV
     
@@ -150,6 +99,8 @@ int main(int argc, char** argv) {
     map<int,int> trigVeto;
     map<int,int> trigScint[2];
     map<int,int> trigIBD[2];
+    map<int,int> nCapts;
+    map<int,int> nNCapts;
     
     // scan events
     Long64_t nentries = T->GetEntries();
@@ -158,8 +109,10 @@ int main(int argc, char** argv) {
         prim->Clear();
         vion->Clear();
         sion->Clear();
-        snc->Clear();
+        scn->Clear();
         T->GetEntry(ev);
+        
+        if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
         
         // primaries
         map<int,int> primCounter;
@@ -174,6 +127,16 @@ int main(int argc, char** argv) {
         }
         if(nPrim > 1) PID = 0;
 
+        // neutron captures
+        Int_t nNCapt = scn->nCapts->GetEntriesFast();
+        int nCaptInVol = 0;
+        for(Int_t i=0; i<nNCapt; i++) {
+            NCapt* nc = (NCapt*)scn->nCapts->At(i);
+            nCaptInVol += (nc->vol >= 0);
+        }
+        nNCapts[nCaptInVol]++;
+        if(nCaptInVol) nCapts[PID]++;
+        
         if(vion->EIoni) hVetoSpec->Fill(vion->EIoni);
         
         vector<IoniCluster> scintHits;
@@ -215,7 +178,10 @@ int main(int argc, char** argv) {
             if(!nVetoTrigs) trigScint[true][PID]++;
         }
         
-        if(volHits.size() != 1) continue; // single-segment events only
+        // single- or adjacent-segments-only events
+        if(false && isAdjacentPair(volHits,D)) {
+            eLikeHits = mergeIoniHits(eLikeHits, 5.);
+        } else if(volHits.size() != 1) continue;
         
         // coincidences
         int nIBD = 0;
@@ -226,8 +192,10 @@ int main(int argc, char** argv) {
                 nIBD++;
                 trigIBD[false][PID]++;
                 hIBDpos.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
+                bool isOuterLayer = (fabs(ite->x[0]) > 144*6 || fabs(ite->x[1]) > 144*4);
                 hIBDSpec[false]->Fill(ite->E);
                 hCoinc[false]->Fill( (itn->t - ite->t)/1000. );
+                if(isOuterLayer) hOuterSpec->Fill(volIoni[-1]);
                 
                 bool isVetoed = false;
                 for(auto itv = vetoHits.begin(); itv != vetoHits.end(); itv++) {
@@ -240,13 +208,14 @@ int main(int argc, char** argv) {
                     trigIBD[true][PID]++;
                     hIBDSpec[true]->Fill(ite->E);
                     hCoinc[true]->Fill( (itn->t - ite->t)/1000. );
-                    hIBDposPV.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
                 }
             }
         }
         
         if(nIBD) hPrimE->Fill(nEnergy);
     }
+    
+    cout << "\n\n";
     
     // vetoed events in energy range of interest
     int b1 = hIBDSpec[false]->FindBin(2.0);
@@ -261,6 +230,10 @@ int main(int argc, char** argv) {
     for(int i=0; i<2; i++) display_map(trigScint[i],D.genTime);
     cout << "\n\nIBD triggers:\n";
     for(int i=0; i<2; i++) display_map(trigIBD[i],D.genTime);
+    cout << "\n\nNeutron captures:\n";
+    display_map(nCapts,D.genTime);
+    //cout << "\n\nNumber of neutron captures in event:\n";
+    //display_map(nNCapts,D.genTime);
     
     ///////////////
     // draw results
@@ -298,10 +271,21 @@ int main(int argc, char** argv) {
     hIBDSpec[true]->Draw("Same");
     gPad->Print((outpath+"/IBDSpectrum.pdf").c_str());
     
+    hOuterSpec->Scale(1000./hOuterSpec->GetBinWidth(1)/D.genTime);
+    hOuterSpec->SetMaximum(100);
+    hOuterSpec->Draw();
+    gPad->Print((outpath+"/IBDOuterSpectrum.pdf").c_str());
     
+    gPad->SetLogx(true);
+    hPrimE->Scale(1000./D.genTime);
+    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
+    hPrimE->Draw();
+    gPad->Print((outpath+"/nPrimE.pdf").c_str());
+    gPad->SetLogx(false);
+    
+    hIBDpos.Scale(1./D.genTime);
     hIBDpos.makeProf();
     for(int i=0; i<3; i++) {
-        hIBDpos.hProf[i]->Scale(1./D.genTime);
         hIBDpos.hProf[i]->GetXaxis()->SetTitle("event position [m]");
         hIBDpos.hProf[i]->GetYaxis()->SetTitle("rate [Hz/m]");
     }
@@ -310,11 +294,8 @@ int main(int argc, char** argv) {
     hIBDpos.hProf[2]->Draw("Same");
     gPad->Print((outpath+"/IBDPos.pdf").c_str());
     
-    gPad->SetLogx(true);
-    hPrimE->Scale(1000./D.genTime);
-    hPrimE->GetYaxis()->SetTitle("rate [mHz/bin]");
-    hPrimE->Draw();
-    gPad->Print((outpath+"/nPrimE.pdf").c_str());
+    gPad->SetCanvasSize(700,700);
+    hIBDpos.Print("Col",outpath+"/IBDPos");
     
     return 0;
 }

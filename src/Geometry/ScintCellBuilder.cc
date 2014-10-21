@@ -44,7 +44,7 @@ void ScintCellBuilder::construct() {
 
     G4Tubs* scint_tube = new G4Tubs("scint_tube", 0, radius-wall_thick, length/2.-wall_thick, 0, 2*M_PI);
     scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().UG_AB, scintLiLoading, false), "ScintCell_scint_log");
-    new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintCell_scint_phys", main_log, false, 0, false);
+    scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintCell_scint_phys", main_log, false, 0, false);
 }
 
 void ScintCellBuilder::fillNode(TXMLEngine& E) {

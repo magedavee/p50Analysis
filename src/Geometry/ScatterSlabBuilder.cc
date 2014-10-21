@@ -10,7 +10,7 @@
 #include <G4Box.hh>
 #include <G4VisAttributes.hh>
 
-ScatterSlabBuilder::ScatterSlabBuilder(): Builder("ScatterSlab"),
+ScatterSlabBuilder::ScatterSlabBuilder(): ScintSegVol("ScatterSlab"),
 mat(MaterialsHelper::M().Vacuum), thick(1*mm), width(1*m),
 slabDir("/geom/slab/"),
 thickCmd("/geom/slab/thickness",this),
@@ -44,9 +44,9 @@ void ScatterSlabBuilder::construct() {
     main_log = new G4LogicalVolume(slab_vol_box, MaterialsHelper::M().Vacuum, "Slab_main_log");
     
     G4Box* slab_box = new G4Box("slab_box", dim[0]/2., dim[1]/2., thick/2.);
-    slab_log = new G4LogicalVolume(slab_box, mat, "Slab_log");
-    slab_log->SetVisAttributes(new G4VisAttributes(G4Color(0,0,1)));
-    new G4PVPlacement(NULL, G4ThreeVector(0,0,thick/2.), slab_log, "Slab_phys", main_log, false, 0, false);
+    scint_log = new G4LogicalVolume(slab_box, mat, "Slab_log");
+    scint_log->SetVisAttributes(new G4VisAttributes(G4Color(0,0,1)));
+    scint_phys = new G4PVPlacement(NULL, G4ThreeVector(0,0,thick/2.), scint_log, "Slab_phys", main_log, false, 0, false);
     
     G4Box* flux_box = new G4Box("slab_flux_box", dim[0]/2., dim[1]/2., fluxthick/2.);
     slab_flux_log = new G4LogicalVolume(flux_box, mat, "Slab_flux_log");

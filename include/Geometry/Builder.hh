@@ -25,7 +25,6 @@ public:
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions
-    
 };
 
 /// Specification for a rectangular material shell around contents
@@ -48,5 +47,22 @@ protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
 };
+
+/// Builder specified by nested layers
+class ShellLayerBuilder: public Builder {
+public:
+    /// Constructor
+    ShellLayerBuilder(const std::string& n): Builder(n) { }
+    
+    /// add shield layer
+    virtual void addLayer(const ShellLayerSpec& sh) { layers.push_back(sh); }
+    
+protected:
+    /// construct layers
+    void constructLayers(Builder& contents);
+    
+    std::vector<ShellLayerSpec> layers;         ///< descriptions of each layer
+};
+
 
 #endif

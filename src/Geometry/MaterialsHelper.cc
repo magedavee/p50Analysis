@@ -127,11 +127,13 @@ MaterialsHelper::MaterialsHelper() {
     Dirt->AddElement(nist->FindOrBuildElement("O"),  nAtoms= 50);
     
     setupOptical();
+    
+    // pre-build LS for availability in named materials catalog
+    get6LiLS(EJ309, 0.001);
 }
 
 G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enriched) {
-    assert(base);
-    if(!base) return NULL;
+    if(!loading || !base) return base;
     
     std::string mnm = base->GetName()+std::string("-")+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {

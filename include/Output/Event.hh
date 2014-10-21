@@ -43,13 +43,15 @@ public:
 class IoniCluster: public TObject {
 public:
     /// constructor
-    IoniCluster(): E(0.), t(0.), dt(0.), vol(0), PID(0) {}
+    IoniCluster(): E(0.), t(0.), dt(0.), EdEdx(0), EdEdx2(0), vol(0), PID(0) {}
     
     Double_t E;         ///< deposited energy
     Double_t t;         ///< average time
     Double_t dt;        ///< RMS timing spread
     Double_t x[3];      ///< average position
     Double_t dx[3];     ///< RMS position spread
+    Double_t EdEdx;     ///< approximated energy-weighted dE/dx $\int dE/dx dE$ for quenching calculation
+    Double_t EdEdx2;    ///< approximated energy-weighted (dE/dx)^2 $\int (dE/dx)^2 dE$ for quenching calculation
     Double_t l;         ///< track length
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
@@ -59,7 +61,7 @@ public:
     /// total position spread in all axes
     Double_t dxtot() const;
     
-    ClassDef(IoniCluster,3);
+    ClassDef(IoniCluster,4);
 };
 
 /// Event containing a list of ionization clusters

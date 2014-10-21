@@ -4,14 +4,16 @@
 
 #include "IoniSD.hh"
 #include "ScintSegVol.hh"
+
 #include <G4VSensitiveDetector.hh>
+class G4VPhysicalVolume;
 
 /// Sensitive detector for tracking ionizing energy deposition
 class ScintSD : public IoniSD, public G4VSensitiveDetector {
 public:
     
     /// Constructor
-    ScintSD(G4String name, ScintSegVol& T);
+    ScintSD(G4String name, ScintSegVol& T, G4VPhysicalVolume* W);
 
     /// Initializes detector at start of event
     void Initialize(G4HCofThisEvent*);

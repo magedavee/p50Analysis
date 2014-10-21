@@ -21,6 +21,8 @@ IoniCluster hitToCluster(IonisationHit* h, G4int pid, G4int detvol) {
     c.t = h->GetTime();
     c.dt = h->GetDTime();
     c.l = h->GetLength();
+    c.EdEdx = h->GetEdEdx();
+    c.EdEdx2 = h->GetEdEdx2();
     c.PID = pid;
     for(unsigned int i=0; i<3; i++) { c.x[i] = h->GetPos()[i]; c.dx[i] = h->GetDPos()[i]; }
     c.vol = detvol;
@@ -34,17 +36,29 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(10*keV) { }
 
 void IoniSD::collectHitInfo(G4Step* aStep) {
-    G4TouchableHandle hitVol = aStep->GetPreStepPoint()->GetTouchableHandle();
-    worldPrePos = aStep->GetPreStepPoint()->GetPosition();
+    worldPrePos = aStep->GetPreStepPoint()->GetPosition(); // track occurred in this volume
     worldPostPos = aStep->GetPostStepPoint()->GetPosition();
-    localPrePos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPrePos);
-    localPostPos = hitVol->GetHistory()->GetTopTransform().TransformPoint(worldPostPos);
+    localPrePos = W2S.coordPtoC(worldPrePos);
+    localPostPos = W2S.coordPtoC(worldPostPos);
+    localMidPos = (localPrePos + localPostPos)*0.5;
     PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 }
 
 IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
-    G4double E = aStep->GetTotalEnergyDeposit()-aStep->GetNonIonizingEnergyDeposit();
-    if(E <= 0) return NULL;
+    G4double Etot = aStep->GetTotalEnergyDeposit();
+    G4double E = Etot-aStep->GetNonIonizingEnergyDeposit();
+    G4double z = aStep->GetTrack()->GetDynamicParticle()->GetCharge();
+    
+    // dE/dx estimation
+    G4double dEdx = 0;
+    auto pdedx = parent_dEdx.find(aStep->GetTrack());
+    bool isSubQuench = pdedx != parent_dEdx.end();
+    if(isSubQuench) {
+        dEdx = pdedx->second;
+        parent_dEdx.erase(pdedx);
+    }
+        
+    if(!E) return NULL;
     
     IonisationHit* aHit = new IonisationHit();
     
@@ -56,7 +70,29 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
         aHit->SetLength(aStep->GetStepLength()/nsplit);
         aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+l*aStep->GetDeltaTime());
         aHit->SetPos(localPrePos*(1.-l)+localPostPos*l);
+        
+        // dE/dx estimation
+        if(!isSubQuench) {
+            G4double m_x = aStep->GetTrack()->GetDynamicParticle()->GetMass();
+            G4double KE = aStep->GetTrack()->GetKineticEnergy() + l*Etot; // kinetic energy before step
+            G4double x = KE/m_x;
+            if(x>9.59e-5) {
+                G4double b2 = 1-1/pow(1+x,2); // particle beta^2
+                dEdx = 0.307 * MeV/cm * mat_n * z*z / b2 * (log(1.022e4*b2/(1-b2)) - b2);
+            } else {
+                dEdx = mat_n * z*z * 57017*pow(x,0.4290) * MeV/cm;
+            }
+        }
+        aHit->SetdEdx(dEdx);
+        
         aHit->record();
+    }
+    
+    // save dE/dx for secondaries
+    const G4TrackVector* secondaries = aStep->GetSecondary();
+    for(auto it = secondaries->begin(); it != secondaries->end(); it++) {
+        if((*it)->GetVolume() != aStep->GetTrack()->GetVolume()) continue;
+        parent_dEdx.insert(std::pair<const G4Track*,double>(*it,aHit->GetEdEdx()/aHit->GetEnergyDeposit()));
     }
     
     return aHit;

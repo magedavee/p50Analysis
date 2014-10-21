@@ -15,9 +15,9 @@ public:
     
     /// Construct geometry
     void construct();
-    /// Get length
-    double getLength() const { return length; }
     
+    double block_width;			///< width of outer square housing block
+    double block_length;		///< length of outer housing block
     double diameter;            ///< PMT diameter
     
 protected:
