@@ -133,8 +133,7 @@ MaterialsHelper::MaterialsHelper() {
 }
 
 G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enriched) {
-    assert(base);
-    if(!base) return NULL;
+    if(!loading || !base) return base;
     
     std::string mnm = base->GetName()+std::string("-")+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {

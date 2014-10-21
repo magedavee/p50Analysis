@@ -18,6 +18,8 @@
 #include <TCanvas.h>
 #include <TStyle.h>
 #include <TLegend.h>
+#include <TProfile.h>
+#include <TGraph.h>
 
 using std::cout;
 using std::map;

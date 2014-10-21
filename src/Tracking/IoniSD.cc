@@ -47,33 +47,18 @@ void IoniSD::collectHitInfo(G4Step* aStep) {
 IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
     G4double Etot = aStep->GetTotalEnergyDeposit();
     G4double E = Etot-aStep->GetNonIonizingEnergyDeposit();
-    if(E <= 0) return NULL;
+    G4double z = aStep->GetTrack()->GetDynamicParticle()->GetCharge();
     
     // dE/dx estimation
     G4double dEdx = 0;
     auto pdedx = parent_dEdx.find(aStep->GetTrack());
-    if(pdedx != parent_dEdx.end()) {
+    bool isSubQuench = pdedx != parent_dEdx.end();
+    if(isSubQuench) {
         dEdx = pdedx->second;
         parent_dEdx.erase(pdedx);
-    } else {
-        G4double z = aStep->GetTrack()->GetDynamicParticle()->GetCharge();
-        G4double m_x = aStep->GetTrack()->GetDynamicParticle()->GetMass();
-        G4double KE = aStep->GetTrack()->GetKineticEnergy() + Etot; // kinetic energy before step
-        G4double x = KE/m_x;
-    
-        if(x>9.59e-5) {
-            G4double b2 = 1-1/pow(1+x,2); // particle beta^2
-            dEdx = 0.307 * MeV/cm * mat_n * z*z / b2 * (log(1.022e4*b2/(1-b2)) - b2);
-        } else {
-            dEdx = mat_n * z*z * 57017*pow(x,0.4290);
-        }
     }
-    // save dE/dx for secondaries
-    const G4TrackVector* secondaries = aStep->GetSecondary();
-    for(auto it = secondaries->begin(); it != secondaries->end(); it++) {
-        if((*it)->GetVolume() != aStep->GetTrack()->GetVolume()) continue;
-        parent_dEdx.insert(std::pair<const G4Track*,double>(*it,dEdx));
-    }
+        
+    if(!E) return NULL;
     
     IonisationHit* aHit = new IonisationHit();
     
@@ -85,11 +70,30 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
         aHit->SetLength(aStep->GetStepLength()/nsplit);
         aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+l*aStep->GetDeltaTime());
         aHit->SetPos(localPrePos*(1.-l)+localPostPos*l);
+        
+        // dE/dx estimation
+        if(!isSubQuench) {
+            G4double m_x = aStep->GetTrack()->GetDynamicParticle()->GetMass();
+            G4double KE = aStep->GetTrack()->GetKineticEnergy() + l*Etot; // kinetic energy before step
+            G4double x = KE/m_x;
+            if(x>9.59e-5) {
+                G4double b2 = 1-1/pow(1+x,2); // particle beta^2
+                dEdx = 0.307 * MeV/cm * mat_n * z*z / b2 * (log(1.022e4*b2/(1-b2)) - b2);
+            } else {
+                dEdx = mat_n * z*z * 57017*pow(x,0.4290) * MeV/cm;
+            }
+        }
         aHit->SetdEdx(dEdx);
+        
         aHit->record();
     }
     
-    
+    // save dE/dx for secondaries
+    const G4TrackVector* secondaries = aStep->GetSecondary();
+    for(auto it = secondaries->begin(); it != secondaries->end(); it++) {
+        if((*it)->GetVolume() != aStep->GetTrack()->GetVolume()) continue;
+        parent_dEdx.insert(std::pair<const G4Track*,double>(*it,aHit->GetEdEdx()/aHit->GetEnergyDeposit()));
+    }
     
     return aHit;
 }

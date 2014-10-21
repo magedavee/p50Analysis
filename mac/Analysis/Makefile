@@ -8,13 +8,13 @@
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
 	-I. -ICommon/ -I../../include/Output/ 
-LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lXMLIO
+LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXMLIO
 
 #
 # things to build
 #
 
-VPATH = Common/
+VPATH = Common/:Private/
 
 Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o PathUtils.o strutils.o XMLInfo.o
 objects = $(Utils)
