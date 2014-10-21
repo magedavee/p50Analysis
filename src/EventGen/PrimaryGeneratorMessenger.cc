@@ -19,6 +19,7 @@ moduleCosMucmd("/generator/module_CosMu",this),
 moduleCosNcmd("/generator/module_CosN",this),
 moduleCf252cmd("/generator/module_Cf252",this),
 moduleSimpleBGcmd("/generator/module_SimpleBG",this),
+moduleThermalNcmd("/generator/module_ThermalN",this),
 moduleGPScmd("/generator/module_gps",this) {
         
     genDir.SetGuidance("Custom simulation settings.");
@@ -57,6 +58,9 @@ moduleGPScmd("/generator/module_gps",this) {
     moduleSimpleBGcmd.SetGuidance("Use SimpleBG gamma event generator");
     moduleSimpleBGcmd.AvailableForStates(G4State_Idle);
 
+    moduleThermalNcmd.SetGuidance("Use thermal neutron event generator");
+    moduleThermalNcmd.AvailableForStates(G4State_Idle);
+
     moduleGPScmd.SetGuidance("Use G4GeneralParticleSource generator");
     moduleGPScmd.AvailableForStates(G4State_Idle);
 }
@@ -71,6 +75,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == &moduleCf252cmd) generator->loadCf252Module();
     else if(command == &moduleSimpleBGcmd) generator->loadSimpleBGModule();
+    else if(command == &moduleThermalNcmd) generator->loadThermalNModule();
     else if(command == &moduleGPScmd) generator->loadGPSModule();
 
     else G4cout << "Command not found." << G4endl;
