@@ -448,7 +448,6 @@ G4RotationMatrix* InverseBetaKinematics::FindTargetRotationWRTWorld() const		// 
 	// ****** Calculate Target Volume Translation ****** //
 G4ThreeVector* InverseBetaKinematics::FindTargetTranslationWRTWorld() const		// Determines if logical volume has been translated into place in the world - obtains translation vector
 {
-  G4cerr<<"Translating"<<G4endl;
 	// Generate null translation vector to start the stack
   G4ThreeVector* translation = new G4ThreeVector(0.,0.,0.);
   G4VPhysicalVolume* currentVolume = worldVolume;
@@ -456,7 +455,6 @@ G4ThreeVector* InverseBetaKinematics::FindTargetTranslationWRTWorld() const		// 
   if(targetVolume) {
     do {
       *translation += currentVolume->GetObjectTranslation();	// Applies current volume translation vector to stack
-      G4cerr<<currentVolume->GetName()<<"\t"<<translation[0]<<"\t"<<translation[1]<<"\t"<<translation[2]<<G4endl;
 
 	// Grabs each daughter volume and checks if target volume is contained within it
       G4LogicalVolume* currentLogical = currentVolume->GetLogicalVolume();

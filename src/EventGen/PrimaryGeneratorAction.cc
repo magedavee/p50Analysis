@@ -11,6 +11,7 @@
 #include "CosmicMuonModule.hh"
 #include "Cf252Module.hh"
 #include "SimpleBGModule.hh"
+#include "ThermalNModule.hh"
 #include "CosmicNeutronModule.hh"
 #include "GenPtclModule.hh"
 
@@ -56,7 +57,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():
 XMLProvider("PrimaryGenerator"),
 genModule(NULL), myCRYModule(NULL),
 myIBDModule(NULL), myFisAntNuModule(NULL),
-myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , mySimpleBGModule(NULL) {
+myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , mySimpleBGModule(NULL), myThermalNModule(NULL){
     verbose = 0;
     
     // Particle Gun
@@ -84,6 +85,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myCosmicNeutronModule) delete myCosmicNeutronModule;
     if(myCf252Module) delete myCf252Module;
     if(mySimpleBGModule) delete mySimpleBGModule;
+    if(myThermalNModule) delete myThermalNModule;
 }
 
 void PrimaryGeneratorAction::loadGunModule() {
@@ -131,6 +133,12 @@ void PrimaryGeneratorAction::loadSimpleBGModule() {
     if(!mySimpleBGModule) mySimpleBGModule = new SimpleBGModule(this);
     G4cout << "Using SimpleBG event generator." << G4endl; 
     genModule = mySimpleBGModule;
+}
+
+void PrimaryGeneratorAction::loadThermalNModule() {
+    if(!myThermalNModule) myThermalNModule = new ThermalNModule(this);
+    G4cout << "Using thermal neutron event generator." << G4endl; 
+    genModule = myThermalNModule;
 }
 
 void PrimaryGeneratorAction::loadGPSModule() {

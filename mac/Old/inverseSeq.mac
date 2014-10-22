@@ -49,7 +49,7 @@
 /generator/module/inverseBeta/setFuelComposition 100 0 0 0
 /generator/module/inverseBeta/printParameters
 /output/setRecordLevel 3
-/output/filename ~/Analysis/PROSPECT/Simulation/Data/inverseSeq2.root
+/output/filename ~/Analysis/PROSPECT/Simulation/Data/inverseSeq.root
 
 # Run the simulation
-/run/beamOn 1000000
+/run/beamOn 1000
