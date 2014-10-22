@@ -62,12 +62,16 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
     
     IonisationHit* aHit = new IonisationHit();
     
-    // split up track segment to produce spread information on single-segment tracks
-    const unsigned int nsplit = 3;
+    // split up track segment to produce spread information on single-segment tracks;
+    // using Simpson's Rule weights w for numerical integration of quantities
+    const unsigned int nsplit = 7;
     for(unsigned int i=0; i<nsplit; i++) {
-        double l = (i+0.5)/double(nsplit);
-        aHit->SetEnergy(E/nsplit);
-        aHit->SetLength(aStep->GetStepLength()/nsplit);
+        double w = i%2? 4 : 2;
+        if(i==0 || i==nsplit-1) w = 1;
+        w /= 3*(nsplit-1);
+        double l = i/double(nsplit-1);
+        aHit->SetEnergy(E*w);
+        aHit->SetLength(aStep->GetStepLength()*w);
         aHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime()+l*aStep->GetDeltaTime());
         aHit->SetPos(localPrePos*(1.-l)+localPostPos*l);
         

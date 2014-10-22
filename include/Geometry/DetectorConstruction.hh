@@ -51,9 +51,9 @@ public:
     
 private:
     
-    ScintSD* myScintSD;         ///< sensitive detector for scintillator volume
-    G4UIdirectory geomDir;      ///< UI directory for construction geometry commands
-    G4UIcmdWithAString modeCmd; ///< UI command for setting construction mode
+    ScintSD* myScintSD = NULL;          ///< sensitive detector for scintillator volume
+    G4UIdirectory geomDir;              ///< UI directory for construction geometry commands
+    G4UIcmdWithAString modeCmd;         ///< UI command for setting construction mode
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
