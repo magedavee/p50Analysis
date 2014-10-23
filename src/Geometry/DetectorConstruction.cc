@@ -92,6 +92,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 void DetectorConstruction::fillNode(TXMLEngine& E) {
     addAttr(E, "mode", (mode==TEST_CELL)?"TestCell":"PROSPECT");
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    if(myScintSD) addAttr(E,"scint_e_density",myScintSD->mat_n);
 }
 
 /*

@@ -16,8 +16,14 @@ Cf252Module::Cf252Module(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "Cf252"),
 SurfaceThrower(myPGA->GetDetector()->theWorld),
 netRate(1/s), a(1.18*MeV), b(1.03419/MeV) {
-    setSourceTarget(myPGA->GetDetector()->ptclSrc, myPGA->GetDetector()->building_phys);
+    G4VPhysicalVolume* ptclSrc = myPGA->GetDetector()->ptclSrc;
     outer = true;
+    if(!ptclSrc) {
+        outer = false;
+        ptclSrc = myPGA->GetDetector()->theWorld;
+    }
+    setSourceTarget(ptclSrc, myPGA->GetDetector()->building_phys);
+    
     
     const unsigned int nBins = 200;
     myDist = new TH1F("hCf252_Watt","Cf252 Neutron 'Watt' Spectrum", nBins, 0, 40*MeV);

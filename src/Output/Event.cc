@@ -56,6 +56,17 @@ Double_t IoniCluster::dxtot() const {
     return sqrt(dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 }
 
+Double_t IoniCluster::Equench() const {
+    const double c_1 = 0.1049;
+    const double c_2 = -8.72117e-05;
+    return E / (1 + c_1*EdEdx/E + c_2*EdEdx2/E);
+    
+    //const double c_1 = -0.0686308;
+    //const double c_2 = 0.0077532;
+    //const double c_3 = -6.6839e-05;
+    //return E / (1 + c_1*EdEdx/E + c_2*EdEdx2/E + c_3*EdEdx/E*EdEdx2/E);
+}
+
 ////////////////////////////////////////////
 //------------------------------------------
 ////////////////////////////////////////////

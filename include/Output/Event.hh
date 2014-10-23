@@ -60,6 +60,8 @@ public:
     void operator+=(const IoniCluster& r);
     /// total position spread in all axes
     Double_t dxtot() const;
+    /// quenched energy approximation
+    Double_t Equench() const;
     
     ClassDef(IoniCluster,4);
 };

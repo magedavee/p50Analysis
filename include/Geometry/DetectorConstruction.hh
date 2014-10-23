@@ -44,16 +44,16 @@ public:
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     
-    G4VPhysicalVolume* theWorld;        ///< world volume
-    G4VPhysicalVolume* ptclSrc;         ///< optional event generator source volume
+    G4VPhysicalVolume* theWorld = NULL; ///< world volume
+    G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume
     G4VPhysicalVolume* building_phys;   ///< physical building placement
     ShellLayerSpec worldShell;          ///< world outer vacuum layer dimensions
     
 private:
     
-    ScintSD* myScintSD;         ///< sensitive detector for scintillator volume
-    G4UIdirectory geomDir;      ///< UI directory for construction geometry commands
-    G4UIcmdWithAString modeCmd; ///< UI command for setting construction mode
+    ScintSD* myScintSD = NULL;          ///< sensitive detector for scintillator volume
+    G4UIdirectory geomDir;              ///< UI directory for construction geometry commands
+    G4UIcmdWithAString modeCmd;         ///< UI command for setting construction mode
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

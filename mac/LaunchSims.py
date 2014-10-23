@@ -96,26 +96,25 @@ if __name__=="__main__":
         L = SB_MC_Launcher("CRY_MuVeto_dEdx", 1e5)
         #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.launch_sims(4*6*10)
+        L.launch_sims(4*6*100)
     
     if options.testcell:
-        for nergy in [0.5,1,1.5,2,2.5,3.5,4,4.5,5,5.5,6,8,10]:
-            L = SB_MC_Launcher("TestCell_n_%g_MeV"%nergy, 1e4)
-            L.template = "TestCell_Template.mac"
+        L = SB_MC_Launcher("TestCell_Quenched", 1e4)
+        L.template = "TestCell_Template.mac"
             
-            #L.settings["generator"] = "/generator/module_Cf252"
+        L.settings["generator"] = "/generator/module_Cf252"
             
-            L.settings["preinit"] += "/geom/testcell/radius 6.35 cm\n"
-            L.settings["preinit"] += "/geom/testcell/length 20 cm\n"
-            L.settings["preinit"] += "/geom/testcell/loading 0\n"
+        #L.settings["preinit"] += "/geom/testcell/radius 6.35 cm\n"
+        #L.settings["preinit"] += "/geom/testcell/length 20 cm\n"
+        #L.settings["preinit"] += "/geom/testcell/loading 0\n"
             
-            L.settings["generator"] = "/generator/module_gun\n"
-            L.settings["generator"] += "/gun/particle neutron\n"
-            L.settings["generator"] += "/gun/energy %g MeV\n"%nergy
-            L.settings["generator"] += "/gun/direction 0 0 1\n"
-            L.settings["generator"] += "/gun/position 0 0 -1 m\n"
+        #L.settings["generator"] = "/generator/module_gun\n"
+        #L.settings["generator"] += "/gun/particle neutron\n"
+        #L.settings["generator"] += "/gun/energy %g MeV\n"%nergy
+        #L.settings["generator"] += "/gun/direction 0 0 1\n"
+        #L.settings["generator"] += "/gun/position 0 0 -1 m\n"
             
-            L.launch_sims(4*2)
+        L.launch_sims(4*2)
         
     if options.nscatter:
         for E in ["10 MeV","1 keV","1 eV","0.02 eV"]:
@@ -127,7 +126,7 @@ if __name__=="__main__":
                 L.settings["slab_thick"] = t
                 L.settings["particle"] = "neutron"
                 L.settings["reclevel"] = 3
-                L.launch_sims(4*10)
+                L.launch_sims(4*2)
                 
     if options.proton:
         nruns = 4*100
