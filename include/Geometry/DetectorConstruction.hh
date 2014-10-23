@@ -44,8 +44,8 @@ public:
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     
-    G4VPhysicalVolume* theWorld;        ///< world volume
-    G4VPhysicalVolume* ptclSrc;         ///< optional event generator source volume
+    G4VPhysicalVolume* theWorld = NULL; ///< world volume
+    G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume
     G4VPhysicalVolume* building_phys;   ///< physical building placement
     ShellLayerSpec worldShell;          ///< world outer vacuum layer dimensions
     
