@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScN",&scn);
     
     // set up histograms
-    TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 20, 100, 0, 10));
-    hSingles->GetXaxis()->SetTitle("Ionizing deposition [MeV]");
-    hSingles->GetYaxis()->SetTitle("PSD proxy [mm/MeV]");
+    TH2F* hSingles = (TH2F*)f.add(new TH2F("hSingles","Scintillator events", 200, 0, 5, 200, 0, 6));
+    hSingles->GetXaxis()->SetTitle("Visible energy [MeVee]");
+    hSingles->GetYaxis()->SetTitle("1/<dE/dx> [mm/MeV]");
     //hSingles->GetYaxis()->SetTitleOffset(1.45);
     
     TH1F* hCoinc[2];
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
         hCoinc[i]->SetLineColor(4-2*i);
         
         hIBDSpec[i] = (TH1F*)f.add(new TH1F(("hIBDSpec"+to_str(i)).c_str(),"IBD-like spectrum", 100, 0, 20));
-        hIBDSpec[i]->GetXaxis()->SetTitle("Prompt ionization [MeV]");
+        hIBDSpec[i]->GetXaxis()->SetTitle("Prompt ionization [MeVee]");
         hIBDSpec[i]->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
         hIBDSpec[i]->GetYaxis()->SetTitleOffset(1.45);
         hIBDSpec[i]->SetLineColor(4-2*i);
@@ -160,17 +160,18 @@ int main(int argc, char** argv) {
         map<Int_t, Int_t> volHits;
         for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
             if(its->vol < 0) continue;
-            if(its->E < 0.1) continue;
+            if(its->Equench() < 0.1) continue;
             volHits[its->vol]++;
             
             //if(fabs(its->x[0]) > 144*6 || fabs(its->x[1]) > 144*4 || fabs(its->x[2]) > 500-144) continue;
             
-            double psd = its->dxtot()*sqrt(12)/its->E;
-            hSingles->Fill(its->E, psd);
+            double psd = 1./(its->EdEdx/its->E);
+            double psd_cut = 0.1;
+            hSingles->Fill(its->Equench(), psd);
             
-            if(4.5 < its->E && its->E < 5.0 && psd < 1) nCaptHits.push_back(*its);
-            else if(0.5 < its->E && psd < 1) recoilHits.push_back(*its);
-            if(0.1 < its->E && its->E < 20. && 1 < psd) eLikeHits.push_back(*its);
+            if(0.45 < its->Equench() && its->Equench() < 0.50 && psd < psd_cut) nCaptHits.push_back(*its);
+            else if(0.2 < its->Equench() && psd < psd_cut) recoilHits.push_back(*its);
+            if(0.1 < its->Equench() && its->Equench() < 20. && psd_cut < psd) eLikeHits.push_back(*its);
         }
         
         if(volHits.size()) {
@@ -193,7 +194,7 @@ int main(int argc, char** argv) {
                 trigIBD[false][PID]++;
                 hIBDpos.Fill(ite->x[0]/1000., ite->x[1]/1000., ite->x[2]/1000.);
                 bool isOuterLayer = (fabs(ite->x[0]) > 144*6 || fabs(ite->x[1]) > 144*4);
-                hIBDSpec[false]->Fill(ite->E);
+                hIBDSpec[false]->Fill(ite->Equench());
                 hCoinc[false]->Fill( (itn->t - ite->t)/1000. );
                 if(isOuterLayer) hOuterSpec->Fill(volIoni[-1]);
                 
@@ -206,7 +207,7 @@ int main(int argc, char** argv) {
                 }
                 if(!isVetoed) {
                     trigIBD[true][PID]++;
-                    hIBDSpec[true]->Fill(ite->E);
+                    hIBDSpec[true]->Fill(ite->Equench());
                     hCoinc[true]->Fill( (itn->t - ite->t)/1000. );
                 }
             }
@@ -240,7 +241,7 @@ int main(int argc, char** argv) {
     
     hSingles->Scale(1./hSingles->GetYaxis()->GetBinWidth(1)/hSingles->GetXaxis()->GetBinWidth(1)/D.genTime);
     hSingles->SetMinimum(0.1);
-    hSingles->SetMaximum(100);
+    hSingles->SetMaximum(1000);
     hSingles->Draw("Col Z");
     gPad->SetLogz(true);
     gPad->Print((outpath+"/Singles.pdf").c_str());

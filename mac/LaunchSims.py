@@ -93,10 +93,10 @@ if __name__=="__main__":
         L.launch_sims(4)
         
     if options.muveto:
-        L = SB_MC_Launcher("CRY_MuVeto_dEdx", 1e5)
+        L = SB_MC_Launcher("CRY_MuVeto_dEdx", 1e6)
         #L.settings["reclevel"] = 3
         L.settings["preinit"] += "/geom/shield/muveto 4 cm\n"
-        L.launch_sims(4*6*100)
+        L.launch_sims(4*6*200,4*6*100)
     
     if options.testcell:
         L = SB_MC_Launcher("TestCell_Quenched", 1e4)
