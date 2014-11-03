@@ -1,7 +1,6 @@
 #include "PathUtils.hh"
 #include "strutils.hh"
-
-//#include "SMExcept.hh"
+#include "SMExcept.hh"
 
 #include <dirent.h>
 #include <algorithm>
@@ -34,11 +33,11 @@ void makePath(string p, bool forFile) {
             string cmd = "mkdir -p '"+thepath+"'";
             int err = system(cmd.c_str());
             if(err || !dirExists(thepath)) {
-                // SMExcept e("badPath");
-                // e.insert("pathName",thepath);
-                // e.insert("errnum",errno);
-                // e.insert("errname",strerror(errno));
-                // throw(e);
+                SMExcept e("badPath");
+                e.insert("pathName",thepath);
+                e.insert("errnum",errno);
+                e.insert("errname",strerror(errno));
+                throw(e);
                 throw("Failed to make path!");
             }
         }
@@ -72,9 +71,9 @@ string getEnvSafe(const string& v, const string& dflt) {
     const char* envv = getenv(v.c_str());
     if(!envv) {
         if(dflt == "FAIL_IF_MISSING") {
-            //SMExcept e("missingEnv");
-            //e.insert("var",v);
-            //throw(e);
+            SMExcept e("missingEnv");
+            e.insert("var",v);
+            throw(e);
             throw("Missing Environment Variable!");
         }
         return dflt;

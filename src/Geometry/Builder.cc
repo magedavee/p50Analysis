@@ -1,5 +1,5 @@
 #include "Builder.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 #include <G4UnitsTable.hh>
 #include <G4Box.hh>
 #include <G4PVPlacement.hh>

@@ -1,5 +1,5 @@
 #include "XMLProvider.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 
 #include <cassert>
 #include <G4ios.hh>

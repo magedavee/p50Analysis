@@ -75,7 +75,7 @@ double XMLInfo::fromUnits(const string& s) const {
     if(!v.size()) return 0;
     double x = atof(v[0].c_str());
     if(v.size()<2) return x;
-    std::map<string,double>::const_iterator it = unitconv.find(v[1]);
+    map<string,double>::const_iterator it = unitconv.find(v[1]);
     assert(it != unitconv.end());
     if(it == unitconv.end()) return 0;
     return x*it->second;
@@ -109,14 +109,14 @@ genTime(0), calcTime(0), segSize(0), nx(0), ny(0), bpath(basepath) {
 
 vector<int> OutDirLoader::getRunlist() const {
     vector<int> v;
-    for(std::map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
+    for(map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
         v.push_back(it->first);
     return v;
 }
 
 vector<string> OutDirLoader::getFileList() const {
     vector<string> v;
-    for(std::map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
+    for(map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
         v.push_back(bpath+"/Run_"+to_str(it->first)+".root");
     return v;
 }

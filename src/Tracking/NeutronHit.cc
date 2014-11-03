@@ -99,9 +99,9 @@ void NeutronHit::Draw() {
     }
 }
 
-const std::map<G4String,G4AttDef>* NeutronHit::GetAttDefs() const {
+const map<G4String,G4AttDef>* NeutronHit::GetAttDefs() const {
     G4bool isNew;
-    std::map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("NeutronHit",isNew);
+    map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("NeutronHit",isNew);
     if(isNew) {
         G4String hitType("Hit Type");
         (*store)[hitType] = G4AttDef(hitType,"Hit Type","Physics","","G4String");

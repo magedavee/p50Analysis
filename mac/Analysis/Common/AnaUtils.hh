@@ -47,7 +47,7 @@ vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max)
 class ProfileHistos {
 public:
     /// Constructor
-    ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const std::string& u);
+    ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const string& u);
     
     /// scale to bin size
     void ScaleBinsize() { for(int i=0; i<3; i++) h[i]->Scale(1./h[i]->GetXaxis()->GetBinWidth(1)/h[i]->GetYaxis()->GetBinWidth(1)); }

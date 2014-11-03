@@ -35,6 +35,8 @@
 #include <vector>
 #include <math.h>
 
+using std::map;
+
 	// ****** Constructor ****** //
 InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 {
@@ -333,10 +335,10 @@ vector<G4double>* InverseBetaKinematics::GenerateReactionKinematics() const	// G
 void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const
 {
 	// Generates histograms for particle kinetic energies and relative directions
-  std::map<G4double,G4int>* thePosEHistogram = new std::map<G4double,G4int>();
-  std::map<G4double,G4int>* theNEHistogram = new std::map<G4double,G4int>();
-  std::map<G4double,G4int>* thePosAngHistogram = new std::map<G4double,G4int>();
-  std::map<G4double,G4int>* theNAngHistogram = new std::map<G4double,G4int>();
+  map<G4double,G4int>* thePosEHistogram = new map<G4double,G4int>();
+  map<G4double,G4int>* theNEHistogram = new map<G4double,G4int>();
+  map<G4double,G4int>* thePosAngHistogram = new map<G4double,G4int>();
+  map<G4double,G4int>* theNAngHistogram = new map<G4double,G4int>();
   G4double minPos_e = 0.0*MeV;
   G4double maxPos_e = 8.2*MeV;
   G4double pos_bins = 164;
@@ -380,7 +382,7 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const
     vector<G4double>* kinematics = GenerateReactionKinematics();
 
 	// Immediately sorts sampled kinematics into histogram for ease of storage and memory efficiency
-    std::map<G4double,G4int>::iterator itr = thePosEHistogram->begin();
+    map<G4double,G4int>::iterator itr = thePosEHistogram->begin();
     while((*kinematics)[0] >= itr->first && itr != thePosEHistogram->end()) { itr++; }
     (*thePosEHistogram)[itr->first]++;
     itr = theNEHistogram->begin();

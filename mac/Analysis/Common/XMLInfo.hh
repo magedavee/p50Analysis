@@ -13,7 +13,7 @@
 class XMLInfo {
 public:
     /// Constructor
-    XMLInfo(const std::string& fname);
+    XMLInfo(const string& fname);
     /// Destructor
     ~XMLInfo();
     
@@ -30,26 +30,26 @@ protected:
     XMLNodePointer_t docRoot;   ///< root node of document
     
     /// find named child node of given node
-    XMLNodePointer_t findChild(XMLNodePointer_t N, const std::string& nm);
+    XMLNodePointer_t findChild(XMLNodePointer_t N, const string& nm);
     /// recursively search whole tree for first such named node
-    XMLNodePointer_t findChildRecursive(XMLNodePointer_t N, const std::string& nm);
+    XMLNodePointer_t findChildRecursive(XMLNodePointer_t N, const string& nm);
     
     /// parse Geant4 string with units
-    double fromUnits(const std::string& s) const;
-    std::map<std::string, double> unitconv;     ///< Geant4 unit conversions 
+    double fromUnits(const string& s) const;
+    map<string, double> unitconv;     ///< Geant4 unit conversions 
 };
 
 /// Loader for directory full of simulation runs
 class OutDirLoader {
 public:
     /// Constructor
-    OutDirLoader(const std::string& basepath, unsigned int limit = INT_MAX);
+    OutDirLoader(const string& basepath, unsigned int limit = INT_MAX);
     
     /// get list of run numbers in directory
     vector<int> getRunlist() const;
     
     /// get list of run file names in directory
-    vector<std::string> getFileList() const;
+    vector<string> getFileList() const;
     
     /// make TChain from files in directory
     TChain* makeTChain() const;
@@ -69,8 +69,8 @@ public:
     int ny;             ///< scintillator y segmentation
     
 protected:
-    std::map<int, XMLInfo*> myInfo;     ///< XML files info
-    const std::string bpath;            ///< base directory containing files
+    map<int, XMLInfo*> myInfo;     ///< XML files info
+    const string bpath;            ///< base directory containing files
 };
 
 #endif

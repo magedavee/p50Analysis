@@ -10,7 +10,7 @@ using std::vector;
 class FileKeeper {
 public:
     /// Constructor
-    FileKeeper(const std::string& fname);
+    FileKeeper(const string& fname);
     /// Destructor
     ~FileKeeper();
     /// Add object to file list

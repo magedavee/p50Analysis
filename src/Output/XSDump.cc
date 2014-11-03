@@ -1,5 +1,5 @@
 #include "XSDump.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 #include "MaterialsHelper.hh"
 
 #include <cmath>
@@ -50,7 +50,7 @@ void XSDump::addIsot(int Z, int A) {
     Zs.push_back(Z);
     As.push_back(A);
     
-    std::string isotnm = "Z"+to_str(Z)+"A"+to_str(A);
+    string isotnm = "Z"+to_str(Z)+"A"+to_str(A);
     G4Isotope* myIsot = new G4Isotope("isot_"+isotnm, Z, A, A*g/mole);
     G4Element* myEl  = new G4Element("ele_"+isotnm, isotnm, 1);
     myEl->AddIsotope(myIsot,100.*perCent);
@@ -76,7 +76,7 @@ void XSDump::makeXSdata() {
     for(unsigned int ii=0; ii<Zs.size(); ii++) {
         int Z = Zs[ii];
         int A = As[ii];
-        std::string isotnm = "Z"+to_str(Z)+"A"+to_str(A);
+        string isotnm = "Z"+to_str(Z)+"A"+to_str(A);
     
         G4cout << "Dumping cross sections for " << particle->GetParticleName() << " interactions with Z,A = " << Z << "," << A << "\n";
         
@@ -109,7 +109,7 @@ void XSDump::makeXSdata() {
             }
         }
 
-        std::string gnm = "gXS_"+particle->GetParticleName()+"_"+isotnm;
+        string gnm = "gXS_"+particle->GetParticleName()+"_"+isotnm;
         
         gEl.SetName((gnm+"_Elastic").c_str());
         gEl.Write(gEl.GetName());

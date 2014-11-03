@@ -39,7 +39,7 @@ class PrimaryGeneratorAction;
 class PrimaryGeneratorModule: public XMLProvider {
 public:
     /// Constructor
-    PrimaryGeneratorModule(PrimaryGeneratorAction* P, const std::string& nm): XMLProvider(nm), myPGA(P) { }
+    PrimaryGeneratorModule(PrimaryGeneratorAction* P, const string& nm): XMLProvider(nm), myPGA(P) { }
     /// Destructor
     virtual ~PrimaryGeneratorModule() { }
     

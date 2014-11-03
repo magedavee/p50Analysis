@@ -9,6 +9,9 @@
 #include <G4NistManager.hh>
 #include <G4MaterialPropertiesTable.hh>
 
+using std::string;
+using std::map;
+
 /// Class with singleton instance providing materials properties
 class MaterialsHelper {
 public:
@@ -67,7 +70,7 @@ protected:
     void setupOptical();
     
     static MaterialsHelper* theMatHelper;       ///< singleton instance
-    std::map<std::string, G4Material*> xmats;   ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
+    map<string, G4Material*> xmats;   ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
 };
 
 

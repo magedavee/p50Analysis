@@ -6,7 +6,7 @@
 #include "StackingAction.hh"
 #include "ProcessInfo.hh"
 #include "CommandInfo.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 
 #include <G4Run.hh>
 #include <G4RunManager.hh>

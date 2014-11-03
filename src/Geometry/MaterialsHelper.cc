@@ -1,5 +1,5 @@
 #include "MaterialsHelper.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <G4NistManager.hh>
@@ -135,7 +135,7 @@ MaterialsHelper::MaterialsHelper() {
 G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enriched) {
     if(!loading || !base) return base;
     
-    std::string mnm = base->GetName()+std::string("-")+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
+    string mnm = base->GetName()+string("-")+to_str(100*loading)+(enriched?"wt%-6Li":"wt%-Li");
     if(!xmats.count(mnm)) {
         G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) scintillator " << mnm << " ...\n";
         G4Material* myLi = enriched? Li6 : nat_Li;

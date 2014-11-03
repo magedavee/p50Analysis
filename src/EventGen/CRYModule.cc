@@ -66,7 +66,7 @@ CRYModule::~CRYModule() {
 }
 
 void CRYModule::SetNewValue(G4UIcommand* command, G4String newValue) {
-    static std::string messageInput;
+    static string messageInput;
     if(command == cryInputCmd) { 
         if(myPGA->GetVerbosity() >= 1) G4cout << "CRY input command: " << newValue << G4endl;
         inputState = true;
@@ -143,7 +143,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
     throwPrimaries(v, anEvent);
 }
 
-void CRYModule::initCRY(const std::string& S) {
+void CRYModule::initCRY(const string& S) {
     if(myPGA->GetVerbosity() >= 1) G4cout << "Initializing CRY generator..." << G4endl;
     
     const char* cdatapath = getenv("CRYDATA");

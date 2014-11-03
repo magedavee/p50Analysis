@@ -18,7 +18,7 @@
 class ScintTankBuilder: public ScintSegVol, public G4UImessenger {
 public:
     /// Constructor
-    ScintTankBuilder(const std::string& snm = "ScintTank");
+    ScintTankBuilder(const string& snm = "ScintTank");
     
     /// Construct geometry
     void construct();

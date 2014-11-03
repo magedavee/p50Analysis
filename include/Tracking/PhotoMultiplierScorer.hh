@@ -48,7 +48,7 @@ class PhotoMultiplierScorer : public G4VPrimitiveScorer
 
     OpticalHitsCollection* oHit_collection;
     G4int HCIDOpt;
-    std::map<G4double,G4double>* QuantumEfficiency;	// Quantum efficiency vectors
+    map<G4double,G4double>* QuantumEfficiency;	// Quantum efficiency vectors
 };
 
 /* ----------------------------------- */

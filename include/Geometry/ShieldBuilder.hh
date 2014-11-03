@@ -4,7 +4,7 @@
 
 #include "Builder.hh"
 #include "DetVolBuilder.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 #include <vector>
 
 #include <G4LogicalVolume.hh>

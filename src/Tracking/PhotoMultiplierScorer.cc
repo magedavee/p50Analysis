@@ -34,7 +34,7 @@ PhotoMultiplierScorer::PhotoMultiplierScorer(G4String HCname)
 {
   HCIDOpt = -1;
   oHit_collection = 0;
-  QuantumEfficiency = new std::map<G4double,G4double>();
+  QuantumEfficiency = new map<G4double,G4double>();
 }
 
 	// ****** Destructor ****** //
@@ -129,8 +129,8 @@ void PhotoMultiplierScorer::SetQuantumEfficiency(vector<G4double> E, vector<G4do
 G4double PhotoMultiplierScorer::CalculateQuantumEfficiency(G4double photonE)
 {
 	// Defines user-defined limits of QE vectors
-  std::map<G4double,G4double>::iterator btr = QuantumEfficiency->begin();
-  std::map<G4double,G4double>::iterator ftr = QuantumEfficiency->end(); ftr--;
+  map<G4double,G4double>::iterator btr = QuantumEfficiency->begin();
+  map<G4double,G4double>::iterator ftr = QuantumEfficiency->end(); ftr--;
 
 	// Return 100% efficiency if neither vectors have entries in them
   if(QuantumEfficiency->empty()) { return 100.0; }
@@ -140,8 +140,8 @@ G4double PhotoMultiplierScorer::CalculateQuantumEfficiency(G4double photonE)
   else if(photonE > ftr->first) { return 0.0; }
 
 	// Find corresponding bin for incident photon energy
-  std::map<G4double,G4double>::iterator itr = QuantumEfficiency->begin();
-  std::map<G4double,G4double>::iterator ittr = QuantumEfficiency->begin();
+  map<G4double,G4double>::iterator itr = QuantumEfficiency->begin();
+  map<G4double,G4double>::iterator ittr = QuantumEfficiency->begin();
   while(photonE > itr->first) { itr++; ittr++; } ittr--;
 
 	// Uses linear interpolation to determine quantum efficiency from vectors

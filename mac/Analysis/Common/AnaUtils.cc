@@ -83,7 +83,7 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
 /////////////////////////////////////
 
 
-ProfileHistos::ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const std::string& u) {
+ProfileHistos::ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const string& u) {
     h_xy = new TH2F((nm+"_xy").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
     h_xy->GetXaxis()->SetTitle(("x position "+u).c_str());
     h_xy->GetYaxis()->SetTitle(("y position "+u).c_str());

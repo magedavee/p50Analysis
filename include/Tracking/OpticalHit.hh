@@ -24,6 +24,7 @@
 class G4AttDef;
 class G4AttValue;
 using std::vector;
+using std::map;
 
 /* -------- Class Definition --------- */
 
@@ -47,7 +48,7 @@ class OpticalHit : public G4VHit		// This class inherits functions from G4VHit
     virtual void Draw();						// Used to display stored data
     virtual void Print();
 
-    virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;	// Used to store incoming data
+    virtual const map<G4String,G4AttDef>* GetAttDefs() const;	// Used to store incoming data
     virtual vector<G4AttValue>* CreateAttValues() const;
 
     void SetVolume(G4String);						// Set functions

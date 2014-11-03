@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-FileKeeper::FileKeeper(const std::string& fname): f(NULL) {
+FileKeeper::FileKeeper(const string& fname): f(NULL) {
     f = new TFile(fname.c_str(),"RECREATE");
     std::cout << "Opened file " << fname << "\n";
 }

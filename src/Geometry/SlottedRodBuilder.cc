@@ -12,7 +12,7 @@
 #include <cassert>
 
 
-RodBuilder::RodBuilder(const std::string& bnm): Builder(bnm), length(0), r_hole(1*mm),
+RodBuilder::RodBuilder(const string& bnm): Builder(bnm), length(0), r_hole(1*mm),
 rod_vis(G4Colour(1.0,1.0,0.5)) {
     myOptSurf.refl = 0.9;
     myOptSurf.lobe = 0.9;

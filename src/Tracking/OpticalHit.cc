@@ -138,10 +138,10 @@ void OpticalHit::Print()
 
 	// The following functions specify and assemble the memory allocations required/variables stored for an object of this class
 
-const std::map<G4String,G4AttDef>* OpticalHit::GetAttDefs() const
+const map<G4String,G4AttDef>* OpticalHit::GetAttDefs() const
 {
   G4bool IsNew;
-  std::map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("OpticalHit",IsNew);
+  map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("OpticalHit",IsNew);
   if(IsNew)
   {
     G4String hitType("Hit Type");

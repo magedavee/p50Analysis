@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
     
     gStyle->SetOptStat("");
     
-    std::string inPath = argv[1];
-    std::string mcnppath = argv[2];
-    std::string outpath = inPath + "/Plots/";
+    string inPath = argv[1];
+    string mcnppath = argv[2];
+    string outpath = inPath + "/Plots/";
     
     mkdir(outpath.c_str(), 0755);
     FileKeeper f(outpath+"nScatterOut.root");

@@ -36,9 +36,9 @@ ProtonHit::ProtonHit() {
     trackID = -1;
 }
 
-const std::map<G4String,G4AttDef>* ProtonHit::GetAttDefs() const {
+const map<G4String,G4AttDef>* ProtonHit::GetAttDefs() const {
     G4bool isNew;
-    std::map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("ProtonHit",isNew);
+    map<G4String,G4AttDef>* store = G4AttDefStore::GetInstance("ProtonHit",isNew);
     if(isNew) {
         G4String hitType("Hit Type");
         (*store)[hitType] = G4AttDef(hitType,"Hit Type","Physics","","G4String");

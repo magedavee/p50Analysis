@@ -26,6 +26,7 @@
 #include "globals.hh"				// Specifies classes defining all global parameters and variable types
 #include <math.h>
 #include <map>
+using std::map;
 
 void CosmicMuonGenerator::setDefaults() {
     muMass = G4MuonPlus::MuonPlusDefinition()->GetPDGMass();      // Placed in new variable for ease of coding
@@ -364,8 +365,8 @@ void CosmicMuonGenerator::GenerateEnergiesWithoutSimulation(const G4int n) const
 void CosmicMuonGenerator::GenerateLipariEnergiesWithoutSimulation(const G4int n) const		// Used to test the shape and statistics of the Lipari spectrum generator
 {
 	// Generates histograms for particle kinetic energies
-  std::map<G4double,G4int>* thePlusHistogram = new std::map<G4double,G4int>();
-  std::map<G4double,G4int>* theMinusHistogram = new std::map<G4double,G4int>();
+  map<G4double,G4int>* thePlusHistogram = new map<G4double,G4int>();
+  map<G4double,G4int>* theMinusHistogram = new map<G4double,G4int>();
   G4double n_bins = 500;
   G4double incrementer = (log10(max_val) - log10(min_val))/n_bins;
   for(int i = 0; i < n_bins; i++)
@@ -388,14 +389,14 @@ void CosmicMuonGenerator::GenerateLipariEnergiesWithoutSimulation(const G4int n)
 	// Immediately sorts sampled energy into histogram for ease of storage and memory efficiency
     if(muType) 
     { 
-      std::map<G4double,G4int>::iterator itr = theMinusHistogram->begin();
+      map<G4double,G4int>::iterator itr = theMinusHistogram->begin();
       while(muEnergy > itr->first && itr != theMinusHistogram->end()) { itr++; }
       itr--; (*theMinusHistogram)[itr->first]++;
       muMinusCount++;
     }
     else
     {
-      std::map<G4double,G4int>::iterator itr = thePlusHistogram->begin();
+      map<G4double,G4int>::iterator itr = thePlusHistogram->begin();
       while(muEnergy > itr->first && itr != thePlusHistogram->end()) { itr++; }
       itr--; (*thePlusHistogram)[itr->first]++;
       muPlusCount++;
@@ -408,8 +409,8 @@ void CosmicMuonGenerator::GenerateLipariEnergiesWithoutSimulation(const G4int n)
 void CosmicMuonGenerator::GenerateBESSEnergiesWithoutSimulation(const G4int n) const		// Used to test the shape and statistics of the BESS spectrum generator
 {
 	// Generates histograms for particle kinetic energies
-  std::map<G4double,G4int>* thePlusHistogram = new std::map<G4double,G4int>();
-  std::map<G4double,G4int>* theMinusHistogram = new std::map<G4double,G4int>();
+  map<G4double,G4int>* thePlusHistogram = new map<G4double,G4int>();
+  map<G4double,G4int>* theMinusHistogram = new map<G4double,G4int>();
   G4double n_bins = 500;
   G4double incrementer = (max_val - min_val)/n_bins;
   for(int i = 0; i < n_bins; i++)
@@ -432,14 +433,14 @@ void CosmicMuonGenerator::GenerateBESSEnergiesWithoutSimulation(const G4int n) c
 	// Immediately sorts sampled energy into histogram for ease of storage and memory efficiency
     if(muType) 
     { 
-      std::map<G4double,G4int>::iterator itr = theMinusHistogram->begin();
+      map<G4double,G4int>::iterator itr = theMinusHistogram->begin();
       while(muEnergy > itr->first && itr != theMinusHistogram->end()) { itr++; }
       itr--; (*theMinusHistogram)[itr->first]++;
       muMinusCount++;
     }
     else
     {
-      std::map<G4double,G4int>::iterator itr = thePlusHistogram->begin();
+      map<G4double,G4int>::iterator itr = thePlusHistogram->begin();
       while(muEnergy > itr->first && itr != thePlusHistogram->end()) { itr++; }
       itr--; (*thePlusHistogram)[itr->first]++;
       muPlusCount++;

@@ -2,7 +2,7 @@
 
 #include "ScintCellBuilder.hh"
 #include "MaterialsHelper.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 
 #include <G4PVPlacement.hh>
 #include <G4SystemOfUnits.hh>

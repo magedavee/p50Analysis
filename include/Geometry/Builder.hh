@@ -11,7 +11,7 @@
 class Builder: public XMLProvider {
 public:
     /// Constructor
-    Builder(const std::string& n): XMLProvider(n), main_log(NULL), dim() { }
+    Builder(const string& n): XMLProvider(n), main_log(NULL), dim() { }
     /// Destructor
     virtual ~Builder() { }
     
@@ -52,7 +52,7 @@ protected:
 class ShellLayerBuilder: public Builder {
 public:
     /// Constructor
-    ShellLayerBuilder(const std::string& n): Builder(n) { }
+    ShellLayerBuilder(const string& n): Builder(n) { }
     
     /// add shield layer
     virtual void addLayer(const ShellLayerSpec& sh) { layers.push_back(sh); }

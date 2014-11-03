@@ -23,9 +23,9 @@ int main(int argc, char** argv) {
     gSystem->Load("libEventLib.so");
     gStyle->SetOptStat("");
     
-    std::string inPath = ".";
+    string inPath = ".";
     if(argc == 2) inPath = argv[1];
-    std::string outpath = inPath + "/Plots/";
+    string outpath = inPath + "/Plots/";
     
     mkdir(outpath.c_str(), 0755);
     FileKeeper f(outpath+"Out.root");

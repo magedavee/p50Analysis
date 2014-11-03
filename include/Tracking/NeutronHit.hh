@@ -28,6 +28,7 @@
 class G4AttDef;
 class G4AttValue;
 using std::vector;
+using std::map;
 
 class NeutronHit : public G4VHit {
 public:
@@ -42,7 +43,7 @@ public:
     
     virtual void Draw();
     
-    virtual const std::map<G4String,G4AttDef>* GetAttDefs() const; ///< stores incoming data
+    virtual const map<G4String,G4AttDef>* GetAttDefs() const; ///< stores incoming data
     virtual vector<G4AttValue>* CreateAttValues() const;
     
     void SetEnergy(G4double E) { energy = E; }

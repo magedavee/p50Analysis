@@ -1,6 +1,6 @@
 #include "DetVolBuilder.hh"
 #include "MaterialsHelper.hh"
-#include "Utilities.hh"
+#include "strutils.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>

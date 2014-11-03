@@ -13,7 +13,7 @@
 class RodBuilder: public Builder {
 public:
     /// Constructor
-    RodBuilder(const std::string& bnm);
+    RodBuilder(const string& bnm);
     
     OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
     

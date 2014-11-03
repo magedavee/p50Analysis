@@ -8,7 +8,7 @@
 class ScintSegVol: public Builder {
 public:
     /// Constructor
-    ScintSegVol(const std::string& n): Builder(n), scint_log(NULL) { }
+    ScintSegVol(const string& n): Builder(n), scint_log(NULL) { }
 
     /// get segment number at position in scintillator local coordinates
     virtual int getSegmentNum(const G4ThreeVector&) const { return 1; }

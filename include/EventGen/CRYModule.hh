@@ -33,7 +33,7 @@ public:
 protected:
     
     /// initialize CRY generator with input string
-    void initCRY(const std::string& S);
+    void initCRY(const string& S);
     
     G4double zOffset;                   ///< z offset in world volume for CRY event plane
     CRYGenerator* CRY_generator;        ///< CRY event generator
