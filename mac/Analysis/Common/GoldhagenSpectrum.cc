@@ -11,12 +11,12 @@
 TH1* loadGoldhagen(const string& fname) {
     
     std::ifstream infl(fname.c_str());
-    std::vector<double> bins;
-    std::vector<double> data;
+    vector<double> bins;
+    vector<double> data;
     while (infl) {
         string s;
         if (!getline(infl, s)) break;
-        std::vector<double> v = sToDoubles(s,"\t");
+        vector<double> v = sToDoubles(s,"\t");
         if(v.size() != 10) {
             std::cerr << "Unreadable line in input file: '" << s << "' (" << v.size() << ")\n";
             for(size_t i=0; i<v.size(); i++) std::cerr << "\t" << v[i];

@@ -40,8 +40,8 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 {
 
   G4cout << "Physical Volume Names:" << G4endl;
-  std::vector<G4VPhysicalVolume*>* volumes = G4PhysicalVolumeStore::GetInstance();
-  std::vector<G4VPhysicalVolume*>::iterator itr = volumes->begin();
+  vector<G4VPhysicalVolume*>* volumes = G4PhysicalVolumeStore::GetInstance();
+  vector<G4VPhysicalVolume*>::iterator itr = volumes->begin();
   for( ; itr != volumes->end(); itr++)
   {
     G4cout << (*itr)->GetName() << G4endl;
@@ -277,10 +277,10 @@ G4ThreeVector InverseBetaKinematics::GenerateReactionPosition() const
 }
 
 	// ****** Generate Initial Particle Energy ****** //
-std::vector<G4double>* InverseBetaKinematics::GenerateReactionKinematics() const	// Generates neutron and positron kinematics - for use in PrimaryGeneratorAction
+vector<G4double>* InverseBetaKinematics::GenerateReactionKinematics() const	// Generates neutron and positron kinematics - for use in PrimaryGeneratorAction
 {
 	// Generates a zero vector for null returns
-  std::vector<G4double>* zeroVector = new std::vector<G4double>();
+  vector<G4double>* zeroVector = new vector<G4double>();
   for(int i = 0; i < 10; i++) { zeroVector->push_back(0.0); }
 
 	// Generates an antineutrino energy according to chosen fuel composition
@@ -300,7 +300,7 @@ std::vector<G4double>* InverseBetaKinematics::GenerateReactionKinematics() const
   else			{ phiN = phiPos - 180.*deg; }
 
 	// Assembles kinematics results into ThreeVectors to obtain <x,y,z> from <r,theta,phi>
-  std::vector<G4double>* kinematics = new std::vector<G4double>();
+  vector<G4double>* kinematics = new vector<G4double>();
   G4ThreeVector pHatPos(0.,0.,0.); pHatPos.setRThetaPhi(1.,thetaPos,phiPos);
   G4ThreeVector pHatN(0.,0.,0.); pHatN.setRThetaPhi(1.,thetaN,phiN);
 
@@ -377,7 +377,7 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const
   G4int reps = 1;
   while(reps <= n)
   {
-    std::vector<G4double>* kinematics = GenerateReactionKinematics();
+    vector<G4double>* kinematics = GenerateReactionKinematics();
 
 	// Immediately sorts sampled kinematics into histogram for ease of storage and memory efficiency
     std::map<G4double,G4int>::iterator itr = thePosEHistogram->begin();

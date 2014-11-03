@@ -12,7 +12,7 @@
 #include <cmath>
 #include <cassert>
 
-void rotvert(std::vector<G4TwoVector>& vertices, unsigned int nrot) {
+void rotvert(vector<G4TwoVector>& vertices, unsigned int nrot) {
     size_t nvert = vertices.size();
     for(unsigned int i=1; i<nrot; i++) {
         double th = -i*2*M_PI/nrot;
@@ -56,7 +56,7 @@ void PinwheelRodBuilder::construct() {
     dim = G4ThreeVector(w_total, w_total, length);
         
     // extrusion cross-section
-    std::vector<G4TwoVector> vertices;
+    vector<G4TwoVector> vertices;
     vertices.push_back(G4TwoVector(-0.5*w_inner, 0.5*w_total));
     vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, 0.5*w_total));
     vertices.push_back(G4TwoVector(-0.5*w_inner + t_end + l_hook, 0.5*w_total-t_hook));

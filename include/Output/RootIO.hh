@@ -8,6 +8,7 @@
 #include <G4String.hh>
 class TFile;
 class TTree;
+using std::vector;
 
 /// Class with singleton instance for managing MC output via ROOT
 class RootIO {
@@ -78,7 +79,7 @@ private:
     IoniClusterEvent* pscintIoni = NULL;///< pointer to scintIoni, for TTree setup
     IoniClusterEvent* pvetoIoni = NULL; ///< pointer to vetoIoni, for TTree setup
     
-    std::vector<TObject*> subObjs;      ///< list of pointers to write points to Clear()
+    vector<TObject*> subObjs;      ///< list of pointers to write points to Clear()
 };
 
 #endif

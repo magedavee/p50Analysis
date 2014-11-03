@@ -115,7 +115,7 @@ void PhotoMultiplierScorer::EndOfEvent(G4HCofThisEvent*)
 }
 
 	// ****** Change Quantum Efficiency Vector ****** //
-void PhotoMultiplierScorer::SetQuantumEfficiency(std::vector<G4double> E, std::vector<G4double> QE)
+void PhotoMultiplierScorer::SetQuantumEfficiency(vector<G4double> E, vector<G4double> QE)
 {
 	// Ensures both vectors conatin an equal amount of entries
   if(E.size() != QE.size()) { G4cout << "*** WARNING: Energy vector not equal to QE vector. PMT Quantum Efficiency not set. ***" << G4endl; return; }

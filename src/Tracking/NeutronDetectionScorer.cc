@@ -81,7 +81,7 @@ G4bool NeutronDetectionScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
         if(!secondaries->empty()) {
             G4int nGamma = 0;           // number of gammas produced
             G4double totGammaE = 0.0;   // total energy of gammas produced
-            for(std::vector<G4Track*>::iterator itrTrack = secondaries->begin() ; itrTrack != secondaries->end(); itrTrack++) {
+            for(vector<G4Track*>::iterator itrTrack = secondaries->begin() ; itrTrack != secondaries->end(); itrTrack++) {
                 //G4int Z = (*itrTrack)->GetDefinition()->GetAtomicNumber();
                 //if(1 <= Z && Z <= 100)  RootIO::GetInstance()->GetEvent()->fNcap = Z;
                 if((*itrTrack)->GetDefinition() == G4Gamma::GammaDefinition()) {

@@ -61,7 +61,7 @@ protected:
     /// construct layers
     void constructLayers(Builder& contents);
     
-    std::vector<ShellLayerSpec> layers;         ///< descriptions of each layer
+    vector<ShellLayerSpec> layers;         ///< descriptions of each layer
 };
 
 

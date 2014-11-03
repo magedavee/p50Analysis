@@ -33,7 +33,7 @@ void PinwheelTankBuilder::setupGammaCatcher() {
     // catcher cross-section
     double gc_hw = 0.5*(seg_size-mySeparator.totalThick);
     double slotw = myPinwheelRod.l_hook + myPinwheelRod.t_end;
-    std::vector<G4TwoVector> vertices;
+    vector<G4TwoVector> vertices;
     vertices.push_back(G4TwoVector(-gc_hw, gc_hw-slotw));
     vertices.push_back(G4TwoVector(-gc_hw+myPinwheelRod.t_hook, gc_hw-slotw));
     vertices.push_back(G4TwoVector(-gc_hw+myPinwheelRod.t_hook, gc_hw));

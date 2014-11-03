@@ -35,7 +35,7 @@ class PhotoMultiplierScorer : public G4VPrimitiveScorer
     G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ro_hist);		// This function defines what a "hit" consists of and what data to store when a "hit" occurs
     void EndOfEvent(G4HCofThisEvent*);						// Some processing to be done when an event is finished, as new event will erase old event data
 
-    void SetQuantumEfficiency(std::vector<G4double>, std::vector<G4double>);
+    void SetQuantumEfficiency(vector<G4double>, vector<G4double>);
 
     G4int GetHCID() const { return HCIDOpt; };
     OpticalHitsCollection* GetCollection() { return oHit_collection; };

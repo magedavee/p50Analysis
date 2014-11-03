@@ -3,7 +3,7 @@
 #include "AnaUtils.hh"
 #include "strutils.hh"
 
-bool checkVeto(double t, const std::vector<double>& vt, double dt0, double dt1) {
+bool checkVeto(double t, const vector<double>& vt, double dt0, double dt1) {
     for(auto itv = vt.begin(); itv != vt.end(); itv++)
         if(dt0 < t-*itv && t-*itv < dt1) return true;
     return false;

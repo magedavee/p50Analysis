@@ -2,6 +2,7 @@
 #define XSDUMP_HH
 
 #include <vector>
+using std::vector;
 
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
@@ -37,10 +38,10 @@ protected:
     /// add isotope to output listing
     void addIsot(int Z, int A);
     
-    std::vector<int> Zs;                        ///< isotope Zs
-    std::vector<int> As;                        ///< isotope As
-    std::vector<G4Element*> isots;              ///< isotopes to generate cross-sections
-    std::vector<G4Material*> isotmats;          ///< materials to generate cross-sections
+    vector<int> Zs;                        ///< isotope Zs
+    vector<int> As;                        ///< isotope As
+    vector<G4Element*> isots;              ///< isotopes to generate cross-sections
+    vector<G4Material*> isotmats;          ///< materials to generate cross-sections
 };
 
 #endif

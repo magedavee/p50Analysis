@@ -35,9 +35,9 @@
 
 //////////////////////////////////////
 
-void PrimaryGeneratorModule::throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent) {
+void PrimaryGeneratorModule::throwPrimaries(const vector<primaryPtcl>& v, G4Event* anEvent) {
     if(myPGA->GetVerbosity() >= 2) G4cout << "Throwing " << v.size() << " particles:" << G4endl;
-    for(std::vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
+    for(vector<primaryPtcl>::const_iterator it = v.begin(); it != v.end(); it++) {
         if(myPGA->GetVerbosity() >= 2) G4cout << "\tPDG ID " << it->PDGid << "\tKE=" << G4BestUnit(it->KE,"Energy") << " at t=" << G4BestUnit(it->t,"Time") << G4endl;
         
         G4ParticleGun* gn = myPGA->GetParticleGun();

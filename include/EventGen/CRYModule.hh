@@ -40,7 +40,7 @@ protected:
     G4bool inputState;                  ///< flag indicating CRY currently receiving input commands
     G4bool primpoint;                   ///< flag to determine whether particles are generated from the CRY package selectively point at the detector
     G4bool neutronOnly;                 ///< flag to only produce events containing neutrons
-    std::vector<CRYParticle*> vect;     ///< vector of generated particles
+    vector<CRYParticle*> vect;     ///< vector of generated particles
     
     G4UIdirectory* CRYDir;              ///< UI directory for CRY-related commands
     G4UIcmdWithABool* cryPointCmd;      ///< UI command for limiting primaries to those aimed at detector

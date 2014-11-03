@@ -52,8 +52,8 @@ const std::map<G4String,G4AttDef>* ProtonHit::GetAttDefs() const {
     return store;
 }
 
-std::vector<G4AttValue>* ProtonHit::CreateAttValues() const {
-    std::vector<G4AttValue>* values = new std::vector<G4AttValue>;
+vector<G4AttValue>* ProtonHit::CreateAttValues() const {
+    vector<G4AttValue>* values = new vector<G4AttValue>;
     
     values->push_back(G4AttValue("Hit Type","Proton Hit",""));
     values->push_back(G4AttValue("Proton Energy",G4BestUnit(energy,"Energy"),""));

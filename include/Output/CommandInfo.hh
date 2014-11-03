@@ -12,7 +12,7 @@ public:
 protected:
     /// fill in XML data
     virtual void fillNode(TXMLEngine& E);
-    std::vector<XMLProvider> cmds;      ///< list of commands issued
+    vector<XMLProvider> cmds;      ///< list of commands issued
 };
 
 #endif

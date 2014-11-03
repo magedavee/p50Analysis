@@ -145,9 +145,9 @@ const std::map<G4String,G4AttDef>* NeutronHit::GetAttDefs() const {
     return store;
 }
 
-std::vector<G4AttValue>* NeutronHit::CreateAttValues() const {
+vector<G4AttValue>* NeutronHit::CreateAttValues() const {
     
-    std::vector<G4AttValue>* values = new std::vector<G4AttValue>;
+    vector<G4AttValue>* values = new vector<G4AttValue>;
     
     values->push_back(G4AttValue("Hit Type","Neutron Hit",""));
     values->push_back(G4AttValue("Energy",G4BestUnit(energy,"Energy"),""));

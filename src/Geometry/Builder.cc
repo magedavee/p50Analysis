@@ -32,7 +32,7 @@ void ShellLayerBuilder::constructLayers(Builder& contents) {
     dim = contents.getDimensions();
     
     unsigned int nlayers = 0;
-    for(std::vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+    for(vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
         if(!it->mat) continue;
         nlayers++;
         it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));        

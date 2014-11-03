@@ -51,7 +51,7 @@ public:
 protected:
     
     /// convenience function for throwing listed primaries
-    void throwPrimaries(const std::vector<primaryPtcl>& v, G4Event* anEvent);
+    void throwPrimaries(const vector<primaryPtcl>& v, G4Event* anEvent);
     
     PrimaryGeneratorAction* myPGA;      ///< PrimaryGeneratorAction this module runs for
 };

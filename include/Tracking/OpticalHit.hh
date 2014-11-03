@@ -23,6 +23,7 @@
 
 class G4AttDef;
 class G4AttValue;
+using std::vector;
 
 /* -------- Class Definition --------- */
 
@@ -47,7 +48,7 @@ class OpticalHit : public G4VHit		// This class inherits functions from G4VHit
     virtual void Print();
 
     virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;	// Used to store incoming data
-    virtual std::vector<G4AttValue>* CreateAttValues() const;
+    virtual vector<G4AttValue>* CreateAttValues() const;
 
     void SetVolume(G4String);						// Set functions
     void SetEnergy(G4double);
@@ -55,15 +56,15 @@ class OpticalHit : public G4VHit		// This class inherits functions from G4VHit
 
     G4String GetVolumeName() const { return volume; };			// Get functions
     G4int GetCopyNumber() const { return copyNo; };
-    std::vector<G4double>* GetEnergy() const { return energy; };
-    std::vector<G4double>* GetTime() const { return time; };
+    vector<G4double>* GetEnergy() const { return energy; };
+    vector<G4double>* GetTime() const { return time; };
 
   private:	// Member Data
 
     G4String volume;
     G4int copyNo;
-    std::vector<G4double>* energy;
-    std::vector<G4double>* time;
+    vector<G4double>* energy;
+    vector<G4double>* time;
 };
 
 /* ----------------------------------- */

@@ -36,7 +36,7 @@ protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
     
-    std::vector<G4LogicalVolume*> shells;       ///< material shells
+    vector<G4LogicalVolume*> shells;       ///< material shells
     
     G4UIdirectory sphereDir;                    ///< UI directory for sphere-related commands
     G4UIcmdWithADoubleAndUnit radiusCmd;        ///< radius command

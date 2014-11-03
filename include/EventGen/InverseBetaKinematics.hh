@@ -61,7 +61,7 @@ class InverseBetaKinematics
   G4bool IsSequentialGenerated() const { return Sequential; };
 
     G4ThreeVector GenerateReactionPosition() const;
-    std::vector<G4double>* GenerateReactionKinematics() const;
+    vector<G4double>* GenerateReactionKinematics() const;
     void GenerateKinematicsWithoutSimulation(G4int n = 1) const;
     G4double GenerateAntiNeutrinoEnergy() const;
 

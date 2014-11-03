@@ -46,10 +46,10 @@ public:
     OutDirLoader(const std::string& basepath, unsigned int limit = INT_MAX);
     
     /// get list of run numbers in directory
-    std::vector<int> getRunlist() const;
+    vector<int> getRunlist() const;
     
     /// get list of run file names in directory
-    std::vector<std::string> getFileList() const;
+    vector<std::string> getFileList() const;
     
     /// make TChain from files in directory
     TChain* makeTChain() const;

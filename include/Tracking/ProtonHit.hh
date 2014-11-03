@@ -27,6 +27,7 @@
 
 class G4AttDef;
 class G4AttValue;
+using std::vector;
 
 class ProtonHit : public G4VHit {
 public:
@@ -40,7 +41,7 @@ public:
     inline void operator delete(void* aHit) { ProtonHitAllocator.FreeSingle((ProtonHit*) aHit); }
     
     virtual const std::map<G4String,G4AttDef>* GetAttDefs() const;
-    virtual std::vector<G4AttValue>* CreateAttValues() const;
+    virtual vector<G4AttValue>* CreateAttValues() const;
     
     void SetEnergy(G4double E) { energy = E; }
     void SetTrackID(G4int id) { trackID = id; }

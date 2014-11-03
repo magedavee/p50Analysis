@@ -41,6 +41,6 @@ protected:
 };
 
 /// create multiple rotated copies of vertices
-void rotvert(std::vector<G4TwoVector>& vertices, unsigned int nrot);
+void rotvert(vector<G4TwoVector>& vertices, unsigned int nrot);
 
 #endif

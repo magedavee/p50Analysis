@@ -104,7 +104,7 @@ void ScintTankBuilder::construct() {
     G4ThreeVector sy0 = r0 + G4ThreeVector(0, lat_size/2., 0);          // starting point for y-aligned separators
     G4RotationMatrix* rotSepX = new G4RotationMatrix();                 // rotation for x-aligned separators (memory leaked!)
     rotSepX->rotateZ(90*deg+theta_pw);
-    std::vector<G4PVPlacement*> seps;                                   // separators list (for optical surfaces)
+    vector<G4PVPlacement*> seps;                                   // separators list (for optical surfaces)
     for(unsigned int nx = 0; nx <= nSegX; nx++) {
         for(unsigned int ny = 0; ny <= nSegY; ny++) {
             

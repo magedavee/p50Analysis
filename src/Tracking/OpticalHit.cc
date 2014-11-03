@@ -39,8 +39,8 @@ OpticalHit::OpticalHit()
 {
   volume = "N/A";
   copyNo = -1;
-  energy = new std::vector<G4double>();
-  time = new std::vector<G4double>();
+  energy = new vector<G4double>();
+  time = new vector<G4double>();
 }
 
 	// ****** Destructor ****** //
@@ -122,7 +122,7 @@ void OpticalHit::Draw()
 void OpticalHit::Print()
 {
   G4cout << "\tCopy No.: " << copyNo << G4endl;
-  std::vector<G4double>::iterator itr = energy->begin();
+  vector<G4double>::iterator itr = energy->begin();
   G4cout << "\tEnergy: " << G4endl;
   while(itr != energy->end())
   {
@@ -154,17 +154,17 @@ const std::map<G4String,G4AttDef>* OpticalHit::GetAttDefs() const
     (*store)[copy] = G4AttDef(copy,"Volume Copy Number","Geometry","","G4int");
 
     G4String photEnergy("Energy");
-    (*store)[photEnergy] = G4AttDef(photEnergy,"Photon Energy","Physics","","std::vector<G4double>");
+    (*store)[photEnergy] = G4AttDef(photEnergy,"Photon Energy","Physics","","vector<G4double>");
 
     G4String detectTime("Time");
-    (*store)[detectTime] = G4AttDef(detectTime,"Detection Time from Generation","Physics","","std::vector<G4double>");
+    (*store)[detectTime] = G4AttDef(detectTime,"Detection Time from Generation","Physics","","vector<G4double>");
   }
   return store;
 }
 
-std::vector<G4AttValue>* OpticalHit::CreateAttValues() const
+vector<G4AttValue>* OpticalHit::CreateAttValues() const
 {
-  std::vector<G4AttValue>* values = new std::vector<G4AttValue>;
+  vector<G4AttValue>* values = new vector<G4AttValue>;
 
   values->push_back(G4AttValue("Hit Type","Optical Hit",""));
   values->push_back(G4AttValue("Volume",volume,""));

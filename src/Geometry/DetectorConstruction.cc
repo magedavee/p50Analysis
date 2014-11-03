@@ -109,7 +109,7 @@ void DetectorConstruction::ConstructSDs() {
     
     // photon energy array, 520nm to 360nm in 5nm steps
     const G4int nSize = (520-360)/5 + 1; // = 33
-    std::vector<G4double> photEnergy;
+    vector<G4double> photEnergy;
     for(int i=0; i<nSize; i++) {
         G4double l = (520-5*i)*nm;
         photEnergy.push_back(CLHEP::h_Planck * CLHEP::c_light / l);
@@ -127,7 +127,7 @@ void DetectorConstruction::ConstructSDs() {
         QE = QE<1. ? QE:1;
         for(int i=0;i<nSize;i++) QEff3[i] = QE;
     }
-    std::vector<G4double> QESEG;
+    vector<G4double> QESEG;
     QESEG.assign(QEff3,QEff3+nSize);
     SEGPMT->SetQuantumEfficiency(photEnergy,QESEG);
     

@@ -94,7 +94,7 @@ void CRYModule::GeneratePrimaries(G4Event* anEvent) {
     }
     
     // loop until generating at least one primary
-    std::vector<primaryPtcl> v;
+    vector<primaryPtcl> v;
     do {
         vect.clear();
         CRY_generator->genEvent(&vect);
