@@ -20,7 +20,8 @@ moduleCosNcmd("/generator/module_CosN",this),
 moduleCf252cmd("/generator/module_Cf252",this),
 moduleSimpleBGcmd("/generator/module_SimpleBG",this),
 moduleThermalNcmd("/generator/module_ThermalN",this),
-moduleGPScmd("/generator/module_gps",this) {
+moduleGPScmd("/generator/module_gps",this),
+moduleDecaySrccmd("/generator/module_decaysrc",this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -63,6 +64,9 @@ moduleGPScmd("/generator/module_gps",this) {
 
     moduleGPScmd.SetGuidance("Use G4GeneralParticleSource generator");
     moduleGPScmd.AvailableForStates(G4State_Idle);
+    
+    moduleDecaySrccmd.SetGuidance("Use nuclear decay source event generator");
+    moduleDecaySrccmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -77,6 +81,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleSimpleBGcmd) generator->loadSimpleBGModule();
     else if(command == &moduleThermalNcmd) generator->loadThermalNModule();
     else if(command == &moduleGPScmd) generator->loadGPSModule();
-
+    else if(command == &moduleDecaySrccmd) generator->loadDecaySourceModule();
+    
     else G4cout << "Command not found." << G4endl;
 }

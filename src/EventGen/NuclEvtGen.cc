@@ -155,7 +155,7 @@ DecayAtom::DecayAtom(BindingEnergyTable const* B): BET(B), Iauger(0), Ikxr(0), I
 }
 
 void DecayAtom::load(const Stringmap& m) {
-    for(std::multimap< std::string, string>::const_iterator it = m.dat.begin(); it != m.dat.end(); it++) {
+    for(auto it = m.dat.begin(); it != m.dat.end(); it++) {
         smassert(it->first.size());
         if(it->first[0]=='a') Iauger += atof(it->second.c_str())/100.0;
         else if(it->first[0]=='k') Ikxr += atof(it->second.c_str())/100.0;

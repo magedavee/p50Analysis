@@ -1,5 +1,7 @@
 #include "PrimaryGeneratorAction.hh"
 
+#include "DecaySourceModule.hh"
+
 #include "PrimaryGeneratorMessenger.hh" 
 #include "DetectorConstruction.hh"
 #include "RunAction.hh"
@@ -86,6 +88,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myCf252Module) delete myCf252Module;
     if(mySimpleBGModule) delete mySimpleBGModule;
     if(myThermalNModule) delete myThermalNModule;
+    if(myDecaySourceModule) delete myDecaySourceModule;
 }
 
 void PrimaryGeneratorAction::loadGunModule() {
@@ -145,6 +148,12 @@ void PrimaryGeneratorAction::loadGPSModule() {
   if(!myGPSModule) myGPSModule = new GenPtclModule(this);
     G4cout << "Using G4GeneralParticleSource." << G4endl; 
     genModule = myGPSModule;
+}
+
+void PrimaryGeneratorAction::loadDecaySourceModule() {
+    if(!myDecaySourceModule) myDecaySourceModule = new DecaySourceModule(this);
+    G4cout << "Using DecaySourceModule." << G4endl; 
+    genModule = myDecaySourceModule;
 }
 
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {

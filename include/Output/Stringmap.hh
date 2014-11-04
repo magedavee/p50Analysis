@@ -1,10 +1,11 @@
-#ifndef QFILE_HH
-#define QFILE_HH
+#ifndef STRINGMAP_HH
+#define STRINGMAP_HH
 
 #include <map>
 #include <vector>
 #include <string>
 
+using std::multimap;
 using std::vector;
 using std::string;
 
@@ -48,7 +49,7 @@ public:
     /// merge data from another stringmap
     void operator+=(const Stringmap& S) { S.mergeInto(*this); }
     
-    std::multimap< string, string > dat;      ///< key-value multimap
+    multimap<string, string> dat;       ///< key-value multimap
     
 protected:
     
@@ -93,8 +94,8 @@ public:
     
 protected:
     
-    string name;                                ///< name for this object
-    std::multimap<string, Stringmap> dat;       ///< key-value multimap
+    string name;                        ///< name for this object
+    multimap<string, Stringmap> dat;    ///< key-value multimap
     
 };
 

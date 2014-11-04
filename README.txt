@@ -46,6 +46,8 @@ The macros named "*_Template.mac" have placeholder values like "%(run_num)i" int
 filled in by a launcher script (e.g. LaunchSims.py); you could also make a copy to
 fill in by hand.
 
+Some additional environment variables may be needed for specific features, e.g.:
+export PG4_AUX=<path to source directory>/Aux/
 
 Output
 ======

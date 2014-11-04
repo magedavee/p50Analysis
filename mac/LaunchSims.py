@@ -16,9 +16,9 @@ class SB_MC_Launcher:
         self.vary_E = None
         
     def set_dirs(self):
-        self.bin_name = os.environ["SBMC_BIN"]
-        self.outdir = os.environ["SBMC_OUTDIR"]+"/"+self.settings["simName"]
-        self.auxout = os.environ["SBMC_AUXOUT"]
+        self.bin_name = os.environ["PG4_BIN"]
+        self.outdir = os.environ["PG4_OUTDIR"]+"/"+self.settings["simName"]
+        self.auxout = os.environ["PG4_AUXOUT"]
         self.macro_dir = self.auxout+"/mac/"+self.settings["simName"]
         self.log_dir = self.auxout+"/log/"+self.settings["simName"]
         

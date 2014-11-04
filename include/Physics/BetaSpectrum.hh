@@ -12,18 +12,18 @@
 
 #include <math.h>
 // useful physics constants; several in hbar=m_e=c=1 "natural units"
-const double neutronBetaEp = 782.347;           //< neutron beta decay endpoint, keV
-const double m_e = 511.00;                      //< electron mass, keV/c^2
-const double m_p = 938272.046;                  //< proton mass, keV/c^2
-const double m_n = m_p+m_e+neutronBetaEp;       //< neutron mass, keV/c^2
-const double alpha = 1./137.036;                //< fine structure constant
-const double lambda = fabs(-1.2694);            //< +/-0.0028, PDG 2010 value, Wilkinson sign convention
-const double A0_PDG = -0.1173;                  //< +/-0.0013, PDG 2010 value
-const double beta_W0 = (neutronBetaEp+m_e)/m_e; //< beta spectrum endpoint, ``natural'' units
-const double neutron_R0 = 0.0025896*1.2;        //< neutron and proton radius approximation, in "natural" units (1.2fm)/(hbar/m_e*c)
-const double proton_M0 = m_p/m_e;               //< proton mass, ``natural'' units
-const double neutron_M0 = m_n/m_e;              //< neutron mass, ``natural'' units
-const double gamma_euler = 0.577215;            //< Euler's constant
+const double neutronBetaEp = 782.347;           ///< neutron beta decay endpoint, keV
+const double m_e = 511.00;                      ///< electron mass, keV/c^2
+const double m_p = 938272.046;                  ///< proton mass, keV/c^2
+const double m_n = m_p+m_e+neutronBetaEp;       ///< neutron mass, keV/c^2
+const double alpha_fs = 1./137.036;             ///< fine structure constant
+const double lambda = fabs(-1.2694);            ///< +/-0.0028, PDG 2010 value, Wilkinson sign convention
+const double A0_PDG = -0.1173;                  ///< +/-0.0013, PDG 2010 value
+const double beta_W0 = (neutronBetaEp+m_e)/m_e; ///< beta spectrum endpoint, ``natural'' units
+const double neutron_R0 = 0.0025896*1.2;        ///< neutron and proton radius approximation, in "natural" units (1.2fm)/(hbar/m_e*c)
+const double proton_M0 = m_p/m_e;               ///< proton mass, ``natural'' units
+const double neutron_M0 = m_n/m_e;              ///< neutron mass, ``natural'' units
+const double gamma_euler = 0.577215;            ///< Euler's constant
 
 // NOTE: functions of W are using Wilkinson's ``natural'' units for energy, W=(KE+m_e)/m_e
 
@@ -38,7 +38,7 @@ inline double plainPhaseSpace(double W, double W0=beta_W0) { return (1.<W && W<W
 inline double beta(double KE, double m = m_e) { return sqrt(KE*KE+2*m*KE)/(m+KE); }
 
 /// lowest order approximation of F
-inline double crudeF(double Z, double W) { return 1+M_PI*alpha*Z*W/sqrt(W*W-1.); }
+inline double crudeF(double Z, double W) { return 1+M_PI*alpha_fs*Z*W/sqrt(W*W-1.); }
 /// power series approximation of F(Z,W;R) in [1]
 double WilkinsonF_PowerSeries(double Z, double W, double R=neutron_R0);
 /// Wilkinson's F0(Z,W;R) as in [0],[1],[2],[3]; using complex gamma approximation to N terms

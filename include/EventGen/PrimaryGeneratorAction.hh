@@ -23,6 +23,7 @@ class Cf252Module;
 class SimpleBGModule;
 class ThermalNModule;
 class GenPtclModule;
+class DecaySourceModule;
 
 /// Specification for a primary particle to throw
 struct primaryPtcl {
@@ -96,6 +97,8 @@ public:
     void loadThermalNModule();
     /// load G4GeneralParticleSource
     void loadGPSModule();
+    /// load nuclear decay source as current generator
+    void loadDecaySourceModule();
     
 protected:
     
@@ -114,6 +117,8 @@ protected:
     SimpleBGModule* mySimpleBGModule;           ///<SimpleBG gamma source generator
     ThermalNModule* myThermalNModule;           ///<ThermalN neutron source generator
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
+    DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
+    
     G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
     G4ParticleGun* particle_gun;

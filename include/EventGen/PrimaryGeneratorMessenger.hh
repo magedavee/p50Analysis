@@ -31,10 +31,10 @@ private:
     G4UIcmdWithoutParameter moduleCosMucmd;     ///< UI command for using cosmic muon generator
     G4UIcmdWithoutParameter moduleCosNcmd;      ///< UI command for using cosmic neutron generator
     G4UIcmdWithoutParameter moduleCf252cmd;     ///< UI command for using Cf252 neutron generator
-  G4UIcmdWithoutParameter moduleSimpleBGcmd;     ///< UI command for using SimpleBG gamma generator
-  G4UIcmdWithoutParameter moduleThermalNcmd;     ///< UI command for using ThermalN neutron generator
-    G4UIcmdWithoutParameter moduleGPScmd;      ///< UI command for using the G4GeneralParticleSource generator
-
+    G4UIcmdWithoutParameter moduleSimpleBGcmd;  ///< UI command for using SimpleBG gamma generator
+    G4UIcmdWithoutParameter moduleThermalNcmd;  ///< UI command for using ThermalN neutron generator
+    G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
+    G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
 };
 
 #endif

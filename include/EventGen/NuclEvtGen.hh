@@ -322,8 +322,8 @@ public:
     /// generate cluster of gamma decays
     void genDecays(vector<NucDecayEvent>& v, double n = 1.0);
 protected:
-    vector<double> gammaE;         ///< gamma energies
-    PSelector gammaProb;                ///< gamma probabilities selector
+    vector<double> gammaE;      ///< gamma energies
+    PSelector gammaProb;        ///< gamma probabilities selector
 };
 
 #endif
