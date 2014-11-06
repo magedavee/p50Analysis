@@ -5,6 +5,7 @@
 #include "CosmicCosineGenerator.hh"
 #include "InverseBetaKinematics.hh"
 #include "FissionAntiNuModule.hh"
+#include "DetectorConstruction.hh"
 
 #include "G4ios.hh"
 
@@ -25,7 +26,8 @@ moduleThermalNcmd("/generator/module/ThermalN",this),
 moduleGPScmd("/generator/module/gps",this),
 moduleDecaySrccmd("/generator/module/decaysrc",this),
 ptPosCmd("/generator/vertex/isotpt", this),
-isotFluxCmd("/generator/vertex/isotworld", this) {
+isotFluxCmd("/generator/vertex/isotworld", this),
+srcTargCmd("/generator/vertex/srctarg", this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -77,6 +79,9 @@ isotFluxCmd("/generator/vertex/isotworld", this) {
     
     isotFluxCmd.SetGuidance("Generate vertices for isotropic flux from world volume surface");
     isotFluxCmd.AvailableForStates(G4State_Idle);
+    
+    srcTargCmd.SetGuidance("Generate vertices from source to target volume");
+    srcTargCmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -99,6 +104,9 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     } else if(command == &isotFluxCmd) {
         generator->myPositioner = generator->GetSurfaceThrower();
         generator->GetSurfaceThrower()->setSourceTarget(NULL,NULL);
+    } else if(command == &srcTargCmd) {
+        generator->myPositioner = generator->GetSurfaceThrower();
+        generator->GetSurfaceThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
     }
     
     else G4cout << "Command not found." << G4endl;

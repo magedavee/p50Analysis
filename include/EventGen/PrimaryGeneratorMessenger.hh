@@ -41,6 +41,7 @@ private:
     
     G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
     G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface
+    G4UIcmdWithoutParameter srcTargCmd;         ///< UI command for isotropic flux from source to target volume
 };
 
 #endif

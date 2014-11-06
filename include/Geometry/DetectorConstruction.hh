@@ -46,7 +46,7 @@ public:
     
     G4VPhysicalVolume* theWorld = NULL; ///< world volume
     G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume
-    G4VPhysicalVolume* building_phys;   ///< physical building placement
+    G4VPhysicalVolume* ptclTrg = NULL;  ///< optional event generator target volume
     ShellLayerSpec worldShell;          ///< world outer vacuum layer dimensions
     
 private:

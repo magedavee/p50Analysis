@@ -14,8 +14,7 @@
 CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "CosmicNeutron"),
 SurfaceThrower(myPGA->GetDetector()->theWorld), myDist(NULL) {
-    setSourceTarget(myPGA->GetDetector()->theWorld, myPGA->GetDetector()->building_phys);
-    outer = false;
+    setSourceTarget(NULL, myPGA->GetDetector()->ptclTrg);
     
     //setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2);        // Nashville, TN
     setParameters(s_min, 2.00*GeV, 1010.9*g/cm2, 0.2);       // Goldhagen "Watson Roof"

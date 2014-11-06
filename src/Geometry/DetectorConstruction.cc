@@ -62,9 +62,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     dim = myContents.getDimensions();
     main_log = myContents.main_log;
-    building_phys = worldShell.wrap(main_log, dim, "world");
+    ptclTrg = worldShell.wrap(main_log, dim, "world");
     
-    if(mode==SPHERE) mySphere.scint_phys = building_phys;
+    if(mode==SPHERE) mySphere.scint_phys = ptclTrg;
     
     if(mode == TEST_CELL) {
         G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
