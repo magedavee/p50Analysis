@@ -18,5 +18,5 @@ void IsotPtPositioner::setVertex(vector<primaryPtcl>& v) {
 }
 
 void IsotPtPositioner::fillNode(TXMLEngine& E) {
-    addAttr(E, "pos", G4BestUnit(x0,"length"));
+    addAttr(E, "pos", G4BestUnit(x0,"Length"));
 }
