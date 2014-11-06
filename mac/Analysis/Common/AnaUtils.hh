@@ -1,10 +1,16 @@
+#include <string>
+#include <map>
+#include <iostream>
+using std::cout;
+using std::map;
+using std::string;
+
 #include "FileKeeper.hh"
 #include "PathUtils.hh"
 #include "Event.hh"
 #include "XMLInfo.hh"
 #include "strutils.hh"
 
-#include <iostream>
 #include <fstream>
 #include <sys/stat.h>
 #include <math.h>
@@ -20,10 +26,6 @@
 #include <TLegend.h>
 #include <TProfile.h>
 #include <TGraph.h>
-
-using std::cout;
-using std::map;
-using std::string;
 
 /// ionization localized to one segment, 0.2-20MeV
 bool isIsolatedSegment(const map<Int_t,double>& volIoni);

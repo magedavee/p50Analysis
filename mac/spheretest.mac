@@ -8,6 +8,9 @@
 /output/setRecordLevel 2
 
 /geom/mode sphere
+/geom/sphere/radius 40 cm
+/geom/sphere/nshells 40
+/geom/sphere/material Polyethylene
 
 /output/filename spheretest.root
 

@@ -88,10 +88,12 @@ void XSDump::makeXSdata() {
         TGraph gCEx(npts);
         TGraph gCap(npts);
         TGraph gFis(npts);
+        TGraph gTotal(npts);
         for(unsigned int i=0; i<npts; i++) {
             double l = double(i)/(npts-1);
             double E = exp(log(Emin)*(1-l)+log(Emax)*l);
-            /*
+            
+            /* GetElasticCrossSectionPerIsotope Does not work!
             gEl.SetPoint(  i, E, store->GetElasticCrossSectionPerIsotope(particle,E,Z,A)/barn);
             gInEl.SetPoint(i, E, store->GetInelasticCrossSectionPerIsotope(particle,E,Z,A)/barn);
             gCEx.SetPoint( i, E, store->GetChargeExchangeCrossSectionPerIsotope(particle,E,Z,A)/barn);
@@ -100,13 +102,22 @@ void XSDump::makeXSdata() {
                 gFis.SetPoint(i, E, store->GetFissionCrossSectionPerIsotope(particle,E,Z,A)/barn);
             }
             */
-            gEl.SetPoint(  i, E, store->GetElasticCrossSectionPerAtom(particle,E,myEl,myMat)/barn);
-            gInEl.SetPoint(i, E, store->GetInelasticCrossSectionPerAtom(particle,E,myEl,myMat)/barn);
-            gCEx.SetPoint( i, E, store->GetChargeExchangeCrossSectionPerAtom(particle,E,myEl,myMat)/barn);
+            
+            double sEl = store->GetElasticCrossSectionPerAtom(particle,E,myEl,myMat)/barn;
+            double sInEl = store->GetInelasticCrossSectionPerAtom(particle,E,myEl,myMat)/barn;
+            double sCEx = store->GetChargeExchangeCrossSectionPerAtom(particle,E,myEl,myMat)/barn;
+            double sTot = sEl + sInEl + sCEx;
+            gEl.SetPoint(  i, E, sEl);
+            gInEl.SetPoint(i, E, sInEl);
+            gCEx.SetPoint( i, E, sCEx);
             if(particle == neutronDef) {
-                gCap.SetPoint(i, E, store->GetCaptureCrossSectionPerAtom(particle,E,myEl,myMat)/barn);
-                gFis.SetPoint(i, E, store->GetFissionCrossSectionPerAtom(particle,E,myEl,myMat)/barn);
+                double sCap = store->GetCaptureCrossSectionPerAtom(particle,E,myEl,myMat)/barn;
+                double sFis = store->GetFissionCrossSectionPerAtom(particle,E,myEl,myMat)/barn;
+                sTot += sCap + sFis;
+                gCap.SetPoint(i, E, sCap);
+                gFis.SetPoint(i, E, sFis);
             }
+            gTotal.SetPoint(i, E, sTot);
         }
 
         string gnm = "gXS_"+particle->GetParticleName()+"_"+isotnm;
@@ -123,5 +134,7 @@ void XSDump::makeXSdata() {
             gFis.Write((gnm+"_Fission").c_str());
             gFis.Write(gFis.GetName());
         }
+        gTotal.SetName((gnm+"_Total").c_str());
+        gTotal.Write(gTotal.GetName());
     }
 }

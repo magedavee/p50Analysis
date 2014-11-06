@@ -3,8 +3,10 @@
 
 #include <TFile.h>
 #include <vector>
+#include <string>
 
 using std::vector;
+using std::string;
 
 /// Utility class for keeping TObjects to stuff into TFile
 class FileKeeper {

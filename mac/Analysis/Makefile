@@ -16,7 +16,7 @@ LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXML
 
 VPATH = Common/:Private/
 
-Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o PathUtils.o strutils.o XMLInfo.o
+Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o XMLInfo.o
 objects = $(Utils)
 
 all: $(objects)

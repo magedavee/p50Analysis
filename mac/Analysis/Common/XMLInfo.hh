@@ -9,6 +9,10 @@
 #include <vector>
 #include <map>
 
+using std::string;
+using std::vector;
+using std::map;
+
 /// Reader for PROSPECT-G4 XML metadata files
 class XMLInfo {
 public:
