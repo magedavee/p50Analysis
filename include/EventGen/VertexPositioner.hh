@@ -1,6 +1,8 @@
 #ifndef VERTEXPOSITIONER_HH
 #define VERTEXPOSITIONER_HH
 
+#include "XMLProvider.hh"
+
 #include <vector>
 using std::vector;
 
@@ -16,10 +18,10 @@ struct primaryPtcl {
 };
 
 /// Base class for setting event vertex position and momentum direction
-class VertexPositioner {
+class VertexPositioner: public XMLProvider {
 public:
     /// Constructor
-    VertexPositioner() { }
+    VertexPositioner(const string& nm = "VertexPositioner"): XMLProvider(nm) { }
     /// Destructor
     virtual ~VertexPositioner() { }
     
@@ -34,12 +36,16 @@ public:
 class IsotPtPositioner: public VertexPositioner {
 public:
     /// Constructor
-    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): x0(x) { }
+    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): VertexPositioner("IsotPtPositioner"), x0(x) { }
     
     /// Set position, momentum for list of particles
     virtual void setVertex(vector<primaryPtcl>& v);
     
     G4ThreeVector x0;   ///< vertex position
+ 
+protected:
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

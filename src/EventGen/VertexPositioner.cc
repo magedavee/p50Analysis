@@ -1,6 +1,7 @@
 #include "VertexPositioner.hh"
 
 #include <Randomize.hh>
+#include <G4UnitsTable.hh>
 
 G4ThreeVector VertexPositioner::randomDirection() {
     double phi = 2.*M_PI*G4UniformRand();
@@ -14,4 +15,8 @@ void IsotPtPositioner::setVertex(vector<primaryPtcl>& v) {
         it->pos = x0;
         it->mom = randomDirection();
     }
+}
+
+void IsotPtPositioner::fillNode(TXMLEngine& E) {
+    addAttr(E, "pos", G4BestUnit(x0,"length"));
 }

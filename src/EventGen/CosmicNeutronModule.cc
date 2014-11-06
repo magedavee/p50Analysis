@@ -11,30 +11,35 @@
 
 #include <cassert>
 
+G4ThreeVector CosmicFluxThrower::proposeDirection() {
+    double phi = 2.*M_PI*G4UniformRand();
+    double costheta;
+    do { costheta = -G4UniformRand(); }
+    while(G4UniformRand() > pow(fabs(costheta),3.));
+    double sintheta = sqrt(1.-costheta*costheta);
+    return G4ThreeVector(cos(phi)*sintheta, sin(phi)*sintheta, costheta);
+}
+
 CosmicNeutronModule::CosmicNeutronModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "CosmicNeutron"),
-SurfaceThrower(myPGA->GetDetector()->theWorld), myDist(NULL) {
-    setSourceTarget(NULL, myPGA->GetDetector()->ptclTrg);
+myThrower(myPGA->GetDetector()->theWorld), myDist(NULL) {
+    myThrower.setSourceTarget(NULL, myPGA->GetDetector()->ptclTrg);
     
     //setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2);        // Nashville, TN
     setParameters(s_min, 2.00*GeV, 1010.9*g/cm2, 0.2);       // Goldhagen "Watson Roof"
 }
 
 void CosmicNeutronModule::GeneratePrimaries(G4Event* anEvent) {    
-    
-    G4ParticleGun* gn = myPGA->GetParticleGun();
-    assert(gn);
-    gn->SetParticleDefinition(G4Neutron::NeutronDefinition());
-    
-    genThrow();
-    gn->SetParticlePosition(pos);
-    gn->SetParticleMomentumDirection(mom);
-    
+    primaryPtcl p;
+    p.PDGid = 2112;
     if(!myDist) makeDistribution();
-    double E = myDist->GetRandom();
-    gn->SetParticleEnergy(E);
+    p.KE = myDist->GetRandom();
+    p.t = 0;
     
-    gn->GeneratePrimaryVertex(anEvent);
+    vector<primaryPtcl> v;
+    v.push_back(p);
+    myThrower.setVertex(v);
+    throwPrimaries(v,anEvent);
 }
 
 void CosmicNeutronModule::makeDistribution() {
@@ -67,27 +72,19 @@ void CosmicNeutronModule::makeDistribution() {
         //    << "\tphi_T = " << phi_T << "\tf_G = " << f_G << "\tE*dPhi/dE = " << EdEdPhi << G4endl;
     }
     netFlux = myDist->Integral();
-    area = S->GetLogicalVolume()->GetSolid()->GetSurfaceArea();
+    area = myThrower.getSourceArea();
 }
 
-G4ThreeVector CosmicNeutronModule::proposeDirection() {
-    double phi = 2.*M_PI*G4UniformRand();
-    double costheta;
-    do { costheta = -G4UniformRand(); }
-    while(G4UniformRand() > pow(fabs(costheta),3.));
-    double sintheta = sqrt(1.-costheta*costheta);
-    return G4ThreeVector(cos(phi)*sintheta, sin(phi)*sintheta, costheta);
-}
 
 G4double CosmicNeutronModule::GetGeneratorTime() const {
-    return double(nAttempts) / area / netFlux;
+    return 1.0; //double(nAttempts) / area / netFlux;
 }
 
 void CosmicNeutronModule::fillNode(TXMLEngine& E) {
     addAttr(E, "flux", to_str(netFlux*(1000*s*cm2))+" mHz/cm2");
     addAttr(E, "area", G4BestUnit(area,"Surface"));
-    addAttr(E, "a_frac", double(nSurfaceThrows)/double(nAttempts));
-    addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
+    //addAttr(E, "a_frac", double(nSurfaceThrows)/double(nAttempts));
+    //addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
     addAttr(E, "s_mod", G4BestUnit(s_mod,"Electric potential"));
     addAttr(E, "depth", G4BestUnit(depth,"Mass/Surface"));
     addAttr(E, "r_c", G4BestUnit(r_c,"Energy"));

@@ -2,15 +2,13 @@
 #define THERMALNMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "SurfaceThrower.hh"
 
 #include "G4PhysicalVolumeStore.hh"
-
 
 class TH1F;
 
 /// Cosmic neutron event generator module
-class ThermalNModule: public PrimaryGeneratorModule, public SurfaceThrower {
+class ThermalNModule: public PrimaryGeneratorModule {
 public:
   /// Constructor
   ThermalNModule(PrimaryGeneratorAction* P);

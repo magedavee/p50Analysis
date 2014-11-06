@@ -106,6 +106,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
         generator->GetSurfaceThrower()->setSourceTarget(NULL,NULL);
     } else if(command == &srcTargCmd) {
         generator->myPositioner = generator->GetSurfaceThrower();
+        generator->GetSurfaceThrower()->fromVolume = true;
         generator->GetSurfaceThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
     }
     

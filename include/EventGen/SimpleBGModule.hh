@@ -2,7 +2,6 @@
 #define SIMPLEBGMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "SurfaceThrower.hh"
 
 #include "G4PhysicalVolumeStore.hh"
 
@@ -10,7 +9,7 @@
 class TH1F;
 
 /// Cosmic neutron event generator module
-class SimpleBGModule: public PrimaryGeneratorModule, public SurfaceThrower {
+class SimpleBGModule: public PrimaryGeneratorModule {
 public:
   /// Constructor
   SimpleBGModule(PrimaryGeneratorAction* P);

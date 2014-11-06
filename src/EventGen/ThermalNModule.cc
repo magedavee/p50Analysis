@@ -16,38 +16,29 @@
 
 ThermalNModule::ThermalNModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "ThermalN"),
-SurfaceThrower(myPGA->GetDetector()->theWorld),
 netRate(1/s) {
-  setSourceTarget(G4PhysicalVolumeStore::GetInstance()->GetVolume("DetVol_inner_phys"), G4PhysicalVolumeStore::GetInstance()->GetVolume("ScintTank_scint_phys"));  // inside shield
+  //setSourceTarget(G4PhysicalVolumeStore::GetInstance()->GetVolume("DetVol_inner_phys"), G4PhysicalVolumeStore::GetInstance()->GetVolume("ScintTank_scint_phys"));  // inside shield
   //setSourceTarget(G4PhysicalVolumeStore::GetInstance()->GetVolume("Det_phys"), G4PhysicalVolumeStore::GetInstance()->GetVolume("ScintTank_scint_phys"));   //outside shield
-    outer = true;
+  //  outer = true;
 }
 
 void ThermalNModule::GeneratePrimaries(G4Event* anEvent) {    
-  
-  G4ParticleGun* gn = myPGA->GetParticleGun();
-  assert(gn);
-  gn->SetParticleDefinition(G4Neutron::NeutronDefinition());
-  
-  // propose throw direction
-  mom = proposeDirection();
-  
-  // propose source surface point.
-  // Note: this won't be right if solid doesn't return uniformly distributed points!
-  pos = S->GetLogicalVolume()->GetSolid()->GetPointOnSurface();
-  gn->SetParticlePosition(pos);
-  gn->SetParticleMomentumDirection(mom);
-  
-  gn->SetParticleEnergy(0.025*eV);
-  
-  gn->GeneratePrimaryVertex(anEvent);
+    primaryPtcl p;
+    p.PDGid = 2112;
+    p.KE = 0.025*eV;
+    p.t = 0;
+    
+    vector<primaryPtcl> v;
+    v.push_back(p);
+    setVertices(v);
+    throwPrimaries(v,anEvent);
 }
 
 G4double ThermalNModule::GetGeneratorTime() const {
-    return double(nSurfaceThrows)/netRate;
+    return 1.0; //double(nSurfaceThrows)/netRate;
 }
 
 void ThermalNModule::fillNode(TXMLEngine& E) {
     addAttr(E, "rate", netRate);
-    addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
+    //addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
 }
