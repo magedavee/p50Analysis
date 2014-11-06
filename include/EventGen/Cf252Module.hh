@@ -2,12 +2,11 @@
 #define CF252MODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "SurfaceThrower.hh"
 
 class TH1F;
 
 /// Cosmic neutron event generator module
-class Cf252Module: public PrimaryGeneratorModule, public SurfaceThrower {
+class Cf252Module: public PrimaryGeneratorModule {
 public:
     /// Constructor
     Cf252Module(PrimaryGeneratorAction* P);

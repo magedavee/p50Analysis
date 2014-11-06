@@ -6,6 +6,7 @@
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithoutParameter.hh>
 #include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWith3VectorAndUnit.hh>
 
 class PrimaryGeneratorAction;
 
@@ -22,7 +23,9 @@ private:
     
     PrimaryGeneratorAction* generator;          ///< generator being controlled
     G4UIdirectory genDir;                       ///< UI directory for generator commands
-  
+    G4UIdirectory modDir;                       ///< UI directory for module commands
+    G4UIdirectory posDir;                       ///< UI directory for vertex selection commands
+    
     G4UIcmdWithAnInteger verbCmd;               ///< UI command for setting verbosity
     G4UIcmdWithoutParameter moduleGuncmd;       ///< UI command for using "particle gun" generator
     G4UIcmdWithoutParameter moduleCRYcmd;       ///< UI command for using CRY cosmic ray generator
@@ -35,6 +38,9 @@ private:
     G4UIcmdWithoutParameter moduleThermalNcmd;  ///< UI command for using ThermalN neutron generator
     G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
     G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
+    
+    G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
+    G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface
 };
 
 #endif

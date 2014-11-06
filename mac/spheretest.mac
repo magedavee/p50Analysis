@@ -24,7 +24,7 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate -1
 
-/generator/module_gun
+/generator/module/gun
 /gun/particle neutron
 /gun/energy 1 MeV
 /gun/direction 0 0 1

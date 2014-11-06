@@ -11,8 +11,8 @@ public:
     /// Constructor
     GeomHelper(G4VPhysicalVolume* p = NULL, G4VPhysicalVolume* c = NULL): P(p), C(c) { calcChildOffset(); }
     
-    /// Set parent and child volumes
-    void setParentChild(G4VPhysicalVolume* p, G4VPhysicalVolume* c) { if(!p || !c) throw; P=p; C=c; calcChildOffset(); }
+    /// Set parent and child volumes (must not be NULL)
+    void setParentChild(G4VPhysicalVolume* p, G4VPhysicalVolume* c);
     
     /// Transform a coordinate from child to parent coordinates
     G4ThreeVector coordCtoP(G4ThreeVector x) const;

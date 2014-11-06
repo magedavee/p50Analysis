@@ -6,7 +6,6 @@
 #include <G4SDManager.hh>
 #include <G4PVPlacement.hh>
 #include <G4ios.hh>
-#include <G4Box.hh>
 #include <G4Sphere.hh>
 
 #include <cassert>

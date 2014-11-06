@@ -9,19 +9,23 @@
 #include "G4ios.hh"
 
 PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* gen_action): generator(gen_action), 
-genDir("/generator/"), 
+genDir("/generator/"),
+modDir("/generator/module/"),
+posDir("/generator/vertex/"),
 verbCmd("/generator/verbose",this),
-moduleGuncmd("/generator/module_gun",this),
-moduleCRYcmd("/generator/module_CRY",this),
-moduleIBDcmd("/generator/module_IBD",this),
-moduleFisANucmd("/generator/module_FisANu",this),
-moduleCosMucmd("/generator/module_CosMu",this),
-moduleCosNcmd("/generator/module_CosN",this),
-moduleCf252cmd("/generator/module_Cf252",this),
-moduleSimpleBGcmd("/generator/module_SimpleBG",this),
-moduleThermalNcmd("/generator/module_ThermalN",this),
-moduleGPScmd("/generator/module_gps",this),
-moduleDecaySrccmd("/generator/module_decaysrc",this) {
+moduleGuncmd("/generator/module/gun",this),
+moduleCRYcmd("/generator/module/CRY",this),
+moduleIBDcmd("/generator/module/IBD",this),
+moduleFisANucmd("/generator/module/FisANu",this),
+moduleCosMucmd("/generator/module/CosMu",this),
+moduleCosNcmd("/generator/module/CosN",this),
+moduleCf252cmd("/generator/module/Cf252",this),
+moduleSimpleBGcmd("/generator/module/SimpleBG",this),
+moduleThermalNcmd("/generator/module/ThermalN",this),
+moduleGPScmd("/generator/module/gps",this),
+moduleDecaySrccmd("/generator/module/decaysrc",this),
+ptPosCmd("/generator/vertex/isotpt", this),
+isotFluxCmd("/generator/vertex/isotworld", this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -67,6 +71,12 @@ moduleDecaySrccmd("/generator/module_decaysrc",this) {
     
     moduleDecaySrccmd.SetGuidance("Use nuclear decay source event generator");
     moduleDecaySrccmd.AvailableForStates(G4State_Idle);
+    
+    ptPosCmd.SetGuidance("Generate events with isotropic momenta from specified point");
+    ptPosCmd.AvailableForStates(G4State_Idle);
+    
+    isotFluxCmd.SetGuidance("Generate vertices for isotropic flux from world volume surface");
+    isotFluxCmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -82,6 +92,14 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleThermalNcmd) generator->loadThermalNModule();
     else if(command == &moduleGPScmd) generator->loadGPSModule();
     else if(command == &moduleDecaySrccmd) generator->loadDecaySourceModule();
+    
+    else if(command == &ptPosCmd) {
+        generator->myPositioner = &generator->myIsotPt;
+        generator->myIsotPt.x0 = ptPosCmd.GetNew3VectorValue(newValue);
+    } else if(command == &isotFluxCmd) {
+        generator->myPositioner = generator->GetSurfaceThrower();
+        generator->GetSurfaceThrower()->setSourceTarget(NULL,NULL);
+    }
     
     else G4cout << "Command not found." << G4endl;
 }

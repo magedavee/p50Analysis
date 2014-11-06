@@ -53,10 +53,17 @@ void PrimaryGeneratorModule::throwPrimaries(const vector<primaryPtcl>& v, G4Even
     }
 }
 
+void PrimaryGeneratorModule::setVertices(vector<primaryPtcl>& v) {
+    myPGA->GetPositioner()->setVertex(v);
+}
+
 ////////////////////////////////////////
 
 PrimaryGeneratorAction::PrimaryGeneratorAction():
 XMLProvider("PrimaryGenerator"),
+detect((DetectorConstruction*)G4RunManager::GetRunManager()->GetUserDetectorConstruction()),
+myPositioner(&myIsotPt),
+mySurfaceThrower(NULL),
 genModule(NULL), myCRYModule(NULL),
 myIBDModule(NULL), myFisAntNuModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , mySimpleBGModule(NULL), myThermalNModule(NULL){
@@ -70,7 +77,6 @@ myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , myS
     particle_source->SetNumberOfParticles(1);
     particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
 
-    detect = (DetectorConstruction*)(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     myMessenger = new PrimaryGeneratorMessenger(this);
 }
 
@@ -89,6 +95,12 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(mySimpleBGModule) delete mySimpleBGModule;
     if(myThermalNModule) delete myThermalNModule;
     if(myDecaySourceModule) delete myDecaySourceModule;
+    if(mySurfaceThrower) delete mySurfaceThrower;
+}
+
+SurfaceThrower* PrimaryGeneratorAction::GetSurfaceThrower() {
+    if(!mySurfaceThrower) mySurfaceThrower = new SurfaceThrower(detect->theWorld);
+    return mySurfaceThrower;
 }
 
 void PrimaryGeneratorAction::loadGunModule() {

@@ -1,6 +1,6 @@
-#ifndef DetectorConstruction_H
+#ifndef DETECTORCONSTRUCTION_HH
 /// Assure header is only loaded once
-#define DetectorConstruction_H
+#define DETECTORCONSTRUCTION_HH
 
 #include "Builder.hh"
 #include "BuildingBuilder.hh"
@@ -20,9 +20,9 @@ class DetectorConstruction: public G4VUserDetectorConstruction, public Builder, 
 public:
     /// Constructor
     DetectorConstruction();
-
+    
     /// Assembles geometry of the simulation, returns world volume
-    G4VPhysicalVolume* Construct();
+    virtual G4VPhysicalVolume* Construct();
     /// unused in this class
     virtual void construct() { }
     

@@ -3,9 +3,10 @@
 #define PrimaryGeneratorAction_H
 
 #include "XMLProvider.hh"
+#include "VertexPositioner.hh"
+#include "SurfaceThrower.hh"
 
 #include <G4VUserPrimaryGeneratorAction.hh>
-
 #include <G4ThreeVector.hh>
 
 class G4Event;
@@ -25,15 +26,6 @@ class ThermalNModule;
 class GenPtclModule;
 class DecaySourceModule;
 
-/// Specification for a primary particle to throw
-struct primaryPtcl {
-    int PDGid;  ///< PDG particle ID enumeration
-    double KE;  ///< particle kinetic energy
-    G4ThreeVector pos;  ///< vertex position
-    G4ThreeVector mom;  ///< momentum direction
-    double t;           ///< particle time
-};
-
 class PrimaryGeneratorAction;
 
 /// Base class interface for alternate generator modules
@@ -50,7 +42,8 @@ public:
     virtual G4double GetGeneratorTime() const { return 0; }
     
 protected:
-    
+    /// convenence function for setting vertices using PrimaryGeneratorAction default
+    void setVertices(vector<primaryPtcl>& v);
     /// convenience function for throwing listed primaries
     void throwPrimaries(const vector<primaryPtcl>& v, G4Event* anEvent);
     
@@ -75,6 +68,9 @@ public:
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
     G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
     DetectorConstruction* GetDetector() const { return detect; }
+    VertexPositioner* GetPositioner() { return myPositioner; }
+    /// Get (create if needed) SurfaceThrower positioner
+    SurfaceThrower* GetSurfaceThrower();
     G4int GetVerbosity() const { return verbose; }
     
     /// load particle gun as current generator
@@ -107,6 +103,12 @@ protected:
     /// Set event generator log verbosity
     void SetVerbosity(G4int);
     
+    DetectorConstruction* detect;               ///< pointer to detector construction
+    
+    VertexPositioner* myPositioner;             ///< positioner for vertex and momentum direction
+    IsotPtPositioner myIsotPt;                  ///< positioner for isotropic point source
+    SurfaceThrower* mySurfaceThrower;           ///< positioner defined by source and target surfaces
+    
     PrimaryGeneratorModule* genModule;          ///< generator module currently in use
     CRYModule* myCRYModule;                     ///< CRY generator module
     IBDModule* myIBDModule;                     ///< Inverse Beta Decay generator
@@ -114,16 +116,15 @@ protected:
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
-    SimpleBGModule* mySimpleBGModule;           ///<SimpleBG gamma source generator
-    ThermalNModule* myThermalNModule;           ///<ThermalN neutron source generator
+    SimpleBGModule* mySimpleBGModule;           ///< SimpleBG gamma source generator
+    ThermalNModule* myThermalNModule;           ///< ThermalN neutron source generator
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
     DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
     
-    G4int verbose;      ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
+    G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
     G4ParticleGun* particle_gun;
     G4GeneralParticleSource* particle_source;
-    DetectorConstruction* detect;
     PrimaryGeneratorMessenger* myMessenger;
 };
 

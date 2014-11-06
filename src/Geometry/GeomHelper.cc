@@ -1,10 +1,19 @@
 #include "GeomHelper.hh"
+#include "SMExcept.hh"
 
 #include <G4LogicalVolume.hh>
 #include <G4VSolid.hh>
 #include <G4ios.hh>
 
 #include <cassert>
+
+void GeomHelper::setParentChild(G4VPhysicalVolume* p, G4VPhysicalVolume* c) {
+    P=p;
+    C=c;
+    if(!P) throw SMExcept("undefinedParentVolume");
+    if(!C) throw SMExcept("undefinedChildVolume");
+    calcChildOffset();
+}
 
 void GeomHelper::calcChildOffset() {
     rotCtoP = rotPtoC = G4RotationMatrix();

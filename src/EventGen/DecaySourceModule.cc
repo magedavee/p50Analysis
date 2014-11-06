@@ -42,16 +42,14 @@ void DecaySourceModule::GeneratePrimaries(G4Event* anEvent) {
     if(!gen_name.size()) return;
     
     vector<primaryPtcl> v;
-    primaryPtcl p;
-    p.pos = G4ThreeVector(0,0,-1*mm);
-    p.mom = G4ThreeVector(0,0,1);
-    
+
     while(!v.size()) {
         if(!evtq.size()) {
             NDL.getGenerator(gen_name).genDecayChain(evtq);
             nDecays++;
         }
         while(evtq.size()) {
+            primaryPtcl p;
             p.PDGid = evtq.back().d;
             p.KE = evtq.back().E*keV;
             p.t = evtq.back().t;
@@ -63,6 +61,7 @@ void DecaySourceModule::GeneratePrimaries(G4Event* anEvent) {
         }
     }
     
+    setVertices(v);
     throwPrimaries(v, anEvent);
 }
 

@@ -11,7 +11,7 @@
 /output/filename %(outfile)s
 /run/initialize
 
-/generator/module_gun
+/generator/module/gun
 /gun/particle %(particle)s
 /gun/energy %(gun_energy)s
 /gun/direction 0 0 1
