@@ -78,6 +78,8 @@ MaterialsHelper::MaterialsHelper() {
     EJ309->AddMaterial(nat_C, 90.578*perCent);
     EJ309->AddMaterial(nat_H, 9.422*perCent);
     
+    Mylar = nist->FindOrBuildMaterial("G4_MYLAR", true, true);
+    
     PMMA = nist->FindOrBuildMaterial("G4_PLEXIGLASS", true, true);
     PMMA_black = new G4Material("PMMA_black", PMMA->GetDensity(), PMMA);
     PMMA_white = new G4Material("PMMA_white", PMMA->GetDensity(), PMMA);
@@ -89,11 +91,11 @@ MaterialsHelper::MaterialsHelper() {
     
     Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
     
-    BPoly = new G4Material("5wt% Borated Polyethylene", 0.92*g/cm3, 2, kStateSolid, room_T);
+    BPoly = new G4Material("5wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
     BPoly->AddMaterial(Polyeth, 95.0*perCent);
     BPoly->AddMaterial(nat_B, 5.0*perCent);
     
-    LiPoly = new G4Material("5wt% Lithiated Polyethylene", 0.92*g/cm3, 2, kStateSolid, room_T);
+    LiPoly = new G4Material("5wt% Lithiated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
     LiPoly->AddMaterial(Polyeth, 95.0*perCent);
     LiPoly->AddMaterial(nat_Li, 5.0*perCent);
     
@@ -140,33 +142,33 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
         G4cout << "Bulding 6Li-loaded (" << loading*100 << "% by weight) scintillator " << mnm << " ...\n";
         G4Material* myLi = enriched? Li6 : nat_Li;
         
-        G4Material* Li_Scint = NULL;
+        G4Material* Li_mat = NULL;
         
         if(base == UG_AB) {
             double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;    /// Li average mass
             double m_Cl = loading*35.45/avgLiA;                         /// mass fraction Cl, by ratio of masses to Li
             double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;   /// mass fraction H2O from 8 molar LiCl solution
-            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 4, kStateLiquid, room_T);
-            Li_Scint->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
-            Li_Scint->AddMaterial(myLi, loading);
-            Li_Scint->AddMaterial(nat_Cl, m_Cl);
-            Li_Scint->AddMaterial(Water, m_H2O);
+            Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 4, base->GetState(), base->GetTemperature());
+            Li_mat->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
+            Li_mat->AddMaterial(myLi, loading);
+            Li_mat->AddMaterial(nat_Cl, m_Cl);
+            Li_mat->AddMaterial(Water, m_H2O);
         } else if(base == EJ309) {
             double frac_H2O = 0.07*loading/0.001;
-            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 3, kStateLiquid, room_T);
-            Li_Scint->AddMaterial(base, 1.-loading-frac_H2O);
-            Li_Scint->AddMaterial(Water, frac_H2O);
-            Li_Scint->AddMaterial(myLi, loading);
+            Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 3, base->GetState(), base->GetTemperature());
+            Li_mat->AddMaterial(base, 1.-loading-frac_H2O);
+            Li_mat->AddMaterial(Water, frac_H2O);
+            Li_mat->AddMaterial(myLi, loading);
         } else {
-            Li_Scint = new G4Material(mnm.c_str(), base->GetDensity(), 2, kStateLiquid, room_T);
-            Li_Scint->AddMaterial(base, 1.-loading);
-            Li_Scint->AddMaterial(myLi, loading);
+            Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 2, base->GetState(), base->GetTemperature());
+            Li_mat->AddMaterial(base, 1.-loading);
+            Li_mat->AddMaterial(myLi, loading);
         }
         
-        Li_Scint->SetMaterialPropertiesTable(base->GetMaterialPropertiesTable());
-        Li_Scint->GetIonisation()->SetBirksConstant(base->GetIonisation()->GetBirksConstant());
+        Li_mat->SetMaterialPropertiesTable(base->GetMaterialPropertiesTable());
+        Li_mat->GetIonisation()->SetBirksConstant(base->GetIonisation()->GetBirksConstant());
         
-        xmats[mnm] = Li_Scint;
+        xmats[mnm] = Li_mat;
         
     }
     return xmats[mnm];

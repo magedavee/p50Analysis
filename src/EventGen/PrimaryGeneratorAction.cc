@@ -53,8 +53,8 @@ void PrimaryGeneratorModule::throwPrimaries(const vector<primaryPtcl>& v, G4Even
     }
 }
 
-void PrimaryGeneratorModule::setVertices(vector<primaryPtcl>& v) {
-    myPGA->GetPositioner()->setVertex(v);
+double PrimaryGeneratorModule::setVertices(vector<primaryPtcl>& v) {
+    return myPGA->GetPositioner()->setVertex(v);
 }
 
 ////////////////////////////////////////

@@ -25,6 +25,9 @@ matCmd("/geom/sphere/material",this) {
     
     matCmd.SetGuidance("Set sphere material.");
     matCmd.AvailableForStates(G4State_PreInit);
+    
+    // special materials for study
+    MaterialsHelper::M().get6LiLS(MaterialsHelper::M().Polyeth, 0.001, true);
 }
 
 void SphereShellBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {

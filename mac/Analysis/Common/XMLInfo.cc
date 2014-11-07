@@ -13,6 +13,7 @@ XMLInfo::XMLInfo(const string& fname) {
     unitconv["ms"] = 1e6;
     unitconv["us"] = 1e3;
     unitconv["ns"] = 1;
+    unitconv["ps"] = 1e-3;
     unitconv["m"] = 1000;
     unitconv["cm"] = 10;
     unitconv["mm"] = 1;

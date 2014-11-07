@@ -4,15 +4,16 @@
 /event/verbose 0
 /tracking/verbose 0
 
-/output/setRunNum 0
+/output/setRunNum %(run_num)i
 /output/setRecordLevel 2
 
 /geom/mode sphere
 /geom/sphere/radius 40 cm
 /geom/sphere/nshells 40
-/geom/sphere/material Polyethylene
+/geom/sphere/material G4_POLYETHYLENE
+#/geom/sphere/material G4_POLYETHYLENE-0.1wt%%-6Li
 
-/output/filename spheretest.root
+/output/filename %(outfile)s
 
 /run/initialize
 
@@ -23,9 +24,9 @@
 /vis/viewer/set/auxiliaryEdge 1
 /vis/drawVolume
 
-/vis/scene/add/trajectories
-/vis/scene/add/hits
-/vis/scene/endOfEventAction accumulate -1
+#/vis/scene/add/trajectories
+#/vis/scene/add/hits
+#/vis/scene/endOfEventAction accumulate -1
 
 /generator/module/gun
 /gun/particle neutron
@@ -33,4 +34,4 @@
 /gun/direction 0 0 1
 /gun/position 0 0 0 m
 
-/run/beamOn 10000
+/run/beamOn %(nevents)i

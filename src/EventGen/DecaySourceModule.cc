@@ -61,9 +61,11 @@ void DecaySourceModule::GeneratePrimaries(G4Event* anEvent) {
         }
     }
     
-    setVertices(v);
+    nDecays += setVertices(v);
     throwPrimaries(v, anEvent);
 }
+
+G4double DecaySourceModule::GetGeneratorTime() const { return nDecays*s; }
 
 void DecaySourceModule::fillNode(TXMLEngine& E) {
     addAttr(E, "type", gen_name);

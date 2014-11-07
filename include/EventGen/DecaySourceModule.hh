@@ -24,7 +24,10 @@ public:
     
     /// throw event particles
     virtual void GeneratePrimaries(G4Event* anEvent);
-        
+    
+    /// get generator time
+    virtual G4double GetGeneratorTime() const;
+    
     set<int> ptypes;                    ///< particle types (PDG ID) to throw; {} for all
     bool throwSingle = false;           ///< whether to only throw one particle at a time
     

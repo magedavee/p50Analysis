@@ -25,8 +25,8 @@ public:
     /// Destructor
     virtual ~VertexPositioner() { }
     
-    /// Set position, momentum for list of particles
-    virtual void setVertex(vector<primaryPtcl>& v) = 0;
+    /// Set position, momentum for list of particles; return effective number of vertices created
+    virtual double setVertex(vector<primaryPtcl>& v) = 0;
     
     /// utility function for generating isotropic random direction
     static G4ThreeVector randomDirection();
@@ -39,7 +39,7 @@ public:
     IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): VertexPositioner("IsotPtPositioner"), x0(x) { }
     
     /// Set position, momentum for list of particles
-    virtual void setVertex(vector<primaryPtcl>& v);
+    virtual double setVertex(vector<primaryPtcl>& v);
     
     G4ThreeVector x0;   ///< vertex position
  

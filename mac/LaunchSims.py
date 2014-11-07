@@ -75,6 +75,7 @@ if __name__=="__main__":
     parser.add_option("--testcell", dest="testcell", action="store_true", default=False, help="Scintillator test cell")
     parser.add_option("--nscatter", dest="nscatter", action="store_true", default=False, help="neutron scattering tests")
     parser.add_option("--proton", dest="proton", action="store_true", default=False, help="proton interactions tests")
+    parser.add_option("--sphere", dest="sphere", action="store_true", default=False);
     
     options, args = parser.parse_args()
     if options.kill:
@@ -138,4 +139,9 @@ if __name__=="__main__":
         L.vary_E = ["%.3f MeV"%x for x in logrange(nruns,1,2000)]
         shuffle(L.vary_E)
         L.launch_sims(nruns)
+        
+    if options.sphere:
+        L = SB_MC_Launcher("Sphere_Poly", 1e4)
+        L.template = "spheretest.mac"
+        L.launch_sims(4*4)
         

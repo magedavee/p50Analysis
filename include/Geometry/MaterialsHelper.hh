@@ -43,6 +43,7 @@ public:
     G4Material* Vacuum;         ///< vacuum
     G4Material* Air;            ///< room air
     G4Material* MinOil;         ///< Mineral oil
+    G4Material* Mylar;          ///< Mylar
     G4Material* PMMA;           ///< plexiglass, transparent
     G4Material* PMMA_black;     ///< plexiglass, black
     G4Material* PMMA_white;     ///< plexiglass, white

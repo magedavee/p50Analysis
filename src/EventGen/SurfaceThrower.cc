@@ -65,10 +65,12 @@ void SurfaceThrower::genThrow() {
     nHits++;
 }
 
-void SurfaceThrower::setVertex(vector<primaryPtcl>& v) {
-    if(!v.size()) return;
+double SurfaceThrower::setVertex(vector<primaryPtcl>& v) {
+    if(!v.size()) return 0;
     vector<primaryPtcl> thrown;
+    int nvertices = 0;
     do {
+        nvertices++;
         nAttempts++;
         proposePosition();
         for(auto it = v.begin(); it != v.end(); it++) {
@@ -81,4 +83,5 @@ void SurfaceThrower::setVertex(vector<primaryPtcl>& v) {
     } while(!thrown.size());
     
     v = thrown;
+    return nvertices;
 }

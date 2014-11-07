@@ -14,7 +14,9 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     
     // Displays event number and random seed for select events - gives user a progress report
     G4int eventNumber = anEvent->GetEventID();
-    if(!(eventNumber % 1000)) {
+    if( (eventNumber <= 1e5 && !(eventNumber % 1000))
+        || (eventNumber <= 1e6 && !(eventNumber % 10000))
+        || !(eventNumber % 100000)) {
         G4cout << "   Beginning of event: " << eventNumber << G4endl;
         CLHEP::HepRandom::showEngineStatus();
     }
@@ -30,7 +32,9 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
-    if(reclevel >= 3 || (reclevel >= 2 &&  RootIO::GetNCapt().nNCapts +  RootIO::GetScIoni().nIoniClusts > 0)) {
+    if(reclevel >= 5
+        || (reclevel == 3 && RootIO::GetFlux().nParticles > 0)
+        || (reclevel >= 2 &&  RootIO::GetNCapt().nNCapts +  RootIO::GetScIoni().nIoniClusts > 0)) {
         
         // record event primaries information
         ParticleEvent& prim = RootIO::GetPrim();
