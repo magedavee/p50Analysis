@@ -10,12 +10,21 @@ G4ThreeVector VertexPositioner::randomDirection() {
     return G4ThreeVector(cos(phi)*sintheta, sin(phi)*sintheta, costheta);
 }
 
-double IsotPtPositioner::setVertex(vector<primaryPtcl>& v) {
+int VertexPositioner::setVertex(vector<primaryPtcl>& v) {
+    int ntries = 1;
+    vector<primaryPtcl> vorig = v;
+    while(!tryVertex(v)) { v = vorig; ntries++; }
+    return ntries;
+}
+
+//---------------------------
+
+bool IsotPtPositioner::tryVertex(vector<primaryPtcl>& v) {
     for(auto it = v.begin(); it != v.end(); it++) {
         it->pos = x0;
         it->mom = randomDirection();
     }
-    return 1;
+    return true;
 }
 
 void IsotPtPositioner::fillNode(TXMLEngine& E) {

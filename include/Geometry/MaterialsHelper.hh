@@ -36,9 +36,12 @@ public:
     G4Material* nat_Cl;         ///< natural chlorine
     G4Material* nat_Ca;         ///< natural calcium
     G4Material* nat_Fe;         ///< natural iron
+    G4Material* nat_Cu;         ///< natural copper
+    G4Material* nat_Zn;         ///< natural zinc
     G4Material* nat_Cr;         ///< natural chromium
     G4Material* nat_Mo;         ///< natural molybdenum
     G4Material* nat_Pb;         ///< natural lead
+    G4Material* nat_W;          ///< natural tungsten
     
     G4Material* Vacuum;         ///< vacuum
     G4Material* Air;            ///< room air
@@ -49,6 +52,7 @@ public:
     G4Material* PMMA_white;     ///< plexiglass, white
     G4Material* PEEK;           ///< PEEK O3 C19 H12
     G4Material* Polyeth;        ///< Polyethylene
+    G4Material* Polystyrene;    ///< Polystyrene
     G4Material* BPoly;          ///< Borated (5% by mass) polyethylene
     G4Material* LiPoly;         ///< Lithiated (5% by mass) polyethlyene
     G4Material* Water;          ///< Water

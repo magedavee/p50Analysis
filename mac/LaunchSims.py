@@ -76,6 +76,7 @@ if __name__=="__main__":
     parser.add_option("--nscatter", dest="nscatter", action="store_true", default=False, help="neutron scattering tests")
     parser.add_option("--proton", dest="proton", action="store_true", default=False, help="proton interactions tests")
     parser.add_option("--sphere", dest="sphere", action="store_true", default=False);
+    parser.add_option("--acorn", dest="acorn", action="store_true", default=False);
     
     options, args = parser.parse_args()
     if options.kill:
@@ -144,4 +145,10 @@ if __name__=="__main__":
         L = SB_MC_Launcher("Sphere_Poly", 1e4)
         L.template = "spheretest.mac"
         L.launch_sims(4*4)
+        
+    if options.acorn:
+        L = SB_MC_Launcher("aCORN_Bi207_e", 1e5)
+        L.template = "aCORN_Template.mac"
+        L.settings["PID"] = 11
+        L.launch_sims(4*10)
         

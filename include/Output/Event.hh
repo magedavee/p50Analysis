@@ -17,7 +17,7 @@ public:
     Double_t E;         ///< kinetic energy
     Double_t t;         ///< initial time
     
-    ClassDef(ParticleVertex,1);
+    ClassDef(ParticleVertex,2);
 };
 
 /// Event containing a list of particles

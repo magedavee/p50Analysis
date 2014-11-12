@@ -22,7 +22,7 @@ public:
     void genThrow();
     
     /// Set position, momentum for list of particles; note: multiple primaries all thrown in same direction!
-    virtual double setVertex(vector<primaryPtcl>& v);
+    virtual bool tryVertex(vector<primaryPtcl>& v);
     
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector snorm;        ///< surface normal at position

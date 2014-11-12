@@ -45,6 +45,9 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
 /// merge ionization events into single history, regardless of volume
 vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max);
 
+/// Fill histogram preserving *average* value interpolated between bins
+void fill_interp(TH1* h, double x, double w = 1.0);
+
 /// (x,y,z) position projection histograms
 class ProfileHistos {
 public:

@@ -49,7 +49,7 @@ public:
     G4VPhysicalVolume* ptclTrg = NULL;  ///< optional event generator target volume
     ShellLayerSpec worldShell;          ///< world outer vacuum layer dimensions
     
-private:
+protected:
     
     ScintSD* myScintSD = NULL;          ///< sensitive detector for scintillator volume
     G4UIdirectory geomDir;              ///< UI directory for construction geometry commands

@@ -31,9 +31,12 @@ MaterialsHelper::MaterialsHelper() {
     nat_Cl = nist->FindOrBuildMaterial("G4_Cl", true);
     nat_Ca = nist->FindOrBuildMaterial("G4_Ca", true);
     nat_Fe = nist->FindOrBuildMaterial("G4_Fe", true);
+    nat_Cu = nist->FindOrBuildMaterial("G4_Cu", true);
+    nat_Zn = nist->FindOrBuildMaterial("G4_Zn", true);
     nat_Cr = nist->FindOrBuildMaterial("G4_Cr", true);
     nat_Mo = nist->FindOrBuildMaterial("G4_Mo", true);
     nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
+    nat_W = nist->FindOrBuildMaterial("G4_W", true);
     
     elLi6  = new G4Element("eleLi6", "Li6", 1);
     G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
@@ -90,6 +93,8 @@ MaterialsHelper::MaterialsHelper() {
     PEEK->AddElement(nist->FindOrBuildElement("O",true), 3);
     
     Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
+    
+    Polystyrene = nist->FindOrBuildMaterial("G4_POLYSTYRENE", true, true);
     
     BPoly = new G4Material("5wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
     BPoly->AddMaterial(Polyeth, 95.0*perCent);

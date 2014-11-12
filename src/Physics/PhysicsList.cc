@@ -1,5 +1,7 @@
 #include "PhysicsList.hh"
 
+#ifndef EMPHYSICS
+
 PhysicsList::PhysicsList(): XMLProvider("Physics"),
 myMessenger(new PhysicsListMessenger(this)), myOptPhys(NULL) {
 }
@@ -33,3 +35,36 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command, G4String) {
         }
     }
 }
+
+#else
+
+#include "StepMax.hh"
+#include <G4SystemOfUnits.hh>
+#include <G4ProductionCutsTable.hh>
+#include <G4ProcessManager.hh>
+
+void PhysicsList::SetCuts() {
+    G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(250*eV, 1*GeV);
+    double rangecut = 1*um;
+    SetCutValue(rangecut, "gamma");
+    SetCutValue(rangecut, "e-");
+    SetCutValue(rangecut, "e+");
+}
+
+void PhysicsList::AddStepMax() {
+    StepMax* stepMaxProcess = new StepMax();
+    
+    printf("Setting step-size limits...\n");
+    
+    theParticleIterator->reset();
+    while ((*theParticleIterator)()){
+        G4ParticleDefinition* particle = theParticleIterator->value();
+        G4ProcessManager* pmanager = particle->GetProcessManager();
+        if (stepMaxProcess->IsApplicable(*particle)) {
+            printf("\tSetting step limit for %s\n", particle->GetParticleName().c_str());
+            pmanager->AddDiscreteProcess(stepMaxProcess);
+        }
+    }
+}
+
+#endif

@@ -8,7 +8,7 @@
 class ScintSegVol: public Builder {
 public:
     /// Constructor
-    ScintSegVol(const string& n): Builder(n), scint_log(NULL) { }
+    ScintSegVol(const string& n): Builder(n), scint_log(NULL), scint_phys(NULL) { }
 
     /// get segment number at position in scintillator local coordinates
     virtual int getSegmentNum(const G4ThreeVector&) const { return 1; }
@@ -16,8 +16,8 @@ public:
     /// assign SD to scintillator volumes
     virtual void setScintSD(G4VSensitiveDetector* SD) { scint_log->SetSensitiveDetector(SD); }
     
-    G4LogicalVolume* scint_log;         ///< liquid scintillator logical volume
-    G4VPhysicalVolume* scint_phys;      ///< liquid scintillator physical volume
+    G4LogicalVolume* scint_log;         ///< liquid scintillator logical volume for setting sensitive detectors
+    G4VPhysicalVolume* scint_phys;      ///< (optional) liquid scintillator physical volume for storing local coordinates
 };
 
 #endif

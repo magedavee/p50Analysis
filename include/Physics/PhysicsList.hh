@@ -1,7 +1,11 @@
 #ifndef PHYSICSLIST_HH
 #define PHYSICSLIST_HH
 
+//#define EMPHYSICS
+
 #include "XMLProvider.hh"
+
+#ifndef EMPHYSICS
 
 #include <G4UImessenger.hh>
 #include <QGSP_BERT_HP.hh>
@@ -44,5 +48,26 @@ protected:
     G4UIdirectory* physDir;             ///< UI directory for physics commands
     G4UIcmdWithoutParameter* opticalCmd;///< command for enabling optical physics
 };
+
+#else
+
+#include <G4VModularPhysicsList.hh>
+#include <G4EmStandardPhysics.hh>
+#include <G4EmLivermorePhysics.hh>
+#include <G4EmPenelopePhysics.hh>
+
+/// Low-energy electromagnetic physics list
+class PhysicsList: public G4VModularPhysicsList, public XMLProvider {
+public:
+    /// Constructor
+    PhysicsList(): XMLProvider("EMPhysics") { SetDefaultCutValue(0.001); emPhysicsList = new G4EmStandardPhysics(); }
+    virtual void ConstructParticle() { emPhysicsList->ConstructParticle(); }
+    virtual void ConstructProcess() { AddTransportation(); emPhysicsList->ConstructProcess(); AddStepMax(); }
+    virtual void SetCuts();
+    virtual void AddStepMax();
+    G4VPhysicsConstructor* emPhysicsList;
+};
+
+#endif
 
 #endif

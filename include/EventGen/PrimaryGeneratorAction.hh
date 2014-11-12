@@ -43,7 +43,9 @@ public:
     
 protected:
     /// convenence function for setting vertices using PrimaryGeneratorAction default
-    double setVertices(vector<primaryPtcl>& v);
+    int setVertices(vector<primaryPtcl>& v);
+    /// convenience function for attempting a vertex using PrimaryGeneratorAction default
+    bool tryVertex(vector<primaryPtcl>& v);
     /// convenience function for throwing listed primaries
     void throwPrimaries(const vector<primaryPtcl>& v, G4Event* anEvent);
     

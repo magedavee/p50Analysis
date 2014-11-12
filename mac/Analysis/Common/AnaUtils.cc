@@ -77,6 +77,16 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
     return volIoni;
 }
 
+void fill_interp(TH1* h, double x, double w) {
+    TAxis* Ax = h->GetXaxis();
+    int b0 = Ax->FindBin(x);
+    double c0 = Ax->GetBinCenter(b0);
+    int b1 = x > c0? b0+1 : b0-1;
+    double c1 = Ax->GetBinCenter(b1);
+    double a = (c1-x)/(c1-c0);
+    h->Fill(c0, a*w);
+    h->Fill(c1, (1-a)*w);
+}
 
 /////////////////////////////////////
 /////////////////////////////////////

@@ -6,6 +6,7 @@
 #include <G4LogicalVolume.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VisAttributes.hh>
+#include <G4AssemblyVolume.hh>
 
 /// Base class for "buildable" detector sub-assemblies
 class Builder: public XMLProvider {
@@ -21,7 +22,8 @@ public:
     /// Construct geometry: subclass me!
     virtual void construct() = 0;
     
-    G4LogicalVolume* main_log;  ///< main constructed volume for placement
+    G4LogicalVolume* main_log;          ///< main constructed volume for placement
+    G4AssemblyVolume myAssembly;        ///< optional detector assembly for placement
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions
