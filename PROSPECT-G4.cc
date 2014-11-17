@@ -21,6 +21,7 @@
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "SteppingVerbose.hh"
+#include "SteppingAction.hh"
 #include "PhysicsList.hh"
 #include "XSDump.hh"
 #include "RootIO.hh"
@@ -60,6 +61,9 @@ int main(int argc,char** argv) {
     
     EventAction* event_action = new EventAction();
     run_manager->SetUserAction(event_action);
+    
+    SteppingAction* stepping_action = new SteppingAction();
+    run_manager->SetUserAction(stepping_action);
     
     XSDump myXSDump;
     

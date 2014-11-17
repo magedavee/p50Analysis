@@ -7,7 +7,7 @@
 #include <cmath>
 
 ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.001),
-length(5*2.54*cm), radius(2.5*2.54*cm), wall_thick(0.125*2.54*cm),
+length(5*in), radius(2.5*in), wall_thick(0.125*in),
 cellDir("/geom/testcell/"),
 lengthCmd("/geom/testcell/length",this),
 radiusCmd("/geom/testcell/radius",this),

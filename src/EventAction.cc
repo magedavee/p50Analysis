@@ -2,6 +2,7 @@
 #include "RootIO.hh"
 
 #include "RunAction.hh"
+#include "SteppingAction.hh"
 #include "Event.hh"
 
 #include <G4Event.hh>
@@ -11,6 +12,7 @@
 #include <G4ios.hh>
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
+    timer.Start();
     
     // Displays event number and random seed for select events - gives user a progress report
     G4int eventNumber = anEvent->GetEventID();
@@ -29,6 +31,8 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
 }
 
 void EventAction::EndOfEventAction(const G4Event* anEvent) {
+    timer.Stop();
+    
     // Save event data
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
@@ -57,6 +61,18 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
             }
         }
         
+        // record computation time and flags
+        SteppingAction* sa = (SteppingAction*)(G4RunManager::GetRunManager()->GetUserSteppingAction());
+        if(sa->isTrapped) RootIO::GetEvent().flg |= Event::EVT_TRAPPED;
+        RootIO::GetEvent().ct = sa->timeSpentSoFar;
+            
         RootIO::GetInstance()->FillTree();
     }
+}
+
+double EventAction::getCPUTime() {
+    timer.Stop();
+    double t = timer.CpuTime();
+    timer.Continue();
+    return t;
 }

@@ -93,8 +93,8 @@ MaterialsHelper::MaterialsHelper() {
     PEEK->AddElement(nist->FindOrBuildElement("O",true), 3);
     
     Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
-    
     Polystyrene = nist->FindOrBuildMaterial("G4_POLYSTYRENE", true, true);
+    PTFE = nist->FindOrBuildMaterial("G4_TEFLON", true, true);
     
     BPoly = new G4Material("5wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
     BPoly->AddMaterial(Polyeth, 95.0*perCent);
@@ -112,6 +112,8 @@ MaterialsHelper::MaterialsHelper() {
     Quartz = new G4Material("Quartz", 2.62*g/cm3, 2, kStateSolid, room_T);
     Quartz->AddMaterial(nat_Si, 0.4674);
     Quartz->AddMaterial(nat_O, 0.5326);
+    
+    Pyrex = nist->FindOrBuildMaterial("G4_Pyrex_Glass", true, true);
     
     Concrete = nist->FindOrBuildMaterial("G4_CONCRETE");
     

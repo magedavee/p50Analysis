@@ -27,6 +27,7 @@ public:
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions
+    static double in;           ///< conveniece definition for inch
 };
 
 /// Specification for a rectangular material shell around contents

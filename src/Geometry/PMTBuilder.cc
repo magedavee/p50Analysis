@@ -10,7 +10,7 @@
 #include <cmath>
 
 PMTBuilder::PMTBuilder(): Builder("PMT"), block_width(0), block_length(20*cm),
-diameter(5*2.54*cm), length(0),
+diameter(5*in), length(0),
 outer_vis(G4Color(0.2,0.2,0.4)), capsule_vis(G4Color(1.0,1.0,0.0)) { }
 
 void PMTBuilder::construct() {

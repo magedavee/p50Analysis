@@ -53,6 +53,7 @@ public:
     G4Material* PEEK;           ///< PEEK O3 C19 H12
     G4Material* Polyeth;        ///< Polyethylene
     G4Material* Polystyrene;    ///< Polystyrene
+    G4Material* PTFE;           ///< PTFE (Teflon)
     G4Material* BPoly;          ///< Borated (5% by mass) polyethylene
     G4Material* LiPoly;         ///< Lithiated (5% by mass) polyethlyene
     G4Material* Water;          ///< Water
@@ -62,6 +63,7 @@ public:
     G4Material* EJ309;          ///< Eljen EJ-309 liquid scintillator
     G4Material* SS444;          ///< Stainless Steel 444
     G4Material* Quartz;         ///< Quartz
+    G4Material* Pyrex;          ///< Pyrex borosilicate glass
     G4Material* Concrete;       ///< Concrete
     G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
     

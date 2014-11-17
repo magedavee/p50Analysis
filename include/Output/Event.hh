@@ -135,10 +135,16 @@ public:
     
     Int_t N;            ///< event number
     Double_t t;         ///< event time
+    Double_t ct;        ///< computer time to calculate event
+    Int_t flg;          ///< event flags
+    
+    enum evtFlags {
+        EVT_TRAPPED = 1 << 0    ///< event is "trapped" (exceeds computation time limit)
+    };
     
     /// Clear data for new event
-    void Clear(Option_t* ="") { N = t = 0; }
-    ClassDef(Event,4);
+    void Clear(Option_t* ="") { N = t = ct = flg = 0; }
+    ClassDef(Event,5);
 };
 
 #endif

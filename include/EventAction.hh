@@ -2,17 +2,23 @@
 /// Assure header file is only loaded once
 #define EventAction_H
 
+#include <TStopwatch.h>
 #include <G4UserEventAction.hh>
 
 class EventAction : public G4UserEventAction {
 public:
     /// Constructor
-    EventAction() { }	
+    EventAction() { }
     
     /// Called to start an event (particle launch)
     void BeginOfEventAction(const G4Event*);
     /// Called to finish an event and contains event-specific calculations and instructions
     void EndOfEventAction(const G4Event*);
+    /// get computation time spent so far
+    double getCPUTime();
+    
+protected:
+    TStopwatch timer;   ///< event computation time timer
 };
 
 #endif
