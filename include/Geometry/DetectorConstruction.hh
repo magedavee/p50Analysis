@@ -4,6 +4,7 @@
 
 #include "Builder.hh"
 #include "BuildingBuilder.hh"
+#include "PR2ShieldBuilder.hh"
 #include "ScintCellBuilder.hh"
 #include "ScatterSlabBuilder.hh"
 #include "SphereShellBuilder.hh"
@@ -34,12 +35,14 @@ public:
     
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector
+        PROSPECT2,      ///< PROSPECT-2 small prototype
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
         SPHERE          ///< concentric spheres
     } mode;             ///< what kind of system to construct
     
     BuildingBuilder myBuilding;         ///< building containing detector
+    PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry

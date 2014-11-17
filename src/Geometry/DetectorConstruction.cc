@@ -15,13 +15,14 @@ Builder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &modeCmd) {
         if(newValue == "PROSPECT") mode = PROSPECT;
+        else if(newValue == "PROSPECT2") mode = PROSPECT2;
         else if(newValue == "scintCell") mode = TEST_CELL;
         else if(newValue == "slab") mode = SLAB;
         else if(newValue == "sphere") mode = SPHERE;
@@ -43,7 +44,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
    
     addChild(&worldShell);
     
-    Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding    
+    Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding
+                                : mode==PROSPECT2? (Builder&)myPR2Shield
                                 : mode==SLAB ? (Builder&)mySlab
                                 : mode==TEST_CELL ? (Builder&)myTestCell
                                 : (Builder&)mySphere );
@@ -53,11 +55,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     if(mode==TEST_CELL) {
         worldShell.mat = MaterialsHelper::M().Air;
     } else if(mode==SLAB) {
-        worldShell.bottom_thick =  worldShell.top_thick;
+        worldShell.lthick[2] =  worldShell.uthick[2];
     } else if(mode==PROSPECT) {
-        worldShell.side_thick = 25*m;
+        worldShell.setSideThick(25*m);
     } else if(mode==SPHERE) {
-        worldShell.bottom_thick =  worldShell.top_thick = worldShell.side_thick = 0.5*m;
+        worldShell.setThick(0.5*m);
     }
     
     dim = myContents.getDimensions();

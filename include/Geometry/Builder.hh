@@ -33,16 +33,24 @@ protected:
 /// Specification for a rectangular material shell around contents
 class ShellLayerSpec: public XMLProvider {
 public:
+    /// Constructor with thicknesses
+    ShellLayerSpec(G4ThreeVector u, G4ThreeVector l, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
+    XMLProvider("ShellLayer"), uthick(u), lthick(l), mat(M), vis(c) { }
     /// Constructor
     ShellLayerSpec(double t, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
-    XMLProvider("ShellLayer"), top_thick(t), side_thick(t), bottom_thick(0), mat(M), vis(c) { }
+    XMLProvider("ShellLayer"), uthick(t, t, t), lthick(t, t, 0), mat(M), vis(c) { }
     
-    double top_thick;           ///< thickness on top
-    double side_thick;          ///< thickness on sides
-    double bottom_thick;        ///< thickness on bottom
+    G4ThreeVector uthick;       ///< thickness on upper (positive) side on each axis
+    G4ThreeVector lthick;       ///< thickness on lower (negative) side on each axis
     G4Material* mat;            ///< material
     G4VisAttributes vis;        ///< layer visualization attributes
     
+    /// offset of internal volume
+    G4ThreeVector offset() const { return (lthick-uthick)/2; }
+    /// set thickness on 4 sides
+    void setSideThick(double t) { uthick[0] = uthick[1] = lthick[0] = lthick[1] = t; }
+    /// set uniform thickness in all directions
+    void setThick(double t) { uthick = lthick = G4ThreeVector(t,t,t); }
     /// "wrap" child volume in specified layers
     G4VPhysicalVolume* wrap(G4LogicalVolume*& child, G4ThreeVector& dim, const G4String& nm) const;
     
@@ -62,9 +70,12 @@ public:
     
 protected:
     /// construct layers
-    void constructLayers(Builder& contents);
+    void constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim);
+    /// construct layers given builder
+    void constructLayers(Builder& B) { constructLayers(B.main_log, B.getDimensions()); }
     
-    vector<ShellLayerSpec> layers;         ///< descriptions of each layer
+    vector<ShellLayerSpec> layers;      ///< descriptions of each layer
+    vector<G4LogicalVolume*> layer_log; ///< logical volumes at each layer
 };
 
 

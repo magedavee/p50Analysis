@@ -48,13 +48,13 @@ void BuildingBuilder::construct() {
     layers.clear();
     
     ShellLayerSpec Sair(wall_clearance, makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Air, G4Colour(0.5, 0.5, 1.0));
-    Sair.top_thick = ceil_clearance;
-    Sair.bottom_thick = 0;
+    Sair.uthick[2] = ceil_clearance;
+    Sair.lthick[2] = 0;
     addLayer(Sair);
     
     ShellLayerSpec Swall(wall_thick, makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Concrete, G4Colour(0.3, 0.4, 0.4));
-    Swall.top_thick = ceil_thick;
-    Swall.bottom_thick = floor_thick;
+    Swall.uthick[2] = ceil_thick;
+    Swall.lthick[2] = floor_thick;
     addLayer(Swall);
     
     constructLayers(makeFluxTest? (Builder&)myFluxCounter : (Builder&)myDetUnit);

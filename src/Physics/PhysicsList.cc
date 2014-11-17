@@ -5,6 +5,7 @@
 #include <G4ProductionCutsTable.hh>
 
 PhysicsList::PhysicsList(): XMLProvider("Physics"),
+myHadronic(new QGSP_BERT_HP()),
 physDir("/phys/"),
 opticalCmd("/phys/enableOptical",this),
 emCmd("/phys/enableEM",this),
@@ -28,7 +29,7 @@ void PhysicsList::ConstructProcess() {
     if(myEMPhys) {
         AddTransportation();
         myEMPhys->ConstructProcess();
-    } else QGSP_BERT_HP::ConstructProcess();
+    } else myHadronic->ConstructProcess();
     
     if(myStepMax) {
         printf("Setting step-size limits...\n");
@@ -40,15 +41,19 @@ void PhysicsList::ConstructProcess() {
     }
 }
 
+void PhysicsList::ConstructParticle() {
+    if(myEMPhys) myEMPhys->ConstructParticle();
+    else myHadronic->ConstructParticle();
+}
+
 void PhysicsList::SetCuts() {
-    QGSP_BERT_HP::SetCuts();
     if(myEMPhys) {
         G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(250*eV, 1*GeV);
         double rangecut = 1*um;
         SetCutValue(rangecut, "gamma");
         SetCutValue(rangecut, "e-");
         SetCutValue(rangecut, "e+");
-    }
+    } else myHadronic->SetCuts();
 }
 
 

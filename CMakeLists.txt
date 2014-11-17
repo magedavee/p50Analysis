@@ -21,6 +21,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}/include/EventGen
                     ${PROJECT_SOURCE_DIR}/include/Output
                     ${PROJECT_SOURCE_DIR}/include/Tracking
+                    ${PROJECT_SOURCE_DIR}/include/aCORN
                     $ENV{CRYHOME}/src)
 link_directories($ENV{CRYHOME}/lib)
 

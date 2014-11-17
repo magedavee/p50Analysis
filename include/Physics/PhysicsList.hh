@@ -18,8 +18,8 @@
 
 class PhysicsListMessenger;
 
-/// Physics list, derived from QGSP_BERT_HP
-class PhysicsList: public QGSP_BERT_HP, public G4UImessenger, public XMLProvider {
+/// Physics list
+class PhysicsList: public G4VModularPhysicsList, public G4UImessenger, public XMLProvider {
 public:
     /// Constructor
     PhysicsList();
@@ -29,12 +29,14 @@ public:
     /// Response to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);
         
+    virtual void ConstructParticle();
     virtual void ConstructProcess();
     virtual void SetCuts();
     
 protected:
     G4OpticalPhysics* myOptPhys = NULL;         ///< optical physics processes
     G4VPhysicsConstructor* myEMPhys = NULL;     ///< low-energy electromagnetic physics
+    QGSP_BERT_HP* myHadronic;                   ///< neutron physics
     StepMax* myStepMax = NULL;                  ///< optional step-size limit
     
     G4UIdirectory physDir;                      ///< UI directory for physics commands

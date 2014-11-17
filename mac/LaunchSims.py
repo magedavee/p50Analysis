@@ -147,8 +147,11 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.acorn:
-        L = SB_MC_Launcher("aCORN_Bi207_e", 1e5)
-        L.template = "aCORN_Template.mac"
-        L.settings["PID"] = 11
-        L.launch_sims(4*10)
+        for src in ["Bi207", "Sn113", "Cd109"]:
+            for ptcl in [("e",11,1e5), ("gamma",22,1e6)]:
+                L = SB_MC_Launcher("aCORN_"+src+"_"+ptcl[0], ptcl[2])
+                L.template = "aCORN_Template.mac"
+                L.settings["src"] = src
+                L.settings["PID"] = ptcl[1]
+                L.launch_sims(4*10)
         

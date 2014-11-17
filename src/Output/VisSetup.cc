@@ -6,9 +6,9 @@ VisSetup::VisSetup(G4VisManager* vis_manager) {
     
     G4TrajectoryDrawByParticleID* pidModel = new G4TrajectoryDrawByParticleID("vpid");
     
-    pidModel->Set("e+", G4Colour(1., 0., 0.));          // red
-    pidModel->Set("e-", G4Colour(0., 0., 1.));          // blue
-    pidModel->Set("gamma", G4Colour(0.5, 1., 0.5, 0.05));     // pale green
+    pidModel->Set("e+", G4Colour(1., 0., 0.));              // red
+    pidModel->Set("e-", G4Colour(0., 0., 1., 0.5));          // blue
+    pidModel->Set("gamma", G4Colour(0.5, 1., 0.5, 0.02));     // pale green
     pidModel->Set("opticalphoton", G4Colour(1., 1., 1., 0.05)); // transparent white
     pidModel->Set("n", G4Colour(0., 1., 0.));           // green
     pidModel->Set("p", G4Colour(1., 1., 0.));           // yellow

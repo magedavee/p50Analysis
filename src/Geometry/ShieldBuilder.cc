@@ -49,9 +49,8 @@ void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String newvalue) {
     if(command == &clearCmd) {
         ShellLayerSpec S(0*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.));
         for(vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
-            S.side_thick += it->side_thick;
-            S.top_thick += it->top_thick;
-            S.bottom_thick += it->bottom_thick;            
+            S.uthick += it->uthick;
+            S.lthick += it->lthick;
         }
         layers.clear();
         addLayer(S);

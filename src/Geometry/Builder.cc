@@ -11,19 +11,17 @@ double Builder::in = 25.4*mm;
 
 void ShellLayerSpec::fillNode(TXMLEngine& E) {
     if(mat) addAttr(E, "mat", mat->GetName());
-    addAttr(E, "top", G4BestUnit(top_thick,"Length"));
-    addAttr(E, "side", G4BestUnit(side_thick,"Length"));
-    addAttr(E, "bottom", G4BestUnit(bottom_thick,"Length"));
+    addAttr(E, "upper", G4BestUnit(uthick,"Length"));
+    addAttr(E, "lower", G4BestUnit(lthick,"Length"));
 }
 
 G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& dim, const G4String& nn) const {
-    dim += G4ThreeVector(2*side_thick, 2*side_thick, top_thick + bottom_thick);
+    dim += uthick + lthick;
     G4Box* layer_box = new G4Box(nn+"_box", dim[0]/2., dim[1]/2., dim[2]/2.);
     G4LogicalVolume* s_log = new G4LogicalVolume(layer_box, mat, nn+"_log");
     s_log->SetVisAttributes(vis);
 
-    G4VPhysicalVolume* cplace = new G4PVPlacement(NULL, G4ThreeVector(0,0,(bottom_thick-top_thick)/2.),
-                                                  child, nn+"_phys", s_log, false, 0, true);
+    G4VPhysicalVolume* cplace = new G4PVPlacement(NULL, offset(), child, nn+"_phys", s_log, false, 0, true);
     child = s_log;
     return cplace;
 }
@@ -32,15 +30,15 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-void ShellLayerBuilder::constructLayers(Builder& contents) {
-    main_log = contents.main_log;
-    dim = contents.getDimensions();
-    
+void ShellLayerBuilder::constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim) {
+    main_log = core_log;
+    dim = ldim;
     unsigned int nlayers = 0;
-    for(vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+    for(auto it = layers.begin(); it != layers.end(); it++) {
         if(!it->mat) continue;
         nlayers++;
-        it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));        
+        it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));
+        layer_log.push_back(main_log);
         addChild(&(*it));
     }
 }
