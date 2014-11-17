@@ -1,7 +1,7 @@
 #ifndef PHYSICSLIST_HH
 #define PHYSICSLIST_HH
 
-#define EMPHYSICS
+//#define EMPHYSICS
 
 #include "XMLProvider.hh"
 
