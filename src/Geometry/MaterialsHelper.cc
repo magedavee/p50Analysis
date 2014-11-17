@@ -96,9 +96,13 @@ MaterialsHelper::MaterialsHelper() {
     Polystyrene = nist->FindOrBuildMaterial("G4_POLYSTYRENE", true, true);
     PTFE = nist->FindOrBuildMaterial("G4_TEFLON", true, true);
     
-    BPoly = new G4Material("5wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
-    BPoly->AddMaterial(Polyeth, 95.0*perCent);
-    BPoly->AddMaterial(nat_B, 5.0*perCent);
+    BPoly5 = new G4Material("5wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
+    BPoly5->AddMaterial(Polyeth, 95.0*perCent);
+    BPoly5->AddMaterial(nat_B, 5.0*perCent);
+    
+    BPoly30 = new G4Material("30wt% Borated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
+    BPoly30->AddMaterial(Polyeth, 70.0*perCent);
+    BPoly30->AddMaterial(nat_B, 30.0*perCent);
     
     LiPoly = new G4Material("5wt% Lithiated Polyethylene", 0.94*g/cm3, 2, kStateSolid, room_T);
     LiPoly->AddMaterial(Polyeth, 95.0*perCent);

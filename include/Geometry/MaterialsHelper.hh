@@ -54,7 +54,8 @@ public:
     G4Material* Polyeth;        ///< Polyethylene
     G4Material* Polystyrene;    ///< Polystyrene
     G4Material* PTFE;           ///< PTFE (Teflon)
-    G4Material* BPoly;          ///< Borated (5% by mass) polyethylene
+    G4Material* BPoly5;         ///< Borated (5% by mass) polyethylene
+    G4Material* BPoly30;        ///< Borated (30% by mass) polyethylene
     G4Material* LiPoly;         ///< Lithiated (5% by mass) polyethlyene
     G4Material* Water;          ///< Water
     G4Material* PVT;            ///< Polyvinyl Toluene scintillator

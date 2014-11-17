@@ -32,7 +32,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
 
 ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myBuilding.myDetUnit.myDet.myTank;
-    else if(mode == TEST_CELL) return &myTestCell;
+    else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
     return NULL;
@@ -60,6 +60,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         worldShell.setSideThick(25*m);
     } else if(mode==SPHERE) {
         worldShell.setThick(0.5*m);
+    } else if(mode==PROSPECT2) {
+        myTestCell.construct();
+        addChild(&myTestCell);
+        new G4PVPlacement(Builder::rot_X_90, G4ThreeVector(), myTestCell.main_log, "cell_phys", myPR2Shield.cave_log, false, 0, true);
     }
     
     dim = myContents.getDimensions();

@@ -7,12 +7,13 @@
 #include <G4VPhysicalVolume.hh>
 #include <G4VisAttributes.hh>
 #include <G4AssemblyVolume.hh>
+#include <G4RotationMatrix.hh>
 
 /// Base class for "buildable" detector sub-assemblies
 class Builder: public XMLProvider {
 public:
     /// Constructor
-    Builder(const string& n): XMLProvider(n), main_log(NULL), dim() { }
+    Builder(const string& n);
     /// Destructor
     virtual ~Builder() { }
     
@@ -24,6 +25,10 @@ public:
     
     G4LogicalVolume* main_log;          ///< main constructed volume for placement
     G4AssemblyVolume myAssembly;        ///< optional detector assembly for placement
+    
+    static G4RotationMatrix* rot_X_90;  ///< 90 degree rotation around X axis
+    static G4RotationMatrix* rot_Y_90;  ///< 90 degree rotation around Y axis
+    static G4RotationMatrix* rot_Z_90;  ///< 90 degree rotation around Z axis
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions

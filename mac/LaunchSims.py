@@ -14,9 +14,9 @@ class SB_MC_Launcher:
         self.settings["reclevel"] = 2
         self.template = "CRY_Template.mac"
         self.vary_E = None
+        self.bin_name = os.environ["PG4_BIN"]
         
     def set_dirs(self):
-        self.bin_name = os.environ["PG4_BIN"]
         self.outdir = os.environ["PG4_OUTDIR"]+"/"+self.settings["simName"]
         self.auxout = os.environ["PG4_AUXOUT"]
         self.macro_dir = self.auxout+"/mac/"+self.settings["simName"]
@@ -150,6 +150,7 @@ if __name__=="__main__":
         for src in ["Bi207", "Sn113", "Cd109"]:
             for ptcl in [("e",11,1e5), ("gamma",22,1e6)]:
                 L = SB_MC_Launcher("aCORN_"+src+"_"+ptcl[0], ptcl[2])
+                L.bin_name = "/home/mpmendenhall/Applications/PG4-aCORN/bin/PROSPECT-G4"
                 L.template = "aCORN_Template.mac"
                 L.settings["src"] = src
                 L.settings["PID"] = ptcl[1]

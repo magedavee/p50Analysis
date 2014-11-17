@@ -6,6 +6,17 @@
 #include <G4PVPlacement.hh>
 
 double Builder::in = 25.4*mm;
+G4RotationMatrix* Builder::rot_X_90 = NULL;
+G4RotationMatrix* Builder::rot_Y_90 = NULL;
+G4RotationMatrix* Builder::rot_Z_90 = NULL;
+
+Builder::Builder(const string& n): XMLProvider(n), main_log(NULL), dim() {
+    if(!rot_X_90) {
+        rot_X_90 = new G4RotationMatrix(); rot_X_90->rotateX(90*deg);
+        rot_Y_90 = new G4RotationMatrix(); rot_Y_90->rotateY(90*deg);
+        rot_Z_90 = new G4RotationMatrix(); rot_Z_90->rotateZ(90*deg);
+    }
+}
 
 //////
 
