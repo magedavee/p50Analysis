@@ -3,6 +3,7 @@
 
 #include <G4Box.hh>
 #include <G4UnitsTable.hh>
+#include <G4PVPlacement.hh>
 
 void PR2ShieldBuilder::construct() {
     
@@ -11,17 +12,19 @@ void PR2ShieldBuilder::construct() {
     cave_log = new G4LogicalVolume(cave_box, MaterialsHelper::M().Air, "cave_log");
     cave_log->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,0,0,0.5)));
     
-    
     addLayer(ShellLayerSpec(G4ThreeVector(2*in, 2*in, 2*in), G4ThreeVector(2*in, 2*in, 2*in), MaterialsHelper::M().LiPoly, G4Colour(0.7,0.0,0.7,0.5)));
     addLayer(ShellLayerSpec(G4ThreeVector(2*in, 4*in, 2*in), G4ThreeVector(4*in, 4*in, 2*in), MaterialsHelper::M().nat_Pb, G4Colour(0.5,0.5,0.5,0.5)));
     addLayer(ShellLayerSpec(G4ThreeVector(6*in, 6*in, 10*in), G4ThreeVector(6*in, 6*in, 0*in), MaterialsHelper::M().BPoly, G4Colour(0.5,0.5,0.0,0.5)));
     addLayer(ShellLayerSpec(G4ThreeVector(0,0,0), G4ThreeVector(0,0,1*in), MaterialsHelper::M().BPoly, G4Colour(0.0,0.7,0.0,0.5)));
+    const double st = in/16.; // steel shell thickness
+    addLayer(ShellLayerSpec(G4ThreeVector(st,st,st), G4ThreeVector(st,st,0), MaterialsHelper::M().SS444, G4Colour(0.7,0.7,0.7,0.5)));
     
     constructLayers(cave_log, dim);
     
     // lead layer gap
     G4Box* leadgap_box = new G4Box("leadgap_box", 1*in, 16*in, 1*in);
     G4LogicalVolume* leadgap_log = new G4LogicalVolume(leadgap_box, MaterialsHelper::M().BPoly, "leadgap_log");
+    new G4PVPlacement(NULL, G4ThreeVector(-7*in, 2*in, 6*in), leadgap_log, "leadgap_phys", layer_log[1], false, 0, true);
 }
 
 void PR2ShieldBuilder::fillNode(TXMLEngine& E) {
