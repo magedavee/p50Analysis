@@ -3,6 +3,9 @@
 #include <G4UnitsTable.hh>
 #include <G4SystemOfUnits.hh>
 #include <G4ProductionCutsTable.hh>
+#include <G4EmStandardPhysics.hh>
+#include <G4EmLivermorePhysics.hh>
+#include <G4EmPenelopePhysics.hh>
 
 PhysicsList::PhysicsList(): XMLProvider("Physics"),
 myHadronic(new QGSP_BERT_HP()),
@@ -16,6 +19,7 @@ stepMaxCmd("/phys/stepMax",this) {
     
     emCmd.SetGuidance("Enables precision low-energy electromagnetic physics.");
     emCmd.AvailableForStates(G4State_PreInit,G4State_Init);
+    emCmd.SetCandidates("Livermore Penelope Standard");
     
     stepMaxCmd.SetGuidance("Set limit on maximum step length.");
     stepMaxCmd.AvailableForStates(G4State_PreInit);
@@ -71,7 +75,9 @@ void PhysicsList::SetNewValue(G4UIcommand* command, G4String newValue) {
         }
     } else if(command == &emCmd) {
         if(!myEMPhys) {
-            myEMPhys = new G4EmLivermorePhysics();
+            if(newValue == "Livermore") myEMPhys = new G4EmLivermorePhysics();
+            else if(newValue == "Penelope") myEMPhys = new G4EmPenelopePhysics();
+            else myEMPhys = new G4EmStandardPhysics();
             //RegisterPhysics(myEMPhys);
         }
     } else if(command == &stepMaxCmd) {

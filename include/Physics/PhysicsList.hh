@@ -7,13 +7,11 @@
 #include <G4UImessenger.hh>
 #include <QGSP_BERT_HP.hh>
 #include <G4VModularPhysicsList.hh>
-#include <G4EmStandardPhysics.hh>
-#include <G4EmLivermorePhysics.hh>
-#include <G4EmPenelopePhysics.hh>
 #include <G4OpticalPhysics.hh>
 
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithoutParameter.hh>
+#include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithADoubleAndUnit.hh>
 
 class PhysicsListMessenger;
@@ -41,7 +39,7 @@ protected:
     
     G4UIdirectory physDir;                      ///< UI directory for physics commands
     G4UIcmdWithoutParameter opticalCmd;         ///< command for enabling optical physics
-    G4UIcmdWithoutParameter emCmd;              ///< command for enabling precision electromagnetic physics
+    G4UIcmdWithAString emCmd;                   ///< command for enabling precision electromagnetic physics
     G4UIcmdWithADoubleAndUnit stepMaxCmd;       ///< command for step-size limiter
     
     /// XML output contents
