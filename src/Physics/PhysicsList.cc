@@ -36,7 +36,7 @@ void PhysicsList::ConstructProcess() {
     } else myHadronic->ConstructProcess();
     
     if(myStepMax) {
-        printf("Setting step-size limits...\n");
+        G4cout << "Setting step-size limits to " << G4BestUnit(myStepMax->GetMaxStep(),"Length") << ".\n";
         theParticleIterator->reset();
         while ((*theParticleIterator)()){
             G4ParticleDefinition* particle = theParticleIterator->value();

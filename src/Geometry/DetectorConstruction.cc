@@ -64,6 +64,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myTestCell.construct();
         addChild(&myTestCell);
         new G4PVPlacement(Builder::rot_X_90, G4ThreeVector(), myTestCell.main_log, "cell_phys", myPR2Shield.cave_log, false, 0, true);
+        worldShell.setThick(0.5*m);
     }
     
     dim = myContents.getDimensions();

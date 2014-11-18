@@ -2,6 +2,7 @@
 
 #include "ScintCellBuilder.hh"
 #include "MaterialsHelper.hh"
+#include "FluxCounterSD.hh"
 #include "strutils.hh"
 
 #include <G4PVPlacement.hh>
@@ -9,6 +10,7 @@
 #include <G4UnitsTable.hh>
 #include <G4Orb.hh>
 #include <G4Sphere.hh>
+#include <G4SDManager.hh>
 
 SphereShellBuilder::SphereShellBuilder(): ScintSegVol("SphereShells"),
 myMat(NULL), radius(100*cm), ndivs(100),
@@ -45,6 +47,13 @@ void SphereShellBuilder::construct() {
     
     G4Orb* full_sphere = new G4Orb("full_sphere", radius);
     scint_log = main_log = new G4LogicalVolume(full_sphere, myMat, "SphereShells_main_log");
+    
+    // assign flux counter to outermost sphere
+    FluxCounterSD* mySD = new FluxCounterSD("FluxSD");
+    G4SDManager::GetSDMpointer()->AddNewDetector(mySD);
+    main_log->SetSensitiveDetector(mySD);
+    
+    if(ndivs<2) return;
     
     for(unsigned int i=0; i<ndivs; i++) {
         G4Sphere* shell_sphere = new G4Sphere("shell_sphere_"+to_str(i), i*radius/ndivs, (i+1)*radius/ndivs, 0, 2*M_PI, 0, M_PI);

@@ -27,7 +27,8 @@ moduleGPScmd("/generator/module/gps",this),
 moduleDecaySrccmd("/generator/module/decaysrc",this),
 ptPosCmd("/generator/vertex/isotpt", this),
 isotFluxCmd("/generator/vertex/isotworld", this),
-srcTargCmd("/generator/vertex/srctarg", this) {
+srcTargCmd("/generator/vertex/srctarg", this),
+cosFluxCmd("/generator/vertex/cosx", this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -82,6 +83,9 @@ srcTargCmd("/generator/vertex/srctarg", this) {
     
     srcTargCmd.SetGuidance("Generate vertices from source to target volume");
     srcTargCmd.AvailableForStates(G4State_Idle);
+    
+    cosFluxCmd.SetGuidance("Generate cos^x-weighted hemispherical flux from world volume");
+    cosFluxCmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -101,14 +105,16 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &ptPosCmd) {
         generator->myPositioner = &generator->myIsotPt;
         generator->myIsotPt.x0 = ptPosCmd.GetNew3VectorValue(newValue);
-    } else if(command == &isotFluxCmd) {
-        generator->myPositioner = generator->GetSurfaceThrower();
-        generator->GetSurfaceThrower()->setSourceTarget(NULL,NULL);
+    } else if(command == &isotFluxCmd || command == &cosFluxCmd) {
+        generator->myPositioner = generator->GetCosineThrower();
+        generator->GetCosineThrower()->setSourceTarget(NULL,NULL);
+        generator->GetCosineThrower()->setExponent(command == &cosFluxCmd? cosFluxCmd.GetNewDoubleValue(newValue) : 0);
     } else if(command == &srcTargCmd) {
-        generator->myPositioner = generator->GetSurfaceThrower();
-        generator->GetSurfaceThrower()->fromVolume = true;
-        generator->GetSurfaceThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
+        generator->myPositioner = generator->GetCosineThrower();
+        generator->GetCosineThrower()->fromVolume = true;
+        generator->GetCosineThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
+        generator->GetCosineThrower()->setExponent(0);
     }
-    
+
     else G4cout << "Command not found." << G4endl;
 }

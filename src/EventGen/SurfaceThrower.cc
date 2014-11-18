@@ -4,6 +4,7 @@
 #include <G4LogicalVolume.hh>
 #include <G4VSolid.hh>
 #include <Randomize.hh>
+#include <G4UnitsTable.hh>
 
 SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT):
 VertexPositioner("SurfaceThrower"), outer(true), fromVolume(false),
@@ -79,8 +80,18 @@ bool SurfaceThrower::tryVertex(vector<primaryPtcl>& v) {
         }
     }
     
+    nHits += thrown.size();
     if(thrown.size()) v = thrown;
     else return false;
     
     return true;
+}
+
+void SurfaceThrower::fillNode(TXMLEngine& E) {
+    VertexPositioner::fillNode(E);
+    addAttr(E, "s_area", G4BestUnit(getOriginArea(),"Surface"));
+    addAttr(E, "s_volume", G4BestUnit(getOriginVolume(),"Volume"));
+    addAttr(E, "nAttempts", nAttempts);
+    addAttr(E, "nSurfaceThrows", nSurfaceThrows);
+    addAttr(E, "nHits", nHits);    
 }

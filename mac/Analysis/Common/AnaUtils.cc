@@ -17,6 +17,7 @@ void scale_times_bin(TH1* f) {
         TAxis* A = f->GetXaxis();
         double scale = sqrt(A->GetBinLowEdge(i)*A->GetBinUpEdge(i));
         f->SetBinContent(i, f->GetBinContent(i)*scale);
+        f->SetBinError(i, f->GetBinError(i)*scale);
     }
 }
 
@@ -25,6 +26,7 @@ void normalize_to_bin_width(TH1* f) {
         TAxis* A = f->GetXaxis();
         double scale = 1./A->GetBinWidth(i);
         f->SetBinContent(i, f->GetBinContent(i)*scale);
+        f->SetBinError(i, f->GetBinError(i)*scale);
     }
 }
 

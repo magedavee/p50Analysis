@@ -5,6 +5,8 @@
 #include "VertexPositioner.hh"
 
 #include <G4VisExtent.hh>
+#include <G4LogicalVolume.hh>
+#include <G4VSolid.hh>
 
 /// Class for throwing events from a surface to a target volume, with specified angular distribution
 /// Use "setSourceTarget" to set source and target volumes.
@@ -24,6 +26,13 @@ public:
     /// Set position, momentum for list of particles; note: multiple primaries all thrown in same direction!
     virtual bool tryVertex(vector<primaryPtcl>& v);
     
+    /// Get surface area of origin solid
+    double getOriginArea() const { return W? W->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
+    /// Get volume of origin solid
+    double getOriginVolume() const { return W? W->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
+    /// Get "attempted" throws before discarding for surface normal, target conditions
+    int getAttempts() const { return nAttempts; }
+    
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector snorm;        ///< surface normal at position
     G4ThreeVector mom;          ///< momentum direction
@@ -38,6 +47,9 @@ protected:
     void proposePosition();
     /// Test a proposed momentum direction for surface normal and target hit
     bool tryMomentum();
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
         
     G4VPhysicalVolume* W;       ///< World volume
     G4VPhysicalVolume* S;       ///< Source surface

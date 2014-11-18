@@ -67,7 +67,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():
 XMLProvider("PrimaryGenerator"),
 detect((DetectorConstruction*)G4RunManager::GetRunManager()->GetUserDetectorConstruction()),
 myPositioner(&myIsotPt),
-mySurfaceThrower(NULL),
+myCosineThrower(NULL),
 genModule(NULL), myCRYModule(NULL),
 myIBDModule(NULL), myFisAntNuModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , mySimpleBGModule(NULL), myThermalNModule(NULL){
@@ -99,12 +99,12 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(mySimpleBGModule) delete mySimpleBGModule;
     if(myThermalNModule) delete myThermalNModule;
     if(myDecaySourceModule) delete myDecaySourceModule;
-    if(mySurfaceThrower) delete mySurfaceThrower;
+    if(myCosineThrower) delete myCosineThrower;
 }
 
-SurfaceThrower* PrimaryGeneratorAction::GetSurfaceThrower() {
-    if(!mySurfaceThrower) mySurfaceThrower = new SurfaceThrower(detect->theWorld);
-    return mySurfaceThrower;
+CosineThrower* PrimaryGeneratorAction::GetCosineThrower() {
+    if(!myCosineThrower) myCosineThrower = new CosineThrower(detect->theWorld);
+    return myCosineThrower;
 }
 
 void PrimaryGeneratorAction::loadGunModule() {

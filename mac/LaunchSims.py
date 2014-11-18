@@ -147,8 +147,8 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.acorn:
-        for src in ["Bi207", "Sn113", "Cd109"]:
-            for ptcl in [("e",11,1e5), ("gamma",22,1e6)]:
+        for src in ["Bi207", "Sn113", "Cd109"][:1]:
+            for ptcl in [("e", 11, 1e5), ("gamma", 22, 2e5)][:1]:
                 L = SB_MC_Launcher("aCORN_"+src+"_"+ptcl[0], ptcl[2])
                 L.bin_name = "/home/mpmendenhall/Applications/PG4-aCORN/bin/PROSPECT-G4"
                 L.template = "aCORN_Template.mac"

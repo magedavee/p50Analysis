@@ -10,7 +10,7 @@ class SatoNiitaNeutrons {
 public:
     
     /// Constructor (default initialization to Nashville, TN location from Ziegler 1998)
-    SatoNiitaNeutrons() { setParameters(0.5*GV, 3.47*GeV, 1016*g/cm2, 0.2); }
+    SatoNiitaNeutrons() { setParameters(0.5*GV, 3.47*GV, 1016*g/cm2, 0.2); }
     
     /// Set solar modulation potential ss, cutoff rigidity rc, atmospheric depth d, water fraction w
     void setParameters(double ss, double rc, double d, double w);

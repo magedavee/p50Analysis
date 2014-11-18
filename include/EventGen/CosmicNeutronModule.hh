@@ -3,25 +3,7 @@
 #define COSMICNEUTRONMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include "SurfaceThrower.hh"
 #include "SatoNiitaNeutrons.hh"
-
-#include <G4LogicalVolume.hh>
-#include <G4VSolid.hh>
-
-class TH1F;
-
-/// Cosmic ray flux cosine-weighted vertex thrower
-class CosmicFluxThrower: public SurfaceThrower {
-public:
-    /// constructor
-    CosmicFluxThrower(G4VPhysicalVolume* w): SurfaceThrower(w) { }
-    
-    double getSourceArea() { return S->GetLogicalVolume()->GetSolid()->GetSurfaceArea(); }
-protected:
-    /// neutron flux direction distribution
-    virtual G4ThreeVector proposeDirection();
-};
 
 /// Cosmic neutron event generator module
 class CosmicNeutronModule: public PrimaryGeneratorModule, protected SatoNiitaNeutrons {
@@ -37,8 +19,6 @@ public:
 
 protected:
     
-    CosmicFluxThrower myThrower;        ///< vertex selection
-    
     /// generate distribution histogram
     void makeDistribution();
     
@@ -47,7 +27,6 @@ protected:
     
     TH1F* myDist;       ///< underlying energy distribution
     double netFlux;     ///< total flux 1/cm^2/s
-    double area;        ///< originating surface area
 };
 
 #endif
