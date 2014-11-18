@@ -5,8 +5,14 @@
 #include "PrimaryGeneratorAction.hh"
 #include "SatoNiitaNeutrons.hh"
 
+#include <TH1F.h>
+
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithADouble.hh>
+
 /// Cosmic neutron event generator module
-class CosmicNeutronModule: public PrimaryGeneratorModule, protected SatoNiitaNeutrons {
+class CosmicNeutronModule: public PrimaryGeneratorModule, public G4UImessenger, protected SatoNiitaNeutrons {
 public:
     /// Constructor
     CosmicNeutronModule(PrimaryGeneratorAction* P);
@@ -17,8 +23,12 @@ public:
     /// get total "real time" for primaries thrown
     virtual G4double GetGeneratorTime() const;
 
-protected:
+    /// UI response
+    void SetNewValue(G4UIcommand*,G4String);
     
+protected:
+    /// clear previous distribution
+    void resetDistribution() { if(myDist) delete myDist; myDist = NULL; }
     /// generate distribution histogram
     void makeDistribution();
     
@@ -27,6 +37,13 @@ protected:
     
     TH1F* myDist;       ///< underlying energy distribution
     double netFlux;     ///< total flux 1/cm^2/s
+    
+    G4UIdirectory cosn_dir;             ///< UI directory for cosmic neutron generator controls
+    G4UIcmdWithADouble tscale_cmd;      ///< UI command for thermal neutron rescaling
+    G4UIcmdWithADouble smod_cmd;        ///< UI command for solar modulation setting
+    G4UIcmdWithADouble rc_cmd;          ///< UI command for rigidity cutoff setting
+    G4UIcmdWithADouble d_cmd;           ///< UI command for atmospheric depth setting
+    G4UIcmdWithADouble w_cmd;           ///< UI command for water fraction setting
 };
 
 #endif

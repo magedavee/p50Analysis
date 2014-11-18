@@ -7,24 +7,28 @@ void SatoNiitaNeutrons::setParameters(double ss, double rc, double d, double w) 
     s_mod = ss;
     r_c = rc;
     depth = d;
-    waterFrac = w;
+    calcFluxNorm();
     
+    waterFrac = w;
+}
+
+void SatoNiitaNeutrons::calcFluxNorm() {
     // Eq. (6): b_i1, b_i2 interpolated values between solar min and max
-    b_i1[1] = (b_11mn*(s_max - ss) + b_11mx*(ss - s_min))/(s_max - s_min);
+    b_i1[1] = (b_11mn*(s_max - s_mod) + b_11mx*(s_mod - s_min))/(s_max - s_min);
     for(int i=1; i<=4; i++)
-        b_i2[i] = (b_i2mn[i]*(s_max - ss) + b_i2mx[i]*(ss - s_min))/(s_max - s_min);
+        b_i2[i] = (b_i2mn[i]*(s_max - s_mod) + b_i2mx[i]*(s_mod - s_min))/(s_max - s_min);
     
     // Eq. (5)
-    for(int i=1; i<=5; i++)  a[i] = b_i1[i] + b_i2[i]/(1. + exp((rc - b_i3[i])/b_i4[i]));
-    for(int i=9; i<=11; i++) a[i] = b_i1[i] + b_i2[i]/(1. + exp((rc - b_i3[i])/b_i4[i]));
+    for(int i=1; i<=5; i++)  a[i] = b_i1[i] + b_i2[i]/(1. + exp((r_c - b_i3[i])/b_i4[i]));
+    for(int i=9; i<=11; i++) a[i] = b_i1[i] + b_i2[i]/(1. + exp((r_c - b_i3[i])/b_i4[i]));
     
     // Eq. (8)
-    c_4 = a[5] + (a[6]*d / (1 + a[7]*exp(a[8]*d)));
+    c_4 = a[5] + (a[6]*depth / (1 + a[7]*exp(a[8]*depth)));
     // Eq. (9)
-    c_12 = a[9]*(exp(-a[10]*d) + a[11]*exp(-a[12]*d));
+    c_12 = a[9]*(exp(-a[10]*depth) + a[11]*exp(-a[12]*depth));
     
     // Eq. (4)
-    phi_L = a[1]*(exp(-a[2]*d) - a[3]*exp(-a[4]*d));
+    phi_L = a[1]*(exp(-a[2]*depth) - a[3]*exp(-a[4]*depth));
 }
 
 double SatoNiitaNeutrons::calcAirSpectrum(double E) {
@@ -56,5 +60,5 @@ double SatoNiitaNeutrons::calcGroundSpectrum(double E) {
     phi_T = g_6*E*E/(E_T*E_T)*exp(-E/E_T);
     
     // Eq. (10)
-    return phi_G = phi_L*(phi_B*f_G + phi_T);
+    return phi_G = phi_L*(phi_B*f_G + phi_T*scale_T);
 }

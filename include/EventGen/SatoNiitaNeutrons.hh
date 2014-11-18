@@ -23,16 +23,22 @@ public:
     /// Calculate ground-level spectrum (calls calcAirSpectrum)
     double calcGroundSpectrum(double E);
     
-    double phi_L;       ///< Low-energy neutron flux (constant in E)
-    double phi_B;       ///< "basic" neutron spectrum shape, 1/Lethargy
+    double phi_L;               ///< Low-energy neutron flux (constant in E)
+    double phi_B;               ///< "basic" neutron spectrum shape, 1/Lethargy
     
-    double phi_inf;     ///< semi-infinite atmospheric flux, 1/Lethargy
-    double phi_T;       ///< thermal neutron spectrum
-    double f_G;         ///< ground enhancement factor
-    double phi_G;       ///< ground-level spectrum
+    double phi_inf;             ///< semi-infinite atmospheric flux, 1/Lethargy
+    double phi_T;               ///< thermal neutron spectrum
+    double f_G;                 ///< ground enhancement factor
+    double phi_G;               ///< ground-level spectrum
     
-protected:  
-    const double GV = megavolt; /// convenience shorthand for GigaVolt unit
+    double scale_T = 1.0;       ///< extra scale factor for thermal contribution
+    
+protected:
+    
+    /// calculate phi_L flux normalization
+    void calcFluxNorm();
+    
+    const double GV = 1000*megavolt;    /// convenience shorthand for GigaVolt unit
     
     const double s_max = 1.700*GV;      ///< solar modulation potential maximum
     const double s_min = 0.465*GV;      ///< solar modulation potential minimum
