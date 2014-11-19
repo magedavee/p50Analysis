@@ -77,6 +77,7 @@ if __name__=="__main__":
     parser.add_option("--proton", dest="proton", action="store_true", default=False, help="proton interactions tests")
     parser.add_option("--sphere", dest="sphere", action="store_true", default=False);
     parser.add_option("--acorn", dest="acorn", action="store_true", default=False);
+    parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -145,6 +146,11 @@ if __name__=="__main__":
         L = SB_MC_Launcher("Sphere_Poly", 1e4)
         L.template = "spheretest.mac"
         L.launch_sims(4*4)
+        
+    if options.p2:
+        L = SB_MC_Launcher("PROSPECT-2_cosmic_bg", 1e7)
+        L.template = "Analysis/Private/PR2_Template.mac"
+        L.launch_sims(4*100)
         
     if options.acorn:
         for src in ["Bi207", "Sn113", "Cd109"][:1]:

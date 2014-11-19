@@ -32,7 +32,9 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
     G4LogicalVolume* s_log = new G4LogicalVolume(layer_box, mat, nn+"_log");
     s_log->SetVisAttributes(vis);
 
-    G4VPhysicalVolume* cplace = new G4PVPlacement(NULL, offset(), child, nn+"_phys", s_log, false, 0, true);
+    G4VPhysicalVolume* cplace = NULL;
+    if(child) new G4PVPlacement(NULL, offset(), child, nn+"_phys", s_log, false, 0, true);
+    
     child = s_log;
     return cplace;
 }

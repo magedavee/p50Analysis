@@ -31,7 +31,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
 }
 
 ScintSegVol* DetectorConstruction::getScint() {
-    if(mode == PROSPECT) return &myBuilding.myDetUnit.myDet.myTank;
+    if(mode == PROSPECT) return &myPRShield.myDet.myTank;
     else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
@@ -44,8 +44,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
    
     addChild(&worldShell);
     
+    // geometries inside building
+    if(mode == PROSPECT) {
+        myPRShield.construct();
+        myBuilding.myDetector = &myPRShield;
+    } else if(mode == PROSPECT2) {
+        myPR2Shield.construct();
+        myBuilding.myDetector = &myPR2Shield;
+        myBuilding.wall_clearance = myBuilding.ceil_clearance = 0.25*m;
+    }
+    
     Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding
-                                : mode==PROSPECT2? (Builder&)myPR2Shield
+                                : mode==PROSPECT2? (Builder&)myBuilding
                                 : mode==SLAB ? (Builder&)mySlab
                                 : mode==TEST_CELL ? (Builder&)myTestCell
                                 : (Builder&)mySphere );
@@ -96,7 +106,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {
-    addAttr(E, "mode", (mode==TEST_CELL)?"TestCell":"PROSPECT");
+    addAttr(E, "mode", mode==TEST_CELL? "TestCell" : mode==PROSPECT2? "PROSPECT2" : mode==PROSPECT? "PROSPECT" : mode==SPHERE? "SPHERE" : "other");
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
     if(myScintSD) addAttr(E,"scint_e_density",myScintSD->mat_n);
 }

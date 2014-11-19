@@ -5,6 +5,7 @@
 #include "Builder.hh"
 #include "BuildingBuilder.hh"
 #include "PR2ShieldBuilder.hh"
+#include "ShieldBuilder.hh"
 #include "ScintCellBuilder.hh"
 #include "ScatterSlabBuilder.hh"
 #include "SphereShellBuilder.hh"
@@ -42,6 +43,7 @@ public:
     } mode;             ///< what kind of system to construct
     
     BuildingBuilder myBuilding;         ///< building containing detector
+    ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     ScatterSlabBuilder mySlab;          ///< toy slab geometry

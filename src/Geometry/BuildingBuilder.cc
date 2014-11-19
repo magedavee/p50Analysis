@@ -9,68 +9,41 @@
 
 BuildingBuilder::BuildingBuilder(): ShellLayerBuilder("Building"),
 wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
-floor_thick(0.1*m), makeVacuum(false), makeBare(false), makeFluxTest(false),
+floor_thick(0.1*m), makeVacuum(false),  myDetector(NULL),
 building_ui_dir("/geom/building/"),
 ceilCmd("/geom/building/ceilthick",this),
-bareCmd("/geom/building/makeBare",this),
-vacuumCmd("/geom/building/makeVacuum",this),
-fluxCmd("/geom/building/makeFluxTest",this) {
+vacuumCmd("/geom/building/makeVacuum",this) {
     ceilCmd.SetGuidance("Set thickness of building ceiling");
     ceilCmd.AvailableForStates(G4State_PreInit);
-    
-    bareCmd.SetGuidance("No walls, ceiling, or floor around detector");
-    bareCmd.AvailableForStates(G4State_PreInit);
-    
+        
     vacuumCmd.SetGuidance("Turn building materials to vacuum");
-    bareCmd.AvailableForStates(G4State_PreInit);
+    vacuumCmd.AvailableForStates(G4State_PreInit);
 }
 
 void BuildingBuilder::construct() {
-    
-    if(makeBare) {
-        wall_thick = ceil_thick = floor_thick = ceil_clearance = 0;
-        wall_clearance = 5.0;
-        makeVacuum = true;
-    }
-    
-    myDetUnit.construct();
-    
-    if(makeFluxTest) {
-        myFluxCounter.setDimensions(G4ThreeVector(10*m,10*m,1*cm));
-        myFluxCounter.construct();
-        ceil_clearance = ceil_thick = 0;
-        floor_thick = 2.*m;
-        addChild(&myFluxCounter);
-    } else {
-        addChild(&myDetUnit);
-    }
-
     layers.clear();
     
-    ShellLayerSpec Sair(wall_clearance, makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Air, G4Colour(0.5, 0.5, 1.0));
-    Sair.uthick[2] = ceil_clearance;
-    Sair.lthick[2] = 0;
+    ShellLayerSpec Sair(G4ThreeVector(wall_clearance, wall_clearance, ceil_clearance),
+                        G4ThreeVector(wall_clearance, wall_clearance, 0),
+                        makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Air, G4Colour(0.5, 0.5, 1.0));
     addLayer(Sair);
     
-    ShellLayerSpec Swall(wall_thick, makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Concrete, G4Colour(0.3, 0.4, 0.4));
-    Swall.uthick[2] = ceil_thick;
-    Swall.lthick[2] = floor_thick;
+    ShellLayerSpec Swall(G4ThreeVector(wall_thick, wall_thick, ceil_thick),
+                         G4ThreeVector(wall_thick, wall_thick, floor_thick),
+                         makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Concrete, G4Colour(0.3, 0.4, 0.4));
     addLayer(Swall);
     
-    constructLayers(makeFluxTest? (Builder&)myFluxCounter : (Builder&)myDetUnit);
+    if(myDetector) { addChild(myDetector); constructLayers(*myDetector); }
+    else constructLayers(NULL, G4ThreeVector(1*m, 1*m, 1*m));
 }
 
 void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String value) {
     if(command == &ceilCmd) ceil_thick = ceilCmd.GetNewDoubleValue(value);
-    else if(command == &bareCmd) makeBare = true;
-    else if(command == &vacuumCmd) makeVacuum = true; 
-    else if(command == &fluxCmd) makeFluxTest = true; 
+    else if(command == &vacuumCmd) makeVacuum = true;
     else G4cout << "Unknown command!" << G4endl;
 }
 
 void BuildingBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "mode", makeBare? "bare" : makeVacuum? "vacuum" : "normal");
+    addAttr(E, "mode", makeVacuum? "vacuum" : "normal");
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
-
-

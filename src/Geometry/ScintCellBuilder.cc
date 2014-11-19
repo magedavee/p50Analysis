@@ -6,7 +6,7 @@
 #include <G4Tubs.hh>
 #include <cmath>
 
-ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.001),
+ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.0015),
 length(5*in), radius(2.5*in), wall_thick(0.125*in),
 cellDir("/geom/testcell/"),
 lengthCmd("/geom/testcell/length",this),
@@ -43,7 +43,7 @@ void ScintCellBuilder::construct() {
     main_log = new G4LogicalVolume(cell_tube, MaterialsHelper::M().PMMA, "ScintCell_main_log");
 
     G4Tubs* scint_tube = new G4Tubs("scint_tube", 0, radius-wall_thick, length/2.-wall_thick, 0, 2*M_PI);
-    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scintLiLoading, false), "ScintCell_scint_log");
+    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scintLiLoading, true), "ScintCell_scint_log");
     scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "ScintCell_scint_phys", main_log, false, 0, false);
 }
 
