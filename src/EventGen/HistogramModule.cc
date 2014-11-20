@@ -2,6 +2,7 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 
 HistogramModule::HistogramModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "Histogram"), myDist(NULL),
@@ -39,7 +40,7 @@ void HistogramModule::makeDistribution() {
     myDist = (TH1*)f.Get(hname.c_str());
     if(myDist) {
         myDist->SetDirectory(NULL);
-        netRate = myDist->Integral() * s;
+        netRate = myDist->Integral() / s;
     } else G4cout << "Histogram '" << hname << "' not found in file '" << fname << "'!\n";
 }
 
@@ -63,7 +64,7 @@ G4double HistogramModule::GetGeneratorTime() const {
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    addAttr(E, "rate", netRate);
+    addAttr(E, "rate", G4BestUnit(netRate,"Frequency"));
     addAttr(E, "file", fname);
     addAttr(E, "histogram", hname);
     addAttr(E, "particle", ptcl);

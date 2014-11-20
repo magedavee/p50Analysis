@@ -36,7 +36,7 @@ void RootIO::WriteFile() {
     if(!outfile) {
         G4cout << "No ROOT output file opened! Data not saved!" << G4endl;
         return;
-    }
+    } else outfile->cd();
     
     std::cout << "Writing events to file '" << fname << "' and closing..." << std::endl;
     if(dataTree) dataTree->Write();
