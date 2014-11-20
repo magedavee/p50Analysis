@@ -45,10 +45,6 @@ void SimpleBGModule::GeneratePrimaries(G4Event* anEvent) {
     throwPrimaries(v,anEvent);
 }
 
-G4double SimpleBGModule::GetGeneratorTime() const {
-    return 1.0; //double(nSurfaceThrows)/netRate;
-}
-
 void SimpleBGModule::fillNode(TXMLEngine& E) {
     addAttr(E, "rate", netRate);
     //addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));

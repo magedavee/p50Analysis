@@ -37,7 +37,7 @@ protected:
     void makeDistribution();
     
     TH1* myDist;                        ///< underlying energy distribution
-    double netFlux;                     ///< total flux 1/cm^2/s
+    double netRate;                     ///< total flux 1/cm^2/s
     
     int ptcl = 11;                      ///< PDG ID for particle to throw
     string fname;                       ///< file name for histogram

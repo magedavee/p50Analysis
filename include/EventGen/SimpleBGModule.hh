@@ -17,9 +17,6 @@ public:
   /// throw event particles
   virtual void GeneratePrimaries(G4Event* anEvent);
   
-  /// get total "real time" for primaries thrown
-  virtual G4double GetGeneratorTime() const;
-  
   double netRate;     ///< total decay rate
   
 protected:

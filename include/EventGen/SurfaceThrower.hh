@@ -30,8 +30,6 @@ public:
     double getOriginArea() const { return W? W->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
     /// Get volume of origin solid
     double getOriginVolume() const { return W? W->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
-    /// Get "attempted" throws before discarding for surface normal, target conditions
-    int getAttempts() const { return nAttempts; }
     
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector snorm;        ///< surface normal at position
@@ -59,9 +57,8 @@ protected:
     
     G4VisExtent sourceExtent;   ///< bounding box for source volume (local coordinates)
     
-    int nAttempts;              ///< number of proposed throws
-    int nSurfaceThrows;         ///< number of proposed throws passing surface cos-theta criteria
-    int nHits;                  ///< number of events hitting target
+    int nSurfaceThrows = 0;     ///< number of proposed throws passing surface cos-theta criteria
+    int nHits = 0;              ///< number of events hitting target
 };
 
 

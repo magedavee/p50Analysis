@@ -33,6 +33,13 @@ public:
     
     /// utility function for generating isotropic random direction
     static G4ThreeVector randomDirection();
+    
+    /// Get "attempted" number of throws before discarding for surface normal, target conditions
+    virtual int getAttempts() const { return nAttempts; }
+    
+protected:
+    
+    int nAttempts = 0;          ///< number of proposed throws
 };
 
 /// Vertex positioner for isotropic momenta from a fixed point

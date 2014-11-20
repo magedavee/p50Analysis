@@ -62,6 +62,10 @@ bool PrimaryGeneratorModule::tryVertex(vector<primaryPtcl>& v) {
     return myPGA->GetPositioner()->tryVertex(v);
 }
 
+G4double PrimaryGeneratorModule::GetGeneratorTime() const {
+    return myPGA->GetPositioner()->getAttempts() * s;
+}
+
 ////////////////////////////////////////
 
 PrimaryGeneratorAction::PrimaryGeneratorAction():

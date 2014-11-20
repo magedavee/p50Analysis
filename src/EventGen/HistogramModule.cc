@@ -1,6 +1,7 @@
 #include "HistogramModule.hh"
 #include <TH1.h>
 #include <TFile.h>
+#include <G4SystemOfUnits.hh>
 
 HistogramModule::HistogramModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "Histogram"), myDist(NULL),
@@ -22,6 +23,7 @@ ptcl_cmd("/generator/histogram/ptcl",this) {
 void HistogramModule::resetDistribution() {
     if(myDist) delete myDist;
     myDist = NULL;
+    netRate = 0;
 }
 
 void HistogramModule::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -35,8 +37,10 @@ void HistogramModule::makeDistribution() {
     TFile f(fname.c_str(),"READ");
     if(f.IsZombie()) return;
     myDist = (TH1*)f.Get(hname.c_str());
-    if(myDist) myDist->SetDirectory(NULL);
-    else G4cout << "Histogram '" << hname << "' not found in file '" << fname << "'!\n";
+    if(myDist) {
+        myDist->SetDirectory(NULL);
+        netRate = myDist->Integral() * s;
+    } else G4cout << "Histogram '" << hname << "' not found in file '" << fname << "'!\n";
 }
 
 void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
@@ -45,7 +49,7 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
         
     primaryPtcl p;
     p.PDGid = ptcl;
-    p.KE = myDist->GetRandom();
+    p.KE = myDist->GetRandom() * MeV;
     p.t = 0;
     
     vector<primaryPtcl> v;
@@ -55,11 +59,11 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 G4double HistogramModule::GetGeneratorTime() const {
-    return 1. / netFlux;
+    return myPGA->GetPositioner()->getAttempts() / netRate;
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    addAttr(E, "flux", netFlux);
+    addAttr(E, "rate", netRate);
     addAttr(E, "file", fname);
     addAttr(E, "histogram", hname);
     addAttr(E, "particle", ptcl);

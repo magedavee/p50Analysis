@@ -35,10 +35,6 @@ void Cf252Module::GeneratePrimaries(G4Event* anEvent) {
     throwPrimaries(v,anEvent);
 }
 
-G4double Cf252Module::GetGeneratorTime() const {
-    return 1; //double(nSurfaceThrows)/netRate;
-}
-
 void Cf252Module::fillNode(TXMLEngine& E) {
     addAttr(E, "rate", netRate);
     addAttr(E, "a", G4BestUnit(a,"Energy"));
