@@ -64,9 +64,9 @@ string vtos(const vector<int>& ds,string sep = ",") ;
 /// convert a char to a string
 string ctos(char c);
 /// convert a string to lowercase
-string lower(string s);
+string lower(string st);
 /// convert a string to uppercase
-string upper(string s);
+string upper(string st);
 /// replace all of one character in a string with another
 string replace(string str, char o, char n);
 /// check whether string a begins with string b

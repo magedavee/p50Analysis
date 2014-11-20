@@ -11,6 +11,7 @@
 
 using std::string;
 using std::vector;
+using std::ifstream;
 
 /// utility function for converting to string
 template<typename T>
@@ -20,25 +21,31 @@ string to_str(T x) {
     return ss.str();
 }
 
-/// convert a double to a string
-string dtos(double d);
-/// convert an int to a string
-string itos(int i);
-/// small integer to roman numerals string
+/// integer to roman numerals string
 string itosRN(int i);
 
-/// convert a vector of doubles to a string list
-string vtos(const double* st, const double* en, string sep = ",");
-/// convert a vector of doubles to a string list
-string vtos(const vector<double>& ds,string sep = ",");
-/// convert a vector of floats to a string list
-string vtos(const float* st, const float* en, string sep = ",");
-/// convert a vector of doubles to a string list
-string vtos(const vector<float>& ds,string sep = ",");
-/// convert a vector of ints to a string list
-string vtos(const int* st, const int* en, string sep = ",");
-/// convert a vector of ints to a string list
-string vtos(const vector<int>& ds,string sep = ",") ;
+/// convert an array to a string list
+template<typename T>
+string vtos(const T* st, const T* en, string sep = ",") {
+    string ss = "";
+    if(st==en)
+        return ss;
+    ss = to_str(*st);
+    for(const T* it = st+1; it != en; it++)
+        ss += sep + to_str(*it);
+    return ss;
+}
+
+/// convert a vector to a string list
+template<typename T>
+string vtos(const vector<T>& ds, string sep = ",") {  return vtos(&*ds.begin(),&*ds.end(),sep); }
+
+/// split a string into a vector of doubles
+vector<double> sToDoubles(const string& str, const string splitchars = ", \t\r\n");
+/// split a string into a vector of ints
+vector<int> sToInts(const string& str, const string splitchars = ", \t\r\n");
+/// read in an array from a file
+vector< vector<double> > readArray(ifstream& fin, unsigned int minitems = 1, const string splitchars = ", \t\r\n");
 
 /// convert a char to a string
 string ctos(char c);
@@ -56,13 +63,5 @@ vector<string> split(const string& str, const string splitchars = " \t\r\n");
 string join(const vector<string>& ss, const string& sep = " ");
 /// strip junk chars off start and end of string
 string strip(const string& str, const string stripchars = " \t\r\n");
-/// split a string into a vector of doubles
-vector<double> sToDoubles(const string& str, const string splitchars = ", \t\r\n");
-/// split a string into a vector of floats
-vector<float> sToFloats(const string& str, const string splitchars = ", \t\r\n");
-/// split a string into a vector of ints
-vector<int> sToInts(const string& str, const string splitchars = ", \t\r\n");
-/// read in an array from a file
-vector< vector<float> > readArray(std::ifstream& fin, unsigned int minitems = 1, const string splitchars = ", \t\r\n");
 
 #endif

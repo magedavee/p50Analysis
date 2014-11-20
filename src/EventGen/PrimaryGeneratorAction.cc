@@ -16,6 +16,7 @@
 #include "ThermalNModule.hh"
 #include "CosmicNeutronModule.hh"
 #include "GenPtclModule.hh"
+#include "HistogramModule.hh"
 
 #include <math.h>
 #include <string>
@@ -170,6 +171,12 @@ void PrimaryGeneratorAction::loadDecaySourceModule() {
     if(!myDecaySourceModule) myDecaySourceModule = new DecaySourceModule(this);
     G4cout << "Using DecaySourceModule." << G4endl; 
     genModule = myDecaySourceModule;
+}
+
+void PrimaryGeneratorAction::loadHistogramModule() {
+    if(!myHistogramModule) myHistogramModule = new HistogramModule(this);
+    G4cout << "Using HistogramModule." << G4endl; 
+    genModule = myHistogramModule;
 }
 
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {

@@ -39,6 +39,7 @@ private:
     G4UIcmdWithoutParameter moduleThermalNcmd;  ///< UI command for using ThermalN neutron generator
     G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
     G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
+    G4UIcmdWithoutParameter moduleHistocmd;     ///< UI command for using the nuclear decay source generator
     
     G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
     G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface

@@ -9,7 +9,7 @@ float_err::float_err(const std::string& s): x(0), err(0) {
 }
 
 string float_err::toString() const {
-    return dtos(x)+"~"+dtos(err);
+    return to_str(x)+"~"+to_str(err);
 }
 
 float_err operator+(float_err a, float_err b) {

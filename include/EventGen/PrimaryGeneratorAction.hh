@@ -25,6 +25,7 @@ class SimpleBGModule;
 class ThermalNModule;
 class GenPtclModule;
 class DecaySourceModule;
+class HistogramModule;
 
 class PrimaryGeneratorAction;
 
@@ -97,6 +98,8 @@ public:
     void loadGPSModule();
     /// load nuclear decay source as current generator
     void loadDecaySourceModule();
+    /// load histogram module as current generator
+    void loadHistogramModule();
     
 protected:
     
@@ -122,6 +125,7 @@ protected:
     ThermalNModule* myThermalNModule;           ///< ThermalN neutron source generator
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
     DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
+    HistogramModule* myHistogramModule;         ///< throw from histogram module
     
     G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 

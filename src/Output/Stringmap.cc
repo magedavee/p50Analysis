@@ -28,7 +28,7 @@ void Stringmap::insert(const string& s, const string& v) {
 }
 
 void Stringmap::insert(const string& s, double d) {
-    insert(s,dtos(d));
+    insert(s,to_str(d));
 }
 
 void Stringmap::erase(const string& s) { dat.erase(s); }

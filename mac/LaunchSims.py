@@ -148,7 +148,7 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.p2:
-        L = SB_MC_Launcher("PROSPECT-2_cosmic_bg", 1e7)
+        L = SB_MC_Launcher("PROSPECT-2_n_bg", 1e6)
         L.template = "Analysis/Private/PR2_Template.mac"
         L.launch_sims(4*100)
         

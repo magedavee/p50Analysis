@@ -25,6 +25,7 @@ moduleSimpleBGcmd("/generator/module/SimpleBG",this),
 moduleThermalNcmd("/generator/module/ThermalN",this),
 moduleGPScmd("/generator/module/gps",this),
 moduleDecaySrccmd("/generator/module/decaysrc",this),
+moduleHistocmd("/generator/module/histogram",this),
 ptPosCmd("/generator/vertex/isotpt", this),
 isotFluxCmd("/generator/vertex/isotworld", this),
 srcTargCmd("/generator/vertex/srctarg", this),
@@ -75,6 +76,9 @@ cosFluxCmd("/generator/vertex/cosx", this) {
     moduleDecaySrccmd.SetGuidance("Use nuclear decay source event generator");
     moduleDecaySrccmd.AvailableForStates(G4State_Idle);
     
+    moduleHistocmd.SetGuidance("Use histogram event generator");
+    moduleHistocmd.AvailableForStates(G4State_Idle);
+    
     ptPosCmd.SetGuidance("Generate events with isotropic momenta from specified point");
     ptPosCmd.AvailableForStates(G4State_Idle);
     
@@ -101,6 +105,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleThermalNcmd) generator->loadThermalNModule();
     else if(command == &moduleGPScmd) generator->loadGPSModule();
     else if(command == &moduleDecaySrccmd) generator->loadDecaySourceModule();
+    else if(command == &moduleHistocmd) generator->loadHistogramModule();
     
     else if(command == &ptPosCmd) {
         generator->myPositioner = &generator->myIsotPt;
