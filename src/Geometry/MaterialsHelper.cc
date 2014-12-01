@@ -38,19 +38,24 @@ MaterialsHelper::MaterialsHelper() {
     nat_Pb = nist->FindOrBuildMaterial("G4_Pb", true);
     nat_W = nist->FindOrBuildMaterial("G4_W", true);
     
-    elLi6  = new G4Element("eleLi6", "Li6", 1);
+    el6Li  = new G4Element("eleLi6", "Li6", 1);
     G4Isotope* isoLi6 = new G4Isotope("isoLi6", 3, 6, 6.015122*g/mole);
-    elLi6->AddIsotope(isoLi6,100.*perCent);
+    el6Li->AddIsotope(isoLi6,100.*perCent);
+    
     G4Element* elLi7  = new G4Element("eleLi7", "Li7", 1);
     G4Isotope* isoLi7 = new G4Isotope("isoLi7", 3, 7, 7.01600455*g/mole);
     elLi7->AddIsotope(isoLi7,100.*perCent);
     
     Li6 = new G4Material("Lithium6", 1.0*g/cm3, 1, kStateSolid, room_T);
-    Li6->AddElement(elLi6,100.*perCent);
+    Li6->AddElement(el6Li,100.*perCent);
     
     nat_Li = new G4Material("nat_Li", 0.463*g/cm3, 2);
-    nat_Li->AddElement(elLi6,0.0811);
+    nat_Li->AddElement(el6Li,0.0811);
     nat_Li->AddElement(elLi7,1-0.0811);
+    
+    el3He  = new G4Element("eleHe3", "He3", 1);
+    G4Isotope* iso3He = new G4Isotope("isoHe3", 2, 3, 3.0160293*g/mole);
+    el3He->AddIsotope(iso3He,100.*perCent);
     
     Vacuum = new G4Material("Vacuum", 2., 4.0026*g/mole, 1.e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
     
@@ -181,6 +186,16 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
         
         xmats[mnm] = Li_mat;
         
+    }
+    return xmats[mnm];
+}
+
+G4Material* MaterialsHelper::get3He(double dens) {
+    const string mnm = "3_He_" + to_str(dens/mg/cm3) + "_mg/cm^3";
+    if(!xmats.count(mnm)) {
+        G4Material* He3gas = new G4Material(mnm.c_str(), dens, 1, kStateGas, room_T);
+        He3gas->AddElement(el3He,2);
+        xmats[mnm] = He3gas;
     }
     return xmats[mnm];
 }

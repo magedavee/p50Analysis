@@ -12,6 +12,7 @@
 class TH1;
 
 /// Generator module for throwing from user-supplied histogram
+// either as rate [Hz/bin] (for volume sources) or flux [Hz/cm^2/bin] (for surface source) vs kinetic energy [MeV] 
 class HistogramModule: public PrimaryGeneratorModule, public G4UImessenger {
 public:
     /// Constructor
@@ -37,7 +38,7 @@ protected:
     void makeDistribution();
     
     TH1* myDist;                        ///< underlying energy distribution
-    double netRate;                     ///< total flux 1/cm^2/s
+    double netFlux;                     ///< total rate or flux
     
     int ptcl = 11;                      ///< PDG ID for particle to throw
     string fname;                       ///< file name for histogram

@@ -22,9 +22,9 @@ void PR2ShieldBuilder::construct() {
     constructLayers(cave_log, dim);
     
     // lead layer gap
-    G4Box* leadgap_box = new G4Box("leadgap_box", 1*in, 16*in, 1*in);
-    G4LogicalVolume* leadgap_log = new G4LogicalVolume(leadgap_box, MaterialsHelper::M().BPoly5, "leadgap_log");
-    new G4PVPlacement(NULL, G4ThreeVector(-7*in, 2*in, 6*in), leadgap_log, "leadgap_phys", layer_log[1], false, 0, true);
+    //G4Box* leadgap_box = new G4Box("leadgap_box", 1*in, 16*in, 1*in);
+    //G4LogicalVolume* leadgap_log = new G4LogicalVolume(leadgap_box, MaterialsHelper::M().BPoly5, "leadgap_log");
+    //new G4PVPlacement(NULL, G4ThreeVector(-7*in, 2*in, 6*in), leadgap_log, "leadgap_phys", layer_log[1], false, 0, true);
 }
 
 void PR2ShieldBuilder::fillNode(TXMLEngine& E) {

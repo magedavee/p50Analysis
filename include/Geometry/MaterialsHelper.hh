@@ -21,7 +21,8 @@ public:
     G4NistManager* nist;        ///< NIST materials DB
     double room_T;              ///< materials "room temperature"
     
-    G4Element* elLi6;           ///< pure 6Li
+    G4Element* el6Li;           ///< pure 6Li
+    G4Element* el3He;           ///< pure 3He
     
     G4Material* nat_H;          ///< natural hydrogen
     G4Material* nat_Li;         ///< natural lithium
@@ -70,6 +71,8 @@ public:
     
     /// get 6Li-loaded version of scintillator (option for natural or enriched 6Li)
     G4Material* get6LiLS(G4Material* base, double loading, bool enriched = true);
+    /// get 3He gas at specified density
+    G4Material* get3He(double dens);
     
 protected:
     /// Constructor
@@ -78,7 +81,7 @@ protected:
     void setupOptical();
     
     static MaterialsHelper* theMatHelper;       ///< singleton instance
-    map<string, G4Material*> xmats;   ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
+    map<string, G4Material*> xmats;             ///< extra on-demand materials like 6Li-loaded liquid scintillator concoctions
 };
 
 

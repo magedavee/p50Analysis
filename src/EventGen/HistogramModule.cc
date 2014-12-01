@@ -1,4 +1,5 @@
 #include "HistogramModule.hh"
+#include "strutils.hh"
 #include <TH1.h>
 #include <TFile.h>
 #include <G4SystemOfUnits.hh>
@@ -24,7 +25,7 @@ ptcl_cmd("/generator/histogram/ptcl",this) {
 void HistogramModule::resetDistribution() {
     if(myDist) delete myDist;
     myDist = NULL;
-    netRate = 0;
+    netFlux = 0;
 }
 
 void HistogramModule::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -40,7 +41,8 @@ void HistogramModule::makeDistribution() {
     myDist = (TH1*)f.Get(hname.c_str());
     if(myDist) {
         myDist->SetDirectory(NULL);
-        netRate = myDist->Integral() / s;
+        netFlux = myDist->Integral() / s;
+        if(myPGA->GetPositioner() == myPGA->GetCosineThrower()) netFlux /= cm2;
     } else G4cout << "Histogram '" << hname << "' not found in file '" << fname << "'!\n";
 }
 
@@ -60,11 +62,15 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 G4double HistogramModule::GetGeneratorTime() const {
-    return myPGA->GetPositioner()->getAttempts() / netRate;
+    if(myPGA->GetPositioner() == myPGA->GetCosineThrower())
+        return myPGA->GetCosineThrower()->getAttempts() / myPGA->GetCosineThrower()->getOriginArea() / netFlux;
+    return myPGA->GetPositioner()->getAttempts() / netFlux;
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    addAttr(E, "rate", G4BestUnit(netRate,"Frequency"));
+    if(myPGA->GetPositioner() == myPGA->GetCosineThrower())
+        addAttr(E, "flux", to_str(netFlux*s*cm2)+" Hz/cm^2");
+    else addAttr(E, "rate", G4BestUnit(netFlux,"Frequency"));
     addAttr(E, "file", fname);
     addAttr(E, "histogram", hname);
     addAttr(E, "particle", ptcl);
