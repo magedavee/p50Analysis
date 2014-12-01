@@ -18,6 +18,10 @@ public:
     
     G4LogicalVolume* scint_log;         ///< liquid scintillator logical volume for setting sensitive detectors
     G4VPhysicalVolume* scint_phys;      ///< (optional) liquid scintillator physical volume for storing local coordinates
+    
+protected:
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

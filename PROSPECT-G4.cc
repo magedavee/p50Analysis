@@ -17,6 +17,8 @@
 #include <fstream>
 
 #include "DetectorConstruction.hh"
+#include "FNSDetectorConstruction.hh"
+#include "FaNS2DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"

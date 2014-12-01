@@ -191,7 +191,7 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
 }
 
 G4Material* MaterialsHelper::get3He(double dens) {
-    const string mnm = "3_He_" + to_str(dens/mg/cm3) + "_mg/cm^3";
+    const string mnm = "3He_" + to_str(dens/(mg/cm3)) + "_mg/cm3";
     if(!xmats.count(mnm)) {
         G4Material* He3gas = new G4Material(mnm.c_str(), dens, 1, kStateGas, room_T);
         He3gas->AddElement(el3He,2);
