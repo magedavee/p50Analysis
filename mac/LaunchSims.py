@@ -152,7 +152,7 @@ if __name__=="__main__":
         #L.template = "Analysis/Private/PR2_Template.mac"
         #L.launch_sims(4*100)
         
-        L = SB_MC_Launcher("PROSPECT-2_gamma_Aug28P", 1e7)
+        L = SB_MC_Launcher("PROSPECT-2_gamma_Jun30", 1e7)
         L.template = "Analysis/Private/PR2_Gamma_Template.mac"
         L.launch_sims(4*100)
         

@@ -28,6 +28,7 @@ public:
     
     double phi_inf;             ///< semi-infinite atmospheric flux, 1/Lethargy
     double phi_T;               ///< thermal neutron spectrum
+    double phi_T_scaled;        ///< phi_T scaled as contribution to phi_G
     double f_G;                 ///< ground enhancement factor
     double phi_G;               ///< ground-level spectrum
     

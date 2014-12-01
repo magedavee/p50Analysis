@@ -73,13 +73,17 @@ void CosmicNeutronModule::makeDistribution() {
         binEdges[i] = exp((nBins-i)*log(eMin)/nBins + i*log(eMax)/nBins);
     myDist = new TH1F("hSatoNiita","Neutron energy spectrum",nBins,binEdges);
     
+    thermalFlux = 0;
     for(unsigned int i=1; i<=nBins; i++) {
         double E = myDist->GetBinCenter(i);
         double EdPhidE = calcGroundSpectrum(E);
         assert(EdPhidE >= 0.);
         myDist->SetBinContent(i, EdPhidE*myDist->GetBinWidth(i)/E);
+        thermalFlux += phi_T_scaled*myDist->GetBinWidth(i)/E;
     }
     netFlux = myDist->Integral();
+    
+    myDist->Write();
 }
 
 G4double CosmicNeutronModule::GetGeneratorTime() const {
@@ -88,6 +92,7 @@ G4double CosmicNeutronModule::GetGeneratorTime() const {
 
 void CosmicNeutronModule::fillNode(TXMLEngine& E) {
     addAttr(E, "flux", to_str(netFlux*(1000*s*cm2))+" mHz/cm2");
+    addAttr(E, "thermalFlux", to_str(thermalFlux*(1000*s*cm2))+" mHz/cm2");
     addAttr(E, "s_mod", G4BestUnit(s_mod,"Electric potential"));
     addAttr(E, "depth", G4BestUnit(depth,"Mass/Surface"));
     addAttr(E, "r_c", G4BestUnit(r_c,"Electric potential"));

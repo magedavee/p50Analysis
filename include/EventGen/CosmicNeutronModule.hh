@@ -36,7 +36,8 @@ protected:
     virtual void fillNode(TXMLEngine& E);
     
     TH1F* myDist;       ///< underlying energy distribution
-    double netFlux;     ///< total flux 1/cm^2/s
+    double netFlux;     ///< total flux
+    double thermalFlux; ///< thermal peak flux
     
     G4UIdirectory cosn_dir;             ///< UI directory for cosmic neutron generator controls
     G4UIcmdWithADouble tscale_cmd;      ///< UI command for thermal neutron rescaling

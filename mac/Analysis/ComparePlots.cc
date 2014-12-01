@@ -10,19 +10,26 @@
 using std::vector;
 using std::string;
 
-void ComparePlots() {
-    gStyle->SetOptStat("");
-    
+void normalize_to_bin_width(TH1* f) {
+    for(int i=1; i<f->GetNbinsX(); i++) {
+        TAxis* A = f->GetXaxis();
+        double scale = 1./A->GetBinWidth(i);
+        f->SetBinContent(i, f->GetBinContent(i)*scale);
+        f->SetBinError(i, f->GetBinError(i)*scale);
+    }
+}
+
+void CompareMultiFiles() {
     vector<string> fnames;
-    string matnm = "solidCl_1_cm";
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_10_MeV/Plots/nScatterOut.root");
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_1_keV/Plots/nScatterOut.root");
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_1_eV/Plots/nScatterOut.root");
-    fnames.push_back("/home/mpmendenhall/Analysis/ShortBaseline/nScatter_"+matnm+"_0.02_eV/Plots/nScatterOut.root");
+    //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Jun30/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Aug28P/Plots/PROSPECT-2.root");
+    
+    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_cosmic_bg/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_n_bg/Plots/PROSPECT-2.root");
     
     vector<string> hnames;
-    hnames.push_back("hRefl");
-    hnames.push_back("hTrans");
+    hnames.push_back("hSinglesE");
+    //hnames.push_back("hNRecoils");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
@@ -51,20 +58,57 @@ void ComparePlots() {
             h->Fit(expFit,"0R"); // "0" = do NOT automatically draw "hist"
             h->GetFunction(fitname.c_str())->ResetBit(TF1::kNotDraw); // make "projname" visible (= 1<<9)
             
-            
         }
         
         for(int i=0; i<hs.size(); i++) {
-            //hs[i]->SetMaximum(2*mx);
-            hs[i]->SetMaximum(100);
-            hs[i]->SetMinimum(1e-6);
-            hs[i]->SetLineColor(1+i);
+            hs[i]->SetLineColor(2+2*i);
+            hs[i]->GetYaxis()->SetTitleOffset(1.4);
+            //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
             hs[i]->Draw(i?"Same":"");
         }
         
-        gPad->SetLogy(true);
-        gPad->SetLogx(true);
-        gPad->Print((*ithn+"_"+matnm+".pdf").c_str());
-        
+        //gPad->SetLogy(true);
+        //gPad->SetLogx(true);
+        gPad->Print((*ithn+".pdf").c_str());
     }
+}
+
+void CompareMultiHistograms() {
+    
+    TFile* f = new TFile("$PG4_AUX/BGSpectra/Gammas.root","READ");
+    
+    vector<string> hnames;
+    hnames.push_back("gamma_Jun30_unfold");
+    hnames.push_back("gamma_Aug28P_unfold");
+
+    TH1* hAxes = new TH1F("hAxes","ambient gamma spectrum", 10, 0, 8);
+    hAxes->GetYaxis()->SetTitle("flux [Hz/MeV/cm^{2}]");
+    hAxes->GetYaxis()->SetTitleOffset(1.35);
+    hAxes->SetMaximum(1000);
+    hAxes->Draw();
+    
+    int i = 0;
+    for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
+        TH1* h = (TH1*)f->Get(ithn->c_str());
+        assert(h);
+        
+        h->SetLineColor(2+2*i);
+        normalize_to_bin_width(h);
+        hAxes->GetXaxis()->SetTitle(h->GetXaxis()->GetTitle());
+        //hAxes->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
+        h->Draw("HIST Same");
+        
+        i++;
+    }
+    
+    //gPad->SetLogy(true);
+    //gPad->SetLogx(true);
+    gPad->Print("PlotCompare.pdf");
+    
+}
+
+void ComparePlots() {
+    gStyle->SetOptStat("");
+    CompareMultiFiles();
+    //CompareMultiHistograms();
 }

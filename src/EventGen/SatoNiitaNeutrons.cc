@@ -58,7 +58,8 @@ double SatoNiitaNeutrons::calcGroundSpectrum(double E) {
     
     // Eq. (14)
     phi_T = g_6*E*E/(E_T*E_T)*exp(-E/E_T);
+    phi_T_scaled = phi_L*phi_T*scale_T;
     
     // Eq. (10)
-    return phi_G = phi_L*(phi_B*f_G + phi_T*scale_T);
+    return phi_G = phi_L*phi_B*f_G + phi_T_scaled;
 }
