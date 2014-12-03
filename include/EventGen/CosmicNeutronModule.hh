@@ -10,6 +10,7 @@
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
 
 /// Cosmic neutron event generator module
 class CosmicNeutronModule: public PrimaryGeneratorModule, public G4UImessenger, protected SatoNiitaNeutrons {
@@ -41,10 +42,12 @@ protected:
     
     G4UIdirectory cosn_dir;             ///< UI directory for cosmic neutron generator controls
     G4UIcmdWithADouble tscale_cmd;      ///< UI command for thermal neutron rescaling
+    G4UIcmdWithADouble sscale_cmd;      ///< UI command for non-thermal neutron rescaling
     G4UIcmdWithADouble smod_cmd;        ///< UI command for solar modulation setting
     G4UIcmdWithADouble rc_cmd;          ///< UI command for rigidity cutoff setting
     G4UIcmdWithADouble d_cmd;           ///< UI command for atmospheric depth setting
     G4UIcmdWithADouble w_cmd;           ///< UI command for water fraction setting
+    G4UIcmdWithADoubleAndUnit t_cmd;    ///< UI command for thermal energy
 };
 
 #endif

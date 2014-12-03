@@ -148,13 +148,13 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.p2:
-        #L = SB_MC_Launcher("PROSPECT-2_cosmic_bg", 1e7)
-        #L.template = "Analysis/Private/PR2_Template.mac"
-        #L.launch_sims(4*100)
-        
-        L = SB_MC_Launcher("PROSPECT-2_gamma_Jun30", 1e7)
-        L.template = "Analysis/Private/PR2_Gamma_Template.mac"
+        L = SB_MC_Launcher("PROSPECT-2_n1eV_bg", 1e6)
+        L.template = "Analysis/Private/PR2_Template.mac"
         L.launch_sims(4*100)
+        
+        #L = SB_MC_Launcher("PROSPECT-2_gamma_Jun30", 1e7)
+        #L.template = "Analysis/Private/PR2_Gamma_Template.mac"
+        #L.launch_sims(4*100)
         
     if options.acorn:
         for src in ["Bi207", "Sn113", "Cd109"][:1]:

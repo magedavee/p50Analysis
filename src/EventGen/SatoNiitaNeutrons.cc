@@ -35,7 +35,7 @@ double SatoNiitaNeutrons::calcAirSpectrum(double E) {
     // Eq. (7) for phi_B-bar, with variable c_4 and c_12
     phi_B = ( c_1*pow(E/c_2,c_3)*exp(-E/c_2)
               + c_4*exp(-pow(log10(E/c_5),2) / (2*pow(log10(c_6),2)))
-              + c_7*log10(E/c_8) * (1 + tanh(c_9*log10(E/c_10))) * (1 - tanh(c_11*log10(E/c_12))) );
+              + c_7*log10(E/c_8) * (1 + tanh(c_9*log10(E/c_10))) * (1 - tanh(c_11*log10(E/c_12))) )*scale_S;
     
     // Eq. (2)
     return phi_inf = phi_B*phi_L;

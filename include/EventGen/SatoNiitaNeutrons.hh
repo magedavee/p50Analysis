@@ -33,6 +33,8 @@ public:
     double phi_G;               ///< ground-level spectrum
     
     double scale_T = 1.0;       ///< extra scale factor for thermal contribution
+    double scale_S = 1.0;       ///< extra scale factor for non-thermal spectrum
+    double E_T = 0.025*eV;      ///< thermal neutron energy
     
 protected:
     
@@ -46,7 +48,6 @@ protected:
     /***/ double s_mod;                 ///< solar modulation potential
     /***/ double r_c;                   ///< cutoff rigidity
     /***/ double depth;                 ///< atmospheric depth
-    const double E_T = 0.025*eV;        ///< thermal neutron energy
     /***/ double waterFrac;             ///< water fraction in ground
     
     // Table 1, except b_i2mn[3], which has been changed from 0.292 to -0.292         | Table 3

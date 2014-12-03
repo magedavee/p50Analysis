@@ -9,15 +9,15 @@
 #include <G4SDManager.hh>
 #include <G4RotationMatrix.hh>
 
-double FaNS2ScintArrayBuilder::array_spacing = 16.5*cm;
+double FaNS2ScintArrayBuilder::array_spacing = 11*cm;
 
-FaNS2ScintArrayBuilder::FaNS2ScintArrayBuilder(): ScintSegVol("ScintArray"), l_bar(0.56*m), w_bar(14*cm),
-theta(20*degree), cos_pw(cos(theta)), sin_pw(sin(theta)) { }
+FaNS2ScintArrayBuilder::FaNS2ScintArrayBuilder(): ScintSegVol("ScintArray"), l_bar(0.56*m), w_bar(9*cm),
+theta(25*degree), cos_pw(cos(theta)), sin_pw(sin(theta)) { }
 
 void FaNS2ScintArrayBuilder::construct() {
     dim = G4ThreeVector(w_bar, w_bar, l_bar);
     G4Box* scint_box = new G4Box("scint_box", dim[0]/2, dim[1]/2, dim[2]/2);
-    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().Polystyrene, "scint_log");
+    scint_log = new G4LogicalVolume(scint_box, MaterialsHelper::M().PVT, "scint_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.5,0.2,1.0,0.5)));
     
     G4RotationMatrix* scintRot = new G4RotationMatrix();
@@ -55,7 +55,7 @@ int FaNS2ScintArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {
 /////////////////////////
 /////////////////////////
 
-FaNS23HeArrayBuilder::FaNS23HeArrayBuilder(): ScintSegVol("3HeArray"), l_tube(0.6*m), r_tube(2*cm), t_tube(2*mm) { }
+FaNS23HeArrayBuilder::FaNS23HeArrayBuilder(): ScintSegVol("3HeArray"), l_tube(0.47*m), r_tube(0.5*in), t_tube(5*mm) { }
 
 void FaNS23HeArrayBuilder::construct() {
     dim = G4ThreeVector(2*r_tube, 2*r_tube, l_tube);
@@ -63,7 +63,7 @@ void FaNS23HeArrayBuilder::construct() {
     G4Tubs* he_tube = new G4Tubs("he_tube", 0, r_tube-t_tube, l_tube/2-t_tube, 0, 2*M_PI);
     G4LogicalVolume* tube_log = new G4LogicalVolume(al_tube, MaterialsHelper::M().nat_Al, "tube_log");
     tube_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.8,0.8,0.8,0.3)));
-    scint_log = new G4LogicalVolume(he_tube, MaterialsHelper::M().get3He(68*mg/cm3), "scint_log");
+    scint_log = new G4LogicalVolume(he_tube, MaterialsHelper::M().get3He(4*68*mg/cm3), "scint_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.8)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), scint_log, "3He_phys", tube_log, false, 0, true);
     
@@ -98,7 +98,7 @@ void FaNS2MuVetoBuilder::construct() {
     scint_log = new G4LogicalVolume(slab_box, MaterialsHelper::M().Polystyrene, "scint_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.5,1.0,1.0,0.3)));
     
-    G4ThreeVector v1pos(0,0,0.5*m+t_slab/2);
+    G4ThreeVector v1pos(0,0,0.4*m+t_slab/2);
     myAssembly.AddPlacedVolume(scint_log, v1pos, NULL);
     G4ThreeVector v2pos(0,0,v1pos[2]+t_slab+2*mm);
     myAssembly.AddPlacedVolume(scint_log, v2pos, NULL);
