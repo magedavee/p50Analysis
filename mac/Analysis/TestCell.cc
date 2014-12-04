@@ -1,22 +1,8 @@
-#include "Event.hh"
-#include "FileKeeper.hh"
-#include "XMLInfo.hh"
-#include "strutils.hh"
+//////////////////////////////////////////////////////////////////
+// Standalone program for plotting neutron/ionization coincidences
+// ./TestCell $PG4_OUTDIR/<directory>
 
-#include <sys/stat.h>
-#include <stdio.h>
-
-#include <TCanvas.h>
-#include <TSystem.h>
-#include <TClonesArray.h>
-#include <TStyle.h>
-#include <TLatex.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TF1.h>
-
-using std::vector;
-using std::map;
+#include "AnaUtils.hh"
 
 int main(int argc, char** argv) {
     
@@ -57,10 +43,8 @@ int main(int argc, char** argv) {
     
     // scan events
     Long64_t nentries = T->GetEntries();
-    std::cout << "Scanning " << nentries << " events...\n";
+    cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
-        snc->Clear();
-        sion->Clear();
         T->GetEntry(ev);
     
         Int_t nNCapts = snc->nCapts->GetEntriesFast();
@@ -91,7 +75,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::cout << "\nNeutron capture nucleus 10000*Z + A:\n";
+    cout << "\nNeutron capture nucleus 10000*Z + A:\n";
     display_map<Int_t,Int_t>(nCaptZA);
     
     hCaptTime->Sumw2();
@@ -114,7 +98,7 @@ int main(int argc, char** argv) {
     double dctime2 = expFit.GetParError(3);
     dctime2 *= ctime2*ctime2;
     
-    std::cout << "Capture time = " << ctime << " +- " << dctime << " and "  << ctime2 << " +- " << dctime2 << "\n";
+    cout << "Capture time = " << ctime << " +- " << dctime << " and "  << ctime2 << " +- " << dctime2 << "\n";
     
     hCaptTime->Draw();
     gPad->SetLogy(true);
@@ -132,6 +116,5 @@ int main(int argc, char** argv) {
     hCaptPos->Draw("Col Z");
     gPad->Print((outpath+"/CaptPos.pdf").c_str());
     
-    delete T;
     return 0;
 }

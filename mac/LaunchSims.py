@@ -111,12 +111,6 @@ if __name__=="__main__":
         #L.settings["preinit"] += "/geom/testcell/length 20 cm\n"
         #L.settings["preinit"] += "/geom/testcell/loading 0\n"
             
-        #L.settings["generator"] = "/generator/module/gun\n"
-        #L.settings["generator"] += "/gun/particle neutron\n"
-        #L.settings["generator"] += "/gun/energy %g MeV\n"%nergy
-        #L.settings["generator"] += "/gun/direction 0 0 1\n"
-        #L.settings["generator"] += "/gun/position 0 0 -1 m\n"
-            
         L.launch_sims(4*2)
         
     if options.nscatter:

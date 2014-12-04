@@ -1,5 +1,6 @@
-///////////////////////////////////////////////////////////
-// Standalone program for plotting MC primaries information
+/////////////////////////////////////////////////////////////////
+// Standalone program for plotting primary particles distribution
+// ./PlotPrimaries $PG4_OUTDIR/<directory>
 
 #include "AnaUtils.hh"
 
@@ -77,9 +78,9 @@ int main(int argc, char** argv) {
     Long64_t nentries = T->GetEntries();
     map<int,int> primSingles;
     map<map<int,int>, int> primCombos;
-    std::cout << "Scanning " << nentries << " events...\n";
+    cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
-        prim->Clear();
+        if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
         T->GetEntry(ev);
         
         // primaries
@@ -92,7 +93,7 @@ int main(int argc, char** argv) {
             primSingles[PID]++;
             map<Int_t, PrimaryHistograms>::iterator it = primHists.find(PID);
             if(it == primHists.end())
-                it = primHists.insert(std::pair<Int_t, PrimaryHistograms>(PID,PrimaryHistograms(f,PID))).first;
+                it = primHists.insert(pair<Int_t, PrimaryHistograms>(PID,PrimaryHistograms(f,PID))).first;
             it->second.Fill(pp);
         }
         primCombos[primCounter]++;

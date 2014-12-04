@@ -15,11 +15,11 @@ LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXML
 #
 
 VPATH = Common/:Private/
-
-Utils = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o XMLInfo.o
-objects = $(Utils)
+objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o XMLInfo.o
+_examples = PlotFlux PlotPos PlotPrimaries TestCell
 
 all: $(objects)
+examples: $(objects) $(_examples)
 
 # generic rule for everything else .cc
 % : %.cc $(objects)
@@ -31,4 +31,4 @@ all: $(objects)
 .PHONY: clean
 clean:
 	-rm -f *.o
-	-rm -f MuonCal MuVeto nScatter PlotFlux PlotPos PlotPrimaries PlotXS ProtonSlab TestCell
+	-rm -f $(_examples)

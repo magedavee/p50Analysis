@@ -1,18 +1,8 @@
-////////////////////////////////////////////
-// ROOT macro example for MC output analysis
-
-#include <map>
-#include <vector>
-#include <utility>
-#include <iostream>
-#include <string>
-#include <cassert>
-#include <sys/stat.h>
+////////////////////////////////////////////////////////////////
+// Standalone program for plotting scintillator event positions
+// ./PlotPos $PG4_OUTDIR/<directory>
 
 #include "AnaUtils.hh"
-
-using std::vector;
-using std::map;
 
 int main(int argc, char** argv) {
     gSystem->Load("libEventLib.so"); // load library describing data classes
@@ -40,19 +30,15 @@ int main(int argc, char** argv) {
     
     // scan events
     Long64_t nentries = T->GetEntries();
-    std::cout << "Scanning " << nentries << " events...\n";
+    cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
         if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
-        
-        scn->Clear();
-        sion->Clear();
         T->GetEntry(ev);
 
         // scintillator hits
         Int_t nScint = sion->clusts->GetEntriesFast();
         for(Int_t i=0; i<nScint; i++) {
             IoniCluster* ei = (IoniCluster*)sion->clusts->At(i);
-            if(!(-2000 < ei->vol && ei->vol <= -1000)) continue;
             hIPos.Fill(ei->x[0]/1000., ei->x[1]/1000., ei->x[2]/1000.);
         }
         
@@ -60,7 +46,6 @@ int main(int argc, char** argv) {
         Int_t nNCapt = scn->nCapts->GetEntriesFast();
         for(Int_t i=0; i<nNCapt; i++) {
             NCapt* nc = (NCapt*)scn->nCapts->At(i);
-            if(nc->vol >= 0 && !(nc->vol%2)) continue;
             hnPos.Fill(nc->x[0]/1000., nc->x[1]/1000., nc->x[2]/1000.);
         }
     }

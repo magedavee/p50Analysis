@@ -1,35 +1,9 @@
-///////////////////////////////////////////////////////////
-// Standalone program for plotting MC primaries information
+/////////////////////////////////////////////////////////////
+// Standalone program for plotting flux counter distributions
+// ./PlotFlux $PG4_OUTDIR/<directory>
 
-#include <map>
-#include <vector>
-#include <utility>
-#include <string>
-#include <cassert>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <cmath>
-#include <sstream>
-
-#include "Event.hh"
-#include "FileKeeper.hh"
+#include "AnaUtils.hh"
 #include "GoldhagenSpectrum.hh"
-#include "strutils.hh"
-#include "XMLInfo.hh"
-
-#include <TCanvas.h>
-#include <TSystem.h>
-#include <TClonesArray.h>
-#include <TStyle.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TF1.h>
-#include <TChain.h>
-#include <TLegend.h>
-
-using std::vector;
-using std::map;
-using std::string;
 
 /// Collection of histograms to generate for a particle type
 class FluxHistograms {
@@ -99,9 +73,9 @@ public:
             gPad->SetLogx(true);
             
             TLegend* leg = new TLegend(0.13,0.7, 0.48,0.895);
-            leg->SetFillColor(0); // white background
-            leg->SetBorderSize(0); // get rid of the box
-            leg->SetTextSize(0.045); // set text size
+            leg->SetFillColor(0);       // white background
+            leg->SetBorderSize(0);      // get rid of the box
+            leg->SetTextSize(0.045);    // set text size
             leg->AddEntry(hGoldhagen,"Goldhagen (Watson roof)","l");
             //leg->AddEntry("hNeutronE","CRY + Geant4 backscatter","l");
             //leg->AddEntry("hNeutronIn","CRY incident","l");
@@ -151,11 +125,8 @@ int main(int argc, char** argv) {
     // load data into TChain
     OutDirLoader D(inPath);
     TChain* T = D.makeTChain();
-    if(!D.genTime) { std::cout << "Oops, zero simulated time! Goodbye.\n"; return -1; }
-    
     // set readout branches
     ParticleEvent* evt = new ParticleEvent();
-    T->GetBranch("clusts")->SetAutoDelete(kFALSE);
     T->SetBranchAddress("Flux",&evt);
     
     map<Int_t, FluxHistograms> primHists;
@@ -164,23 +135,23 @@ int main(int argc, char** argv) {
     Long64_t nentries = T->GetEntries();
     std::cout << "Scanning " << nentries << " events...\n";
     for (Long64_t ev=0; ev<nentries; ev++) {
-        evt->Clear();
+        if(!(ev % (nentries/20))) { cout << "*"; cout.flush(); }
         T->GetEntry(ev);
-        Int_t nPrim = evt->particles->GetEntriesFast();
-        for(Int_t i=0; i<nPrim; i++) {
+        
+        Int_t nflux = evt->particles->GetEntriesFast();
+        for(Int_t i=0; i<nflux; i++) {
             ParticleVertex* pp = (ParticleVertex*)evt->particles->At(i);
             
             Int_t PID = pp->PID;
-            if(PID != 2112) continue;
-            map<Int_t, FluxHistograms>::iterator it = primHists.find(PID);
+            //if(PID != 2112) continue;
+            auto it = primHists.find(PID);
             if(it == primHists.end())
-                it = primHists.insert(std::pair<Int_t, FluxHistograms>(PID,FluxHistograms(f,PID))).first;
+                it = primHists.insert(pair<Int_t, FluxHistograms>(PID,FluxHistograms(f,PID))).first;
             it->second.Fill(pp);
         }
     }
     
-    // produce output
-    for(map<Int_t, FluxHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++)
+    for(auto it = primHists.begin(); it !=primHists.end(); it++)
         it->second.Draw(outpath, D.genTime);
         
     return 0;

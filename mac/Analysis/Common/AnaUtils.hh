@@ -4,6 +4,7 @@
 using std::cout;
 using std::map;
 using std::string;
+using std::pair;
 
 #include "FileKeeper.hh"
 #include "PathUtils.hh"
@@ -26,6 +27,7 @@ using std::string;
 #include <TLegend.h>
 #include <TProfile.h>
 #include <TGraph.h>
+#include <TLatex.h>
 
 /// ionization localized to one segment, 0.2-20MeV
 bool isIsolatedSegment(const map<Int_t,double>& volIoni);
