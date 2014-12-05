@@ -134,7 +134,7 @@ vector<Stringmap> QFile::retrieve(const std::string& s) const {
 
 void QFile::transfer(const QFile& Q, const std::string& k) {
     vector<Stringmap> v = Q.retrieve(k);
-    for(vector<Stringmap>::iterator it = v.begin(); it != v.end(); it++)
+    for(auto it = v.begin(); it != v.end(); it++)
         insert(k,*it);
 }
 

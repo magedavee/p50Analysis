@@ -89,7 +89,7 @@ unsigned int PSelector::select(double* x) const {
 }
 
 void PSelector::scale(double s) {
-    for(vector<double>::iterator it = cumprob.begin(); it != cumprob.end(); it++)
+    for(auto it = cumprob.begin(); it != cumprob.end(); it++)
         (*it) *= s;
 }
 
@@ -342,14 +342,14 @@ NucDecaySystem::NucDecaySystem(const QFile& Q, const BindingEnergyLibrary& B, do
     
     // load levels data
     vector<Stringmap> levs = Q.retrieve("level");
-    for(vector<Stringmap>::iterator it = levs.begin(); it != levs.end(); it++) {
+    for(auto it = levs.begin(); it != levs.end(); it++) {
         levels.push_back(NucLevel(*it));
         transIn.push_back(vector<TransitionBase*>());
         transOut.push_back(vector<TransitionBase*>());
         levelDecays.push_back(PSelector());
     }
     std::sort(levels.begin(),levels.end(),sortLevels);
-    for(vector<NucLevel>::iterator it = levels.begin(); it != levels.end(); it++) {
+    for(auto it = levels.begin(); it != levels.end(); it++) {
         smassert(levelIndex.find(it->name) == levelIndex.end());
         it->n = it-levels.begin();
         levelIndex.insert(std::make_pair(it->name,it->n));
@@ -357,26 +357,26 @@ NucDecaySystem::NucDecaySystem(const QFile& Q, const BindingEnergyLibrary& B, do
     
     // set up internal conversions
     vector<Stringmap> gammatrans = Q.retrieve("gamma");
-    for(vector<Stringmap>::iterator it = gammatrans.begin(); it != gammatrans.end(); it++) {
+    for(auto it = gammatrans.begin(); it != gammatrans.end(); it++) {
         ConversionGamma* CG = new ConversionGamma(levels[levIndex(it->getDefault("from",""))],levels[levIndex(it->getDefault("to",""))],*it);
         addTransition(CG);
     }
     if(Q.getDefault("norm","gamma","") == "groundstate") {
         double gsflux = 0;
-        for(vector<NucLevel>::iterator levit = levels.begin(); levit != levels.end(); levit++)
+        for(auto levit = levels.begin(); levit != levels.end(); levit++)
             if(!levit->fluxOut)
                 gsflux += levit->fluxIn;
-            for(vector<TransitionBase*>::iterator transit = transitions.begin(); transit != transitions.end(); transit++)
+            for(auto transit = transitions.begin(); transit != transitions.end(); transit++)
                 (*transit)->scale(1./gsflux);
-            for(vector<NucLevel>::iterator levit = levels.begin(); levit != levels.end(); levit++)
+            for(auto levit = levels.begin(); levit != levels.end(); levit++)
                 levit->scale(1./gsflux);
 }
 
 // set up Augers
-for(vector<TransitionBase*>::iterator transit = transitions.begin(); transit != transitions.end(); transit++)
+for(auto transit = transitions.begin(); transit != transitions.end(); transit++)
     (*transit)->toAtom->ICEK += (*transit)->getPVacant(0)*(*transit)->Itotal;
 vector<Stringmap> augers = Q.retrieve("AugerK");
-for(vector<Stringmap>::iterator it = augers.begin(); it != augers.end(); it++) {
+for(auto it = augers.begin(); it != augers.end(); it++) {
     int Z = it->getDefault("Z",0);
     if(!Z) {
         SMExcept e("BadAugerZ");
@@ -388,7 +388,7 @@ for(vector<Stringmap>::iterator it = augers.begin(); it != augers.end(); it++) {
 
 // set up beta decays
 vector<Stringmap> betatrans = Q.retrieve("beta");
-for(vector<Stringmap>::iterator it = betatrans.begin(); it != betatrans.end(); it++) {
+for(auto it = betatrans.begin(); it != betatrans.end(); it++) {
     BetaDecayTrans* BD = new BetaDecayTrans(levels[levIndex(it->getDefault("from",""))],
                                                                            levels[levIndex(it->getDefault("to",""))],
                                                                            it->getDefault("positron",0),
@@ -403,11 +403,11 @@ addTransition(BD);
 
 // set up electron captures
 vector<Stringmap> ecapts = Q.retrieve("ecapt");
-for(vector<Stringmap>::iterator it = ecapts.begin(); it != ecapts.end(); it++) {
+for(auto it = ecapts.begin(); it != ecapts.end(); it++) {
     NucLevel& Lorig = levels[levIndex(it->getDefault("from",""))];
     string to = it->getDefault("to","AUTO");
     if(to == "AUTO") {
-        for(vector<NucLevel>::iterator Ldest = levels.begin(); Ldest != levels.end(); Ldest++) {
+        for(auto Ldest = levels.begin(); Ldest != levels.end(); Ldest++) {
             if(Ldest->A == Lorig.A && Ldest->Z+1 == Lorig.Z && Ldest->E < Lorig.E) {
                 double missingFlux = Ldest->fluxOut - Ldest->fluxIn;
                 if(missingFlux <= 0) continue;
@@ -429,14 +429,14 @@ setCutoff(t);
 }
 
 NucDecaySystem::~NucDecaySystem() {
-    for(vector<TransitionBase*>::iterator it = transitions.begin(); it != transitions.end(); it++)
+    for(auto it = transitions.begin(); it != transitions.end(); it++)
         delete(*it);
-    for(map<unsigned int,DecayAtom*>::iterator it = atoms.begin(); it != atoms.end(); it++)
+    for(auto it = atoms.begin(); it != atoms.end(); it++)
         delete(it->second);
 }
 
 DecayAtom* NucDecaySystem::getAtom(unsigned int Z) {
-    map<unsigned int,DecayAtom*>::iterator it = atoms.find(Z);
+    auto it = atoms.find(Z);
     if(it != atoms.end()) return it->second;
                                     DecayAtom* A = new DecayAtom(BEL.getBindingTable(Z));
     atoms.insert(std::pair<unsigned int,DecayAtom*>(Z,A));
@@ -562,12 +562,12 @@ NucDecayLibrary::NucDecayLibrary(const std::string& datp, double t):
 datpath(datp), tcut(t), BEL(QFile(datpath+"/ElectronBindingEnergy.txt")) { }
 
 NucDecayLibrary::~NucDecayLibrary() {
-    for(map<std::string,NucDecaySystem*>::iterator it = NDs.begin(); it != NDs.end(); it++)
+    for(auto it = NDs.begin(); it != NDs.end(); it++)
         delete(it->second);
 }
 
 NucDecaySystem& NucDecayLibrary::getGenerator(const std::string& nm) {
-    map<std::string,NucDecaySystem*>::iterator it = NDs.find(nm);
+    auto it = NDs.find(nm);
     if(it != NDs.end()) return *(it->second);
     string fname = datpath+"/"+nm+".txt"; 
     if(!fileExists(fname)) {
@@ -575,8 +575,7 @@ NucDecaySystem& NucDecayLibrary::getGenerator(const std::string& nm) {
         e.insert("fname",fname);
         throw(e);
     }
-    std::pair<map<std::string,NucDecaySystem*>::iterator,bool> ret;
-    ret = NDs.insert(std::pair<std::string,NucDecaySystem*>(nm,new NucDecaySystem(QFile(fname),BEL,tcut)));
+    auto ret = NDs.insert(std::pair<std::string,NucDecaySystem*>(nm,new NucDecaySystem(QFile(fname),BEL,tcut)));
     return *(ret.first->second);
 }
 

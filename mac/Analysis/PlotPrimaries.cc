@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
             Int_t PID = pp->PID;
             primCounter[PID]++;
             primSingles[PID]++;
-            map<Int_t, PrimaryHistograms>::iterator it = primHists.find(PID);
+            auto it = primHists.find(PID);
             if(it == primHists.end())
                 it = primHists.insert(pair<Int_t, PrimaryHistograms>(PID,PrimaryHistograms(f,PID))).first;
             it->second.Fill(pp);
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     display_map(primCombos,-1,1e-4);
     
     // produce output
-    for(map<Int_t, PrimaryHistograms>::iterator it = primHists.begin(); it !=primHists.end(); it++)
+    for(auto it = primHists.begin(); it !=primHists.end(); it++)
         it->second.Draw(outpath, D.genTime);
 
     return 0;

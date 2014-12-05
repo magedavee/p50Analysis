@@ -10,6 +10,6 @@ void CommandInfo::fillNode(TXMLEngine&) {
         cmds.push_back(XMLProvider("uicmd"));
         cmds.back().addAttr("cmd",UI->GetPreviousCommand(i));
     }
-    for(vector<XMLProvider>::iterator it = cmds.begin(); it != cmds.end(); it++)
+    for(auto it = cmds.begin(); it != cmds.end(); it++)
         addChild(&(*it));
 }
