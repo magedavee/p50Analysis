@@ -4,8 +4,10 @@
 #include <G4Box.hh>
 #include <G4UnitsTable.hh>
 #include <G4PVPlacement.hh>
+#include "SMExcept.hh"
 
 void PR2ShieldBuilder::construct() {
+    smassert(!layers.size());
     
     dim = G4ThreeVector(6*in, 24*in, 6*in);
     G4Box* cave_box = new G4Box("cave_box", dim[0]/2, dim[1]/2, dim[2]/2);

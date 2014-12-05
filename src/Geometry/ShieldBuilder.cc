@@ -35,7 +35,7 @@ void ShieldBuilder::construct() {
     constructLayers(myDet);
     
     // muon veto layer
-    for(vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+    for(auto it = layers.begin(); it != layers.end(); it++) {
         if(it->mat == MaterialsHelper::M().PVT) {
             RootIO::GetInstance()->addVetoIoniBranch();
             MuVetoSD* V = new MuVetoSD("MuVetoSD",main_log);
@@ -48,7 +48,7 @@ void ShieldBuilder::construct() {
 void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String newvalue) {
     if(command == &clearCmd) {
         ShellLayerSpec S(0*cm, MaterialsHelper::M().Air, G4Colour(0.,0.,1.));
-        for(vector<ShellLayerSpec>::iterator it = layers.begin(); it != layers.end(); it++) {
+        for(auto it = layers.begin(); it != layers.end(); it++) {
             S.uthick += it->uthick;
             S.lthick += it->lthick;
         }

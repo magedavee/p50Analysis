@@ -1,5 +1,6 @@
 #include "Builder.hh"
 #include "strutils.hh"
+#include "SMExcept.hh"
 #include <G4UnitsTable.hh>
 #include <G4SystemOfUnits.hh>
 #include <G4Box.hh>
@@ -44,6 +45,7 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
 /////////////////////////////////////////////////////////////
 
 void ShellLayerBuilder::constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim) {
+    smassert(!layer_log.size());
     main_log = core_log;
     dim = ldim;
     unsigned int nlayers = 0;

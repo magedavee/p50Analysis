@@ -1,17 +1,20 @@
 #include "XMLProvider.hh"
 #include "strutils.hh"
 
+#include "SMExcept.hh"
 #include <cassert>
 #include <G4ios.hh>
 
-void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {    
+void XMLProvider::genNode(TXMLEngine& E, XMLNodePointer_t parent) {
+    if(!nodeName.size()) nodeName = "???";
     myNode = E.NewChild(parent, NULL, nodeName.c_str());
-    assert(myNode);
+    smassert(myNode);
     fillNode(E);
-    for(vector< pair<string, string> >::iterator it = xattrs.begin(); it != xattrs.end(); it++)
+    for(auto it = xattrs.begin(); it != xattrs.end(); it++) {
         addAttr(E, it->first, it->second);
-    for(vector<XMLProvider*>::iterator it = children.begin(); it != children.end(); it++) {
-        assert(*it);
+    }
+    for(auto it = children.begin(); it != children.end(); it++) {
+        smassert(*it);
         (*it)->genNode(E, myNode);
     }
     //if(content.size())
