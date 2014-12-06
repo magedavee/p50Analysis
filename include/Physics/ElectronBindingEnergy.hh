@@ -35,8 +35,8 @@ protected:
 /// catalog of many BindingEnergyTables
 class BindingEnergyLibrary {
 public:
-    /// constructor from QFile containing element tables
-    BindingEnergyLibrary(const QFile& Q);
+    /// constructor from SMFile containing element tables
+    BindingEnergyLibrary(const SMFile& Q);
     /// destructor
     ~BindingEnergyLibrary();
     /// get BindingEnergyTable for specified element
