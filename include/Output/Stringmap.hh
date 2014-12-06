@@ -58,11 +58,11 @@ protected:
 };
 
 /// wrapper for multimap<std::string,Stringmap> with useful functions
-class QFile {
+class SMFile {
 public:
     
     /// constructor given a string
-    QFile(const std::string& s = "", bool readit = true);
+    SMFile(const std::string& s = "", bool readit = true);
     
     /// insert key/(string)value pair
     void insert(const std::string& str, const Stringmap& v);
@@ -82,8 +82,8 @@ public:
     vector<double> retrieveDouble(const std::string& k1, const std::string& k2) const;	
     /// return number of elements
     unsigned int size() const { return dat.size(); }
-    /// transfer all data for given key from other QFile
-    void transfer(const QFile& Q, const std::string& k);
+    /// transfer all data for given key from other SMFile
+    void transfer(const SMFile& Q, const std::string& k);
     
     /// set output file location
     void setOutfile(string fnm) { name = fnm; }

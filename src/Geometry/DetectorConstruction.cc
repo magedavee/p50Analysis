@@ -49,13 +49,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myPRShield.construct();
         myBuilding.myDetector = &myPRShield;
     } else if(mode == PROSPECT2) {
-        myPR2Shield.construct();
+        //myPR2Shield.construct();
         myBuilding.myDetector = &myPR2Shield;
         myBuilding.wall_clearance = myBuilding.ceil_clearance = 0.25*m;
     }
     
     Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding
-                                : mode==PROSPECT2? (Builder&)myBuilding
+                                : mode==PROSPECT2? (Builder&)myPR2Shield //myBuilding
                                 : mode==SLAB ? (Builder&)mySlab
                                 : mode==TEST_CELL ? (Builder&)myTestCell
                                 : (Builder&)mySphere );
@@ -72,9 +72,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         worldShell.setThick(0.5*m);
     } else if(mode==PROSPECT2) {
         myTestCell.construct();
-        addChild(&myTestCell);
+        //addChild(&myTestCell);
         new G4PVPlacement(Builder::rot_X_90, G4ThreeVector(), myTestCell.main_log, "cell_phys", myPR2Shield.cave_log, false, 0, true);
-        worldShell.setThick(0.5*m);
+        worldShell.setThick(0.2*m);
     }
     
     dim = myContents.getDimensions();
