@@ -1,14 +1,14 @@
-#ifndef FNSDETECTORCONSTRUCTION_HH
-#define FNSDETECTORCONSTRUCTION_HH
+#ifndef DIMADETECTORCONSTRUCTION_HH
+#define DIMADETECTORCONSTRUCTION_HH
 
 #include "DetectorConstruction.hh"
 #include "ScintSegVol.hh"
 
-/// Builder for ``Russian'' fast neutron spectrometer array
-class FNSArrayBuilder: public ScintSegVol {
+/// Builder for ``DIMA'' fast neutron spectrometer array
+class DIMAArrayBuilder: public ScintSegVol {
 public:
     /// Constructor
-    FNSArrayBuilder();
+    DIMAArrayBuilder();
     
     /// Construct geometry
     virtual void construct();
@@ -19,19 +19,32 @@ public:
     double l_seg;               ///< scintillator tube length
     double r_seg;               ///< scintillator tube outer radius
     double t_seg;               ///< scintillator tube wall thickness
+    double t_guide;             ///< thickness of light guide endcaps
     static double spacing;      ///< center-to-center array spacing
 };
 
-/// Drop-in replacement for DetectorConstruction, for ``Russian'' spectrometer model
-class FNSDetectorConstruction: public DetectorConstruction  {
+/// Builder for box/supports around DIMA array
+class DIMABoxBuilder: public ShellLayerBuilder {
 public:
     /// Constructor
-    FNSDetectorConstruction() { }
+    DIMABoxBuilder(): ShellLayerBuilder("DIMABox")  { }
+    
+    /// Construct geometry
+    virtual void construct();
+    
+    DIMAArrayBuilder myArray;
+};
+
+/// Drop-in replacement for DetectorConstruction, for ``Russian'' spectrometer model
+class DIMADetectorConstruction: public DetectorConstruction  {
+public:
+    /// Constructor
+    DIMADetectorConstruction() { }
     
     /// Assembles geometry of the simulation, returns world volume
     virtual G4VPhysicalVolume* Construct();
     
-    FNSArrayBuilder myArray;
+    DIMABoxBuilder myBox;
 };
 
 #endif
