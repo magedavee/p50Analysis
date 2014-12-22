@@ -581,13 +581,13 @@ NucDecaySystem& NucDecayLibrary::getGenerator(const std::string& nm) {
 
 bool NucDecayLibrary::hasGenerator(const std::string& nm) {
     if(cantdothis.count(nm)) return false;
-                   try {
-                       getGenerator(nm);
-                       return true;
-                   } catch(...) {
-                       cantdothis.insert(nm);
-                   }
-                   return false;
+    try {
+        getGenerator(nm);
+        return true;
+    } catch(...) {
+        cantdothis.insert(nm);
+    }
+    return false;
 }
 
 //-----------------------------------------

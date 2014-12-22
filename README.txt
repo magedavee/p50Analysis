@@ -6,13 +6,17 @@ Geant4-based Monte Carlo simulation for PROSPECT detector
 Dependencies
 ============
 cmake
-Geant4 (http://geant4.cern.ch); known to compile with version 4.10.0-p2
-ROOT (http://root.cern.ch); known to work with version 5.34/18
-CRY cosmic ray shower event generator (http://cnr07.llnl.gov/simulation/main.html), version 1.7
+
+Geant4 (http://geant4.cern.ch); known to compile with versions 4.10.00, 4.10.01
+    cmake flags: -DGEANT4_INSTALL_DATA=ON -DGEANT4_BUILD_CXXSTD=c++11
 
 For visualization, it's also useful to have some of Geant4's optional graphics dependencies installed
 (see Geant4's install guides), e.g. OpenGL and Motif developer libraries.
+    Geant4 cmake flags: -DGEANT4_USE_QT=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_OPENGL_X11=ON
+    
+ROOT (http://root.cern.ch); known to work with versions 5.34/18, v6-02-1
 
+CRY cosmic ray shower event generator (http://cnr07.llnl.gov/simulation/main.html), version 1.7
 
 Building
 ========
