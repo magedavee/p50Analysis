@@ -36,6 +36,8 @@ public:
     
     /// Get "attempted" number of throws before discarding for surface normal, target conditions
     virtual int getAttempts() const { return nAttempts; }
+    /// Get "normalized" (to volume, surface, etc.) number of attempts
+    virtual double getAttemptsNormalized() const { return getAttempts(); }
     
 protected:
     

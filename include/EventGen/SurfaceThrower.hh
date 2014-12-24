@@ -15,7 +15,7 @@
 class SurfaceThrower: public VertexPositioner {
 public:
     /// Constructor, specifying world volume and optional source/target volumes
-    SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS = NULL, G4VPhysicalVolume* TT = NULL);
+    SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS = NULL, G4VPhysicalVolume* TT = NULL, const string& nm = "SurfaceThrower");
     
     /// Set source (surface) and target (volume)
     void setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* TT = NULL);
@@ -30,6 +30,8 @@ public:
     double getOriginArea() const { return W? W->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
     /// Get volume of origin solid
     double getOriginVolume() const { return W? W->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
+    /// Get "normalized" (to volume, surface, etc.) number of attempts
+    virtual double getAttemptsNormalized() const { return getAttempts()/(fromVolume?1.:getOriginArea()); }
     
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector snorm;        ///< surface normal at position

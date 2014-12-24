@@ -147,9 +147,9 @@ if __name__=="__main__":
         #L.template = "Analysis/Private/PR2_Template.mac"
         #L.launch_sims(4*100)
         
-        L = SB_MC_Launcher("PROSPECT-2_gamma_Jun28p_Wall", 1e7)
+        L = SB_MC_Launcher("PROSPECT-2_gamma_Aug28P", 1e7)
         L.template = "Analysis/Private/PR2_Gamma_Template.mac"
-        L.launch_sims(4*100)
+        L.launch_sims(4*10)
         
     if options.acorn:
         for src in ["Bi207", "Sn113", "Cd109"][:1]:

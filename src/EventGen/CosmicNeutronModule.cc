@@ -1,6 +1,7 @@
 #include <TH1F.h>
 #include "CosmicNeutronModule.hh"
 #include "DetectorConstruction.hh"
+#include "strutils.hh"
 
 #include <G4Neutron.hh>
 #include <G4ParticleGun.hh>
@@ -97,16 +98,16 @@ void CosmicNeutronModule::makeDistribution() {
 }
 
 G4double CosmicNeutronModule::GetGeneratorTime() const {
-    return myPGA->GetCosineThrower()->getAttempts() / myPGA->GetCosineThrower()->getOriginArea() / netFlux;
+    return myPGA->GetPositioner()->getAttemptsNormalized() / netFlux;
 }
 
 void CosmicNeutronModule::fillNode(TXMLEngine& E) {
-    addAttr(E, "flux", to_str(netFlux*(1000*s*cm2))+" mHz/cm2");
-    addAttr(E, "thermalFlux", to_str(thermalFlux*(1000*s*cm2))+" mHz/cm2");
+    addAttr(E, "flux", strip(G4BestUnit(netFlux*cm2,"Frequency"))+"/cm2");
+    addAttr(E, "thermalFlux", strip(G4BestUnit(thermalFlux*cm2,"Frequency"))+"/cm2");
     addAttr(E, "s_mod", G4BestUnit(s_mod,"Electric potential"));
     addAttr(E, "depth", G4BestUnit(depth,"Mass/Surface"));
     addAttr(E, "r_c", G4BestUnit(r_c,"Electric potential"));
-    addAttr(E, "phi_L", to_str(phi_L*(1000*s*cm2))+" mHz/cm2");
+    addAttr(E, "phi_L", strip(G4BestUnit(phi_L*cm2,"Frequency"))+"/cm2");
     addAttr(E, "w", waterFrac);
     addAttr(E,"E_T",G4BestUnit(E_T,"Energy"));
     if(scale_S != 1) addAttr(E, "scale_S", scale_S);

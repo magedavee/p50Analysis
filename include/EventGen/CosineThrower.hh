@@ -7,7 +7,7 @@
 class CosineThrower: public SurfaceThrower {
 public:
     /// Constructor
-    CosineThrower(G4VPhysicalVolume* w): SurfaceThrower(w) { }
+    CosineThrower(G4VPhysicalVolume* w): SurfaceThrower(w,NULL,NULL,"CosineThrower") { }
     
     /// set cosine exponent (0 for isotropic)
     void setExponent(double xx) { x = xx; }

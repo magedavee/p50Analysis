@@ -42,7 +42,8 @@ void HistogramModule::makeDistribution() {
     if(myDist) {
         myDist->SetDirectory(NULL);
         netFlux = myDist->Integral() / s;
-        if(myPGA->GetPositioner() == myPGA->GetCosineThrower()) netFlux /= cm2;
+        SurfaceThrower* ST = dynamic_cast<SurfaceThrower*>(myPGA->GetPositioner());
+        if(ST) netFlux /= cm2;
     } else G4cout << "Histogram '" << hname << "' not found in file '" << fname << "'!\n";
 }
 
@@ -62,14 +63,13 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 G4double HistogramModule::GetGeneratorTime() const {
-    if(myPGA->GetPositioner() == myPGA->GetCosineThrower())
-        return myPGA->GetCosineThrower()->getAttempts() / myPGA->GetCosineThrower()->getOriginArea() / netFlux;
-    return myPGA->GetPositioner()->getAttempts() / netFlux;
+   return myPGA->GetPositioner()->getAttemptsNormalized() / netFlux;
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    if(myPGA->GetPositioner() == myPGA->GetCosineThrower())
-        addAttr(E, "flux", to_str(netFlux*s*cm2)+" Hz/cm^2");
+    SurfaceThrower* ST = dynamic_cast<SurfaceThrower*>(myPGA->GetPositioner());
+    if(ST && !ST->fromVolume)
+        addAttr(E, "flux", strip(G4BestUnit(netFlux*cm2,"Frequency"))+"/cm^2");
     else addAttr(E, "rate", G4BestUnit(netFlux,"Frequency"));
     addAttr(E, "file", fname);
     addAttr(E, "histogram", hname);

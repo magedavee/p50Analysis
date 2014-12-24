@@ -21,8 +21,8 @@ void normalize_to_bin_width(TH1* f) {
 
 void CompareMultiFiles() {
     vector<string> fnames;
-    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Jun30/Plots/PROSPECT-2.root");
     fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Aug28P/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Aug28P-Wall/Plots/PROSPECT-2.root");
     
     //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_cosmic_bg/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_n_bg/Plots/PROSPECT-2.root");
@@ -61,7 +61,7 @@ void CompareMultiFiles() {
         }
         
         for(int i=0; i<hs.size(); i++) {
-            hs[i]->SetLineColor(2+2*i);
+            hs[i]->SetLineColor(4-2*i);
             hs[i]->GetYaxis()->SetTitleOffset(1.4);
             //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
             hs[i]->Draw(i?"Same":"");

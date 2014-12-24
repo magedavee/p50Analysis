@@ -7,7 +7,7 @@
 class DirectionThrower: public SurfaceThrower {
 public:
     /// Constructor
-    DirectionThrower(G4VPhysicalVolume* w): SurfaceThrower(w), d(1,0,0) { }
+    DirectionThrower(G4VPhysicalVolume* w): SurfaceThrower(w,NULL,NULL,"DirectionThrower"), d(1,0,0) { }
     
     /// set throw direction
     void setDirection(const G4ThreeVector& v) { d = v.unit(); }

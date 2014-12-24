@@ -6,8 +6,8 @@
 #include <Randomize.hh>
 #include <G4UnitsTable.hh>
 
-SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT):
-VertexPositioner("SurfaceThrower"), outer(true), fromVolume(false), W(w) {
+SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT, const string& nm):
+VertexPositioner(nm), outer(true), fromVolume(false), W(w) {
     if(!W) throw SMExcept("undefinedWorldVolume");
     setSourceTarget(SS,TT);
 }
