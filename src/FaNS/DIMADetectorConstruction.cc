@@ -23,10 +23,11 @@ void DIMAArrayBuilder::construct() {
     
     G4LogicalVolume* tube_log = new G4LogicalVolume(lg_tube, MaterialsHelper::M().PMMA, "tube_log");
     tube_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.8,0.8,0.8,0.15)));
-    G4LogicalVolume* glass_log = new G4LogicalVolume(glass_tube, MaterialsHelper::M().Pyrex, "glass_log");
+    G4LogicalVolume* glass_log = new G4LogicalVolume(glass_tube, MaterialsHelper::M().Quartz, "glass_log");
     glass_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.8,0.8,0.0,0.15)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), glass_log, "glass_phys", tube_log, false, 0, true);
-    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, 0.001, true), "scint_log");
+    //scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, 0.001, true), "scint_log");
+    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().EJ309, "scint_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.4,0.2,1.0,0.3)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), scint_log, "scint_phys", glass_log, false, 0, true);
     

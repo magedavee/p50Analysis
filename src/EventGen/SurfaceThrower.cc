@@ -88,8 +88,8 @@ bool SurfaceThrower::tryVertex(vector<primaryPtcl>& v) {
 
 void SurfaceThrower::fillNode(TXMLEngine& E) {
     VertexPositioner::fillNode(E);
-    addAttr(E, "s_area", G4BestUnit(getOriginArea(),"Surface"));
-    addAttr(E, "s_volume", G4BestUnit(getOriginVolume(),"Volume"));
+    if(fromVolume) addAttr(E, "s_volume", G4BestUnit(getOriginVolume(),"Volume"));
+    else addAttr(E, "s_area", G4BestUnit(getOriginArea(),"Surface"));
     addAttr(E, "nAttempts", nAttempts);
     addAttr(E, "nSurfaceThrows", nSurfaceThrows);
     addAttr(E, "nHits", nHits);    

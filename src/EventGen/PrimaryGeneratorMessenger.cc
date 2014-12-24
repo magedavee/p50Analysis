@@ -29,7 +29,8 @@ moduleHistocmd("/generator/module/histogram",this),
 ptPosCmd("/generator/vertex/isotpt", this),
 isotFluxCmd("/generator/vertex/isotworld", this),
 srcTargCmd("/generator/vertex/srctarg", this),
-cosFluxCmd("/generator/vertex/cosx", this) {
+cosFluxCmd("/generator/vertex/cosx", this),
+dirFluxCmd("/generator/vertex/directional", this) {
         
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -90,6 +91,9 @@ cosFluxCmd("/generator/vertex/cosx", this) {
     
     cosFluxCmd.SetGuidance("Generate cos^x-weighted hemispherical flux from world volume");
     cosFluxCmd.AvailableForStates(G4State_Idle);
+    
+    dirFluxCmd.SetGuidance("Generate directional flux from world volume");
+    dirFluxCmd.AvailableForStates(G4State_Idle);
 }
 
 void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -119,6 +123,9 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
         generator->GetCosineThrower()->fromVolume = true;
         generator->GetCosineThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
         generator->GetCosineThrower()->setExponent(0);
+    } else if(command == &dirFluxCmd) {
+        generator->myPositioner = generator->GetDirectionThrower();
+        generator->GetDirectionThrower()->setDirection(dirFluxCmd.GetNew3VectorValue(newValue));
     }
 
     else G4cout << "Command not found." << G4endl;

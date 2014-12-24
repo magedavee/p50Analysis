@@ -1,5 +1,6 @@
 #include "AnaUtils.hh"
 #include <TArray.h>
+#include <TMath.h>
 #include <algorithm>
 
 bool isIsolatedSegment(const map<Int_t,double>& volIoni) {
@@ -82,6 +83,7 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
 void fill_interp(TH1* h, double x, double w) {
     TAxis* Ax = h->GetXaxis();
     int b0 = Ax->FindBin(x);
+    if(b0 < 1 || b0 > h->GetNbinsX()) { h->Fill(x); return; }
     double c0 = Ax->GetBinCenter(b0);
     int b1 = x > c0? b0+1 : b0-1;
     double c1 = Ax->GetBinCenter(b1);
@@ -142,4 +144,27 @@ void ProfileHistos::makeProf() {
     }
 }
 
+/////////////////////////////////////
+/////////////////////////////////////
+/////////////////////////////////////
+
+TH1* poisson_smear(const TH1& hIn, double NperX, TH1* hOut) {
+    if(!hOut) {
+        hOut = (TH1*)hIn.Clone((string(hIn.GetName())+"_Smeared").c_str());
+        hOut->Reset();
+    }
+    for(int i=1; i<=hIn.GetNbinsX(); i++) {
+        double c0 = hIn.GetBinContent(i);
+        if(!c0) continue;
+        double X = hIn.GetBinCenter(i);
+        double n0 = X*NperX;
+        double nrm = 0;
+        for(int j=1; j<=hOut->GetNbinsX(); j++) nrm += TMath::Poisson(hOut->GetBinCenter(j)*NperX, n0);
+        for(int j=1; j<=hOut->GetNbinsX(); j++) {
+            double X1 = hOut->GetBinCenter(j);
+            hOut->Fill(X1, c0 * TMath::Poisson(X1*NperX, n0)/nrm);
+        }
+    }
+    return hOut;
+}
   

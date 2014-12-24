@@ -50,6 +50,9 @@ vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max)
 /// Fill histogram preserving *average* value interpolated between bins
 void fill_interp(TH1* h, double x, double w = 1.0);
 
+/// Poisson-smear a histogram, preserving total counts
+TH1* poisson_smear(const TH1& hIn, double NperX, TH1* hOut = NULL);
+
 /// (x,y,z) position projection histograms
 class ProfileHistos {
 public:

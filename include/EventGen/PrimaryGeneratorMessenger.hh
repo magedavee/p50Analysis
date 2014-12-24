@@ -7,7 +7,9 @@
 #include <G4UIcmdWithoutParameter.hh>
 #include <G4UIcmdWithAnInteger.hh>
 #include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWith3Vector.hh>
 #include <G4UIcmdWith3VectorAndUnit.hh>
+
 
 class PrimaryGeneratorAction;
 
@@ -45,6 +47,7 @@ private:
     G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface
     G4UIcmdWithoutParameter srcTargCmd;         ///< UI command for isotropic flux from source to target volume
     G4UIcmdWithADouble cosFluxCmd;              ///< UI command for cos^x-weighted flux
+    G4UIcmdWith3Vector dirFluxCmd;              ///< UI command for directional flux
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "XMLProvider.hh"
 #include "VertexPositioner.hh"
 #include "CosineThrower.hh"
+#include "DirectionThrower.hh"
 
 #include <G4VUserPrimaryGeneratorAction.hh>
 #include <G4ThreeVector.hh>
@@ -74,6 +75,9 @@ public:
     VertexPositioner* GetPositioner() { return myPositioner; }
     /// Get (create if needed) CosineThrower positioner
     CosineThrower* GetCosineThrower();
+    /// Get (create if needed) DirectionThrower positioner
+    DirectionThrower* GetDirectionThrower();
+    
     G4int GetVerbosity() const { return verbose; }
     
     /// load particle gun as current generator
@@ -112,7 +116,8 @@ protected:
     
     VertexPositioner* myPositioner;             ///< positioner for vertex and momentum direction
     IsotPtPositioner myIsotPt;                  ///< positioner for isotropic point source
-    CosineThrower* myCosineThrower;            ///< positioner defined by source and target surfaces
+    CosineThrower* myCosineThrower;             ///< positioner defined by source and target surfaces
+    DirectionThrower* myDirThrower;             ///< positioner for directional flux from target surface
     
     PrimaryGeneratorModule* genModule;          ///< generator module currently in use
     CRYModule* myCRYModule;                     ///< CRY generator module

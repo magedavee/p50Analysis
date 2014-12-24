@@ -105,11 +105,17 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myThermalNModule) delete myThermalNModule;
     if(myDecaySourceModule) delete myDecaySourceModule;
     if(myCosineThrower) delete myCosineThrower;
+    if(myDirThrower) delete myDirThrower;
 }
 
 CosineThrower* PrimaryGeneratorAction::GetCosineThrower() {
     if(!myCosineThrower) myCosineThrower = new CosineThrower(detect->theWorld);
     return myCosineThrower;
+}
+
+DirectionThrower* PrimaryGeneratorAction::GetDirectionThrower() {
+    if(!myDirThrower) myDirThrower = new DirectionThrower(detect->theWorld);
+    return myDirThrower;
 }
 
 void PrimaryGeneratorAction::loadGunModule() {

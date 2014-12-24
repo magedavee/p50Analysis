@@ -78,6 +78,7 @@ if __name__=="__main__":
     parser.add_option("--sphere", dest="sphere", action="store_true", default=False);
     parser.add_option("--acorn", dest="acorn", action="store_true", default=False);
     parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
+    parser.add_option("--dima", dest="dima", action="store_true", default=False);
     
     options, args = parser.parse_args()
     if options.kill:
@@ -142,13 +143,13 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.p2:
-        L = SB_MC_Launcher("PROSPECT-2_n4.5_bg", 1e6)
-        L.template = "Analysis/Private/PR2_Template.mac"
-        L.launch_sims(4*100)
-        
-        #L = SB_MC_Launcher("PROSPECT-2_gamma_Jun30", 1e7)
-        #L.template = "Analysis/Private/PR2_Gamma_Template.mac"
+        #L = SB_MC_Launcher("PROSPECT-2_n4.5_bg", 1e6)
+        #L.template = "Analysis/Private/PR2_Template.mac"
         #L.launch_sims(4*100)
+        
+        L = SB_MC_Launcher("PROSPECT-2_gamma_Jun28p_Wall", 1e7)
+        L.template = "Analysis/Private/PR2_Gamma_Template.mac"
+        L.launch_sims(4*100)
         
     if options.acorn:
         for src in ["Bi207", "Sn113", "Cd109"][:1]:
@@ -159,4 +160,9 @@ if __name__=="__main__":
                 L.settings["src"] = src
                 L.settings["PID"] = ptcl[1]
                 L.launch_sims(4*10)
+    
+    if options.dima:
+        L = SB_MC_Launcher("DIMA_Co60", 1e6)
+        L.template = "Analysis/Private/DIMA_Template.mac"
+        L.launch_sims(80,40)
         
