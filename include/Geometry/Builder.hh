@@ -73,6 +73,11 @@ public:
     /// add shield layer
     virtual void addLayer(const ShellLayerSpec& sh) { layers.push_back(sh); }
     
+    /// get layer logical volume
+    G4LogicalVolume* getLayerLog(unsigned int n) { assert(n<layer_log.size()); return layer_log[n]; }
+    /// get layer dimensions
+    G4ThreeVector getLayerDim(unsigned int n) { assert(n<layer_dim.size()); return layer_dim[n]; }
+    
 protected:
     /// construct layers
     void constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim);
@@ -81,6 +86,7 @@ protected:
     
     vector<ShellLayerSpec> layers;      ///< descriptions of each layer
     vector<G4LogicalVolume*> layer_log; ///< logical volumes at each layer
+    vector<G4ThreeVector> layer_dim;    ///< dimensions of each layer
 };
 
 

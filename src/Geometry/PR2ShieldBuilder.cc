@@ -3,6 +3,7 @@
 
 #include <G4Box.hh>
 #include <G4UnitsTable.hh>
+#include <G4SystemOfUnits.hh>
 #include <G4PVPlacement.hh>
 #include "SMExcept.hh"
 
@@ -31,4 +32,22 @@ void PR2ShieldBuilder::construct() {
 
 void PR2ShieldBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
+}
+
+////////////////////////////
+////////////////////////////
+////////////////////////////
+
+void PR2MuVetoBuilder::construct() {
+    dim = G4ThreeVector(0.75*m, 1.2*m, 5*cm);
+    G4Box* veto_box = new G4Box("veto_box", dim[0]/2, dim[1]/2, dim[2]/2);
+    scint_log = main_log = new G4LogicalVolume(veto_box, MaterialsHelper::M().PVT, "veto_log");
+    scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.5,0.5,1,0.5)));
+}
+
+int PR2MuVetoBuilder::getSegmentNum(const G4ThreeVector& x) const {
+    int nx = ceil(x[0]/(0.5*dim[0]));
+    int nz = ceil(x[2]/(0.5*dim[2]));
+    //if(!(0 <= nx && nx <= 1 && 0 <= nz && nz <= 1)) return -1000;
+    return nx + 2*nz + 1000;
 }

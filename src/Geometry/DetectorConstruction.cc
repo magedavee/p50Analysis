@@ -49,13 +49,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myPRShield.construct();
         myBuilding.myDetector = &myPRShield;
     } else if(mode == PROSPECT2) {
-        //myPR2Shield.construct();
+        myPR2Shield.construct();
         myBuilding.myDetector = &myPR2Shield;
         myBuilding.wall_clearance = myBuilding.ceil_clearance = 0.25*m;
     }
     
     Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding
-                                : mode==PROSPECT2? (Builder&)myPR2Shield //myBuilding
+                                : mode==PROSPECT2? (Builder&)myBuilding
                                 : mode==SLAB ? (Builder&)mySlab
                                 : mode==TEST_CELL ? (Builder&)myTestCell
                                 : (Builder&)mySphere );
@@ -72,9 +72,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         worldShell.setThick(0.5*m);
     } else if(mode==PROSPECT2) {
         myTestCell.construct();
-        //addChild(&myTestCell);
+        addChild(&myTestCell);
         new G4PVPlacement(Builder::rot_X_90, G4ThreeVector(), myTestCell.main_log, "cell_phys", myPR2Shield.cave_log, false, 0, true);
         worldShell.setThick(0.2*m);
+        
+        myPR2Veto.construct();
+        addChild(&myPR2Veto);
+        
+        double veto_z = myPR2Shield.getDimensions()[2]+ 0.5*(myPR2Veto.getDimensions()[2]-myBuilding.getLayerDim(0)[2]) + 1*cm;
+        myPR2Veto.scint_phys = new G4PVPlacement(NULL, G4ThreeVector(0,0,veto_z), myPR2Veto.main_log, "veto_phys", myBuilding.getLayerLog(0), false, 0, true);        
     }
     
     dim = myContents.getDimensions();
@@ -93,16 +99,23 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Detector construction complete." << G4endl;
     
-    // need to return the physical World Volume
+    // world physical volume
     theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), main_log, "world_phys", NULL, false,  0);
     
+    // sensitive detectors
     if(getScint()) {
         myScintSD = new ScintSD("ScintSD", *getScint(), theWorld);
         G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
         getScint()->setScintSD(myScintSD);
     }
     
-    return theWorld;
+    if(mode==PROSPECT2) {
+        ScintSD* vetoSD = new ScintSD("VetoSD", myPR2Veto, theWorld);
+        G4SDManager::GetSDMpointer()->AddNewDetector(vetoSD);
+        myPR2Veto.setScintSD(vetoSD);
+    }
+    
+    return theWorld; // need to return the physical World Volume
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {

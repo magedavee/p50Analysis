@@ -54,6 +54,7 @@ void ShellLayerBuilder::constructLayers(G4LogicalVolume* core_log, G4ThreeVector
         nlayers++;
         it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));
         layer_log.push_back(main_log);
+        layer_dim.push_back(dim);
         addChild(&(*it));
     }
 }
