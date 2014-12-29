@@ -39,7 +39,7 @@ void PR2ShieldBuilder::fillNode(TXMLEngine& E) {
 ////////////////////////////
 
 void PR2MuVetoBuilder::construct() {
-    dim = G4ThreeVector(0.75*m, 1.2*m, 5*cm);
+    dim = G4ThreeVector(2*12.5*in, 60*in, 2*in); // 4 paddles in 2x2 stack
     G4Box* veto_box = new G4Box("veto_box", dim[0]/2, dim[1]/2, dim[2]/2);
     scint_log = main_log = new G4LogicalVolume(veto_box, MaterialsHelper::M().PVT, "veto_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.5,0.5,1,0.5)));
