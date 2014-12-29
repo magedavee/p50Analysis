@@ -1,29 +1,25 @@
 #####
 # 40K to 40Ar (electron capture) or 40Ca (beta decay)
-#
+# data from J. A. Cameron, Balraj Singh: Nuclear Data Sheets 102 (2004) 293--513
 #####
 
+# 40Ar
 level:	nm = 40.18.0	E = 0			hl = -1			jpi = 0+
-level:	nm = 40.18.1	E = 1460.9		hl = 0			jpi = 2+
+level:	nm = 40.18.1	E = 1460.851	hl = 0			jpi = 2+
 
 # 40Ca, energies shifted relative to 40Ar ground state
-level:	nm = 40.20.0	E = 			hl = -1			jpi = 0+
+level:	nm = 40.20.0	E = 193.62		hl = -1			jpi = 0+
 
+# 40K
 level:	nm = 40.19.0	E = 1504.69		hl = 3.938e16	jpi = 4-
 
 
-gamma:	from = 113.49.1	to = 113.49.0	Igamma = 64.97	\
-CE_K = .444~.007	CE_L = .0862~.0012	CE_M = .01750~.00025	CE_N = .00316~.00005	CE_O = .000194~.000003
+gamma:	from = 40.18.1	to = 40.18.0	Igamma = 100
 
-gamma:	from = 113.49.2	to = 113.49.0	Igamma = 4.0e-6	CE_K = .00730	CE_L = .001089	CE_M = .000214	CE_N = 3.85e-5	CE_O = 2.50e-6
+ecapt: from = 40.19.0	to = 40.18.1	I = .1066
+ecapt: from = 40.19.0	to = 40.18.0	I = 0.0020
 
-gamma:	from = 113.49.2	to = 113.49.1	Igamma = 2.11	\
-CE_K = .039~.005	CE_L = .0054~.0011	CE_M = .00105~.00022	CE_N = 0.00019~.00004	CE_O = 1.27e-5~0.14e-5
+beta:	from = 40.19.0	to = 40.20.0	I = 89.14	forbidden = 3
 
-gamma:	from = 113.49.3	to = 113.49.1	Igamma = 9.7e-4	CE_K = .001130	CE_L = .0001331	CE_M = 2.57e-5	CE_N = 4.69e-6	CE_O = 5.04e-6
+AugerK:	Z = 18	ka1 = 0.61	ka2 = 0.30	kb3 = 0.025	kb1 = 0.048	Iauger = 7.31
 
-gamma:	from = 113.49.3	to = 113.49.2	Igamma = 6.0e-5
-
-ecapt: from = 40.19.0
-
-AugerK:	Z = 49	ka1 = 51.8	ka2 = 28.0	kb3 = 4.66	kb1 = 9.0	kb2 = 2.39	Iauger = 17.0

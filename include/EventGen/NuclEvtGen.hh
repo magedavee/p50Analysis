@@ -13,6 +13,8 @@
 #include <float.h>
 #include <stdio.h>
 
+using std::set;
+
 /// random event selector
 class PSelector {
 public:
@@ -278,17 +280,19 @@ protected:
     DecayAtom* getAtom(unsigned int Z);
     /// add a transition
     void addTransition(TransitionBase* T);
+    /// check against circular references
+    void circle_check(unsigned int n, set<unsigned int> pnts = set<unsigned int>()) const;
     
-    BindingEnergyLibrary const&  BEL;                           ///< electron binding energy info
+    BindingEnergyLibrary const&  BEL;           ///< electron binding energy info
     double tcut;
-    vector<NucLevel> levels;                               ///< levels, enumerated
-    map<std::string,unsigned int> levelIndex;              ///< energy levels by name
-    PSelector lStart;                                           ///< selector for starting level (for breaking up long decays)
-    vector<PSelector> levelDecays;                         ///< probabilities for transitions from each level
-    map<unsigned int, DecayAtom*> atoms;                   ///< atom information
-    vector<TransitionBase*> transitions;                   ///< transitions, enumerated
-    vector< vector<TransitionBase*> > transIn;        ///< transitions into each level
-    vector< vector<TransitionBase*> > transOut;       ///< transitions out of each level
+    vector<NucLevel> levels;                    ///< levels, enumerated
+    map<std::string,unsigned int> levelIndex;   ///< energy levels by name
+    PSelector lStart;                           ///< selector for starting level (for breaking up long decays)
+    vector<PSelector> levelDecays;              ///< probabilities for transitions from each level
+    map<unsigned int, DecayAtom*> atoms;        ///< atom information
+    vector<TransitionBase*> transitions;        ///< transitions, enumerated
+    vector< vector<TransitionBase*> > transIn;  ///< transitions into each level
+    vector< vector<TransitionBase*> > transOut; ///< transitions out of each level
 };
 
 /// manager for loading decay event generators

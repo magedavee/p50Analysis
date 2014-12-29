@@ -370,62 +370,65 @@ NucDecaySystem::NucDecaySystem(const SMFile& Q, const BindingEnergyLibrary& B, d
                 (*transit)->scale(1./gsflux);
             for(auto levit = levels.begin(); levit != levels.end(); levit++)
                 levit->scale(1./gsflux);
-}
-
-// set up Augers
-for(auto transit = transitions.begin(); transit != transitions.end(); transit++)
-    (*transit)->toAtom->ICEK += (*transit)->getPVacant(0)*(*transit)->Itotal;
-vector<Stringmap> augers = Q.retrieve("AugerK");
-for(auto it = augers.begin(); it != augers.end(); it++) {
-    int Z = it->getDefault("Z",0);
-    if(!Z) {
-        SMExcept e("BadAugerZ");
-        e.insert("Z",Z);
-        throw(e);
     }
-    getAtom(Z)->load(*it);	
-}
 
-// set up beta decays
-vector<Stringmap> betatrans = Q.retrieve("beta");
-for(auto it = betatrans.begin(); it != betatrans.end(); it++) {
-    BetaDecayTrans* BD = new BetaDecayTrans(levels[levIndex(it->getDefault("from",""))],
-                                                                           levels[levIndex(it->getDefault("to",""))],
-                                                                           it->getDefault("positron",0),
-                                                                           it->getDefault("forbidden",0));
-    BD->Itotal = it->getDefault("I",0)/100.0;
-    if(it->count("M2_F") || it->count("M2_GT")) {
-        BD->BSG.M2_F = it->getDefault("M2_F",0);
-        BD->BSG.M2_GT = it->getDefault("M2_GT",0);
-}
-addTransition(BD);
-}
-
-// set up electron captures
-vector<Stringmap> ecapts = Q.retrieve("ecapt");
-for(auto it = ecapts.begin(); it != ecapts.end(); it++) {
-    NucLevel& Lorig = levels[levIndex(it->getDefault("from",""))];
-    string to = it->getDefault("to","AUTO");
-    if(to == "AUTO") {
-        for(auto Ldest = levels.begin(); Ldest != levels.end(); Ldest++) {
-            if(Ldest->A == Lorig.A && Ldest->Z+1 == Lorig.Z && Ldest->E < Lorig.E) {
-                double missingFlux = Ldest->fluxOut - Ldest->fluxIn;
-                if(missingFlux <= 0) continue;
-                                    ECapture* EC = new ECapture(Lorig,*Ldest);
-                EC->Itotal = missingFlux;
-                addTransition(EC);
-            }
+    // set up Augers
+    for(auto transit = transitions.begin(); transit != transitions.end(); transit++)
+        (*transit)->toAtom->ICEK += (*transit)->getPVacant(0)*(*transit)->Itotal;
+    vector<Stringmap> augers = Q.retrieve("AugerK");
+    for(auto it = augers.begin(); it != augers.end(); it++) {
+        int Z = it->getDefault("Z",0);
+        if(!Z) {
+            SMExcept e("BadAugerZ");
+            e.insert("Z",Z);
+            throw(e);
         }
-} else {
-    NucLevel& Ldest = levels[levIndex(to)];
-    smassert(Ldest.A == Lorig.A && Ldest.Z+1 == Lorig.Z && Ldest.E < Lorig.E);
-    ECapture* EC = new ECapture(Lorig,Ldest);
-    EC->Itotal = it->getDefault("I",0.);
-    addTransition(EC);
-}
-}
+        getAtom(Z)->load(*it);	
+    }
 
-setCutoff(t);
+    // set up beta decays
+    vector<Stringmap> betatrans = Q.retrieve("beta");
+    for(auto it = betatrans.begin(); it != betatrans.end(); it++) {
+        BetaDecayTrans* BD = new BetaDecayTrans(levels[levIndex(it->getDefault("from",""))],
+                                                levels[levIndex(it->getDefault("to",""))],
+                                                it->getDefault("positron",0),
+                                                it->getDefault("forbidden",0));
+        BD->Itotal = it->getDefault("I",0)/100.0;
+        if(it->count("M2_F") || it->count("M2_GT")) {
+            BD->BSG.M2_F = it->getDefault("M2_F",0);
+            BD->BSG.M2_GT = it->getDefault("M2_GT",0);
+        }
+        addTransition(BD);
+    }
+
+    // set up electron captures
+    vector<Stringmap> ecapts = Q.retrieve("ecapt");
+    for(auto it = ecapts.begin(); it != ecapts.end(); it++) {
+        NucLevel& Lorig = levels[levIndex(it->getDefault("from",""))];
+        string to = it->getDefault("to","AUTO");
+        double Iscale = it->getDefault("I",100.);
+        if(to == "AUTO") {
+            for(auto Ldest = levels.begin(); Ldest != levels.end(); Ldest++) {
+                if(Ldest->A == Lorig.A && Ldest->Z+1 == Lorig.Z && Ldest->E < Lorig.E) {
+                    double missingFlux = (Ldest->fluxOut - Ldest->fluxIn)*Iscale/100.;
+                    if(missingFlux <= 0) continue;
+                    ECapture* EC = new ECapture(Lorig,*Ldest);
+                    EC->Itotal = missingFlux;
+                    addTransition(EC);
+                }
+            }
+        } else {
+            NucLevel& Ldest = levels[levIndex(to)];
+            smassert(Ldest.A == Lorig.A && Ldest.Z+1 == Lorig.Z && Ldest.E < Lorig.E);
+            ECapture* EC = new ECapture(Lorig,Ldest);
+            EC->Itotal = it->getDefault("I",0.);
+            addTransition(EC);
+        }
+    }
+    setCutoff(t);
+    
+    // ant-circularity check
+    for(unsigned int n=0; n<levels.size(); n++) circle_check(n);
 }
 
 NucDecaySystem::~NucDecaySystem() {
@@ -467,6 +470,16 @@ void NucDecaySystem::setCutoff(double t) {
                 pStart += transIn[n][tn]->Itotal;
             lStart.addProb(pStart);
     }
+}
+
+void NucDecaySystem::circle_check(unsigned int n, set<unsigned int> pnts) const {
+    if(pnts.count(n)) {
+        SMExcept e("circular_transition");
+        e.insert("level",n);
+        throw(e);
+    }
+    pnts.insert(n);
+    for(auto it = transOut[n].begin(); it != transOut[n].end(); it++) circle_check((*it)->to.n, pnts);
 }
 
 void NucDecaySystem::display(bool verbose) const {
@@ -533,7 +546,7 @@ unsigned int NucDecaySystem::getNDF(unsigned int n) const {
         // maximum DF over all starting levels
         for(unsigned int i=0; i<levels.size(); i++) {
             if(!lStart.getProb(i)) continue;
-                 unsigned int lndf = getNDF(i);
+            unsigned int lndf = getNDF(i);
             ndf = lndf>ndf?lndf:ndf;
         }
     } else {

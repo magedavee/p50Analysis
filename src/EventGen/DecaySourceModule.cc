@@ -27,12 +27,7 @@ void DecaySourceModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &genNameCmd) { 
         gen_name = newValue;
         printf("Setting up decay generator '%s'...\n", gen_name.c_str());
-        if(NDL.hasGenerator(gen_name)) {
-            NDL.getGenerator(gen_name).display();
-        } else {
-            printf("ERROR: Generator '%s' not found!\n", gen_name.c_str());
-            gen_name = "";
-        }
+        NDL.getGenerator(gen_name).display(); // throws exception if generator unavailable
     } else if(command == &ptclCmd) ptypes.insert(ptclCmd.GetNewIntValue(newValue));
     else if(command == &singleCmd) throwSingle = singleCmd.GetNewBoolValue(newValue);
 }
