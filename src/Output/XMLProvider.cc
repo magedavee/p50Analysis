@@ -32,3 +32,5 @@ void XMLProvider::writeToFile(const string& fname) {
 }
 
 void XMLProvider::addAttr(TXMLEngine& E, const string& nm, double v) { addAttr(E, nm, to_str(v)); }
+
+void XMLProvider::addAttr(TXMLEngine& E, const string& nm, const string& val) { E.NewAttr(myNode, NULL, nm.c_str(), strip(val).c_str()); }

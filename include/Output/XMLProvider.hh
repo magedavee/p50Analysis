@@ -31,7 +31,7 @@ protected:
     /// Append child node provider to list
     void addChild(XMLProvider* p) { children.push_back(p); }
     /// Add string-valued attribute to node
-    void addAttr(TXMLEngine& E, const string& nm, const string& val) { E.NewAttr(myNode, NULL, nm.c_str(), val.c_str()); }
+    void addAttr(TXMLEngine& E, const string& nm, const string& val);
     /// Add double-valued attribute to node
     void addAttr(TXMLEngine& E, const string& nm, double v);
     /// Add int-valued attribute to node
