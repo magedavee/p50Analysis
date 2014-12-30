@@ -76,11 +76,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         new G4PVPlacement(Builder::rot_X_90, G4ThreeVector(), myTestCell.main_log, "cell_phys", myPR2Shield.cave_log, false, 0, true);
         worldShell.setThick(0.2*m);
         
-        myPR2Veto.construct();
-        addChild(&myPR2Veto);
-        
-        double veto_z = myPR2Shield.getDimensions()[2]+ 0.5*(myPR2Veto.getDimensions()[2]-myBuilding.getLayerDim(0)[2]) + 1*cm;
-        myPR2Veto.scint_phys = new G4PVPlacement(NULL, G4ThreeVector(0,0,veto_z), myPR2Veto.main_log, "veto_phys", myBuilding.getLayerLog(0), false, 0, true);        
+        for(int nx = 0; nx<2; nx++) {
+            for(int nz = 0; nz<2; nz++) {
+                int nn = nx+2*nz;
+                PR2MuVetoBuilder* V = myPR2Veto[nn] = new PR2MuVetoBuilder(nn);
+                V->construct();
+                addChild(V);
+                G4ThreeVector vdim = V->getDimensions();
+                double veto_z = myPR2Shield.getDimensions()[2]+ 0.5*(vdim[2]-myBuilding.getLayerDim(0)[2]) + 1*cm;
+                G4ThreeVector veto_pos((nx-0.5)*(vdim[0]+1*cm), 0, veto_z + 2*nz*vdim[2]);
+                V->scint_phys = new G4PVPlacement(NULL, veto_pos, V->main_log, ("veto_phys_"+to_str(nn)).c_str(), myBuilding.getLayerLog(0), false, 0, true);
+            }
+        }     
     }
     
     dim = myContents.getDimensions();
@@ -110,9 +117,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     }
     
     if(mode==PROSPECT2) {
-        ScintSD* vetoSD = new ScintSD("VetoSD", myPR2Veto, theWorld);
-        G4SDManager::GetSDMpointer()->AddNewDetector(vetoSD);
-        myPR2Veto.setScintSD(vetoSD);
+        for(int i=0; i<4; i++) {
+            ScintSD* vetoSD = new ScintSD("VetoSD_"+to_str(i), *myPR2Veto[i], theWorld);
+            G4SDManager::GetSDMpointer()->AddNewDetector(vetoSD);
+            myPR2Veto[i]->setScintSD(vetoSD);
+        }
     }
     
     return theWorld; // need to return the physical World Volume

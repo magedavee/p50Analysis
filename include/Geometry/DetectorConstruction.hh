@@ -45,7 +45,7 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
-    PR2MuVetoBuilder myPR2Veto;         ///< PROSPECT-2 muon veto
+    PR2MuVetoBuilder* myPR2Veto[4];     ///< PROSPECT-2 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry

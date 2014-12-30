@@ -21,16 +21,10 @@ protected:
 };
 
 /// Builder for PROSPECT-2 muon veto
-class PR2MuVetoBuilder: public ScintSegVol {
+class PR2MuVetoBuilder: public ScintChunk {
 public:
     /// Constructor
-    PR2MuVetoBuilder(): ScintSegVol("PR2_Veto") { }
-    
-    /// Construct geometry
-    void construct();
-    
-    /// get segment number at position in scintillator local coordinates
-    virtual int getSegmentNum(const G4ThreeVector& x) const;
+    PR2MuVetoBuilder(int n);
 };
 
 #endif
