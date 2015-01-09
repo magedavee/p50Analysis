@@ -8,7 +8,7 @@
 #include <G4Box.hh>
 #include <G4SDManager.hh>
 
-double DIMAArrayBuilder::spacing = 5*cm;
+double DIMAArrayBuilder::spacing = 6*cm;
 
 DIMAArrayBuilder::DIMAArrayBuilder(): ScintSegVol("ScintArray"),
 l_seg(15*cm), r_seg(1.5*cm), t_seg(2.5*mm), t_guide(12*mm) { }
@@ -41,8 +41,8 @@ void DIMAArrayBuilder::construct() {
 
 int DIMAArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     int nx = floor(pos[0]/spacing + ngrid/2.);
-    int ny = floor(pos[1]/spacing + ngrid/2.);
-    return 16 + nx + ngrid*ny;
+    int nz = floor(pos[2]/spacing + ngrid/2.);
+    return nx + ngrid*nz;
 }
 
 /////////////////////////
@@ -53,7 +53,7 @@ void DIMABoxBuilder::construct() {
     myArray.construct(); addChild(&myArray);
     G4ThreeVector arrayDim = myArray.getDimensions();
 
-    dim = G4ThreeVector(arrayDim[0]+4*cm, arrayDim[1]+20*cm, arrayDim[2]+4*cm);
+    dim = G4ThreeVector(arrayDim[0]+14*cm, arrayDim[1]+30*cm, 38*cm);
     G4Box* inner_box = new G4Box("inner_box", dim[0]/2, dim[1]/2, dim[2]/2);
     G4LogicalVolume* inner_log = new G4LogicalVolume(inner_box, MaterialsHelper::M().Air, "inner_log");
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), inner_log, "inner_phys", main_log, false, 0, true);

@@ -29,6 +29,7 @@ public:
     static G4RotationMatrix* rot_X_90;  ///< 90 degree rotation around X axis
     static G4RotationMatrix* rot_Y_90;  ///< 90 degree rotation around Y axis
     static G4RotationMatrix* rot_Z_90;  ///< 90 degree rotation around Z axis
+    static G4RotationMatrix* rot_X_90_Z_90;     ///< 90 deg around X followed by 90 deg around Z
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions

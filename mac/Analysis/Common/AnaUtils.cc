@@ -14,7 +14,7 @@ bool isIsolatedSegment(const map<Int_t,double>& volIoni) {
 }
 
 void scale_times_bin(TH1* f) {
-    for(int i=1; i<f->GetNbinsX(); i++) {
+    for(int i=1; i<=f->GetNbinsX(); i++) {
         TAxis* A = f->GetXaxis();
         double scale = sqrt(A->GetBinLowEdge(i)*A->GetBinUpEdge(i));
         f->SetBinContent(i, f->GetBinContent(i)*scale);
@@ -22,10 +22,10 @@ void scale_times_bin(TH1* f) {
     }
 }
 
-void normalize_to_bin_width(TH1* f) {
-    for(int i=1; i<f->GetNbinsX(); i++) {
+void normalize_to_bin_width(TH1* f, double xscale) {
+    for(int i=1; i<=f->GetNbinsX(); i++) {
         TAxis* A = f->GetXaxis();
-        double scale = 1./A->GetBinWidth(i);
+        double scale = xscale/A->GetBinWidth(i);
         f->SetBinContent(i, f->GetBinContent(i)*scale);
         f->SetBinError(i, f->GetBinError(i)*scale);
     }

@@ -35,8 +35,8 @@ bool isIsolatedSegment(const map<Int_t,double>& volIoni);
 /// Scale histogram by geometric bin center (for Lethargy plot)
 void scale_times_bin(TH1* f);
 
-/// Divide out histogram bin width, for differential spectrum
-void normalize_to_bin_width(TH1* f);
+/// Divide out histogram bin width, for differential spectrum (optional extra scale factor)
+void normalize_to_bin_width(TH1* f, double xscale = 1.);
 
 /// Logarithmically-binned histogram
 TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, double bmin, double bmax);

@@ -5,6 +5,7 @@
 #include "Builder.hh"
 #include "BuildingBuilder.hh"
 #include "PR2ShieldBuilder.hh"
+#include "PR20CellBuilder.hh"
 #include "ShieldBuilder.hh"
 #include "ScintCellBuilder.hh"
 #include "ScatterSlabBuilder.hh"
@@ -37,6 +38,7 @@ public:
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector
         PROSPECT2,      ///< PROSPECT-2 small prototype
+        PROSPECT20,     ///< PROSPECT-20 single cell prototype
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
         SPHERE          ///< concentric spheres
@@ -47,6 +49,7 @@ public:
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
     PR2MuVetoBuilder* myPR2Veto[4];     ///< PROSPECT-2 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
+    PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     

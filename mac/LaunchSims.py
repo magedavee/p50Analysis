@@ -143,9 +143,10 @@ if __name__=="__main__":
         L.launch_sims(4*4)
         
     if options.p2:
-        L = SB_MC_Launcher("PROSPECT-2_MuBG", 1e6)
+        # 1e7 for CRY, 1e6 for neutrons
+        L = SB_MC_Launcher("PROSPECT-2_MuBG", 1e7)
         L.template = "Analysis/Private/PR2_Template.mac"
-        L.launch_sims(4*100)
+        L.launch_sims(800,444)
         
         #L = SB_MC_Launcher("PROSPECT-2_gamma_Aug28P-Bare-Isot", 1e6)
         #L.template = "Analysis/Private/PR2_Gamma_Template.mac"
@@ -164,5 +165,5 @@ if __name__=="__main__":
     if options.dima:
         L = SB_MC_Launcher("DIMA_Co60", 1e6)
         L.template = "Analysis/Private/DIMA_Template.mac"
-        L.launch_sims(80,40)
+        L.launch_sims(100)
         
