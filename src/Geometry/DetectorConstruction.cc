@@ -58,7 +58,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     Builder& myContents = (     mode==PROSPECT ? (Builder&)myBuilding
                                 : mode==PROSPECT2? (Builder&)myBuilding
-                                : mode==PROSPECT20? (Builder&)myPR20Cell
+                                : mode==PROSPECT20? (Builder&)myPR20Shield
                                 : mode==SLAB ? (Builder&)mySlab
                                 : mode==TEST_CELL ? (Builder&)myTestCell
                                 : (Builder&)mySphere );
@@ -91,6 +91,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
                 V->scint_phys = new G4PVPlacement(NULL, veto_pos, V->main_log, ("veto_phys_"+to_str(nn)).c_str(), myBuilding.getLayerLog(0), false, 0, true);
             }
         }     
+    } else if(mode==PROSPECT20) {
+        myPR20Cell.construct();
+        addChild(&myPR20Cell);
+        new G4PVPlacement(NULL, G4ThreeVector(), myPR20Cell.main_log, "cell_phys", myPR20Shield.cave_log, false, 0, true);
     }
     
     dim = myContents.getDimensions();

@@ -7,10 +7,8 @@
 #include <G4UnionSolid.hh>
 
 PR20CellBuilder::PR20CellBuilder(): ScintSegVol("PR20_Cell"),
-inner_width(6*in), inner_length(39.4*in), wall_thick(0.5*in),
-flange_thick(1*in), flange_width(9*in), panel_sep(144*mm) {
-    
-}
+inner_width(6*in), inner_length(1*m), wall_thick(0.5*in),
+flange_thick(1*in), flange_width(7.5*in), panel_sep(144*mm) { }
     
 void PR20CellBuilder::construct() {
     mySeparator.width = panel_sep - mySeparator.totalThick;

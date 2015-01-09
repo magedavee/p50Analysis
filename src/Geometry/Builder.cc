@@ -60,3 +60,7 @@ void ShellLayerBuilder::constructLayers(G4LogicalVolume* core_log, G4ThreeVector
         addChild(&(*it));
     }
 }
+
+void ShellLayerBuilder::fillNode(TXMLEngine& E) {
+    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+}

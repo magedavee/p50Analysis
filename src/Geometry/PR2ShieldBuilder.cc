@@ -31,10 +31,6 @@ void PR2ShieldBuilder::construct() {
     //new G4PVPlacement(NULL, G4ThreeVector(-7*in, 2*in, 6*in), leadgap_log, "leadgap_phys", layer_log[1], false, 0, true);
 }
 
-void PR2ShieldBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}
-
 ////////////////////////////
 ////////////////////////////
 ////////////////////////////

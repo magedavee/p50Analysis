@@ -6,6 +6,7 @@
 #include "BuildingBuilder.hh"
 #include "PR2ShieldBuilder.hh"
 #include "PR20CellBuilder.hh"
+#include "PR20ShieldBuilder.hh"
 #include "ShieldBuilder.hh"
 #include "ScintCellBuilder.hh"
 #include "ScatterSlabBuilder.hh"
@@ -50,6 +51,7 @@ public:
     PR2MuVetoBuilder* myPR2Veto[4];     ///< PROSPECT-2 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell
+    PR20ShieldBuilder myPR20Shield;     ///< PROSPECT-20 shield
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     

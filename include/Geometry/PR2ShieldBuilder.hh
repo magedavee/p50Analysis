@@ -14,10 +14,6 @@ public:
     void construct();
     
     G4LogicalVolume* cave_log;  ///< internal cave volume
-
-protected:
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
 };
 
 /// Builder for PROSPECT-2 muon veto
