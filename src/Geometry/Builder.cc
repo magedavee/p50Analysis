@@ -21,7 +21,27 @@ Builder::Builder(const string& n): XMLProvider(n), main_log(NULL), dim() {
     }
 }
 
-//////
+void Builder::placeInto(ContainerBuilder& B) {
+    G4ThreeVector place_v = B.center_pos;
+    if(!place_centered) {
+        place_v = B.floor_pos;
+        place_v[2] += dim[2]/2.;
+    }
+    if(main_log) main_phys = new G4PVPlacement(B.placementRot, place_v, main_log, (nodeName+"_main_phys").c_str(), B.inside_log, false, 0, true);
+    else myAssembly.MakeImprint(B.inside_log, place_v, B.placementRot, 0, true);
+}
+
+void ContainerBuilder::construct() {
+    if(!myContents) { _construct(); return; }
+    addChild(myContents);
+    myContents->construct();
+    _construct();
+    myContents->placeInto(*this);
+}
+
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 
 void ShellLayerSpec::fillNode(TXMLEngine& E) {
     if(mat) addAttr(E, "mat", mat->GetName());
@@ -42,19 +62,23 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
     return cplace;
 }
 
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////
+////
 
-void ShellLayerBuilder::constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim) {
+void ShellLayerBuilder::construct_layers() {
     smassert(!layer_log.size());
-    main_log = core_log;
-    dim = ldim;
+    dim = (expand_to_contents && myContents)?  myContents->getDimensions() : G4ThreeVector();
+    inside_log = main_log = NULL;
     unsigned int nlayers = 0;
     for(auto it = layers.begin(); it != layers.end(); it++) {
         if(!it->mat) continue;
         nlayers++;
         it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));
+        if(!inside_log) {
+            inside_log = main_log;
+            center_pos = G4ThreeVector();
+            floor_pos = 0.5*(it->lthick - it->uthick);
+            floor_pos[2] = it->lthick[2]-dim[2]/2;
+        }
         layer_log.push_back(main_log);
         layer_dim.push_back(dim);
         addChild(&(*it));

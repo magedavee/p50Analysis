@@ -27,10 +27,10 @@ public:
 class DIMABoxBuilder: public ShellLayerBuilder {
 public:
     /// Constructor
-    DIMABoxBuilder(): ShellLayerBuilder("DIMABox")  { }
+    DIMABoxBuilder(): ShellLayerBuilder("DIMABox")  { expand_to_contents = false; myContents = &myArray; }
     
     /// Construct geometry
-    virtual void construct();
+    virtual void _construct();
     
     DIMAArrayBuilder myArray;
 };

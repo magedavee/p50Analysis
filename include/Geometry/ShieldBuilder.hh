@@ -24,7 +24,7 @@ public:
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
     /// Construct geometry
-    void construct();
+    void _construct();
     /// remove all shield layers
     void clearShield() { layers.clear(); }
     

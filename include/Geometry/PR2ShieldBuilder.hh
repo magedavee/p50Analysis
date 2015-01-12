@@ -8,12 +8,10 @@
 class PR2ShieldBuilder: public ShellLayerBuilder {
 public:
     /// constructor
-    PR2ShieldBuilder(): ShellLayerBuilder("PROSPECT2") { }
+    PR2ShieldBuilder(): ShellLayerBuilder("PROSPECT2") { expand_to_contents = false; place_centered = false; }
     
     /// Construct geometry
-    void construct();
-    
-    G4LogicalVolume* cave_log;  ///< internal cave volume
+    void _construct();
 };
 
 /// Builder for PROSPECT-2 muon veto

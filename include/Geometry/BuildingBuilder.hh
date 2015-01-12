@@ -26,7 +26,7 @@ public:
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
     /// Construct geometry
-    void construct();
+    void _construct();
         
     double wall_thick;          ///< thickness of building side walls
     double wall_clearance;      ///< space from side walls to detector
@@ -34,8 +34,6 @@ public:
     double ceil_clearance;      ///< space between detector and ceiling
     double floor_thick;         ///< thickness of floor
     bool makeVacuum;            ///< whether to turn building materials to vacuum
-    
-    Builder* myDetector;        ///< detector assembly in shields
     
 private:
     

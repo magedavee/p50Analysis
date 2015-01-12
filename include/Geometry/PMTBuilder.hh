@@ -16,8 +16,8 @@ public:
     /// Construct geometry
     void construct();
     
-    double block_width;			///< width of outer square housing block
-    double block_length;		///< length of outer housing block
+    double block_width;         ///< width of outer square housing block
+    double block_length;        ///< length of outer housing block
     double diameter;            ///< PMT diameter
     
 protected:

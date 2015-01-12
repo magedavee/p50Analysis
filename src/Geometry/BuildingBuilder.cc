@@ -9,10 +9,12 @@
 
 BuildingBuilder::BuildingBuilder(): ShellLayerBuilder("Building"),
 wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
-floor_thick(0.1*m), makeVacuum(false),  myDetector(NULL),
+floor_thick(0.1*m), makeVacuum(false),
 building_ui_dir("/geom/building/"),
 ceilCmd("/geom/building/ceilthick",this),
 vacuumCmd("/geom/building/makeVacuum",this) {
+    place_centered = false;
+    
     ceilCmd.SetGuidance("Set thickness of building ceiling");
     ceilCmd.AvailableForStates(G4State_PreInit);
         
@@ -20,9 +22,7 @@ vacuumCmd("/geom/building/makeVacuum",this) {
     vacuumCmd.AvailableForStates(G4State_PreInit);
 }
 
-void BuildingBuilder::construct() {
-    layers.clear();
-    
+void BuildingBuilder::_construct() {
     ShellLayerSpec Sair(G4ThreeVector(wall_clearance, wall_clearance, ceil_clearance),
                         G4ThreeVector(wall_clearance, wall_clearance, 0),
                         makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Air, G4Colour(0.5, 0.5, 1.0));
@@ -33,8 +33,7 @@ void BuildingBuilder::construct() {
                          makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Concrete, G4Colour(0.3, 0.4, 0.4));
     addLayer(Swall);
     
-    if(myDetector) { addChild(myDetector); constructLayers(*myDetector); }
-    else constructLayers(NULL, G4ThreeVector(1*m, 1*m, 1*m));
+    construct_layers();
 }
 
 void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String value) {

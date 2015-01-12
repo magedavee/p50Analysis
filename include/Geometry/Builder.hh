@@ -9,6 +9,8 @@
 #include <G4AssemblyVolume.hh>
 #include <G4RotationMatrix.hh>
 
+class ContainerBuilder;
+
 /// Base class for "buildable" detector sub-assemblies
 class Builder: public XMLProvider {
 public:
@@ -22,18 +24,40 @@ public:
     
     /// Construct geometry: subclass me!
     virtual void construct() = 0;
+    /// place into a container 
+    virtual void placeInto(ContainerBuilder& B);
     
-    G4LogicalVolume* main_log;          ///< main constructed volume for placement
-    G4AssemblyVolume myAssembly;        ///< optional detector assembly for placement
+    bool place_centered = true;                 ///< whether to place centered or on "floor"
+    G4LogicalVolume* main_log = NULL;           ///< main constructed volume for placement
+    G4VPhysicalVolume* main_phys = NULL;        ///< main volume physical placement
+    G4AssemblyVolume myAssembly;                ///< optional detector assembly for placement
     
-    static G4RotationMatrix* rot_X_90;  ///< 90 degree rotation around X axis
-    static G4RotationMatrix* rot_Y_90;  ///< 90 degree rotation around Y axis
-    static G4RotationMatrix* rot_Z_90;  ///< 90 degree rotation around Z axis
+    static G4RotationMatrix* rot_X_90;          ///< 90 degree rotation around X axis
+    static G4RotationMatrix* rot_Y_90;          ///< 90 degree rotation around Y axis
+    static G4RotationMatrix* rot_Z_90;          ///< 90 degree rotation around Z axis
     static G4RotationMatrix* rot_X_90_Z_90;     ///< 90 deg around X followed by 90 deg around Z
     
 protected:
     G4ThreeVector dim;          ///< outer dimensions
     static double in;           ///< conveniece definition for inch
+};
+
+/// Base class for "container" assemblies with inner volume for placing components
+class ContainerBuilder: public Builder {
+public:
+    /// Constructor
+    ContainerBuilder(const string& n): Builder(n) { }
+    
+    /// construct and place contents
+    virtual void construct();
+    /// self-construction between defining and placing contents
+    virtual void _construct() = 0;
+    
+    Builder* myContents = NULL;                 ///< contents to be constructed
+    G4LogicalVolume* inside_log = NULL;         ///< interior logical volume for placing contents
+    G4ThreeVector floor_pos;                    ///< Position for items resting on "floor"
+    G4ThreeVector center_pos;                   ///< Position for items suspended at "center"
+    G4RotationMatrix* placementRot = NULL;      ///< rotation for placed contents
 };
 
 /// Specification for a rectangular material shell around contents
@@ -57,7 +81,7 @@ public:
     void setSideThick(double t) { uthick[0] = uthick[1] = lthick[0] = lthick[1] = t; }
     /// set uniform thickness in all directions
     void setThick(double t) { uthick = lthick = G4ThreeVector(t,t,t); }
-    /// "wrap" child volume in specified layers
+    /// "wrap" child volume in specified layers; return physical placed child volume
     G4VPhysicalVolume* wrap(G4LogicalVolume*& child, G4ThreeVector& dim, const G4String& nm) const;
     
 protected:
@@ -66,10 +90,10 @@ protected:
 };
 
 /// Builder specified by nested layers
-class ShellLayerBuilder: public Builder {
+class ShellLayerBuilder: public ContainerBuilder {
 public:
     /// Constructor
-    ShellLayerBuilder(const string& n): Builder(n) { }
+    ShellLayerBuilder(const string& n): ContainerBuilder(n) { }
     
     /// add shield layer
     virtual void addLayer(const ShellLayerSpec& sh) { layers.push_back(sh); }
@@ -79,12 +103,11 @@ public:
     /// get layer dimensions
     G4ThreeVector getLayerDim(unsigned int n) { assert(n<layer_dim.size()); return layer_dim[n]; }
     
-protected:
-    /// construct layers
-    void constructLayers(G4LogicalVolume* core_log, G4ThreeVector ldim);
-    /// construct layers given builder
-    void constructLayers(Builder& B) { constructLayers(B.main_log, B.getDimensions()); }
+    /// construct layers (call after defining layers in _construct())
+    virtual void construct_layers();
     
+protected:
+    bool expand_to_contents = true;     ///< whether to expand to fit contents or keep constant dimensions
     vector<ShellLayerSpec> layers;      ///< descriptions of each layer
     vector<G4LogicalVolume*> layer_log; ///< logical volumes at each layer
     vector<G4ThreeVector> layer_dim;    ///< dimensions of each layer

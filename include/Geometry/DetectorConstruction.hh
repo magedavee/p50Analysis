@@ -20,15 +20,15 @@
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
 
-class DetectorConstruction: public G4VUserDetectorConstruction, public Builder,  public G4UImessenger {
+class DetectorConstruction: public G4VUserDetectorConstruction, public ShellLayerBuilder,  public G4UImessenger {
 public:
     /// Constructor
     DetectorConstruction();
     
     /// Assembles geometry of the simulation, returns world volume
     virtual G4VPhysicalVolume* Construct();
-    /// unused in this class
-    virtual void construct() { }
+    /// world layer shell construction
+    virtual void _construct();
     
     /// Respond to UI commands
     void SetNewValue(G4UIcommand* command, G4String newValue);

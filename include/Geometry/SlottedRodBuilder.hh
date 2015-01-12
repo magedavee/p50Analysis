@@ -17,11 +17,11 @@ public:
     
     OpticalSurfaceSetup myOptSurf;      ///< optical surface properties
     
-    double length;              		///< rod length
-    double r_hole;						///< inner hole radius
+    double length;                      ///< rod length
+    double r_hole;                      ///< inner hole radius
     
 protected:
-    G4VisAttributes rod_vis;			///< visualization settings
+    G4VisAttributes rod_vis;            ///< visualization settings
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
@@ -38,12 +38,12 @@ public:
     /// Construct geometry, given length, slot radius, slot width
     void construct(double l, double rslot, double wslot);
     
-    double r_outer;             ///< outer radius
+    double r_outer;     ///< outer radius
 
 protected:
     
-    double r_slot;              ///< radius to innermost edge of each slot
-    double w_slot;              ///< width of slot
+    double r_slot;      ///< radius to innermost edge of each slot
+    double w_slot;      ///< width of slot
 
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
