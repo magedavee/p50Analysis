@@ -7,7 +7,7 @@
 class PR20InnerShieldBuilder: public ShellLayerBuilder {
 public:
     /// constructor
-    PR20InnerShieldBuilder(): ShellLayerBuilder("PROSPECT20_Inner") { expand_to_contents = false; }
+    PR20InnerShieldBuilder(): ShellLayerBuilder("PROSPECT20_Inner") { expand_to_contents = false; place_centered = false; }
     
     /// Construct geometry
     void _construct();

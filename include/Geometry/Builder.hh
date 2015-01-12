@@ -22,13 +22,13 @@ public:
     /// get outer dimensions
     G4ThreeVector getDimensions() const { return dim; }
     
-    /// Construct geometry: subclass me!
+    /// Construct geometry: subclass me! to define main_log or myAssembly
     virtual void construct() = 0;
     /// place into a container 
     virtual void placeInto(ContainerBuilder& B);
     
     bool place_centered = true;                 ///< whether to place centered or on "floor"
-    G4LogicalVolume* main_log = NULL;           ///< main constructed volume for placement
+    G4LogicalVolume* main_log = NULL;           ///< main constructed volume for placement; if NULL after construct(), use myAssembly instead
     G4VPhysicalVolume* main_phys = NULL;        ///< main volume physical placement
     G4AssemblyVolume myAssembly;                ///< optional detector assembly for placement
     
@@ -48,9 +48,9 @@ public:
     /// Constructor
     ContainerBuilder(const string& n): Builder(n) { }
     
-    /// construct and place contents
+    /// Construct and place contents; subclass _construct() below for specifics
     virtual void construct();
-    /// self-construction between defining and placing contents
+    /// construction called between setting/building and placing contents
     virtual void _construct() = 0;
     
     Builder* myContents = NULL;                 ///< contents to be constructed
