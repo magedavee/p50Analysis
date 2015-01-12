@@ -144,9 +144,9 @@ if __name__=="__main__":
         
     if options.p2:
         # 1e7 for CRY, 1e6 for neutrons
-        L = SB_MC_Launcher("PROSPECT-2_MuBG", 1e7)
+        L = SB_MC_Launcher("P20Inner_MuBG", 1e7)
         L.template = "Analysis/Private/PR2_Template.mac"
-        L.launch_sims(800,444)
+        L.launch_sims(400)
         
         #L = SB_MC_Launcher("PROSPECT-2_gamma_Aug28P-Bare-Isot", 1e6)
         #L.template = "Analysis/Private/PR2_Gamma_Template.mac"

@@ -15,25 +15,27 @@ ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &modeCmd) {
-        if(newValue == "PROSPECT") mode = PROSPECT;
-        else if(newValue == "PROSPECT2") mode = PROSPECT2;
-        else if(newValue == "PROSPECT20") mode = PROSPECT20;
-        else if(newValue == "scintCell") mode = TEST_CELL;
-        else if(newValue == "slab") mode = SLAB;
-        else if(newValue == "sphere") mode = SPHERE;
-        else G4cout << "Unknown mode!" << G4endl;
+        modeName = newValue;
+        if(modeName == "PROSPECT") mode = PROSPECT;
+        else if(modeName == "PROSPECT2") mode = PROSPECT2;
+        else if(modeName == "PROSPECT20") mode = PROSPECT20;
+        else if(modeName == "P20Inner") mode = P20INNER;
+        else if(modeName == "scintCell") mode = TEST_CELL;
+        else if(modeName == "slab") mode = SLAB;
+        else if(modeName == "sphere") mode = SPHERE;
+        else { modeName = "???"; G4cout << "Unknown mode '" << newValue << "'!" << G4endl; assert(false); }
     } else G4cout << "Unknown command!" << G4endl;
 }
 
 ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myPRShield.myDet.myTank;
-    else if(mode == PROSPECT20) return &myPR20Cell;
+    else if(mode == PROSPECT20 || mode==P20INNER) return &myPR20Cell;
     else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
@@ -49,7 +51,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Starting detector construction..." << G4endl;
     
-    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT20) ? &myBuilding
+    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT20 || mode==P20INNER) ? &myBuilding
                     : mode==SLAB ? &mySlab
                     : mode==TEST_CELL ? (Builder*)&myTestCell
                     : &mySphere );
@@ -70,6 +72,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         worldShell.setThick(0.2*m);
     } else if(mode==PROSPECT20) {
         myBuilding.myContents = &myPR20Shield;
+        myPR20Shield.myInnerShield.myContents = &myPR20Cell;
+    } else if(mode==P20INNER) {
+        myBuilding.myContents = &myPR20Shield.myInnerShield;
         myPR20Shield.myInnerShield.myContents = &myPR20Cell;
     }
     
@@ -133,12 +138,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {
-    addAttr(E, "mode", mode==TEST_CELL? "TestCell" 
-            : mode==PROSPECT2? "PROSPECT2" 
-            : mode==PROSPECT20? "PROSPECT20"
-            : mode==PROSPECT? "PROSPECT" 
-            : mode==SPHERE? "SPHERE" 
-            : "other");
+    addAttr(E, "mode", modeName);
     addAttr(E, "dim", G4BestUnit(dim,"Length"));
     if(myScintSD) addAttr(E,"scint_e_density",myScintSD->mat_n);
 }
