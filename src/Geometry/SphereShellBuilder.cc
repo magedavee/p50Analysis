@@ -68,9 +68,9 @@ void SphereShellBuilder::setScintSD(G4VSensitiveDetector* SD) {
 }
 
 void SphereShellBuilder::fillNode(TXMLEngine& E) {
+    ScintSegVol::fillNode(E);
     addAttr(E, "r", G4BestUnit(radius,"Length"));
     addAttr(E, "n", ndivs);
-    addAttr(E, "mat", scint_log->GetMaterial()->GetName());
 }
 
 int SphereShellBuilder::getSegmentNum(const G4ThreeVector& x) const {

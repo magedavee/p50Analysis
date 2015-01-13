@@ -48,7 +48,6 @@ void ScintCellBuilder::construct() {
 }
 
 void ScintCellBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    ScintSegVol::fillNode(E);
     addAttr(E, "wall", G4BestUnit(wall_thick,"Length"));
-    addAttr(E, "scint", scint_log->GetMaterial()->GetName());
 }

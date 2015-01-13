@@ -20,15 +20,17 @@ void scale_times_bin(TH1* f) {
         f->SetBinContent(i, f->GetBinContent(i)*scale);
         f->SetBinError(i, f->GetBinError(i)*scale);
     }
+    f->Scale(1.0);
 }
 
 void normalize_to_bin_width(TH1* f, double xscale) {
     for(int i=1; i<=f->GetNbinsX(); i++) {
         TAxis* A = f->GetXaxis();
-        double scale = xscale/A->GetBinWidth(i);
+        double scale = 1./A->GetBinWidth(i);
         f->SetBinContent(i, f->GetBinContent(i)*scale);
         f->SetBinError(i, f->GetBinError(i)*scale);
     }
+    f->Scale(xscale);
 }
 
 TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, double bmin, double bmax) {

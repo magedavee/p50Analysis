@@ -182,7 +182,7 @@ int ScintTankBuilder::getSegmentNum(const G4ThreeVector& pos) const {
 }
 
 void ScintTankBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    ScintSegVol::fillNode(E);
     addAttr(E, "seg_size", G4BestUnit(seg_size,"Length"));
     if(theta_pw) {
         addAttr(E, "lat_size", G4BestUnit(lat_size,"Length"));
@@ -191,7 +191,6 @@ void ScintTankBuilder::fillNode(TXMLEngine& E) {
     addAttr(E, "gc_thick", G4BestUnit(gc_thick,"Length"));
     addAttr(E, "wall", G4BestUnit(tank_wall_thick,"Length"));
     addAttr(E, "buffer", G4BestUnit(ls_buffer_thick,"Length"));
-    addAttr(E, "scint", scint_log->GetMaterial()->GetName());
     addAttrI(E, "nSegX", nSegX);
     addAttrI(E, "nSegY", nSegY);
 }
