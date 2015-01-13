@@ -18,6 +18,8 @@ ROOT (http://root.cern.ch); known to work with versions 5.34/18, v6-02-1
 
 CRY cosmic ray shower event generator (http://cnr07.llnl.gov/simulation/main.html), version 1.7
 
+Doxygen (www.doxygen.org), optional for generating comments-based documentation
+
 Building
 ========
 Make sure Geant4 and ROOT environment variables are properly set by "geant4.sh" and "thisroot.sh" setup scripts
@@ -37,6 +39,7 @@ You'll need to tell your computer to look in ./lib/ when searching for libraries
 export PG4_LIB_DIR=<path to install directory>/lib/
 export LD_LIBRARY_PATH=${PG4_LIB_DIR}:${LD_LIBRARY_PATH}
 
+optional: 'make doc' to generate Doxygen documentation
 
 Running
 =======

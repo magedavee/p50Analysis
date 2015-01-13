@@ -1,12 +1,12 @@
 #----------------------------------------------------------------------------
 # Compile command, from inside build directory:
-# cmake -DGeant4_DIR=~/Applications/geant4.10/lib/ ../ShortBaselineG4MC/
+# cmake ../PROSPECT-G4/
 # make -j4
 
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(ShortBaselineG4MC)
+project(PROSPECT-G4)
 
 add_compile_options(-std=c++11)
 
@@ -90,6 +90,18 @@ target_link_libraries(PROSPECT-G4 EventLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES}
 
 install(TARGETS PROSPECT-G4 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
+#################
+# Documentation with Doxygen
+#################
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(doc
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
+endif(DOXYGEN_FOUND)
 
 #################
 # Build settings

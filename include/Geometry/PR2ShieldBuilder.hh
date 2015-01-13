@@ -14,7 +14,7 @@ public:
     void _construct();
 };
 
-/// Builder for PROSPECT-2 muon veto
+/// Builder for PROSPECT-2/20 muon veto
 class PR2MuVetoBuilder: public ScintChunk {
 public:
     /// Constructor

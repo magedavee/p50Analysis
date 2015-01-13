@@ -50,7 +50,7 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
-    vector<PR2MuVetoBuilder*> myPR2Veto;        ///< PROSPECT-2 muon vetos
+    vector<PR2MuVetoBuilder*> myPR2Veto;        ///< PROSPECT-2/20 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell
     PR20ShieldBuilder myPR20Shield;     ///< PROSPECT-20 shield
