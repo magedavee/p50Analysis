@@ -1,3 +1,4 @@
+/// \file ScintSegVol.hh \brief Base class for segmented scintillator volumes.
 #ifndef SCINTSEGVOL_HH
 #define SCINTSEGVOL_HH
 

@@ -1,3 +1,4 @@
+/// \file DIMADetectorConstruction.hh \brief Geometry for ``DIMA'' 16-channel scintillator detector.
 #ifndef DIMADETECTORCONSTRUCTION_HH
 #define DIMADETECTORCONSTRUCTION_HH
 
@@ -32,7 +33,7 @@ public:
     /// Construct geometry
     virtual void _construct();
     
-    DIMAArrayBuilder myArray;
+    DIMAArrayBuilder myArray;   ///< scintillator tube array
 };
 
 /// Drop-in replacement for DetectorConstruction, for ``Russian'' spectrometer model
@@ -44,7 +45,7 @@ public:
     /// Assembles geometry of the simulation, returns world volume
     virtual G4VPhysicalVolume* Construct();
     
-    DIMABoxBuilder myBox;
+    DIMABoxBuilder myBox;       ///< boxed DIMA detector
 };
 
 #endif

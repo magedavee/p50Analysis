@@ -1,3 +1,4 @@
+/// \file StackingAction.hh \brief Geant4 stacking action user class.
 #ifndef STACKINGACTION_HH
 #define STACKINGACTION_HH
 

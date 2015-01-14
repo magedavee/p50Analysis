@@ -1,3 +1,4 @@
+/// \file SatoNiitaNeutrons.hh \brief ``Tuneable'' cosmic neutron spectrum parametrization.
 #ifndef SATONIITANEUTRONS_HH
 #define SATONIITANEUTRONS_HH
 

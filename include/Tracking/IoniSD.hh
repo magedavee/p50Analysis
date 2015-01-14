@@ -1,3 +1,4 @@
+/// \file IoniSD.hh \brief Sensitive detector for recording ionization in a volume.
 #ifndef IONISD_HH
 #define IONISD_HH
 

@@ -1,3 +1,4 @@
+/// \file ScintTankBuilder.hh \brief Base class for a scintillator tank segmented by rods/dividers.
 #ifndef SCINTTANKBUILDER_HH
 /// Assure this header is loaded only once
 #define SCINTTANKBUILDER_HH

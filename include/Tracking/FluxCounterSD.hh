@@ -1,3 +1,4 @@
+/// \file FluxCounterSD.hh \brief Sensitive detector for tallying particles entering/leaving a volume.
 #ifndef FLUXCOUNTERSD_HH
 #define FLUXCOUNTERSD_HH
 

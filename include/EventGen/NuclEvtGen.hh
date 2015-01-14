@@ -1,3 +1,4 @@
+/// \file NuclEvtGen.hh \brief Configurable nuclear decay chain event generator.
 #ifndef NUCLEVTGEN_HH
 #define NUCLEVTGEN_HH
 

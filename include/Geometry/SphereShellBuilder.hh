@@ -1,3 +1,4 @@
+/// \file SphereShellBuilder.hh \brief Nested spheres toy model geometry.
 #ifndef SPHERESHELLSBUILDER_HH
 #define SPHERESHELLSBUILDER_HH
 

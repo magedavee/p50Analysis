@@ -1,3 +1,4 @@
+/// \file MaterialsHelper.hh \brief Materials definitions used in detector geometries.
 #ifndef MATERIALSHELPER_HH
 /// Assure this header is loaded only once
 #define MATERIALSHELPER_HH

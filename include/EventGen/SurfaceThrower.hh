@@ -1,3 +1,4 @@
+/// \file SurfaceThrower.hh \brief Event generator positioner flux from surface/volume.
 #ifndef SURFACETHROWER_HH
 #define SURFACETHROWER_HH
 
@@ -8,7 +9,7 @@
 #include <G4LogicalVolume.hh>
 #include <G4VSolid.hh>
 
-/// Class for throwing events from a surface to a target volume, with specified angular distribution
+/// Class for throwing events from a surface to a target volume, with specified angular distribution.
 /// Use "setSourceTarget" to set source and target volumes.
 ///     T=NULL will accept all throws from source.
 ///     S=NULL will default to throwing from world volume interior.

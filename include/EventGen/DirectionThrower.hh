@@ -1,3 +1,4 @@
+/// \file DirectionThrower.hh \brief Uniform directional flux event positioner.
 #ifndef DIRECTIONTHROWER_HH
 #define DIRECTIONTHROWER_HH
 

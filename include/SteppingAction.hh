@@ -1,3 +1,4 @@
+/// \file SteppingAction.hh \brief Geant4 stepping action user class.
 #ifndef STEPPINGACTION_HH
 #define STEPPINGACTION_HH
 

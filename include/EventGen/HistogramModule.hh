@@ -1,3 +1,4 @@
+/// \file HistogramModule.hh \brief User-defined histogram event generator.
 #ifndef HISTOGRAMMODULE_HH
 /// Assure headers are only loaded once
 #define HISTOGRAMMODULE_HH

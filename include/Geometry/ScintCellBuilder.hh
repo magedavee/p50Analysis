@@ -1,3 +1,4 @@
+/// \file ScintCellBuilder.hh \brief Right-cylinder scintillator cell geometry (used for PROSPECT-2 cell).
 #ifndef SCINTCELLBUILDER_HH
 #define SCINTCELLBUILDER_HH
 

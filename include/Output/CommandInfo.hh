@@ -1,3 +1,4 @@
+/// \file CommandInfo.hh \brief XML output for macro commands.
 #ifndef COMMANDINFO_HH
 #define COMMANDINFO_HH
 

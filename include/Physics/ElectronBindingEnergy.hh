@@ -1,3 +1,4 @@
+/// \file ElectronBindingEnergy.hh \brief Look-up table for electron binding energies in atoms.
 #ifndef ELECTRONBINDINGENERGY_HH
 #define ELECTRONBINDINGENERGY_HH
 
@@ -24,12 +25,12 @@ public:
     /// get element name
     string getName() const { return nm; }
     
-    static const string shellnames;
+    static const string shellnames;     ///< electron shell names "klmn..."
     
 protected:
-    unsigned int Z;     ///< element number
-    string nm;     ///< element name abbrev.
-    vector< vector<double> > eBinding;        ///< binding energy by shell and subshell
+    unsigned int Z;                     ///< element number
+    string nm;                          ///< element name abbrev.
+    vector< vector<double> > eBinding;  ///< binding energy by shell and subshell
 };
 
 /// catalog of many BindingEnergyTables

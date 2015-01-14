@@ -1,3 +1,4 @@
+/// \file DetectorConstruction.hh \brief Geant4 detector construction user class.
 #ifndef DETECTORCONSTRUCTION_HH
 /// Assure header is only loaded once
 #define DETECTORCONSTRUCTION_HH
@@ -20,6 +21,7 @@
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
 
+/// Geant4 detector construction user class
 class DetectorConstruction: public G4VUserDetectorConstruction, public ShellLayerBuilder,  public G4UImessenger {
 public:
     /// Constructor
@@ -36,6 +38,7 @@ public:
     /// Get reference to active scintillator volume (or equivalent)
     ScintSegVol* getScint();
     
+    /// available simulation geometry modes
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector
         PROSPECT2,      ///< PROSPECT-2 small prototype

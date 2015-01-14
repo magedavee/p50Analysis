@@ -1,3 +1,4 @@
+/// \file Output/strutils.hh \brief String manipulation utilities.
 #ifndef STRUTILS_HH
 #define STRUTILS_HH
 

@@ -1,3 +1,4 @@
+/// \file CRYModule.hh \brief Interface to CRY v1.7 cosmic ray event generator
 #ifndef CRYMODULE_HH
 /// Assure header is only loaded once
 #define CRYMODULE_HH

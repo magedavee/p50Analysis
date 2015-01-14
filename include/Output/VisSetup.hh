@@ -1,3 +1,4 @@
+/// \file VisSetup.hh \brief Setup for Geant4 visualization.
 #ifndef VISSETUP_HH
 #define VISSETUP_HH
 

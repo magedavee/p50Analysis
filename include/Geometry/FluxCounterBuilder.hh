@@ -1,3 +1,4 @@
+/// \file FluxCounterBuilder.hh \brief Vacuum ``flux counter'' volume for toy models.
 #ifndef FLUXCOUNTERBUILDER_HH
 #define FLUXCOUNTERBUILDER_HH
 

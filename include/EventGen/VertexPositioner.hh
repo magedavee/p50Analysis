@@ -1,3 +1,4 @@
+/// \file VertexPositioner.hh \brief Base class for specifying event generator vertex/direction distributions.
 #ifndef VERTEXPOSITIONER_HH
 #define VERTEXPOSITIONER_HH
 

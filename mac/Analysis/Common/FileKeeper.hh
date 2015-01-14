@@ -1,3 +1,4 @@
+/// \file FileKeeper.hh \brief Utility wrapper for memory-managing TObjects stuffed into a TFile.
 #ifndef FILEKEEPER_HH
 #define FILEKEEPER_HH
 

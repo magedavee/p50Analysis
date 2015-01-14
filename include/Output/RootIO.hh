@@ -1,3 +1,4 @@
+/// \file RootIO.hh \brief ROOT output trees setup.
 #ifndef INCLUDE_ROOTIO_HH
 /// Assure this header file is loaded only once
 #define INCLUDE_ROOTIO_HH

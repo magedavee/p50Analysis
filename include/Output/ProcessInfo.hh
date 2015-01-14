@@ -1,3 +1,4 @@
+/// \file ProcessInfo.hh \brief XML output for run process information.
 #ifndef PROCESSINFO_HH
 /// Assure this header is loaded only once
 #define PROCESSINFO_HH

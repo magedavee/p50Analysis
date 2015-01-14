@@ -1,3 +1,4 @@
+/// \file WeightAverager.hh \brief Utility for recording multivariate weighted-average sums.
 #ifndef WEIGHTAVERAGER_HH
 #define WEIGHTAVERAGER_HH
 

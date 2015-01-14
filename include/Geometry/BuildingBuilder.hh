@@ -1,15 +1,9 @@
+/// \file BuildingBuilder.hh \brief Simple concrete building geometry.
 #ifndef BUILDINGBUILDER_HH
 /// Assure this header is only loaded once
 #define BUILDINGBUILDER_HH
 
 #include "Builder.hh"
-#include "ShieldBuilder.hh"
-#include "FluxCounterBuilder.hh"
-
-#include <G4LogicalVolume.hh>
-#include <G4VPhysicalVolume.hh>
-#include <G4ThreeVector.hh>
-#include <G4VisAttributes.hh>
 
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>

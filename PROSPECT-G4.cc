@@ -1,3 +1,4 @@
+/// \file PROSPECT-G4.cc \brief main() function for PROSPECT-G4 executable.
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
 #include <Randomize.hh>
@@ -28,6 +29,7 @@
 #include "XSDump.hh"
 #include "RootIO.hh"
 
+/// main() function for PROSPECT-G4 simulation executable
 int main(int argc,char** argv) {
     
     // load event classes for ROOT

@@ -1,3 +1,4 @@
+/// \file PR20CellBuilder.hh \brief PROSPECT-20 cell geometry.
 #ifndef PR20CELLBUILDER_HH
 /// Assure this header is loaded only once
 #define PR20CELLBUILDER_HH

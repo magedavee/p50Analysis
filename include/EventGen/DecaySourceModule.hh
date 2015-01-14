@@ -1,3 +1,4 @@
+/// \file DecaySourceModule.hh \brief Nuclear decay chain event generator.
 #ifndef DECAYSOURCEMODULE
 #define DECAYSOURCEMODULE
 

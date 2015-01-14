@@ -1,3 +1,4 @@
+/// \file Builder.hh \brief Base classes for defining detector geometry.
 #ifndef BUILDER_HH
 #define BUILDER_HH
 

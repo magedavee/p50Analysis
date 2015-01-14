@@ -1,3 +1,4 @@
+/// \file Event.hh \brief ROOT TTree output classes.
 #ifndef EVENT_HH
 /// Assure this header is loaded only once
 #define EVENT_HH
@@ -50,8 +51,8 @@ public:
     Double_t dt;        ///< RMS timing spread
     Double_t x[3];      ///< average position
     Double_t dx[3];     ///< RMS position spread
-    Double_t EdEdx;     ///< approximated energy-weighted dE/dx $\int dE/dx dE$ for quenching calculation
-    Double_t EdEdx2;    ///< approximated energy-weighted (dE/dx)^2 $\int (dE/dx)^2 dE$ for quenching calculation
+    Double_t EdEdx;     ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
+    Double_t EdEdx2;    ///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
     Double_t l;         ///< track length
     Int_t vol;          ///< volume ID number
     Int_t PID;          ///< ionizing particle type
@@ -138,12 +139,14 @@ public:
     Double_t ct;        ///< computer time to calculate event
     Int_t flg;          ///< event flags
     
+    /// flags for event status
     enum evtFlags {
         EVT_TRAPPED = 1 << 0    ///< event is "trapped" (exceeds computation time limit)
     };
     
     /// Clear data for new event
     void Clear(Option_t* ="") { N = t = ct = flg = 0; }
+    
     ClassDef(Event,5);
 };
 

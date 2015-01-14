@@ -1,3 +1,4 @@
+/// \file PR20ShieldBuilder.hh \brief PROSPECT-20 inner and outer shield geometry.
 #ifndef PR20SHIELDBUILDER_HH
 #define PR20SHIELDBUILDER_HH
 

@@ -1,3 +1,4 @@
+/// \file SeparatorBuilder.hh \brief Scintillator separator panel geometry.
 #ifndef SEPARATOR_HH
 /// Assure this header is only loaded once
 #define SEPARATOR_HH

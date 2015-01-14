@@ -1,3 +1,4 @@
+/// \file AnaUtils.hh \brief Shared utility functions for PROSPECT-G4 output analysis.
 #include <string>
 #include <map>
 #include <iostream>

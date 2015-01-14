@@ -1,3 +1,4 @@
+/// \file Stringmap.hh \brief Key:value pair IO utilities.
 #ifndef STRINGMAP_HH
 #define STRINGMAP_HH
 

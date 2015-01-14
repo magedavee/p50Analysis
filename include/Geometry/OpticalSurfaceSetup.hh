@@ -1,3 +1,4 @@
+/// \file OpticalSurfaceSetup.hh \brief Optical reflective surface definition class.
 #ifndef OPTICALSURFACESETUP_HH
 /// Assure this header is loaded only once
 #define OPTICALSURFACESETUP_HH
@@ -6,6 +7,7 @@
 
 #include <G4OpticalSurface.hh>
 
+/// Definition of optical surface properties.
 class OpticalSurfaceSetup: public XMLProvider {
 public:
     /// Constructor

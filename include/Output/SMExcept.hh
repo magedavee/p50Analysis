@@ -19,6 +19,7 @@ public:
     mutable string msg;
 };
 
+/// replacement for assert(), raising SMExcept instance
 void smassert(bool b, const string& tp = "assert_error", const Stringmap& m = Stringmap());
 
 #endif

@@ -1,3 +1,4 @@
+/// \file XMLInfo.hh \brief Reader for PROSPECT-G4 XML metadata files.
 #ifndef XMLINFO_HH
 #define XMLINFO_HH
 

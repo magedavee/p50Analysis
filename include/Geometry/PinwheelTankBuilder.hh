@@ -1,3 +1,4 @@
+/// \file PinwheelTankBuilder.hh \brief Segmented scintillator tank with ``pinwheeled'' divider scheme.
 #ifndef PINWHEELTANKBUILDER_HH
 /// Assure this header is loaded only once
 #define PINWHEELTANKBUILDER_HH

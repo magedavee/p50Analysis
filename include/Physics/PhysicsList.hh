@@ -1,3 +1,4 @@
+/// \file PhysicsList.hh \brief Geant4 physics list user class.
 #ifndef PHYSICSLIST_HH
 #define PHYSICSLIST_HH
 

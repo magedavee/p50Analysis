@@ -2,10 +2,6 @@
 #include "MaterialsHelper.hh"
 
 #include <G4SystemOfUnits.hh>
-#include <G4UnitsTable.hh>
-#include <G4Box.hh>
-#include <G4RotationMatrix.hh>
-#include <G4PVPlacement.hh>
 
 BuildingBuilder::BuildingBuilder(): ShellLayerBuilder("Building"),
 wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
@@ -43,6 +39,6 @@ void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String value) {
 }
 
 void BuildingBuilder::fillNode(TXMLEngine& E) {
+    ShellLayerBuilder::fillNode(E);
     addAttr(E, "mode", makeVacuum? "vacuum" : "normal");
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }

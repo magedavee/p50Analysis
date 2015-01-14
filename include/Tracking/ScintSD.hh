@@ -1,3 +1,4 @@
+/// \file ScintSD.hh \brief Sensitive detector for recording ionization and neutron interactions in scintillator.
 #ifndef SCINTSD_HH
 /// Assure header file is only loaded once
 #define SCINTSD_HH

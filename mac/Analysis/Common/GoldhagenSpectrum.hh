@@ -1,3 +1,4 @@
+/// \file GoldhagenSpectrum.hh \brief Load Goldhagen fast neutron spectrum as TH1*.
 #ifndef GOLDHAGENSPECTRUM_HH
 #define GOLDHAGENSPECTRUM_HH
 

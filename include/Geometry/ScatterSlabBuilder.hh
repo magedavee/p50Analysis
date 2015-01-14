@@ -1,3 +1,4 @@
+/// \file ScatterSlabBuilder.hh \brief Material slab toy model geometry.
 #ifndef SCATTERSLABBUILDER_HH
 #define SCATTERSLABBUILDER_HH
 

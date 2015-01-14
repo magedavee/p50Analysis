@@ -1,3 +1,4 @@
+/// \file FloatErr.hh \brief Floating point number with gaussian error estimate.
 #ifndef FLOATERR_HH
 #define FLOATERR_HH
 

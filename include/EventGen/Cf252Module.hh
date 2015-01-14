@@ -1,3 +1,4 @@
+/// \file Cf252Module.hh \brief Cf252 neutrons event generator
 #ifndef CF252MODULE_HH
 #define CF252MODULE_HH
 

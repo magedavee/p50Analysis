@@ -1,3 +1,4 @@
+/// \file SlottedRodBuilder.hh \brief Slotted rod for holding non-pinwheeled separators.
 #ifndef SLOTTEDRODBUILDER_HH
 /// Assure this header is loaded only once
 #define SLOTTEDRODBUILDER_HH

@@ -1,3 +1,4 @@
+/// \file EventAction.hh \brief Geant4 event action user class.
 #ifndef EventAction_H
 /// Assure header file is only loaded once
 #define EventAction_H
@@ -5,6 +6,7 @@
 #include <TStopwatch.h>
 #include <G4UserEventAction.hh>
 
+/// Geant4 event action user class
 class EventAction : public G4UserEventAction {
 public:
     /// Constructor

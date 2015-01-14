@@ -1,3 +1,4 @@
+/// \file FaNS2DetectorConstruction.hh \brief Geometry for FaNS2 fast neutron spectrometer.
 #ifndef FANS2DETECTORCONSTRUCTION_HH
 #define FANS2DETECTORCONSTRUCTION_HH
 

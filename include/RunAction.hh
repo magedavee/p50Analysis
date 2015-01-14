@@ -1,3 +1,4 @@
+/// \file RunAction.hh \brief Geant4 run action user class.
 #ifndef RunAction_H
 /// Assure this header is only loaded once
 #define RunAction_H
@@ -17,6 +18,7 @@
 class G4Run;
 class RunMessenger;
 
+/// Geant4 run action user class
 class RunAction : public G4UserRunAction, public XMLProvider {
     friend class RunMessenger;
     

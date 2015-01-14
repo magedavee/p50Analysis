@@ -1,3 +1,4 @@
+/// \file PrimaryGeneratorAction.hh \brief Geant4 primary generator action user class.
 #ifndef PrimaryGeneratorAction_H
 /// Assure header is only loaded once during compilation
 #define PrimaryGeneratorAction_H

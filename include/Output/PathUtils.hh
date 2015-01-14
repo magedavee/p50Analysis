@@ -1,3 +1,4 @@
+/// \file PathUtils.hh \brief File/path utilities.
 #ifndef PATHUTILS_HH
 #define PATHUTILS_HH
 

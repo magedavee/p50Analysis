@@ -1,3 +1,4 @@
+/// \file MuVetoSD.hh \brief Muon veto ionization detector.
 #ifndef MUVETOSD_HH
 #define MUVETOSD_HH
 

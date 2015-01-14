@@ -1,3 +1,4 @@
+/// \file GeomHelper.hh \brief Convenience class for determining translation/rotation between solids in geometry.
 #ifndef GEOMHELPER_HH
 #define GEOMHELPER_HH
 

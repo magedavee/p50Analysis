@@ -1,3 +1,4 @@
+/// \file CosineThrower.hh \brief \f$\cos^n(\theta)\f$-weighted event thrower
 #ifndef COSINETHROWER_HH
 #define COSINETHROWER_HH
 

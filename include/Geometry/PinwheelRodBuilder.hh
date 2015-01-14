@@ -1,3 +1,4 @@
+/// \file PinwheelRodBuilder.hh \brief ``Pinwheel'' rods holding PROSPECT separator panels
 #ifndef PINWHEELRODBUILDER_HH
 /// Assure this header is loaded only once
 #define PINWHEELRODBUILDER_HH

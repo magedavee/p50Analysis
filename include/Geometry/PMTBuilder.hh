@@ -1,3 +1,4 @@
+/// \file PMTBuilder.hh \brief Geometry for a photomultiplier tube.
 #ifndef PMTBUILDER_HH
 /// Assure this header is loaded only once
 #define PMTBUILDER_HH

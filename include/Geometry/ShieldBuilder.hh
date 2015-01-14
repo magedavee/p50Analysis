@@ -1,3 +1,4 @@
+/// \file ShieldBuilder.hh \brief PROSPECT shield geometry.
 #ifndef SHIELDBUILDER_HH
 /// Assure this header is only loaded once
 #define SHIELDBUILDER_HH

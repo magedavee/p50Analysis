@@ -1,3 +1,4 @@
+/// \file Common/strutils.hh \brief String manipulation utilities.
 #ifndef STRUTILS_HH
 #define STRUTILS_HH
 
@@ -15,8 +16,10 @@ using std::vector;
 using std::map;
 using std::ostream;
 
+/// display a map<int,int>
 ostream& operator<<(ostream& os, const map<int,int>& m);
 
+/// display a map<T,U>
 template<typename T, typename U>
 void display_map(const map<T,U>& m, double norm = -1, double thresh = 0) {
     U total = 0;

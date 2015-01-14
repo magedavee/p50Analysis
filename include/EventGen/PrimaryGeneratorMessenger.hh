@@ -1,6 +1,7 @@
-#ifndef PrimaryGeneratorMessenger_H
+/// \file PrimaryGeneratorMessenger.hh \brief Messenger for event generator.
+#ifndef PRIMARYGENERATORMESSENGER_HH
 /// Assure header file is only loaded once
-#define PrimaryGeneratorMessenger_H
+#define PRIMARYGENERATORMESSENGER_HH
 
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>

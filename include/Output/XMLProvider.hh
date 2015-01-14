@@ -1,3 +1,4 @@
+/// \file XMLProvider.hh \brief Base class for generating XML output.
 #ifndef XMLPROVIDER_HH
 /// Assure this header file is loaded only once
 #define XMLPROVIDER_HH

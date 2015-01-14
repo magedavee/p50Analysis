@@ -1,3 +1,4 @@
+/// \file DetVolBuilder.hh \brief PROSPECT main detector volume geometry.
 #ifndef DETVOLBUILDER_HH
 /// Assure this header is loaded only once
 #define DETVOLBUILDER_HH

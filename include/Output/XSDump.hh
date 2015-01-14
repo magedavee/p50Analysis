@@ -1,3 +1,4 @@
+/// \file XSDump.hh \brief Utility for dumping Geant4 cross section curves.
 #ifndef XSDUMP_HH
 #define XSDUMP_HH
 

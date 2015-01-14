@@ -1,3 +1,4 @@
+/// \file CosmicNeutronModule.hh \brief ``tuneable'' cosmic neutron event generator module
 #ifndef COSMICNEUTRONMODULE_HH
 /// Assure headers are only loaded once
 #define COSMICNEUTRONMODULE_HH

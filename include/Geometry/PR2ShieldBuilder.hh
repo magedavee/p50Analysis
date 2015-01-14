@@ -1,3 +1,4 @@
+/// \file PR2ShieldBuilder.hh \brief PROSPECT-2 shielding cave geometry.
 #ifndef PR2SHIELDBUILDER_HH
 #define PR2SHIELDBUILDER_HH
 
