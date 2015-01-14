@@ -16,6 +16,7 @@ using std::pair;
 #include <fstream>
 #include <sys/stat.h>
 #include <math.h>
+#include <cassert>
 
 #include <TSystem.h>
 #include <TClonesArray.h>

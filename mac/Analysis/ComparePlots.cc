@@ -1,41 +1,18 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cassert>
-#include <cstdio>
-
-#include <TCanvas.h>
-#include <TH1.h>
-
-using std::vector;
-using std::string;
-
-void normalize_to_bin_width(TH1* f) {
-    for(int i=1; i<f->GetNbinsX(); i++) {
-        TAxis* A = f->GetXaxis();
-        double scale = 1./A->GetBinWidth(i);
-        f->SetBinContent(i, f->GetBinContent(i)*scale);
-        f->SetBinError(i, f->GetBinError(i)*scale);
-    }
-}
+#include "AnaUtils.hh"
 
 void CompareMultiFiles() {
     vector<string> fnames;
-    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Aug28P/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_gamma_Aug28P-Wall/Plots/PROSPECT-2.root");
-    
-    //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_cosmic_bg/Plots/PROSPECT-2.root");
-    //fnames.push_back("${PG4_OUTDIR}/PROSPECT-2_n_bg/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20Inner_nBG/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20_nBG/Plots/PROSPECT-2.root");
     
     vector<string> hnames;
-    hnames.push_back("hSinglesE");
-    //hnames.push_back("hNRecoils");
+    hnames.push_back("hFNEnergy");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
         vector<TH1*> hs;
         double mx =0;
-        for(int i=0; i<fnames.size(); i++) {
+        for(size_t i=0; i<fnames.size(); i++) {
             cout << fnames[i] << "\n";
             TFile* f = new TFile(fnames[i].c_str(),"READ");
             assert(f);
@@ -60,16 +37,16 @@ void CompareMultiFiles() {
             
         }
         
-        for(int i=0; i<hs.size(); i++) {
+        for(size_t i=0; i<hs.size(); i++) {
             hs[i]->SetLineColor(4-2*i);
-            hs[i]->GetYaxis()->SetTitleOffset(1.4);
+            hs[i]->GetYaxis()->SetTitleOffset(1.5);
             //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
-            hs[i]->Draw(i?"Same":"");
+            hs[i]->Draw(i?"HIST Same":"HIST");
         }
         
         //gPad->SetLogy(true);
         //gPad->SetLogx(true);
-        gPad->Print((*ithn+".pdf").c_str());
+        gPad->Print(("~/Desktop/"+*ithn+".pdf").c_str());
     }
 }
 
@@ -112,3 +89,5 @@ void ComparePlots() {
     CompareMultiFiles();
     //CompareMultiHistograms();
 }
+
+int main(int, char**) { ComparePlots(); }

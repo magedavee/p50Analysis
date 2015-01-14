@@ -3,3 +3,5 @@
 *.a
 *.pdf
 *.root
+*/aCORN/
+Aux/NIST_*
