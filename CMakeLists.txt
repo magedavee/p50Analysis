@@ -71,10 +71,10 @@ LIST(APPEND sources ${SB_G4_DICTIONARY})
 add_library(EventLib SHARED ${sources} ${headers})
 target_link_libraries(EventLib CRY ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
 SET(SB_G4_LIBRARY_PROPERTIES
-		${SB_G4_LIBRARY_PROPERTIES}
-		VERSION "0"
-		SOVERSION "0"
-		SUFFIX ".so"
+    ${SB_G4_LIBRARY_PROPERTIES}
+    VERSION "0"
+    SOVERSION "0"
+    SUFFIX ".so"
 )
 set_target_properties(EventLib PROPERTIES ${SB_G4_LIBRARY_PROPERTIES})
 install(TARGETS EventLib DESTINATION ${LIBRARY_OUTPUT_PATH})
@@ -95,7 +95,7 @@ install(TARGETS PROSPECT-G4 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 #################
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     add_custom_target(doc
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -107,7 +107,7 @@ endif(DOXYGEN_FOUND)
 # Build settings
 #################
 
-#set(CMAKE_BUILD_TYPE debug)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 #set(CMAKE_BUILD_TYPE release)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_BUILD_TYPE debug)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -Wextra -Wpedantic")

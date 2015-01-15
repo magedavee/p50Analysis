@@ -24,10 +24,14 @@ public:
     
     G4Element* el6Li;           ///< pure 6Li
     G4Element* el3He;           ///< pure 3He
+    G4Element* el1H;            ///< pure 1H
+    G4Element* el2H;            ///< pure 2H
     
     G4Material* nat_H;          ///< natural hydrogen
     G4Material* nat_Li;         ///< natural lithium
     G4Material* Li6;            ///< isotopically pure 6Li
+    G4Material* H1;             ///< isotopically pure 1H
+    G4Material* H2;             ///< isotopically pure 2H
     G4Material* nat_B;          ///< natural boron
     G4Material* nat_C;          ///< natural carbon
     G4Material* nat_N;          ///< natural nitrogen

@@ -44,6 +44,7 @@ public:
         PROSPECT2,      ///< PROSPECT-2 small prototype
         PROSPECT20,     ///< PROSPECT-20 single cell prototype
         P20INNER,       ///< PROSPECT-20 with inner shield only
+        P20CELL,        ///< PROSPECT-20 bare cell
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
         SPHERE          ///< concentric spheres

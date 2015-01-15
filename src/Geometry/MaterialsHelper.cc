@@ -53,6 +53,20 @@ MaterialsHelper::MaterialsHelper() {
     nat_Li->AddElement(el6Li,0.0811);
     nat_Li->AddElement(elLi7,1-0.0811);
     
+    el1H  = new G4Element("eleH1", "H1", 1);
+    G4Isotope* isoH1 = new G4Isotope("isoH1", 1, 1, 1.00782504*g/mole);
+    el1H->AddIsotope(isoH1,100.*perCent);
+    
+    el2H  = new G4Element("eleH2", "H2", 1);
+    G4Isotope* isoH2 = new G4Isotope("isoH2", 1, 2, 2.01410178*g/mole);
+    el2H->AddIsotope(isoH2,100.*perCent);
+    
+    H1 = new G4Material("Protonium", 1.0*g/cm3, 1, kStateSolid, room_T);
+    H1->AddElement(el1H,100.*perCent);
+    
+    H2 = new G4Material("Deuterium", 1.0*g/cm3, 1, kStateSolid, room_T);
+    H2->AddElement(el2H,100.*perCent);
+    
     el3He  = new G4Element("eleHe3", "He3", 1);
     G4Isotope* iso3He = new G4Isotope("isoHe3", 2, 3, 3.0160293*g/mole);
     el3He->AddIsotope(iso3He,100.*perCent);

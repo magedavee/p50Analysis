@@ -93,7 +93,7 @@ public:
 class NCapt: public TObject {
 public:
     /// constructor
-    NCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), capt_A(0), capt_Z(0), vol(0) { }
+    NCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), Nprod(0), capt_A(0), capt_Z(0), vol(0) { }
     
     Double_t t;         ///< time of capture
     Double_t E;         ///< kinetic energy at capture

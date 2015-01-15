@@ -94,6 +94,22 @@ void fill_interp(TH1* h, double x, double w) {
     h->Fill(c1, (1-a)*w);
 }
 
+void describe_event(TClonesArray* clusts, TClonesArray* nCapts) {
+    Int_t nIoni = clusts? clusts->GetEntriesFast() : 0;
+    if(nIoni) printf("Event with %i ionization clusters\n------- vol\tPID\tKE\tt\n", nIoni);
+    for(Int_t i=0; i<nIoni; i++) {
+        IoniCluster* ei = dynamic_cast<IoniCluster*>(clusts->At(i));
+        printf("\t%i\t%i\t%.3f\t%f\n",ei->vol,ei->PID,ei->E,ei->t);
+    }
+    Int_t nNCapt = nCapts? nCapts->GetEntriesFast() : 0;
+    if(nNCapt) printf("-- %i neutron captures --\n------- A\tZ\tEgamma\tNprod\tt\n",nNCapt);
+    for(Int_t i=0; i<nNCapt; i++) {
+        NCapt* nc = dynamic_cast<NCapt*>(nCapts->At(i));
+        printf("\t%i\t%i\t%.2f\t%i\t%f\n", nc->capt_A, nc->capt_Z, nc->Egamma, nc->Nprod, nc->t);
+    }
+    if(nNCapt+nIoni) printf("--------------------------\n");
+}
+
 /////////////////////////////////////
 /////////////////////////////////////
 /////////////////////////////////////
