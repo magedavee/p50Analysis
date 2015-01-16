@@ -78,7 +78,7 @@ void CosmicNeutronModule::makeDistribution() {
     
     const unsigned int nBins = 1000;
     const double eMin = 1e-3*eV;
-    const double eMax = 1e10*eV;
+    const double eMax = 1e12*eV;
     Double_t binEdges[nBins+1];
     for(unsigned int i=0; i<=nBins; i++)
         binEdges[i] = exp((nBins-i)*log(eMin)/nBins + i*log(eMax)/nBins);
