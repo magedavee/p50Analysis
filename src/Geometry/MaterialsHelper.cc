@@ -184,7 +184,7 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
             Li_mat->AddMaterial(Water, m_H2O);
         } else if(base == EJ309) {
             double frac_H2O = 0.07*loading/0.001;
-            Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 3, base->GetState(), base->GetTemperature());
+            Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 4, base->GetState(), base->GetTemperature());
             Li_mat->AddMaterial(base, 1.-loading-m_Cl-frac_H2O);
             Li_mat->AddMaterial(Water, frac_H2O);
             Li_mat->AddMaterial(myLi, loading);
