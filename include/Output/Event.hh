@@ -105,6 +105,11 @@ public:
     Int_t capt_Z;       ///< capture nucleus Z
     Int_t vol;          ///< volume ID number
     
+    /// Sort by time. Returns 0 when equal, -1 when this is smaller and +1 when bigger.
+    virtual Int_t Compare(const TObject* obj) const;
+    /// Identify that these are sortable objects
+    virtual Bool_t IsSortable() const { return kTRUE; }
+    
     ClassDef(NCapt,1);
 };
 

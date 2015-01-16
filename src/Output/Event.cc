@@ -92,6 +92,11 @@ void IoniClusterEvent::AddIoniCluster(const IoniCluster& c) {
 //------------------------------------------
 ////////////////////////////////////////////
 
+Int_t NCapt::Compare(const TObject* obj) const {
+    const NCapt* nc = dynamic_cast<const NCapt*>(obj);
+    return t < nc->t ? -1 : t > nc->t ? 1 : 0;
+}
+
 NCaptEvent::~NCaptEvent() {
     if(nCapts) delete nCapts;
 }

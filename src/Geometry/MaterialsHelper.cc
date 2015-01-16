@@ -173,11 +173,10 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
         G4Material* myLi = enriched? Li6 : nat_Li;
         
         G4Material* Li_mat = NULL;
-        
+        double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;        // Li average mass
+        double m_Cl = loading*35.45/avgLiA;                             // mass fraction Cl (for equal LiCl mixture), by ratio of masses to Li
         if(base == UG_AB) {
-            double avgLiA = enriched? 6.02 : 0.075*6.02 + .925*7.02;    /// Li average mass
-            double m_Cl = loading*35.45/avgLiA;                         /// mass fraction Cl, by ratio of masses to Li
-            double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;   /// mass fraction H2O from 8 molar LiCl solution
+            double m_H2O = (1000./8. - avgLiA -35.45)/avgLiA*loading;   // mass fraction H2O from 8 molar LiCl solution
             Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 4, base->GetState(), base->GetTemperature());
             Li_mat->AddMaterial(UG_AB, 1.-loading-m_Cl-m_H2O);
             Li_mat->AddMaterial(myLi, loading);
@@ -186,9 +185,10 @@ G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enr
         } else if(base == EJ309) {
             double frac_H2O = 0.07*loading/0.001;
             Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 3, base->GetState(), base->GetTemperature());
-            Li_mat->AddMaterial(base, 1.-loading-frac_H2O);
+            Li_mat->AddMaterial(base, 1.-loading-m_Cl-frac_H2O);
             Li_mat->AddMaterial(Water, frac_H2O);
             Li_mat->AddMaterial(myLi, loading);
+            Li_mat->AddMaterial(nat_Cl, m_Cl);
         } else {
             Li_mat = new G4Material(mnm.c_str(), base->GetDensity(), 2, base->GetState(), base->GetTemperature());
             Li_mat->AddMaterial(base, 1.-loading);

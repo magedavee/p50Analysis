@@ -102,10 +102,11 @@ void describe_event(TClonesArray* clusts, TClonesArray* nCapts) {
         printf("\t%i\t%i\t%.3f\t%f\n",ei->vol,ei->PID,ei->E,ei->t);
     }
     Int_t nNCapt = nCapts? nCapts->GetEntriesFast() : 0;
-    if(nNCapt) printf("-- %i neutron captures --\n------- A\tZ\tEgamma\tNprod\tt\n",nNCapt);
+    if(nNCapt) printf("-nCapt- A\tZ\tEgamma\tNprod\tt\n");
     for(Int_t i=0; i<nNCapt; i++) {
         NCapt* nc = dynamic_cast<NCapt*>(nCapts->At(i));
-        printf("\t%i\t%i\t%.2f\t%i\t%f\n", nc->capt_A, nc->capt_Z, nc->Egamma, nc->Nprod, nc->t);
+        string ntp = (nc->capt_A == 1 && nc->capt_Z == 0)? "new" : (nc->capt_A == 2 && nc->capt_Z == 1)? "1H" : (nc->capt_A == 7 && nc->capt_Z == 3)? "6Li" : "";
+        printf("%s\t%i\t%i\t%.2f\t%i\t%f\n", ntp.c_str(), nc->capt_A, nc->capt_Z, nc->Egamma, nc->Nprod, nc->t);
     }
     if(nNCapt+nIoni) printf("--------------------------\n");
 }

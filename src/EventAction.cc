@@ -1,5 +1,6 @@
 #include "EventAction.hh"
 #include "RootIO.hh"
+#include <TClonesArray.h>
 
 #include "RunAction.hh"
 #include "SteppingAction.hh"
@@ -8,7 +9,6 @@
 #include <G4Event.hh>
 #include <G4RunManager.hh>
 #include <Randomize.hh>
-
 #include <G4ios.hh>
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
@@ -38,7 +38,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     G4int reclevel = run_action->GetRecordLevel();
     if(reclevel >= 5
         || (reclevel == 3 && RootIO::GetFlux().nParticles > 0)
-        || (reclevel >= 2 &&  RootIO::GetNCapt().nNCapts +  RootIO::GetScIoni().nIoniClusts > 0)) {
+        || (reclevel >= 2 && RootIO::GetScIoni().nIoniClusts > 0)) {
         
         // record event primaries information
         ParticleEvent& prim = RootIO::GetPrim();
@@ -60,6 +60,9 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
                 prim.AddParticle(p);
             }
         }
+        
+        // sort neutrons by time
+        RootIO::GetNCapt().nCapts->Sort();
         
         // record computation time and flags
         SteppingAction* sa = (SteppingAction*)(G4RunManager::GetRunManager()->GetUserSteppingAction());

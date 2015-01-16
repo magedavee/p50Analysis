@@ -6,7 +6,7 @@
 #include <G4Tubs.hh>
 #include <cmath>
 
-ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.0015),
+ScintCellBuilder::ScintCellBuilder(): ScintSegVol("ScintCell"), scintLiLoading(.0010),
 length(5*in), radius(2.5*in), wall_thick(0.125*in),
 cellDir("/geom/testcell/"),
 lengthCmd("/geom/testcell/length",this),
