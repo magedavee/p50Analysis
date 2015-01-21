@@ -1,4 +1,7 @@
 /// \file AnaUtils.hh \brief Shared utility functions for PROSPECT-G4 output analysis.
+#ifndef ANAUTILS_HH
+#define ANAUTILS_HH
+
 #include <string>
 #include <map>
 #include <iostream>
@@ -88,3 +91,5 @@ public:
     TH2F* h[3];
     TH1* hProf[3];
 };
+
+#endif

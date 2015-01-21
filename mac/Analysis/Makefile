@@ -15,8 +15,8 @@ LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXML
 #
 
 VPATH = Common/:Private/
-objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o XMLInfo.o
-_examples = PlotFlux PlotPos PlotPrimaries TestCell
+objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o TimeStructure.o XMLInfo.o
+_examples = PlotFlux PlotIBD PlotPos PlotPrimaries TestCell
 
 all: $(objects)
 examples: $(objects) $(_examples)
