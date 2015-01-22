@@ -29,14 +29,18 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScIoni",&TSA.ionc);
     
     // set up histograms
-    TH1F* hIBDEnergy = (TH1F*)f.add(new TH1F("hIBDEnergy", "IBD-like event energy spectrum", 100, 0, 8));
+    TH1F* hIBDEnergy = (TH1F*)f.add(new TH1F("hIBDEnergy", "IBD-like event energy spectrum", 200, 0, 20));
     hIBDEnergy->GetXaxis()->SetTitle("scintillator signal [MeVee]");
     hIBDEnergy->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
     
-    TH1F* hIBD1Energy = (TH1F*)f.add(new TH1F("hIBD1Energy", "IBD-like (multiplicity 1) energy spectrum", 100, 0, 8));
+    TH1F* hIBD1Energy = (TH1F*)f.add(new TH1F("hIBD1Energy", "IBD-like (multiplicity 1) energy spectrum", 200, 0, 20));
     hIBD1Energy->GetXaxis()->SetTitle("scintillator signal [MeVee]");
     hIBD1Energy->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
     hIBD1Energy->SetLineColor(2);
+    
+    TH1F* hIoniMult = (TH1F*)f.add(new TH1F("hIoniMult", "IBD-like prompt segment multiplicity", 10, 0.5, 10.5));
+    hIoniMult->GetXaxis()->SetTitle("number of segments triggered");
+    hIoniMult->GetYaxis()->SetTitle("Event rate [mHz]");
     
     TH1F* hIBDTiming = (TH1F*)f.add(new TH1F("hIBDTiming", "IBD-like coincidence timing", 100, 0, 200));
     hIBDTiming->GetXaxis()->SetTitle("t_{n}-t_{e} [#mus]");
@@ -55,7 +59,12 @@ int main(int argc, char** argv) {
             hIBDTiming->Fill((it->promptClusters[1].t_median - it->promptClusters[0].t_median)/1000);
             double Eioni = it->promptClusters[1].Eioni; // prompt ionization signal, summed over all segments [MeVee]
             hIBDEnergy->Fill(Eioni);
-            if(ibdsegs==1) hIBD1Energy->Fill(Eioni);
+            hIoniMult->Fill(ibdsegs);
+            if(ibdsegs==1) {
+                // check neutron and electron occur in same volume
+                if(it->promptClusters[0].myHits[0].vol == it->promptClusters[1].myHits[0].vol)
+                    hIBD1Energy->Fill(Eioni);
+            }
         }
     }
     cout << " Done.\n\n";
@@ -64,6 +73,7 @@ int main(int argc, char** argv) {
     normalize_to_bin_width(hIBDEnergy, 1000./D.genTime);
     normalize_to_bin_width(hIBD1Energy, 1000./D.genTime);
     normalize_to_bin_width(hIBDTiming, 1e6/D.genTime);
+    normalize_to_bin_width(hIoniMult, 1000./D.genTime);
     
     // plot results
     hIBDEnergy->Draw("HIST");
@@ -72,6 +82,10 @@ int main(int argc, char** argv) {
     
     hIBDTiming->Draw("HIST");
     gPad->Print((outpath+"/IBDTiming.pdf").c_str());
+    
+    gPad->SetLogy(true);
+    hIoniMult->Draw();
+    gPad->Print((outpath+"/IBDMult.pdf").c_str());
     
     return 0;
 }
