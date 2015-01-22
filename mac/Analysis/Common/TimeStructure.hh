@@ -23,12 +23,12 @@ public:
     /// whether this is a simple neutron capture
     bool isNcapt() const { return hitTypes.size() == 1 && hitTypes.count(NCAPT_HIT) == 1; }
     /// whether this is a simple ionization hit (with volume multiplicity)
-    int isIoni() const { return hitTypes.size() == 1 ? hitTypes.count(IONI_HIT) : 0; }
+    int isIoni() const;
     /// whether this cluster includes a veto signal
     bool hasVeto() const { return hitTypes.count(VETO_HIT); }
     
-    vector<IoniCluster> myHits;         ///< hits in cluster
-    map<HitTypeID,int> hitTypes;        ///< counter for each hit type
+    vector<IoniCluster> myHits;         ///< hits in cluster, sorted by time
+    map<HitTypeID, vector<IoniCluster> > hitTypes;        ///< hits sorted by type
     double t_median;                    ///< representative median event time
     double Eioni = 0;                   ///< total ionization hit energy
 };
@@ -48,6 +48,8 @@ public:
     
     /// get all (electron ionization, ncapt) pairs
     vector< pair<HitCluster,HitCluster> > getIBDPairs() const;
+    /// get all hits, sorted by type first, then time
+    map<HitTypeID, vector<IoniCluster> > getHitTypes() const;
     
     vector<HitCluster> promptClusters;  ///< clusters of promptly-time-correlated events
 };

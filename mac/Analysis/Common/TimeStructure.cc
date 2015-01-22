@@ -4,9 +4,15 @@ void HitCluster::tallyHits() {
     if(!myHits.size()) return;
     for(auto it = myHits.begin(); it != myHits.end(); it++) {
         if(it->PID == IONI_HIT) Eioni += it->Equench();
-        hitTypes[HitTypeID(it->PID)]++;
+        hitTypes[HitTypeID(it->PID)].push_back(*it);
     }
     t_median = myHits[myHits.size()/2].t;       // assumes myHits is already time-ordered
+}
+
+int HitCluster::isIoni() const {
+    if(hitTypes.size() != 1) return 0;
+    auto it = hitTypes.find(IONI_HIT);
+    return (it==hitTypes.end())? 0 : it->second.size();
 }
 
 bool CoincidenceEvent::addHit(IoniCluster h, double prompt_timescale, double delayed_timescale) {
@@ -38,6 +44,17 @@ vector< pair<HitCluster,HitCluster> > CoincidenceEvent::getIBDPairs() const {
     return v;
 }
 
+map<HitTypeID, vector<IoniCluster> > CoincidenceEvent::getHitTypes() const {
+    map<HitTypeID, vector<IoniCluster> > m;
+    for(auto itc = promptClusters.begin(); itc != promptClusters.end(); itc++) {
+        for(auto itt = itc->hitTypes.begin(); itt != itc->hitTypes.end(); itt++) {
+            vector<IoniCluster>& v = m[itt->first];
+            v.insert( v.end(), itt->second.begin(), itt->second.end() );
+        }
+    }
+    return m;
+}
+
 void TimeStructureAnalyzer::classifyHits() {
     // merge ionization tracks (all particles) into scintillator hits
     vector<IoniCluster> scintHits;
@@ -56,7 +73,7 @@ void TimeStructureAnalyzer::classifyHits() {
         } 
        
         // fake PSD from dE/dx. TODO implement more sophisticated PSD model
-        double psd = 1./(its->EdEdx/its->E);
+        double psd = its->E/its->EdEdx;
         double psd_cut = 0.1;
         
         if(ncapt_Emin < Eq && Eq < ncapt_Emax && psd < psd_cut) its->PID = NCAPT_HIT;
