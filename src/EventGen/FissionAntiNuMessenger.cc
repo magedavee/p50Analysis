@@ -57,6 +57,12 @@ FissionAntiNuMessenger::FissionAntiNuMessenger(FissionAntiNuModule* fission_gen)
     fisProdCmd->SetParameter(param);
     fisProdCmd->AvailableForStates(G4State_Idle);
     
+    fisDwyerCmd = new G4UIcmdWithABool("/generator/module/fissionAntinu/DwyerSpectrum",this);
+    fisDwyerCmd->SetGuidance("Enable/Disable Dan Dwyer's antineutrino spectra.");
+    fisDwyerCmd->SetParameterName("toggle",true);
+    fisDwyerCmd->SetDefaultValue(true);
+    fisDwyerCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
+
     fisPrintCmd = new G4UIcmdWithoutParameter("/generator/module/fissionAntinu/printParameters",this);
     fisPrintCmd->SetGuidance("Prints all user-defined parameters for the Reactor Antineutrino Module.");
     fisPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
@@ -73,7 +79,12 @@ void FissionAntiNuMessenger::SetNewValue(G4UIcommand* command, G4String newValue
         G4Tokenizer next(newValue);
         G4double setU = StoD(next()); G4double setUr = StoD(next()); G4double setPu = StoD(next()); G4double setPU = StoD(next());
         generator->SetAntiNeutrinoSpectrum(setU,setUr,setPu,setPU); 
-    } else if(command == fisPrintCmd) generator->PrintAllParameters();
+    }
+    else if(command == fisDwyerCmd) {
+      G4cerr<<"Using Dwyer/Langford fission spectra"<<G4endl;
+      generator->SetDwyer(fisDwyerCmd->GetNewBoolValue(newValue));
+    } 
+    else if(command == fisPrintCmd) generator->PrintAllParameters();
     else G4cout << "Command not found." << G4endl;
 }
 

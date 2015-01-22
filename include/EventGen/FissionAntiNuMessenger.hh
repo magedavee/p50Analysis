@@ -21,6 +21,7 @@ class FissionAntiNuModule;
 class G4UIdirectory;
 class G4UIcommand;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWithABool;
 
 class FissionAntiNuMessenger: public G4UImessenger {
 public:
@@ -37,6 +38,7 @@ private:
 
     G4UIdirectory* fissNuDir;
     G4UIcommand* fisProdCmd;
+    G4UIcmdWithABool* fisDwyerCmd;
     G4UIcmdWithoutParameter* fisPrintCmd;
 };
 
