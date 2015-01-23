@@ -11,7 +11,7 @@ PinwheelTankBuilder::PinwheelTankBuilder(): ScintTankBuilder("ScintTank") {
 
 void PinwheelTankBuilder::setupDividers() {
     
-    double rod_tolerance = 1*um; // wiggle room for rod-to-separator clearance
+    double rod_tolerance = 50*um; // wiggle room for rod-to-separator clearance
     
     myRod = &myPinwheelRod;
     myPinwheelRod.t_panel = mySeparator.totalThick + rod_tolerance;

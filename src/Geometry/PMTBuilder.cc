@@ -18,10 +18,11 @@ void PMTBuilder::construct() {
     double capsule_length = 0.66*length;        // length of vacuum capsule
     double capsule_radius = diameter/2. - 2.*mm;// radius of vacuum capsule
     double capsule_thick = 5.*mm;               // thickness of vacuum capsule
+    double block_margin = 25*um;                // reduction in block size for toleranced fit
     
     dim = G4ThreeVector(block_width, block_width, block_length);
     
-    G4Box* housing_box = new G4Box("pmt_housing", dim[0]/2, dim[1]/2, dim[2]/2);
+    G4Box* housing_box = new G4Box("pmt_housing", dim[0]/2-block_margin, dim[1]/2-block_margin, dim[2]/2);
     main_log = new G4LogicalVolume(housing_box, MaterialsHelper::M().PMMA_white, "PMT_main_log");
     main_log->SetVisAttributes(&outer_vis);
     

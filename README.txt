@@ -14,9 +14,10 @@ For visualization, it's also useful to have some of Geant4's optional graphics d
 (see Geant4's install guides), e.g. OpenGL and Motif developer libraries.
     Geant4 cmake flags: -DGEANT4_USE_QT=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_OPENGL_X11=ON
     
-ROOT (http://root.cern.ch); known to work with versions 5.34/18, v6-02-1
+ROOT (http://root.cern.ch); known to work with versions 5.34/18, v6-02-1, v6-03-1
 
 CRY cosmic ray shower event generator (http://cnr07.llnl.gov/simulation/main.html), version 1.7
+compile with -fPIC ("export CXXFLAGS=-fPIC")
 
 Doxygen (www.doxygen.org), optional for generating comments-based documentation
 
