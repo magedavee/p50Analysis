@@ -30,15 +30,32 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     RootIO::GetEvent().t = tGen;
 }
 
-void EventAction::EndOfEventAction(const G4Event* anEvent) {
-    timer.Stop();
-    
-    // Save event data
+bool EventAction::keepEvent() const {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
     if(reclevel >= 5
         || (reclevel == 3 && RootIO::GetFlux().nParticles > 0)
-        || (reclevel >= 2 && RootIO::GetScIoni().nIoniClusts > 0)) {
+        || (reclevel >= 2 && RootIO::GetScIoni().nIoniClusts > 0)) return true;
+    if(reclevel == -1 && RootIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
+        vector<IoniCluster> scintHits;
+        mergeIoniHits(RootIO::GetScIoni().clusts, scintHits, 10);
+        int nNcapt = 0;
+        int nIoni = 0;
+        for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
+            HitTypeID tp = classifyHit(*its);
+            if(tp==NCAPT_HIT) nNcapt++;
+            if(tp==IONI_HIT) nIoni++;
+        }
+        return nNcapt && nIoni;
+    }
+    return false;
+}
+
+void EventAction::EndOfEventAction(const G4Event* anEvent) {
+    timer.Stop();
+    
+    // Save event data
+    if(keepEvent()) {
         
         // record event primaries information
         ParticleEvent& prim = RootIO::GetPrim();

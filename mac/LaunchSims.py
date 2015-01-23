@@ -5,6 +5,40 @@ import os
 from math import *
 from random import shuffle
 
+class parallelsubmitter:
+    def __init__(self):
+        self.jlist = ""
+    def submit_job(self,jcmd):
+        self.jlist += jcmd+"\n"
+    def go(self):
+        parallel_jobfile = "jobs.txt"
+        jobsout = open(parallel_jobfile,"w")
+        jobsout.write(self.jlist)
+        jobsout.close()
+        print "Running simulation jobs..."
+        os.system("cat "+parallel_jobfile)
+        os.system("nice -n 15 parallel < "+parallel_jobfile)
+        os.system("rm "+parallel_jobfile)
+        
+class qsubmitter:
+    def __init__(self):
+        self.settings = {"xcmds":""}
+        self.setup = """#!/bin/bash
+#PBS -j oe
+#PBS -o /home/ndenhall/data/job_submit"""
+        for e in ["PG4_AUX"]:
+            self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
+                
+    def submit_job(self,jcmd):
+        self.settings["jobcmd"] = jcmd
+        open("job_submit","w").write((self.setup+"\n%(xcmds)s\n")%self.settings + jcmd + "\n")
+        print "qsub:",jcmd
+        #os.system("cat job_submit")
+        os.system("qsub job_submit; rm job_submit")
+        
+    def go(self):
+        pass
+            
 class SB_MC_Launcher:
     
     def __init__(self, simname, nevt):
@@ -27,13 +61,9 @@ class SB_MC_Launcher:
         os.system("mkdir -p %s"%self.log_dir)
         
         
-    def launch_sims(self, nruns, rnmin=0):
+    def launch_sims(self, nruns, rnmin=0, submitter=parallelsubmitter()):
         
         self.set_dirs()
-        
-        # set up macros for each job
-        parallel_jobfile = "%s/jobs.txt"%self.log_dir
-        jobsout = open(parallel_jobfile,"w")
         
         for rn in range(nruns):
             
@@ -53,14 +83,9 @@ class SB_MC_Launcher:
             
             # make job command
             onejob = "%s %s/%s.mac"%(self.bin_name, self.macro_dir, run_name)
-            jobsout.write(onejob+" > %s/%s.txt 2>&1\n"%(self.log_dir, run_name))
+            submitter.submit_job(onejob+" > %s/%s.txt 2>&1"%(self.log_dir, run_name))
         
-        jobsout.close()
-        
-        print "Running simulation jobs..."
-        os.system("cat "+parallel_jobfile)
-        os.system("nice -n 15 parallel < "+parallel_jobfile)
-        os.system("rm "+parallel_jobfile)
+        submitter.go()
 
 
 def logrange(n,x0,x1):
@@ -144,9 +169,9 @@ if __name__=="__main__":
         
     if options.p2:
         # 1e7 for CRY, 1e6 for P2/P20 neutrons (no building)
-        L = SB_MC_Launcher("P200_nBG", 1e6)
+        L = SB_MC_Launcher("P200_nBG_IBD", 1e6)
         L.template = "Analysis/Private/PR2_Template.mac"
-        L.launch_sims(400)
+        L.launch_sims(20,submitter=qsubmitter())
         
         #L = SB_MC_Launcher("PROSPECT-2_gamma_Aug28P-Bare-Isot", 1e6)
         #L.template = "Analysis/Private/PR2_Gamma_Template.mac"

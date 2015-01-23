@@ -40,48 +40,6 @@ TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, doubl
     return new TH1F(nm.c_str(), descrip.c_str(), nbins, &binEdges[0]);
 }
 
-bool compare_hit_times(const IoniCluster& a, const IoniCluster& b) { return a.t < b.t; }
-
-vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max) {
-    vector<IoniCluster> vOut;
-    if(!hts.size()) return vOut;
-    auto it = hts.begin();
-    vOut.push_back(*(it++));
-    for(; it != hts.end(); it++) {
-        if(it->t > vOut.back().t + dt_max)
-            vOut.push_back(*it);
-        else
-            vOut.back() += *it;
-    }
-    return vOut;
-}
-
-map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max) {
-    
-    map<Int_t, double> volIoni;
-    map<Int_t, vector<IoniCluster> > volClusts;
-    Int_t nIoni = clusts->GetEntriesFast();
-    for(Int_t i=0; i<nIoni; i++) {
-        IoniCluster* ei = (IoniCluster*)clusts->At(i);
-        Int_t V = ei->vol;
-        volIoni[V] += ei->E;
-        if(!volClusts.count(V)) volClusts[V].push_back(*ei);
-        else {
-            if(ei->t > volClusts[V].back().t + dt_max)
-                volClusts[V].push_back(*ei);
-            else
-                volClusts[V].back() += *ei;
-        }
-    }
-    
-    // merge and sort
-    for(auto it = volClusts.begin(); it != volClusts.end(); it++)
-        hitHist.insert(hitHist.end(), it->second.begin(), it->second.end());
-    std::sort(hitHist.begin(), hitHist.end(), compare_hit_times);
-    
-    return volIoni;
-}
-
 void fill_interp(TH1* h, double x, double w) {
     TAxis* Ax = h->GetXaxis();
     int b0 = Ax->FindBin(x);
@@ -112,6 +70,14 @@ void describe_event(TClonesArray* clusts, TClonesArray* nCapts) {
         printf("%s\t%i\t%i\t%.2f\t%i\t%f\n", ntp.c_str(), nc->capt_A, nc->capt_Z, nc->Egamma, nc->Nprod, nc->t);
     }
     if(nNCapt+nIoni) printf("--------------------------\n");
+}
+
+void printHisto(const TH1* h) {
+    printf("----- Histogram '%s' -----\nx: '%s'\ny: '%s'\nbin_lo\tbin_hi\tcontents\n---------------------------\n",
+           h->GetName(), h->GetXaxis()->GetTitle(), h->GetYaxis()->GetTitle());
+    const TAxis* A = h->GetXaxis();
+    for(int i=1; i<=h->GetNbinsX(); i++)
+        printf("%.5g\t%.5g\t%.5g\n",A->GetBinLowEdge(i),A->GetBinUpEdge(i),h->GetBinContent(i));
 }
 
 /////////////////////////////////////

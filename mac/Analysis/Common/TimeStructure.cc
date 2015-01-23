@@ -61,25 +61,7 @@ void TimeStructureAnalyzer::classifyHits() {
     map<Int_t, double> volIoni = mergeIoniHits(ionc->clusts, scintHits, prompt_timescale);
     
     // classify hits
-    for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
-        its->PID = DEAD_HIT;
-        if(its->vol < 0) continue; // dead volume hit
-        
-        double Eq = its->Equench(); // quenched energy estimate
-        
-        if(its->vol >= 1000) { // muon veto hit
-            if(Eq > veto_thresh) its->PID = VETO_HIT;
-            continue;
-        } 
-       
-        // fake PSD from dE/dx. TODO implement more sophisticated PSD model
-        double psd = its->E/its->EdEdx;
-        double psd_cut = 0.1;
-        
-        if(ncapt_Emin < Eq && Eq < ncapt_Emax && psd < psd_cut) its->PID = NCAPT_HIT;
-        else if(0.1 < Eq && psd < psd_cut) its->PID = RECOIL_HIT;
-        else if(trig_thresh < its->Equench() && psd_cut < psd) its->PID = IONI_HIT;
-    }
+    for(auto its = scintHits.begin(); its != scintHits.end(); its++) its->PID = classifyHit(*its);
     
     // group hits into prompt clusters
     coincs.clear();

@@ -46,12 +46,6 @@ void normalize_to_bin_width(TH1* f, double xscale = 1.);
 /// Logarithmically-binned histogram
 TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, double bmin, double bmax);
 
-/// merge ionization events into single history; return total in each volume
-map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max);
-
-/// merge ionization events into single history, regardless of volume
-vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max);
-
 /// Fill histogram preserving *average* value interpolated between bins
 void fill_interp(TH1* h, double x, double w = 1.0);
 
@@ -60,6 +54,9 @@ TH1* poisson_smear(const TH1& hIn, double NperX, TH1* hOut = NULL);
 
 /// print information about ionization/neutrons in event
 void describe_event(TClonesArray* clusts, TClonesArray* nCapts = NULL);
+
+/// text table of histogram
+void printHisto(const TH1* h);
 
 /// (x,y,z) position projection histograms
 class ProfileHistos {

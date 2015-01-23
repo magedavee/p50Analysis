@@ -4,6 +4,11 @@
 #define EVENT_HH
 
 #include <TObject.h>
+#include <vector>
+#include <map>
+using std::vector;
+using std::map;
+
 class TClonesArray;
 
 /// Primary particle specification for ROOT output
@@ -154,5 +159,24 @@ public:
     
     ClassDef(Event,5);
 };
+
+/// merge ionization events into single history; return total in each volume
+map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max);
+
+/// merge ionization events into single history, regardless of volume
+vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max);
+
+/// identified hit classifications
+enum HitTypeID {
+    IONI_HIT,       ///< electron/gamma ionization
+    NCAPT_HIT,      ///< neutron capture hit
+    RECOIL_HIT,     ///< nucleus recoil
+    VETO_HIT,       ///< veto detector hit
+    DEAD_HIT,       ///< dead volume or non-detected hit
+    CRAZY_HIT       ///< unclassifiable event
+};
+
+/// classify observed "hit type" of ionization cluster
+HitTypeID classifyHit(const IoniCluster& h);
 
 #endif

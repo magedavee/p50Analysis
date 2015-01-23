@@ -29,11 +29,11 @@ int main(int argc, char** argv) {
     T->SetBranchAddress("ScIoni",&TSA.ionc);
     
     // set up histograms
-    TH1F* hIBDEnergy = (TH1F*)f.add(new TH1F("hIBDEnergy", "IBD-like event energy spectrum", 200, 0, 20));
+    TH1F* hIBDEnergy = (TH1F*)f.add(new TH1F("hIBDEnergy", "IBD-like event energy spectrum", 100, 0, 20));
     hIBDEnergy->GetXaxis()->SetTitle("scintillator signal [MeVee]");
     hIBDEnergy->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
     
-    TH1F* hIBD1Energy = (TH1F*)f.add(new TH1F("hIBD1Energy", "IBD-like (multiplicity 1) energy spectrum", 200, 0, 20));
+    TH1F* hIBD1Energy = (TH1F*)f.add(new TH1F("hIBD1Energy", "IBD-like (multiplicity 1) energy spectrum", 100, 0, 20));
     hIBD1Energy->GetXaxis()->SetTitle("scintillator signal [MeVee]");
     hIBD1Energy->GetYaxis()->SetTitle("Event rate [mHz/MeV]");
     hIBD1Energy->SetLineColor(2);

@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #include <TClonesArray.h>
 
@@ -115,3 +116,60 @@ void NCaptEvent::AddNCapt(const NCapt& n) {
 ////////////////////////////////////////////
 //------------------------------------------
 ////////////////////////////////////////////
+
+bool compare_hit_times(const IoniCluster& a, const IoniCluster& b) { return a.t < b.t; }
+
+vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max) {
+    vector<IoniCluster> vOut;
+    if(!hts.size()) return vOut;
+    auto it = hts.begin();
+    vOut.push_back(*(it++));
+    for(; it != hts.end(); it++) {
+        if(it->t > vOut.back().t + dt_max)
+            vOut.push_back(*it);
+        else
+            vOut.back() += *it;
+    }
+    return vOut;
+}
+
+map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitHist, double dt_max) {
+    
+    map<Int_t, double> volIoni;
+    map<Int_t, vector<IoniCluster> > volClusts;
+    Int_t nIoni = clusts->GetEntriesFast();
+    for(Int_t i=0; i<nIoni; i++) {
+        IoniCluster* ei = (IoniCluster*)clusts->At(i);
+        Int_t V = ei->vol;
+        volIoni[V] += ei->E;
+        if(!volClusts.count(V)) volClusts[V].push_back(*ei);
+        else {
+            if(ei->t > volClusts[V].back().t + dt_max)
+                volClusts[V].push_back(*ei);
+            else
+                volClusts[V].back() += *ei;
+        }
+    }
+    
+    // merge and sort
+    for(auto it = volClusts.begin(); it != volClusts.end(); it++)
+        hitHist.insert(hitHist.end(), it->second.begin(), it->second.end());
+    std::sort(hitHist.begin(), hitHist.end(), compare_hit_times);
+    
+    return volIoni;
+}
+
+HitTypeID classifyHit(const IoniCluster& h) {
+    if(h.vol < 0) return DEAD_HIT;
+    if(h.vol >= 1000) return VETO_HIT;
+    
+    double Eq = h.Equench(); // quenched energy estimate
+    
+    // fake PSD from dE/dx.
+    double psd = h.E/h.EdEdx;
+    double psd_cut = 0.1;
+    
+    if(0.4 < Eq && Eq < 0.6 && psd < psd_cut) return NCAPT_HIT;
+    else if(0.1 < Eq && psd < psd_cut) return RECOIL_HIT;
+    return IONI_HIT;
+}

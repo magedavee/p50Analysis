@@ -18,6 +18,8 @@ public:
     void EndOfEventAction(const G4Event*);
     /// get computation time spent so far
     double getCPUTime();
+    /// decide whether to keep event four output
+    bool keepEvent() const;
     
 protected:
     TStopwatch timer;   ///< event computation time timer

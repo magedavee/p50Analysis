@@ -1,17 +1,8 @@
 #ifndef TIMESTRUCTURE_HH
 #define TIMESTRUCTURE_HH
 
-#include "AnaUtils.hh"
-
-/// identified hit classifications
-enum HitTypeID {
-    IONI_HIT,       ///< electron/gamma ionization
-    NCAPT_HIT,      ///< neutron capture hit
-    RECOIL_HIT,     ///< nucleus recoil
-    VETO_HIT,       ///< veto detector hit
-    DEAD_HIT,       ///< dead volume or non-detected hit
-    CRAZY_HIT       ///< unclassifiable event
-};
+#include "Event.hh"
+using std::pair;
 
 /// Prompt time-correlated cluster of hits
 class HitCluster {
