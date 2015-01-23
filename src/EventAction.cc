@@ -38,7 +38,7 @@ bool EventAction::keepEvent() const {
         || (reclevel >= 2 && RootIO::GetScIoni().nIoniClusts > 0)) return true;
     if(reclevel == -1 && RootIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
         vector<IoniCluster> scintHits;
-        mergeIoniHits(RootIO::GetScIoni().clusts, scintHits, 10);
+        mergeIoniHits(RootIO::GetScIoni().clusts, scintHits, 100);
         int nNcapt = 0;
         int nIoni = 0;
         for(auto its = scintHits.begin(); its != scintHits.end(); its++) {

@@ -55,13 +55,27 @@ map<HitTypeID, vector<IoniCluster> > CoincidenceEvent::getHitTypes() const {
     return m;
 }
 
+HitTypeID TimeStructureAnalyzer::classifyHit(const IoniCluster& h) const {
+    if(h.vol < 0) return DEAD_HIT;
+    double Eq = h.Equench(); // quenched energy estimate
+    if(h.vol >= 1000) return Eq > veto_thresh? VETO_HIT : DEAD_HIT;
+    
+    // fake PSD from dE/dx. TODO: implement full response function
+    double psd = h.E/h.EdEdx;
+    double psd_cut = 0.1;
+    
+    if(ncapt_Emin < Eq && Eq < ncapt_Emax && psd < psd_cut) return NCAPT_HIT;
+    else if(trig_thresh < Eq && psd < psd_cut) return RECOIL_HIT;
+    return trig_thresh < Eq ? IONI_HIT : DEAD_HIT;
+}
+
 void TimeStructureAnalyzer::classifyHits() {
     // merge ionization tracks (all particles) into scintillator hits
     vector<IoniCluster> scintHits;
     map<Int_t, double> volIoni = mergeIoniHits(ionc->clusts, scintHits, prompt_timescale);
     
     // classify hits
-    for(auto its = scintHits.begin(); its != scintHits.end(); its++) its->PID = classifyHit(*its);
+    for(auto its = scintHits.begin(); its != scintHits.end(); its++) its->PID = classifyHit(*its);   
     
     // group hits into prompt clusters
     coincs.clear();

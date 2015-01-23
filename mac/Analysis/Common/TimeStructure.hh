@@ -55,7 +55,9 @@ public:
     
     /// classify scintillator hits into identified event types
     virtual void classifyHits();
-  
+    /// classify a single hit
+    virtual HitTypeID classifyHit(const IoniCluster& h) const;
+    
     IoniClusterEvent* ionc;             ///< event being analyzed (set to TTree branch readpoint)
     
     // analysis settings
