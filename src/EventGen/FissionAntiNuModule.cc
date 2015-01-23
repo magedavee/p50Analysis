@@ -9,7 +9,23 @@
 #include <G4ParticleGun.hh>
 
 FissionAntiNuModule::FissionAntiNuModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "FissionAntiNu"),
-U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), fiss_messenger(new FissionAntiNuMessenger(this)) { }
+U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), fiss_messenger(new FissionAntiNuMessenger(this)) { 
+
+  char header[200];
+  G4double dummy;
+  G4int cnt=0;
+  char pnd = '#';
+  ifstream infile("antineutrinoSpectra_DwyerLangford_1keV_v0.txt",std::ifstream::in);
+  if(!infile.is_open()) G4cerr<<"Problem opening input file"<<G4endl;
+  while (infile.peek()==int(pnd)){
+    infile.getline(header,200);
+  }
+  while(infile>>dummy>>Dwyer235[cnt]>>Dwyer238[cnt]>>Dwyer239[cnt]>>Dwyer241[cnt]){
+    cnt++;
+  }
+  infile.close();
+  dwyer = false;
+}
 
 FissionAntiNuModule::~FissionAntiNuModule() { delete fiss_messenger; }
 
@@ -24,41 +40,78 @@ void FissionAntiNuModule::GeneratePrimaries(G4Event* anEvent) {
     G4double positionX = wsize[1]*(G4UniformRand()-0.5);
     G4double positionY = wsize[2]*(G4UniformRand()-0.5);
     gun->SetParticlePosition(G4ThreeVector(positionX,positionY,positionZ));
-    gun->SetParticleEnergy(GenerateAntiNeutrinoEnergy());
+    if(dwyer)  gun->SetParticleEnergy(GenerateDwyerAntiNeutrinoEnergy());
+    else gun->SetParticleEnergy(GenerateAntiNeutrinoEnergy());
     gun->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));
     gun->GeneratePrimaryVertex(anEvent);
 }
 
 G4double FissionAntiNuModule::GenerateAntiNeutrinoEnergy() const {
+  G4double energy, randNo, Probability;
+  if(dwyer) {
+    energy = GenerateDwyerAntiNeutrinoEnergy();
+  }
+  else{
+    do {
+      
+      // Generate acceptance parameter
+      randNo = G4UniformRand();
+      
+      // Generate energy
+      energy = 8.*G4UniformRand() + 1.8;
+      
+      // Calculate acceptance value - NormFactor is the maximum value of distribution to obtain a fraction
+      G4double Phi = 0.; G4double NormFactor = 0.0;  G4double xsec = 0.0;
+      Phi += U235*CalculateU235Spectrum(energy);
+      Phi += Pu239*CalculatePu239Spectrum(energy);
+      Phi += Pu241*CalculatePu241Spectrum(energy);
+      Phi += U238*CalculateU238Spectrum(energy);
+      
+      //  NormFactor += U235*2.07217;
+      NormFactor += U235*2.01612;
+      NormFactor += Pu239*1.49546;     // equation 9 in Vogel and Beacom
+      NormFactor += Pu241*1.98477;
+      NormFactor += U238*2.82543;
+      xsec = (energy-1.294)*(sqrt((energy-1.294)*(energy-1.294)-0.511*0.511));
+      
+      Probability = xsec*Phi / NormFactor;
+    } while (randNo > Probability);               // Acceptance condition
+   }
+   return energy*MeV;
+}
+
+G4double FissionAntiNuModule::GenerateDwyerAntiNeutrinoEnergy() const {
     G4double energy, randNo, Probability;
+    G4int intE;
     do {
         // Generate acceptance parameter
         randNo = G4UniformRand();
         
         // Generate energy
-        energy = 8.*G4UniformRand() + 1.5;
+        energy = 10.199*G4UniformRand() + 1.8;
         
         // Calculate acceptance value - NormFactor is the maximum value of distribution to obtain a fraction
         G4double Phi = 0.; G4double NormFactor = 0.0;  G4double xsec = 0.0;
-        Phi += U235*CalculateU235Spectrum(energy);// NormFactor += U235*1.936;
-        Phi += Pu239*CalculatePu239Spectrum(energy);// NormFactor += Pu239*1.489;
-        Phi += Pu241*CalculatePu241Spectrum(energy);// NormFactor += Pu241*1.490;
-        Phi += U238*CalculateU238Spectrum(energy);// NormFactor += U238*1.742;
+	intE = 1000*energy-1800;
+        Phi += U235*Dwyer235[G4int(intE)];
+        Phi += Pu239*Dwyer239[G4int(intE)];
+        Phi += Pu241*Dwyer241[G4int(intE)];
+        Phi += U238*Dwyer238[G4int(intE)];
 
-	NormFactor += U235*2.07217;
-	NormFactor += Pu239*1.49546;     // equation 9 in Vogel and Beacom
-	NormFactor += Pu241*1.98477;
-	NormFactor += U238*2.82543;
+	NormFactor += U235*2.04e-03;
+	NormFactor += Pu239*1.58e-03;     // equation 9 in Vogel and Beacom
+	NormFactor += Pu241*2.00e-03;
+	NormFactor += U238*2.76e-03;
 	xsec = (energy-1.294)*(sqrt((energy-1.294)*(energy-1.294)-0.511*0.511));
 	
 	Probability = xsec*Phi / NormFactor;
     } while (randNo > Probability);               // Acceptance condition
-
     return energy*MeV;
 }
 
 G4double FissionAntiNuModule::CalculateU235Spectrum(G4double eNu) const {
-    G4double a_1 = 3.519e+0, a_2 = -3.517e+0, a_3 = 1.595e+0, a_4 = -4.171e-1, a_5 = 5.004e-2, a_6 = -2.303e-3;
+  //  G4double a_1 = 3.519e+0, a_2 = -3.517e+0, a_3 = 1.595e+0, a_4 = -4.171e-1, a_5 = 5.004e-2, a_6 = -2.303e-3;
+  G4double a_1 = 1.418, a_2 = -0.6078, a_3 = 8.955e-3, a_4 = -6.69e-3, a_5 = 6.933e-5, a_6 = 0;
     G4double phi = exp(a_1 + a_2*eNu + a_3*pow(eNu,2) + a_4*pow(eNu,3) + a_5*pow(eNu,4) + a_6*pow(eNu,5));
     return phi;
 }
@@ -107,4 +160,8 @@ void FissionAntiNuModule::PrintAllParameters() const {
     << "\t   Plutonium-241-Content:     " << 100*(GetPlutonium241Content(true)) << "%" << "\n"
     << "**************************************************************************************\n"
     << G4endl;
+}
+
+void FissionAntiNuModule::SetDwyer(G4bool val){
+  dwyer = val;
 }

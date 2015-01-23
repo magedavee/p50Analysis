@@ -26,10 +26,11 @@ public:
     void SetAntiNeutrinoSpectrum(G4double,G4double,G4double,G4double);
     
     G4double GenerateAntiNeutrinoEnergy() const;
+  G4double GenerateDwyerAntiNeutrinoEnergy() const;
     void GenerateEnergiesWithoutSimulation(G4int n = 1) const;
     
     void PrintAllParameters() const;
-    
+    void SetDwyer(G4bool);
 protected:
 
     /// Calculate Contribution from Uranium-235
@@ -42,6 +43,12 @@ protected:
     G4double CalculateU238Spectrum(G4double) const;
     /// Calculate Fraction of Total Composition
     G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
+
+  G4double Dwyer235[10200];
+  G4double Dwyer238[10200];
+  G4double Dwyer239[10200];
+  G4double Dwyer241[10200];
+  G4bool dwyer;
     
     G4double U235, U238, Pu239, Pu241;          ///< Fuel compositions
     FissionAntiNuMessenger* fiss_messenger;     ///< UI messenger

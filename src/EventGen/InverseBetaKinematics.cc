@@ -65,7 +65,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   Positrons = true;
   Sequential=false;
 
-  fission_gen = new FissionAntiNuModule(NULL); assert(false);
+  fission_gen = new FissionAntiNuModule(NULL); //assert(false);
   inv_messenger = new InverseBetaMessenger(this);
 
 	// Establish initial target volume - defaults to world volume
