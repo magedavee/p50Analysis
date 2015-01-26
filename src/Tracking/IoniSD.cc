@@ -1,6 +1,8 @@
 #include "IoniSD.hh"
 #include "RootIO.hh"
 
+#include <cassert>
+
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
 #include <G4Step.hh>
@@ -79,6 +81,7 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
         if(!isSubQuench) {
             G4double m_x = aStep->GetTrack()->GetDynamicParticle()->GetMass();
             G4double KE = aStep->GetTrack()->GetKineticEnergy() + l*Etot; // kinetic energy before step
+            if(!m_x) { m_x = 0.511*MeV; KE = E; z = -1; } // treat massless particles like electrons
             G4double x = KE/m_x;
             if(x>9.59e-5) {
                 G4double b2 = 1-1/pow(1+x,2); // particle beta^2
@@ -87,6 +90,7 @@ IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {
                 dEdx = mat_n * z*z * 57017*pow(x,0.4290) * MeV/cm;
             }
         }
+        assert(dEdx==dEdx); // NaN check
         aHit->SetdEdx(dEdx);
         
         aHit->record();

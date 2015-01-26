@@ -17,6 +17,8 @@ public:
     int isIoni() const;
     /// whether this cluster includes a veto signal
     bool hasVeto() const { return hitTypes.count(VETO_HIT); }
+    /// print description of cluster
+    void describe_cluster() const;
     
     vector<IoniCluster> myHits;         ///< hits in cluster, sorted by time
     map<HitTypeID, vector<IoniCluster> > hitTypes;        ///< hits sorted by type
@@ -34,13 +36,15 @@ public:
     bool addHit(IoniCluster h, double prompt_timescale, double delayed_timescale);
     /// finalize calculations after last hit is added
     void finalize();
-    /// general IBD-like: isolated neutron capture followed by (multi-segment) electron-like
-    int isIBDlike() const { return (promptClusters.size() == 2 && promptClusters[0].isNcapt())? promptClusters[1].isIoni() : 0; }
+    /// general IBD-like: (multi-segment) electron-like followed by neutron capture
+    int isIBDlike() const { return (promptClusters.size() == 2 && promptClusters[1].isNcapt())? promptClusters[0].isIoni() : 0; }
     
     /// get all (electron ionization, ncapt) pairs
     vector< pair<HitCluster,HitCluster> > getIBDPairs() const;
     /// get all hits, sorted by type first, then time
     map<HitTypeID, vector<IoniCluster> > getHitTypes() const;
+    /// print description of coincidence event
+    void describe_coinc() const;
     
     vector<HitCluster> promptClusters;  ///< clusters of promptly-time-correlated events
 };

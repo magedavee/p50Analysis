@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
             int ibdsegs = it->isIBDlike(); // 0 if not IBD-like; electron-like segment multiplicity otherwise.
             if(!ibdsegs) continue;
             hIBDTiming->Fill((it->promptClusters[1].t_median - it->promptClusters[0].t_median)/1000);
-            double Eioni = it->promptClusters[1].Eioni; // prompt ionization signal, summed over all segments [MeVee]
+            double Eioni = it->promptClusters[0].Eioni; // prompt ionization signal, summed over all segments [MeVee]
             hIBDEnergy->Fill(Eioni);
             hIoniMult->Fill(ibdsegs);
             if(ibdsegs==1) {

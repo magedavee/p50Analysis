@@ -71,7 +71,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
 	// Establish initial target volume - defaults to world volume
   worldVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume("world_phys");
   targetName = target;
-  G4cout << "TARGET IS " <<target<< "   " <<targetName<< G4endl;
+  G4cout << "TARGET IS " << target << "   " << targetName << G4endl;
   if(!(targetName == "")) { targetVolume = G4PhysicalVolumeStore::GetInstance()->GetVolume(target); }
   else                    { targetVolume = 0; }
   if(!targetVolume)
@@ -86,7 +86,7 @@ InverseBetaKinematics::InverseBetaKinematics(G4int v, const G4String target)
   {
     DToWRotation = FindTargetRotationWRTWorld();
     DToWTranslation = FindTargetTranslationWRTWorld();
-    G4cout<< " Target input is " <<target<< "." << G4endl;
+    G4cout<< " Target input is " << target << "." << G4endl;
     G4cout << "Inverse Beta Target set to " << targetName << "." << G4endl;
   }
 

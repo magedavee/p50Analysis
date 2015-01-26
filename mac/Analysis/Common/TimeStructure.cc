@@ -1,4 +1,5 @@
 #include "TimeStructure.hh"
+#include "AnaUtils.hh"
 
 void HitCluster::tallyHits() {
     if(!myHits.size()) return;
@@ -13,6 +14,12 @@ int HitCluster::isIoni() const {
     if(hitTypes.size() != 1) return 0;
     auto it = hitTypes.find(IONI_HIT);
     return (it==hitTypes.end())? 0 : it->second.size();
+}
+
+void HitCluster::describe_cluster() const {
+    printf("Cluster with %zu hits (Eioni = %.2f) at time %.1f", myHits.size(), Eioni, t_median);
+    if(hitTypes.size() == 1) printf(" of type %i\n", hitTypes.begin()->first);
+    else printf(" of %zu mixed types.\n",hitTypes.size());
 }
 
 bool CoincidenceEvent::addHit(IoniCluster h, double prompt_timescale, double delayed_timescale) {
@@ -69,13 +76,21 @@ HitTypeID TimeStructureAnalyzer::classifyHit(const IoniCluster& h) const {
     return trig_thresh < Eq ? IONI_HIT : DEAD_HIT;
 }
 
+void CoincidenceEvent::describe_coinc() const {
+    printf("Delayed coincidence between %zu clusters:\n",promptClusters.size());
+    for(auto it = promptClusters.begin(); it != promptClusters.end(); it++)
+        it->describe_cluster();
+    int ibdmult = isIBDlike();
+    if(ibdmult) printf("is IBD-like with multiplicity %i\n",ibdmult);
+}
+
 void TimeStructureAnalyzer::classifyHits() {
     // merge ionization tracks (all particles) into scintillator hits
     vector<IoniCluster> scintHits;
     map<Int_t, double> volIoni = mergeIoniHits(ionc->clusts, scintHits, prompt_timescale);
     
     // classify hits
-    for(auto its = scintHits.begin(); its != scintHits.end(); its++) its->PID = classifyHit(*its);   
+    for(auto its = scintHits.begin(); its != scintHits.end(); its++) its->PID = classifyHit(*its);
     
     // group hits into prompt clusters
     coincs.clear();
