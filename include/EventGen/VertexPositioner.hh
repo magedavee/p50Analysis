@@ -10,7 +10,11 @@ using std::vector;
 #include <G4ThreeVector.hh>
 
 /// Specification for a primary particle to throw
-struct primaryPtcl {
+class primaryPtcl {
+public:
+    /// Constructor
+    primaryPtcl() { }
+    
     int PDGid;          ///< PDG particle ID enumeration
     double KE;          ///< particle kinetic energy
     G4ThreeVector pos;  ///< vertex position
@@ -40,9 +44,11 @@ public:
     /// Get "normalized" (to volume, surface, etc.) number of attempts
     virtual double getAttemptsNormalized() const { return getAttempts(); }
     
+    G4ThreeVector originDirection;      ///< "direction" for origin particle in 1/r^2 capture generators
+    
 protected:
     
-    int nAttempts = 0;          ///< number of proposed throws
+    int nAttempts = 0;                  ///< number of proposed throws
 };
 
 /// Vertex positioner for isotropic momenta from a fixed point

@@ -26,6 +26,8 @@ public:
     
     /// Determine whether direction d from point x (P coordinates) intersects C
     bool intersects(G4ThreeVector x, G4ThreeVector d);
+    /// Get distance to entrance and exit intersection points from x along d; return whether intersection exists
+    bool intersectionDistances(G4ThreeVector x, G4ThreeVector d, double& dIn, double& dOut);
     
 protected:
     /// Calculate rotation and translation between parent and child volume

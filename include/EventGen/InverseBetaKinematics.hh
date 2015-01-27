@@ -1,113 +1,86 @@
-// Unrestricted Use - Property of AECL
-// 
-// InverseBetaKinematics.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Inverse Beta Decay Reaction Kinematics Generator
-//	Contains class functions/variables
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-// --------------------------------------------------------
+#ifndef InverseBetaKinematics_H
+#define InverseBetaKinematics_H
 
-#ifndef InverseBetaKinematics_H		// Only carries out if object is undefined
-#define InverseBetaKinematics_H 1	// Defines object
-
-#include "FissionAntiNuModule.hh"	// Specifies user-defined classes which are called upon in this class
-
-#include "G4ThreeVector.hh"		// Specifies the classes which contain structures called upon in this class
-#include "G4RotationMatrix.hh"
 #include "InverseBetaMessenger.hh"
-
-#include <map>				// Specifies classes defining all global parameters and variable types
 #include <vector>
-#include "globals.hh"
+using std::vector;
 
-class G4VPhysicalVolume;		// Structures necessary for class definition
-
-/* -------- Class Definition --------- */
-
-class InverseBetaKinematics
-{
-  friend class InverseBetaMessenger;
-
-  public:	// Constructors and Destructors
-
-    InverseBetaKinematics(G4int v = 1, const G4String target = "");		// Constructor
-    ~InverseBetaKinematics();							// Destructor
-
-  public:	// Accesible Methods
-
-    void SetReactionVolume(G4String);
+/// Kinematics generator for inverse beta decay
+class InverseBetaKinematics {
+friend class InverseBetaMessenger;
+    
+public:
+    /// Constructor, with verbosity
+    InverseBetaKinematics(G4int v = 1);
+    
+    /// Set verbosity
     void SetVerbosity(G4int);
-    void SetAntiNeutrinoDirection(G4ThreeVector dir) { antiNuDir = dir; };
-    void SetAntiNeutrinoSpectrum(G4double,G4double,G4double,G4double);
+    /// Set fuel composition determining spectrum
+    void SetAntiNeutrinoSpectrum(G4double, G4double, G4double, G4double);
+    /// Set monoenergetic antineutrino energy (set =0 to use spectrum)
     void SetAntiNeutrinoMonoEnergy(G4double);
-    void ToggleFission(G4bool flip) { fMonoEnergy = !flip; };
-    void ToggleNeutronGeneration(G4bool);
-    void TogglePositronGeneration(G4bool);
-    void ToggleSequentialGeneration(G4bool);
-
-    G4String GetReactionVolumeName() { return targetName; };
-    G4VPhysicalVolume* GetTargetPhysicalVolume(){ return targetVolume; };
-    G4VPhysicalVolume* GetWorldPhysicalVolume(){ return worldVolume; };
-    G4ThreeVector GetAntiNeutrinoDirection() const { return antiNuDir; };
-    G4double GetSpectrumU235Content(G4bool frac = false) const;
-    G4double GetSpectrumU238Content(G4bool frac = false) const;
-    G4double GetSpectrumPu239Content(G4bool frac = false) const;
-    G4double GetSpectrumPu241Content(G4bool frac = false) const;
-    G4bool IsNeutronGenerated() const { return Neutrons; };
-    G4bool IsPositronGenerated() const { return Positrons; };
-  G4bool IsSequentialGenerated() const { return Sequential; };
-
-    G4ThreeVector GenerateReactionPosition() const;
-    vector<G4double>* GenerateReactionKinematics() const;
+    /// Set whether to use Dwyer spectrum
+    void SetDwyer(G4bool val) { dwyer = val; }
+    
+    /// generate reaction kinematics vector
+    vector<double> GenerateReactionKinematics() const;
+    /// Spectrum Test Function
     void GenerateKinematicsWithoutSimulation(G4int n = 1) const;
+    /// calculate antinu energy
     G4double GenerateAntiNeutrinoEnergy() const;
-
+    /// calculate antinu energy from Dwyer spectrum
+    G4double GenerateDwyerAntiNeutrinoEnergy() const;
+    
+    /// display summary of parameter settings
     void PrintAllParameters() const;
-
-  protected:	// Internal Methods
-
+    
+    G4double GetUranium235Content(G4bool frac = false) const { return frac? CalculateFractionComposition(U235) : U235; }
+    G4double GetUranium238Content(G4bool frac = false) const { return frac? CalculateFractionComposition(U238) : U238; }
+    G4double GetPlutonium239Content(G4bool frac = false) const { return frac? CalculateFractionComposition(Pu239) : Pu239; }
+    G4double GetPlutonium241Content(G4bool frac = false) const { return frac? CalculateFractionComposition(Pu241) : Pu241; }
+    
+protected:
+    
+    /// Calculate Contribution from Uranium-235
+    G4double CalculateU235Spectrum(G4double) const;
+    /// Calculate Contribution from Plutonium-239
+    G4double CalculatePu239Spectrum(G4double) const;
+    /// Calculate Contribution from Plutonium-241
+    G4double CalculatePu241Spectrum(G4double) const;
+    /// Calculate Contribution from Uranium-238
+    G4double CalculateU238Spectrum(G4double) const;
+    /// Calculate Fraction of Total Composition
+    G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
+    
+    G4double Dwyer235[10200];   ///< Dwyer U235 spectrum table
+    G4double Dwyer238[10200];   ///< Dwyer U238 spectrum table
+    G4double Dwyer239[10200];   ///< Dwyer Pu239 spectrum table
+    G4double Dwyer241[10200];   ///< Dwyer Pu241 spectrum table
+    G4bool dwyer;               ///< whether to use Dwyer spectrum
+    
+    G4double U235, U238, Pu239, Pu241;          ///< Fuel compositions
+    InverseBetaMessenger* fiss_messenger;       ///< UI messenger
+    
+    /// calculate positron emission angle
     G4double GeneratePositronAngle(G4double) const;
+    /// calculate positron total energy
     G4double CalculatePositronEnergy(G4double,G4double) const;
+    /// calculate neutron total energy
     G4double CalculateNeutronEnergy(G4double,G4double) const;
+    /// calculate neutron emission angle
     G4double CalculateNeutronAngle(G4double,G4double) const;
     G4double CalculateCrossSectionWRTAngle(G4double,G4double) const;
     G4bool CheckFourVectorSolution(G4double,G4double,G4double,G4double,G4double) const;
-
-    G4RotationMatrix* FindTargetRotationWRTWorld() const;
-    G4ThreeVector* FindTargetTranslationWRTWorld() const;
-
-  private:	// Constants
-
+        
     G4double c;
     G4double pMass, nMass, ePlusMass;
-
-  private:	// Member Data
-
-    G4int verbose;			// Verbosity (0 = silent, 1 = minimal, 2 = loud)
-    G4bool RawData;			// Outputs generated numbers, set with verbosity > 2
-
-    G4ThreeVector antiNuDir;
-    G4double antiNuMonoEnergy;
-    G4bool fMonoEnergy;			// Flag to specify mono-energetic antineutrinos
-    G4bool Neutrons;			// Flag to specify neutron production
-    G4bool Positrons;			// Flag to specify positron production
-    G4bool Sequential;			// Flag to specify sequential positron and neutron production
-
-    FissionAntiNuModule* fission_gen;
-    InverseBetaMessenger* inv_messenger;
-
-    G4String targetName;
-    G4VPhysicalVolume* targetVolume;
-    G4VPhysicalVolume* worldVolume;
-    G4RotationMatrix* DToWRotation;
-    G4ThreeVector* DToWTranslation;
+    
+private:
+    
+    G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
+    G4bool RawData;                             ///< Outputs generated numbers, set with verbosity > 2
+    G4double antiNuMonoEnergy;                  ///< monoenergetic neutrino energy to generate (set =0 for spectrum)
+    InverseBetaMessenger inv_messenger;         ///< messenger for this class
 };
 
-/* ----------------------------------- */
-
-#endif					// End of the if clause
-
-// EOF
+#endif

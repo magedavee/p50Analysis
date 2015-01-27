@@ -21,22 +21,18 @@ public:
     /// Set source (surface) and target (volume)
     void setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* TT = NULL);
     
-    /// Generate position and momentum for throwing particle; return whether successful direction generated
-    void genThrow();
-    
     /// Set position, momentum for list of particles; note: multiple primaries all thrown in same direction!
     virtual bool tryVertex(vector<primaryPtcl>& v);
     
     /// Get surface area of origin solid
-    double getOriginArea() const { return W? W->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
+    double getOriginArea() const { return S? S->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
     /// Get volume of origin solid
-    double getOriginVolume() const { return W? W->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
+    double getOriginVolume() const { return S? S->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
     /// Get "normalized" (to volume, surface, etc.) number of attempts
     virtual double getAttemptsNormalized() const { return getAttempts()/(fromVolume?1.:getOriginArea()); }
     
     G4ThreeVector pos;          ///< vertex position
     G4ThreeVector snorm;        ///< surface normal at position
-    G4ThreeVector mom;          ///< momentum direction
     bool outer;                 ///< whether to throw from outside (or inside) of source surface
     bool fromVolume;            ///< throw isotropically from inside volume
     
@@ -47,7 +43,7 @@ protected:
     /// propose vertex position
     void proposePosition();
     /// Test a proposed momentum direction for surface normal and target hit
-    bool tryMomentum();
+    bool tryMomentum(G4ThreeVector& mom);
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

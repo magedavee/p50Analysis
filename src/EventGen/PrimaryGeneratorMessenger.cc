@@ -4,7 +4,6 @@
 #include "CosmicMuonGenerator.hh"
 #include "CosmicCosineGenerator.hh"
 #include "InverseBetaKinematics.hh"
-#include "FissionAntiNuModule.hh"
 #include "DetectorConstruction.hh"
 
 #include "G4ios.hh"
@@ -17,7 +16,6 @@ verbCmd("/generator/verbose",this),
 moduleGuncmd("/generator/module/gun",this),
 moduleCRYcmd("/generator/module/CRY",this),
 moduleIBDcmd("/generator/module/IBD",this),
-moduleFisANucmd("/generator/module/FisANu",this),
 moduleCosMucmd("/generator/module/CosMu",this),
 moduleCosNcmd("/generator/module/CosN",this),
 moduleCf252cmd("/generator/module/Cf252",this),
@@ -29,6 +27,7 @@ moduleHistocmd("/generator/module/histogram",this),
 ptPosCmd("/generator/vertex/isotpt", this),
 isotFluxCmd("/generator/vertex/isotworld", this),
 srcTargCmd("/generator/vertex/srctarg", this),
+scintSrcCmd("/generator/vertex/scintvol",this),
 cosFluxCmd("/generator/vertex/cosx", this),
 dirFluxCmd("/generator/vertex/directional", this) {
         
@@ -52,9 +51,6 @@ dirFluxCmd("/generator/vertex/directional", this) {
     
     moduleIBDcmd.SetGuidance("Use Inverse Beta Decay event generator");
     moduleIBDcmd.AvailableForStates(G4State_Idle);
-    
-    moduleFisANucmd.SetGuidance("Use fission anti-neutrino event generator");
-    moduleFisANucmd.AvailableForStates(G4State_Idle);
     
     moduleCosMucmd.SetGuidance("Use cosmic muon event generator");
     moduleCosMucmd.AvailableForStates(G4State_Idle);
@@ -89,6 +85,9 @@ dirFluxCmd("/generator/vertex/directional", this) {
     srcTargCmd.SetGuidance("Generate vertices from source to target volume");
     srcTargCmd.AvailableForStates(G4State_Idle);
     
+    scintSrcCmd.SetGuidance("Generate vertices uniformly in scintillator volume");
+    scintSrcCmd.AvailableForStates(G4State_Idle);
+    
     cosFluxCmd.SetGuidance("Generate cos^x-weighted hemispherical flux from world volume");
     cosFluxCmd.AvailableForStates(G4State_Idle);
     
@@ -101,7 +100,6 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
     else if(command == &moduleGuncmd) generator->loadGunModule();
     else if(command == &moduleCRYcmd) generator->loadCRYModule();
     else if(command == &moduleIBDcmd) generator->loadIBDModule();
-    else if(command == &moduleFisANucmd) generator->loadFisAntNuModule();
     else if(command == &moduleCosMucmd) generator->loadCosmicMuonModule();
     else if(command == &moduleCosNcmd) generator->loadCosmicNeutronModule();
     else if(command == &moduleCf252cmd) generator->loadCf252Module();
@@ -122,6 +120,14 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newVa
         generator->myPositioner = generator->GetCosineThrower();
         generator->GetCosineThrower()->fromVolume = true;
         generator->GetCosineThrower()->setSourceTarget(generator->GetDetector()->ptclSrc, generator->GetDetector()->ptclTrg);
+        generator->GetCosineThrower()->setExponent(0);
+    } else if(command == &scintSrcCmd) {
+        ScintSegVol* V = generator->GetDetector()->getScint();
+        G4VPhysicalVolume* scph = V? V->scint_phys : NULL;
+        if(!scph) { G4cout << "Scintillator not defined in this geometry!" << G4endl; return; }
+        generator->myPositioner = generator->GetCosineThrower();
+        generator->GetCosineThrower()->fromVolume = true;
+        generator->GetCosineThrower()->setSourceTarget(scph, NULL);
         generator->GetCosineThrower()->setExponent(0);
     } else if(command == &dirFluxCmd) {
         generator->myPositioner = generator->GetDirectionThrower();

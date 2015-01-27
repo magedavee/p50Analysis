@@ -22,7 +22,7 @@ int VertexPositioner::setVertex(vector<primaryPtcl>& v) {
 bool IsotPtPositioner::tryVertex(vector<primaryPtcl>& v) {
     for(auto it = v.begin(); it != v.end(); it++) {
         it->pos = x0;
-        it->mom = randomDirection();
+        if(!it->mom.mag2()) it->mom = randomDirection();
     }
     return true;
 }

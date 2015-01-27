@@ -1,74 +1,49 @@
-// Unrestricted Use - Property of AECL
-// 
-// InverseBetaMessenger.hh
-// GEANT4 - geant4.9.3.p01
-//
-// Header File for Inverse Beta Module Messenger
-//	Contains class functions/variables
-//
-// --------------------------------------------------------
-//	Version 1.01 - 2011/04/29 - A. Ho
-// --------------------------------------------------------
+#ifndef InverseBetaMessenger_H
+#define InverseBetaMessenger_H
 
-#ifndef InverseBetaMessenger_H			// Only carries out if object is undefined
-#define InverseBetaMessenger_H 1		// Defines object
+class InverseBetaKinematics;
 
-#include "G4UImessenger.hh"			// Specifies base class or parent class
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcommand.hh>
+#include <G4UIparameter.hh>
+#include <G4UIcmdWithoutParameter.hh>
+#include <G4UIcmdWithABool.hh>
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
+#include <G4UIcmdWith3Vector.hh>
+#include <G4UIcmdWith3VectorAndUnit.hh>
 
-#include "globals.hh"				// Specifies class defining all global parameters and variable types
-
-class InverseBetaKinematics;			// Structures necessary for class definition
-class G4UIdirectory;
-class G4UIcommand;
-class G4UIcmdWithoutParameter;
-class G4UIcmdWithAString;
-class G4UIcmdWithABool;
-class G4UIcmdWithAnInteger;
-class G4UIcmdWithADouble;
-class G4UIcmdWithADoubleAndUnit;
-class G4UIcmdWith3Vector;
-class G4UIcmdWith3VectorAndUnit;
-
-/* -------- Class Definition --------- */
-
-class InverseBetaMessenger: public G4UImessenger		// This class inherits functions from G4UImessenger
-{
-  public:	// Constructors and Destructors
-
-    InverseBetaMessenger(InverseBetaKinematics*);		// Constructor
-    virtual ~InverseBetaMessenger();				// Destructor
-
-  public:	// Accessible Methods
-
+/// UI Messenger class for InverseBetaKinematics settings
+class InverseBetaMessenger: public G4UImessenger {
+public:
+    /// Constructor
+    InverseBetaMessenger(InverseBetaKinematics*);
+    /// Destructor
+    virtual ~InverseBetaMessenger();
+    
+    /// respond to UI input
     void SetNewValue(G4UIcommand*,G4String);
-    G4String GetCurrentValue(G4UIcommand*);
-
-  private:	// Internal Methods
-
+    
+private:
+    /// Removes commands related to Inverse Beta Module when module is destroyed
     void ResetModuleCommands();
-
-  private:	// Member Data
-
-    InverseBetaKinematics* generator;
-
-  private:	// Constants
-
-    G4UIdirectory* invBetaDir;				// Directories holding commands
-
-    G4UIcmdWithAString* invTargetCmd;			// Commands - activated during run-time
-    G4UIcmdWithABool* invMonoTogCmd;
+    
+    InverseBetaKinematics* generator;   ///< generator being controlled
+    
+    G4UIdirectory* invBetaDir;          ///< Directory holding commands
+    G4UIdirectory* fissNuDir;           ///< Directory holding commands
+    
+    G4UIcommand* fisProdCmd;
+    G4UIcmdWithABool* fisDwyerCmd;
+    G4UIcmdWithoutParameter* fisPrintCmd;
+    
     G4UIcmdWithADoubleAndUnit* invMonoECmd;
-    G4UIcmdWithABool* invNeutCmd;
-    G4UIcmdWithABool* invPosiCmd;
-    G4UIcmdWithABool* invSeqCmd;
     G4UIcommand* invProdCmd;
     G4UIcmdWith3Vector* invDirectCmd;
     G4UIcmdWithAnInteger* invVerbCmd;
     G4UIcmdWithoutParameter* invPrintCmd;
 };
 
-/* ----------------------------------- */
-
-#endif						// End of the if clause
-
-// EOF
+#endif

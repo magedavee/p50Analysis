@@ -44,8 +44,8 @@ void SurfaceThrower::proposePosition() {
     pos = W2S.coordCtoP(pos);
 }
 
-bool SurfaceThrower::tryMomentum() {
-    mom = proposeDirection();
+bool SurfaceThrower::tryMomentum(G4ThreeVector& mom) {
+    if(!mom.mag2()) mom = proposeDirection();
     bool passNormal = true;
     if(!fromVolume) {
         double x = snorm.dot(mom);
@@ -55,16 +55,6 @@ bool SurfaceThrower::tryMomentum() {
     return passNormal && (!T || W2T.intersects(pos,mom));
 }
 
-void SurfaceThrower::genThrow() {
-    assert(S);
-    if(!S) return;
-    
-    do { proposePosition(); nAttempts++; }
-    while(!tryMomentum());
-
-    nHits++;
-}
-
 bool SurfaceThrower::tryVertex(vector<primaryPtcl>& v) {
     if(!v.size()) return false;
     
@@ -72,11 +62,9 @@ bool SurfaceThrower::tryVertex(vector<primaryPtcl>& v) {
     nAttempts++;
     proposePosition();
     for(auto it = v.begin(); it != v.end(); it++) {
-        if(tryMomentum()) {
-            it->pos = pos;
-            it->mom = mom;
-            thrown.push_back(*it);
-        }
+        primaryPtcl p = *it;
+        p.pos = pos;
+        if(tryMomentum(p.mom)) thrown.push_back(p);
     }
     
     nHits += thrown.size();

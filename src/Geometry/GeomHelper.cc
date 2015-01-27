@@ -56,3 +56,13 @@ bool GeomHelper::intersects(G4ThreeVector x, G4ThreeVector d) {
     d *= rotPtoC;
     return C->GetLogicalVolume()->GetSolid()->DistanceToIn(x, d) != kInfinity;
 }
+
+bool GeomHelper::intersectionDistances(G4ThreeVector x, G4ThreeVector d, double& dIn, double& dOut) {
+    if(!C) { dIn = dOut = kInfinity; return false; }
+    x = coordPtoC(x);
+    d *= rotPtoC;
+    dIn = C->GetLogicalVolume()->GetSolid()->DistanceToIn(x, d);
+    if(dIn == kInfinity) { dOut = dIn; return false; }
+    dOut = C->GetLogicalVolume()->GetSolid()->DistanceToIn(x+d*dIn, d);
+    return true;
+}

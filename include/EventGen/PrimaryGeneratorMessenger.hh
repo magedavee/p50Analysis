@@ -34,7 +34,6 @@ private:
     G4UIcmdWithoutParameter moduleGuncmd;       ///< UI command for using "particle gun" generator
     G4UIcmdWithoutParameter moduleCRYcmd;       ///< UI command for using CRY cosmic ray generator
     G4UIcmdWithoutParameter moduleIBDcmd;       ///< UI command for using IBD generator
-    G4UIcmdWithoutParameter moduleFisANucmd;    ///< UI command for using fission antineutrino generator
     G4UIcmdWithoutParameter moduleCosMucmd;     ///< UI command for using cosmic muon generator
     G4UIcmdWithoutParameter moduleCosNcmd;      ///< UI command for using cosmic neutron generator
     G4UIcmdWithoutParameter moduleCf252cmd;     ///< UI command for using Cf252 neutron generator
@@ -47,6 +46,7 @@ private:
     G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
     G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface
     G4UIcmdWithoutParameter srcTargCmd;         ///< UI command for isotropic flux from source to target volume
+    G4UIcmdWithoutParameter scintSrcCmd;        ///< UI command for isotropic source in scintillator volume
     G4UIcmdWithADouble cosFluxCmd;              ///< UI command for cos^x-weighted flux
     G4UIcmdWith3Vector dirFluxCmd;              ///< UI command for directional flux
 };

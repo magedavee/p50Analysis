@@ -19,7 +19,6 @@ class DetectorConstruction;
 
 class CRYModule;
 class IBDModule;
-class FissionAntiNuModule;
 class CosmicMuonModule;
 class CosmicNeutronModule;
 class Cf252Module;
@@ -87,8 +86,6 @@ public:
     void loadCRYModule();              
     /// load Inverse Beta Decay as current generator
     void loadIBDModule();
-    /// load fission anti-neutrinos as current generator
-    void loadFisAntNuModule();
     /// load cosmic muons as current generator
     void loadCosmicMuonModule();
     /// load cosmic neutrons as current generator
@@ -122,8 +119,7 @@ protected:
     
     PrimaryGeneratorModule* genModule;          ///< generator module currently in use
     CRYModule* myCRYModule;                     ///< CRY generator module
-    IBDModule* myIBDModule;                     ///< Inverse Beta Decay generator
-    FissionAntiNuModule* myFisAntNuModule;      ///< Fission anti-neutrinos generator
+    IBDModule* myIBDModule;                     ///< antineutrino and Inverse Beta Decay generator
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator

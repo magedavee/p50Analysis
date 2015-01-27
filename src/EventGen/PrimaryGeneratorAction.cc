@@ -9,7 +9,6 @@
 
 #include "CRYModule.hh"
 #include "IBDModule.hh"
-#include "FissionAntiNuModule.hh"
 #include "CosmicMuonModule.hh"
 #include "Cf252Module.hh"
 #include "SimpleBGModule.hh"
@@ -73,8 +72,7 @@ XMLProvider("PrimaryGenerator"),
 detect((DetectorConstruction*)G4RunManager::GetRunManager()->GetUserDetectorConstruction()),
 myPositioner(&myIsotPt),
 myCosineThrower(NULL),
-genModule(NULL), myCRYModule(NULL),
-myIBDModule(NULL), myFisAntNuModule(NULL),
+genModule(NULL), myCRYModule(NULL), myIBDModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL), myCf252Module(NULL) , mySimpleBGModule(NULL), myThermalNModule(NULL){
     verbose = 0;
     
@@ -97,7 +95,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     
     if(myCRYModule) delete myCRYModule;
     if(myIBDModule) delete myIBDModule;
-    if(myFisAntNuModule) delete myFisAntNuModule;
     if(myCosmicMuonModule) delete myCosmicMuonModule;
     if(myCosmicNeutronModule) delete myCosmicNeutronModule;
     if(myCf252Module) delete myCf252Module;
@@ -133,12 +130,6 @@ void PrimaryGeneratorAction::loadIBDModule() {
     if(!myIBDModule) myIBDModule = new IBDModule(this);
     G4cout << "Using Inverse Beta Decay event generator." << G4endl; 
     genModule = myIBDModule;
-}
-
-void PrimaryGeneratorAction::loadFisAntNuModule() {
-    if(!myFisAntNuModule) myFisAntNuModule = new FissionAntiNuModule(this);
-    G4cout << "Using Fission Anti-neutrino event generator." << G4endl; 
-    genModule = myFisAntNuModule;
 }
 
 void PrimaryGeneratorAction::loadCosmicMuonModule() {
