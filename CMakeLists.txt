@@ -11,6 +11,14 @@ project(PROSPECT-G4)
 add_compile_options(-std=c++11)
 
 #----------------------------------------------------------------------------
+#For Mac OS X Use @rpath on OS X
+if(APPLE) 
+  if(POLICY CMP0042)
+      CMAKE_POLICY(SET CMP0042 NEW)
+   endif()
+endif()
+
+#----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*/*.cc )
