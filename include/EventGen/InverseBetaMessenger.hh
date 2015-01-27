@@ -32,7 +32,6 @@ private:
     
     InverseBetaKinematics* generator;   ///< generator being controlled
     
-    G4UIdirectory* invBetaDir;          ///< Directory holding commands
     G4UIdirectory* fissNuDir;           ///< Directory holding commands
     
     G4UIcommand* fisProdCmd;
@@ -43,7 +42,6 @@ private:
     G4UIcommand* invProdCmd;
     G4UIcmdWith3Vector* invDirectCmd;
     G4UIcmdWithAnInteger* invVerbCmd;
-    G4UIcmdWithoutParameter* invPrintCmd;
 };
 
 #endif

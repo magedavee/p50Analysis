@@ -43,20 +43,15 @@ InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta): gen
     fisPrintCmd = new G4UIcmdWithoutParameter("/generator/module/fissionAntinu/printParameters",this);
     fisPrintCmd->SetGuidance("Prints all user-defined parameters for the Reactor Antineutrino Module.");
     fisPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
-    
-    
-    invBetaDir = new G4UIdirectory("/generator/module/inverseBeta/");
-    invBetaDir->SetGuidance("Antineutrino Inverse Beta Decay Product Module commands.");
-    invBetaDir->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
-    
-    invMonoECmd = new G4UIcmdWithADoubleAndUnit("/generator/module/inverseBeta/setAntinuEnergy",this);
+        
+    invMonoECmd = new G4UIcmdWithADoubleAndUnit("/generator/module/fissionAntinu/setAntinuEnergy",this);
     invMonoECmd->SetGuidance("Set energy of mono-energetic antineutrinos.");
     invMonoECmd->SetParameterName("nuEnergy",true);
     invMonoECmd->SetDefaultValue(2.0);
     invMonoECmd->SetDefaultUnit("MeV");
     invMonoECmd->AvailableForStates(G4State_Idle);
     
-    invProdCmd = new G4UIcommand("/generator/module/inverseBeta/setFuelComposition",this);
+    invProdCmd = new G4UIcommand("/generator/module/fissionAntinu/setFuelComposition",this);
     invProdCmd->SetGuidance("Set the fission fuel composition that will dictate the antineutrino energy spectrum.");
     invProdCmd->SetGuidance("     Insert four decimal values (does not necessarily have to total to unity):");
     invProdCmd->SetGuidance("       First: U235, Second: U238, Third: Pu239, Fourth: Pu241");
@@ -74,24 +69,20 @@ InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta): gen
     invProdCmd->SetParameter(param);
     invProdCmd->AvailableForStates(G4State_Idle);
     
-    invDirectCmd = new G4UIcmdWith3Vector("/generator/module/inverseBeta/setIncidentDirection",this);
+    invDirectCmd = new G4UIcmdWith3Vector("/generator/module/fissionAntinu/setIncidentDirection",this);
     invDirectCmd->SetGuidance("Set the direction of incoming antineutrinos for use in the kinematics module.");
     invDirectCmd->SetGuidance("     Input the direction by using a vector, entries separated by spaces:");
     invDirectCmd->SetGuidance("       (For reference: x is the long edge, y is up, z is the short edge)");
     invDirectCmd->SetParameterName("nuDirX","nuDirY","nuDirZ",false);
     invDirectCmd->AvailableForStates(G4State_Idle);
     
-    invVerbCmd = new G4UIcmdWithAnInteger("/generator/module/inverseBeta/verbose",this);
+    invVerbCmd = new G4UIcmdWithAnInteger("/generator/module/fissionAntinu/verbose",this);
     invVerbCmd->SetGuidance("Set the verbosity of this module");
     invVerbCmd->SetGuidance("    0 = silent, 1 = minimal, 2 = loud");
     invVerbCmd->SetGuidance("    Entries less than 0 will count as 0");
     invVerbCmd->SetGuidance("    Entries greater than 0 will also output generated values");
     invVerbCmd->SetParameterName("v",false);
     invVerbCmd->AvailableForStates(G4State_Idle);
-    
-    invPrintCmd = new G4UIcmdWithoutParameter("/generator/module/inverseBeta/printParameters",this);
-    invPrintCmd->SetGuidance("Prints all user-defined parameters for the Inverse Beta Decay Product Module.");
-    invPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
 }
 
 InverseBetaMessenger::~InverseBetaMessenger() {
@@ -101,12 +92,10 @@ InverseBetaMessenger::~InverseBetaMessenger() {
     delete fisProdCmd;
     delete fisPrintCmd;
     
-    delete invBetaDir;
     delete invMonoECmd;
     delete invProdCmd;
     delete invDirectCmd;
     delete invVerbCmd;
-    delete invPrintCmd;
 }
 
 // ****** Input Command Instructions ****** //
@@ -122,7 +111,6 @@ void InverseBetaMessenger::SetNewValue(G4UIcommand* command, G4String newValue) 
         << "--- U235: " << setU << " U238: " << setUr << " Pu239: " << setPu << " Pu241: " << setPU << " ---" << G4endl;
     } else if(command == invDirectCmd) assert(false); // TODO generator->SetAntiNeutrinoDirection(invDirectCmd->GetNew3VectorValue(newValue));
     else if(command == invVerbCmd) generator->SetVerbosity(invVerbCmd->GetNewIntValue(newValue));
-    else if(command == invPrintCmd) generator->PrintAllParameters();
     else if(command == fisProdCmd) {
         G4Tokenizer next(newValue);
         G4double setU = StoD(next()); G4double setUr = StoD(next()); G4double setPu = StoD(next()); G4double setPU = StoD(next());
@@ -141,6 +129,4 @@ void InverseBetaMessenger::ResetModuleCommands() {
     UI_manager->RemoveCommand(invProdCmd);
     UI_manager->RemoveCommand(invDirectCmd);
     UI_manager->RemoveCommand(invVerbCmd);
-    UI_manager->RemoveCommand(invPrintCmd);
-    UI_manager->RemoveCommand(invBetaDir);
 }
