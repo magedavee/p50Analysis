@@ -10,13 +10,13 @@
 
 InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta): generator(inv_beta) {
     
-    fissNuDir = new G4UIdirectory("/generator/module/fissionAntinu/");
+    fissNuDir = new G4UIdirectory("/generator/fissionAntinu/");
     fissNuDir->SetGuidance("Reactor Antineutrino Module settings.");
     fissNuDir->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
     
     G4UIparameter* param;               // Custom command definition
     
-    fisProdCmd = new G4UIcommand("/generator/module/fissionAntinu/setFuelComposition",this);
+    fisProdCmd = new G4UIcommand("/generator/fissionAntinu/setFuelComposition",this);
     fisProdCmd->SetGuidance("Set the fission fuel composition that will dictate the antineutrino energy spectrum.");
     fisProdCmd->SetGuidance("     Insert four decimal values (does not necessarily have to total to unity):");
     fisProdCmd->SetGuidance("       First: U235, Second: U238, Third: Pu239, Fourth: Pu241");
@@ -34,24 +34,24 @@ InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta): gen
     fisProdCmd->SetParameter(param);
     fisProdCmd->AvailableForStates(G4State_Idle);
     
-    fisDwyerCmd = new G4UIcmdWithABool("/generator/module/fissionAntinu/DwyerSpectrum",this);
+    fisDwyerCmd = new G4UIcmdWithABool("/generator/fissionAntinu/DwyerSpectrum",this);
     fisDwyerCmd->SetGuidance("Enable/Disable Dan Dwyer's antineutrino spectra.");
     fisDwyerCmd->SetParameterName("toggle",true);
     fisDwyerCmd->SetDefaultValue(true);
     fisDwyerCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
     
-    fisPrintCmd = new G4UIcmdWithoutParameter("/generator/module/fissionAntinu/printParameters",this);
+    fisPrintCmd = new G4UIcmdWithoutParameter("/generator/fissionAntinu/printParameters",this);
     fisPrintCmd->SetGuidance("Prints all user-defined parameters for the Reactor Antineutrino Module.");
     fisPrintCmd->AvailableForStates(G4State_Idle,G4State_GeomClosed,G4State_EventProc);
         
-    invMonoECmd = new G4UIcmdWithADoubleAndUnit("/generator/module/fissionAntinu/setAntinuEnergy",this);
-    invMonoECmd->SetGuidance("Set energy of mono-energetic antineutrinos.");
+    invMonoECmd = new G4UIcmdWithADoubleAndUnit("/generator/fissionAntinu/setAntinuEnergy",this);
+    invMonoECmd->SetGuidance("Set energy of mono-energetic antineutrinos; 0 for spectrum generation.");
     invMonoECmd->SetParameterName("nuEnergy",true);
     invMonoECmd->SetDefaultValue(2.0);
     invMonoECmd->SetDefaultUnit("MeV");
     invMonoECmd->AvailableForStates(G4State_Idle);
     
-    invProdCmd = new G4UIcommand("/generator/module/fissionAntinu/setFuelComposition",this);
+    invProdCmd = new G4UIcommand("/generator/fissionAntinu/setFuelComposition",this);
     invProdCmd->SetGuidance("Set the fission fuel composition that will dictate the antineutrino energy spectrum.");
     invProdCmd->SetGuidance("     Insert four decimal values (does not necessarily have to total to unity):");
     invProdCmd->SetGuidance("       First: U235, Second: U238, Third: Pu239, Fourth: Pu241");
@@ -69,14 +69,14 @@ InverseBetaMessenger::InverseBetaMessenger(InverseBetaKinematics* inv_beta): gen
     invProdCmd->SetParameter(param);
     invProdCmd->AvailableForStates(G4State_Idle);
     
-    invDirectCmd = new G4UIcmdWith3Vector("/generator/module/fissionAntinu/setIncidentDirection",this);
+    invDirectCmd = new G4UIcmdWith3Vector("/generator/fissionAntinu/setIncidentDirection",this);
     invDirectCmd->SetGuidance("Set the direction of incoming antineutrinos for use in the kinematics module.");
     invDirectCmd->SetGuidance("     Input the direction by using a vector, entries separated by spaces:");
     invDirectCmd->SetGuidance("       (For reference: x is the long edge, y is up, z is the short edge)");
     invDirectCmd->SetParameterName("nuDirX","nuDirY","nuDirZ",false);
     invDirectCmd->AvailableForStates(G4State_Idle);
     
-    invVerbCmd = new G4UIcmdWithAnInteger("/generator/module/fissionAntinu/verbose",this);
+    invVerbCmd = new G4UIcmdWithAnInteger("/generator/fissionAntinu/verbose",this);
     invVerbCmd->SetGuidance("Set the verbosity of this module");
     invVerbCmd->SetGuidance("    0 = silent, 1 = minimal, 2 = loud");
     invVerbCmd->SetGuidance("    Entries less than 0 will count as 0");
