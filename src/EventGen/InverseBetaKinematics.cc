@@ -16,15 +16,13 @@
 using std::map;
 
 InverseBetaKinematics::InverseBetaKinematics(G4int v):
-dwyer(false), U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0), verbose(v), inv_messenger(this) {
+dwyer(false), U235(1.06), U238(0.057), Pu239(0.0), Pu241(0.0),
+pMass(G4Proton::ProtonDefinition()->GetPDGMass()),
+nMass(G4Neutron::NeutronDefinition()->GetPDGMass()),
+ePlusMass(G4Positron::PositronDefinition()->GetPDGMass()),
+verbose(v), antiNuMonoEnergy(0*MeV),
+inv_messenger(this) {
     RawData = verbose > 2;
-    
-    c = 299792458*m/s;
-    pMass = G4Proton::ProtonDefinition()->GetPDGMass();
-    nMass = G4Neutron::NeutronDefinition()->GetPDGMass();
-    ePlusMass = G4Positron::PositronDefinition()->GetPDGMass();
-    antiNuMonoEnergy = 0*MeV;
-    
     // load Dwyer spectrum data
     char header[200];
     G4double dummy;
@@ -323,9 +321,7 @@ G4double InverseBetaKinematics::CalculateNeutronEnergy(G4double ePlusEnergy, G4d
     return nEnergy;
 }
 
-// ****** Calculate Neutron Angle ****** //
-G4double InverseBetaKinematics::CalculateNeutronAngle(G4double nEnergy, G4double nuEnergy) const
-{
+G4double InverseBetaKinematics::CalculateNeutronAngle(G4double nEnergy, G4double nuEnergy) const {
     // Calculates neutron angle using its total energy and the four-vector equation
     G4double nAngle;
     
@@ -349,9 +345,7 @@ G4double InverseBetaKinematics::CalculateNeutronAngle(G4double nEnergy, G4double
     return nAngle;
 }
 
-// ****** Four-Vector Solution Check ****** //
-G4bool InverseBetaKinematics::CheckFourVectorSolution(G4double nuEnergy, G4double posE, G4double nE, G4double posAng, G4double nAng) const
-{
+G4bool InverseBetaKinematics::CheckFourVectorSolution(G4double nuEnergy, G4double posE, G4double nE, G4double posAng, G4double nAng) const {
     // Check conservation of mass-energy
     G4double eBalance = nuEnergy + pMass - posE - nE;
     if(eBalance/MeV > 1.e-6)
@@ -370,9 +364,7 @@ G4bool InverseBetaKinematics::CheckFourVectorSolution(G4double nuEnergy, G4doubl
     return true;
 }
 
-// ****** Calculate Interaction Cross Section ****** //
-G4double InverseBetaKinematics::CalculateCrossSectionWRTAngle(G4double angle, G4double nuEnergy) const
-{
+G4double InverseBetaKinematics::CalculateCrossSectionWRTAngle(G4double angle, G4double nuEnergy) const {
     // Parameterization found in Angular Distribtuion of Neutron Inverse beta Decay
     // P. Vogel and J. F. Beacon, July 1999 - Equation (12)
     

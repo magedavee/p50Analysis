@@ -1,3 +1,4 @@
+/// \file InverseBetaKinematics.hh \brief Calculator for reactor antineutrino spectrum and IBD kinematics.
 #ifndef InverseBetaKinematics_H
 #define InverseBetaKinematics_H
 
@@ -7,18 +8,16 @@ using std::vector;
 
 /// Kinematics generator for inverse beta decay
 class InverseBetaKinematics {
-friend class InverseBetaMessenger;
-    
 public:
     /// Constructor, with verbosity
     InverseBetaKinematics(G4int v = 1);
     
     /// Set verbosity
-    void SetVerbosity(G4int);
+    void SetVerbosity(G4int v);
     /// Set fuel composition determining spectrum
-    void SetAntiNeutrinoSpectrum(G4double, G4double, G4double, G4double);
+    void SetAntiNeutrinoSpectrum(G4double U5, G4double U8, G4double P3, G4double P4);
     /// Set monoenergetic antineutrino energy (set =0 to use spectrum)
-    void SetAntiNeutrinoMonoEnergy(G4double);
+    void SetAntiNeutrinoMonoEnergy(G4double Enu);
     /// Set whether to use Dwyer spectrum
     void SetDwyer(G4bool val) { dwyer = val; }
     
@@ -34,49 +33,50 @@ public:
     /// display summary of parameter settings
     void PrintAllParameters() const;
     
+    /// portion of fuel which is U235
     G4double GetUranium235Content(G4bool frac = false) const { return frac? CalculateFractionComposition(U235) : U235; }
+    /// portion of fuel which is U238
     G4double GetUranium238Content(G4bool frac = false) const { return frac? CalculateFractionComposition(U238) : U238; }
+    /// portion of fuel which is Pu239
     G4double GetPlutonium239Content(G4bool frac = false) const { return frac? CalculateFractionComposition(Pu239) : Pu239; }
+    /// portion of fuel which is Pu241
     G4double GetPlutonium241Content(G4bool frac = false) const { return frac? CalculateFractionComposition(Pu241) : Pu241; }
     
 protected:
     
     /// Calculate Contribution from Uranium-235
-    G4double CalculateU235Spectrum(G4double) const;
+    G4double CalculateU235Spectrum(G4double eNu) const;
     /// Calculate Contribution from Plutonium-239
-    G4double CalculatePu239Spectrum(G4double) const;
+    G4double CalculatePu239Spectrum(G4double eNu) const;
     /// Calculate Contribution from Plutonium-241
-    G4double CalculatePu241Spectrum(G4double) const;
+    G4double CalculatePu241Spectrum(G4double eNu) const;
     /// Calculate Contribution from Uranium-238
-    G4double CalculateU238Spectrum(G4double) const;
+    G4double CalculateU238Spectrum(G4double eNu) const;
     /// Calculate Fraction of Total Composition
     G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
     
-    G4double Dwyer235[10200];   ///< Dwyer U235 spectrum table
-    G4double Dwyer238[10200];   ///< Dwyer U238 spectrum table
-    G4double Dwyer239[10200];   ///< Dwyer Pu239 spectrum table
-    G4double Dwyer241[10200];   ///< Dwyer Pu241 spectrum table
-    G4bool dwyer;               ///< whether to use Dwyer spectrum
+    G4double Dwyer235[10200];                   ///< Dwyer U235 spectrum table
+    G4double Dwyer238[10200];                   ///< Dwyer U238 spectrum table
+    G4double Dwyer239[10200];                   ///< Dwyer Pu239 spectrum table
+    G4double Dwyer241[10200];                   ///< Dwyer Pu241 spectrum table
+    G4bool dwyer;                               ///< whether to use Dwyer spectrum
     
     G4double U235, U238, Pu239, Pu241;          ///< Fuel compositions
-    InverseBetaMessenger* fiss_messenger;       ///< UI messenger
     
     /// calculate positron emission angle
-    G4double GeneratePositronAngle(G4double) const;
+    G4double GeneratePositronAngle(G4double eNu) const;
     /// calculate positron total energy
-    G4double CalculatePositronEnergy(G4double,G4double) const;
+    G4double CalculatePositronEnergy(G4double ePlusAngle, G4double nuEnergy) const;
     /// calculate neutron total energy
-    G4double CalculateNeutronEnergy(G4double,G4double) const;
+    G4double CalculateNeutronEnergy(G4double ePlusEnergy, G4double nuEnergy) const;
     /// calculate neutron emission angle
-    G4double CalculateNeutronAngle(G4double,G4double) const;
-    G4double CalculateCrossSectionWRTAngle(G4double,G4double) const;
-    G4bool CheckFourVectorSolution(G4double,G4double,G4double,G4double,G4double) const;
+    G4double CalculateNeutronAngle(G4double nEnergy, G4double nuEnergy) const;
+    /// calculate interaction cross section
+    G4double CalculateCrossSectionWRTAngle(G4double angle, G4double nuEnergy) const;
+    /// Verify solution is kinematically allowed
+    G4bool CheckFourVectorSolution(G4double nuEnergy, G4double posE, G4double nE, G4double posAng, G4double nAng) const;
         
-    G4double c;
-    G4double pMass, nMass, ePlusMass;
-    
-private:
-    
+    const G4double pMass, nMass, ePlusMass;     ///< particle masses
     G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
     G4bool RawData;                             ///< Outputs generated numbers, set with verbosity > 2
     G4double antiNuMonoEnergy;                  ///< monoenergetic neutrino energy to generate (set =0 for spectrum)

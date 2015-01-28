@@ -1,6 +1,7 @@
 #include "IBDModule.hh"
 #include "strutils.hh"
 #include <cassert>
+#include <G4UnitsTable.hh>
 
 IBDModule::IBDModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "IBD"),
@@ -108,4 +109,12 @@ void IBDModule::fillNode(TXMLEngine& E) {
     }
     addAttr(E, "throwing", join(throwing,","));
     if(Sequential) addAttr(E, "mode", "sequential");
+    if(antiNuMonoEnergy) {
+        addAttr(E, "Enu", G4BestUnit(antiNuMonoEnergy,"Energy"));
+    } else {
+        if(U235) addAttr(E, "U235", U235);
+        if(U238) addAttr(E, "U238", U238);
+        if(Pu239) addAttr(E, "Pu239", Pu239);
+        if(Pu241) addAttr(E, "Pu241", Pu241);
+    }
 }
