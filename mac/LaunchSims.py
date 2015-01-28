@@ -6,8 +6,8 @@ from math import *
 from random import shuffle
 
 class parallelsubmitter:
-    def __init__(self):
-        pass
+    def __init__(self,nm):
+        self.jobname = nm
     
     def run_jobs(self, jcmd, r0, r1):
         parallel_jobfile = "jobs.txt"
@@ -21,22 +21,20 @@ class parallelsubmitter:
         os.system("rm "+parallel_jobfile)
         
 class qsubmitter:
-    def __init__(self):
-        self.settings = {"xcmds":""}
+    def __init__(self,nm):
+        self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -o /home/ndenhall/data/job_submit"""
+#PBS -o /home/ndenhall/data/job_submit
+#PBS -N %(jobname)s"""
         for e in ["PG4_AUX"]:
             self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
                 
     def run_jobs(self, jcmd, r0, r1):
-        open("job_submit","w").write((self.setup + "\n#PBS -J %i-%i"%(r0,r1-1) + "\n%(xcmds)s\n")%self.settings + jcmd%{"jobnum":"${PBS_ARRAY_INDEX}"} + "\n")
+        open("job_submit","w").write((self.setup + "\n#PBS -t %i-%i"%(r0+1, r1) + "\n%(xcmds)s\n")%self.settings + jcmd%{"jobnum":"${PBS_ARRAYID}"} + "\n")
         os.system("cat job_submit")
         os.system("qsub -p -500 job_submit")
         os.system("rm job_submit")
-        
-    def go(self):
-        pass
             
 class SB_MC_Launcher:
     
@@ -49,9 +47,9 @@ class SB_MC_Launcher:
         self.vary_E = None
         self.bin_name = os.environ["PG4_BIN"]
         if not os.system("which qsub"):
-            self.submitter = qsubmitter()
+            self.submitter = qsubmitter(self.settings["simName"])
         else:
-            self.submitter = parallelsubmitter()
+            self.submitter = parallelsubmitter(self.settings["simName"])
         
     def set_dirs(self):
         self.outdir = os.environ["PG4_OUTDIR"]+"/"+self.settings["simName"]
