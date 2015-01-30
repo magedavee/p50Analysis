@@ -41,33 +41,35 @@ void IBDModule::SetNewValue(G4UIcommand* command, G4String newValue) {
 
 void IBDModule::GeneratePrimaries(G4Event* anEvent) {    
     vector<primaryPtcl> v;
-    
-    if(Antinus) {
+  
+    if( primary || !Sequential )
+        kinematics = GenerateReactionKinematics();
+  
+    if( Antinus && (primary || !Sequential) ) {
         primaryPtcl p;
         p.PDGid = -12; // electron antineutrino
-        p.KE = GenerateAntiNeutrinoEnergy();
+        p.KE = kinematics[10];
+        p.t = 0;
         v.push_back(p);
-    } else {
-        if(primary || !Sequential)
-            kinematics = GenerateReactionKinematics();
-        
-        if( Positrons || (Sequential && primary)) {
-            primaryPtcl p;
-            p.PDGid = -11; // positron
-            p.mom = G4ThreeVector(kinematics[1],kinematics[2],kinematics[3]);
-            p.KE = kinematics[0];
-            v.push_back(p);
-        }
-        if( Neutrons || (Sequential && !primary)){
-            primaryPtcl p;
-            p.PDGid = 2112; // neutron
-            p.mom = G4ThreeVector(kinematics[5], kinematics[6], kinematics[7]);
-            p.KE = kinematics[4];
-            v.push_back(p);
-        }
-        
-        if(Sequential) primary = !primary;
     }
+    if( Positrons && (!Sequential || primary) ) {
+        primaryPtcl p;
+        p.PDGid = -11; // positron
+        p.mom = G4ThreeVector(kinematics[1],kinematics[2],kinematics[3]);
+        p.KE = kinematics[0];
+        p.t = 0;
+        v.push_back(p);
+    }
+    if( Neutrons && (!Sequential || !primary) ){
+        primaryPtcl p;
+        p.PDGid = 2112; // neutron
+        p.mom = G4ThreeVector(kinematics[5], kinematics[6], kinematics[7]);
+        p.KE = kinematics[4];
+        p.t = 0;
+        v.push_back(p);
+    }
+        
+    if(Sequential) primary = !primary;
     
     setVertices(v);
     throwPrimaries(v, anEvent);
@@ -96,7 +98,7 @@ void IBDModule::ToggleSequentialGeneration(G4bool sequential) {
 
 void IBDModule::ToggleAntinuGeneration(G4bool b) {
     Antinus = b;
-    if(Antinus)  G4cout << "IBD module will generate un-captured antineutrinos." << G4endl;
+    if(Antinus)  G4cout << "IBD module will generate un-captured antineutrinos as dummies to save the primary antineutrino information." << G4endl;
     else G4cout << "IBD module will generate neutrino IBD captures." << G4endl;
 }
 
