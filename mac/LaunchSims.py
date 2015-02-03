@@ -115,6 +115,6 @@ if __name__=="__main__":
         L.launch_sims(100)
         
     if options.p20yale:
-        L = SB_MC_Launcher("P20-Yale-gamma2.2", 1e6)
+        L = SB_MC_Launcher("P20-Yale-Cf252_n", 1e5)
         L.template = "Analysis/Private/P20-Yale.mac"
         L.launch_sims(40)

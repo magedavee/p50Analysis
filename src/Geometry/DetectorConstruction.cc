@@ -15,7 +15,7 @@ ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
@@ -27,6 +27,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         else if(modeName == "PROSPECT20") mode = PROSPECT20;
         else if(modeName == "P20Inner") mode = P20INNER;
         else if(modeName == "P20Cell") mode = P20CELL;
+        else if(modeName == "DIMA") mode = DIMA;
         else if(modeName == "scintCell") mode = TEST_CELL;
         else if(modeName == "slab") mode = SLAB;
         else if(modeName == "sphere") mode = SPHERE;
@@ -38,6 +39,7 @@ ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myPRShield.myDet.myTank;
     else if(mode == PROSPECT20 || mode==P20INNER || mode==P20CELL) return &myPR20Cell;
     else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
+    else if(mode == DIMA) return &myDIMA.myArray;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
     return NULL;
@@ -56,6 +58,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
                     : mode==SLAB ? &mySlab
                     : mode==TEST_CELL ? &myTestCell
                     : mode==P20CELL ? &myPR20Cell
+                    : mode==DIMA ? &myDIMA
                     : (Builder*)&mySphere );
 
     if(mode==TEST_CELL) {

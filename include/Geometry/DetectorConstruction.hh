@@ -14,6 +14,7 @@
 #include "SphereShellBuilder.hh"
 #include "ScintSD.hh"
 #include "HFIRCoreBuilder.hh"
+#include "DIMABuilder.hh"
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4LogicalVolume.hh>
@@ -46,6 +47,7 @@ public:
         PROSPECT20,     ///< PROSPECT-20 single cell prototype
         P20INNER,       ///< PROSPECT-20 with inner shield only
         P20CELL,        ///< PROSPECT-20 bare cell
+        DIMA,           ///< "DIMA" 16-channel scintillator array
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
         SPHERE          ///< concentric spheres
@@ -62,6 +64,7 @@ public:
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     HFIRCoreBuilder myCore;             ///< reactor core geometry
+    DIMABoxBuilder myDIMA;              ///< boxed DIMA detector
     
     G4VPhysicalVolume* theWorld = NULL; ///< world volume
     G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume

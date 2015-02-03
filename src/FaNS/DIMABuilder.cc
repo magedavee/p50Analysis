@@ -1,4 +1,4 @@
-#include "DIMADetectorConstruction.hh"
+#include "DIMABuilder.hh"
 
 #include "MaterialsHelper.hh"
 
@@ -6,16 +6,19 @@
 #include <G4PVPlacement.hh>
 #include <G4Tubs.hh>
 #include <G4Box.hh>
+#include <G4SubtractionSolid.hh>
 #include <G4SDManager.hh>
 
 double DIMAArrayBuilder::spacing = 6*cm;
 
 DIMAArrayBuilder::DIMAArrayBuilder(): ScintSegVol("ScintArray"),
-l_seg(15*cm), r_seg(1.5*cm), t_seg(2.5*mm), t_guide(12*mm) { }
+l_seg(15*cm), r_seg(1.5*cm), t_seg(2.5*mm), t_guide(12*mm), t_rack(1*cm) {
+    place_centered = false;
+}
 
 void DIMAArrayBuilder::construct() {
-    double array_width = (ngrid-1)*spacing+2*r_seg;
-    dim = G4ThreeVector(array_width, l_seg+2*t_guide, array_width);
+    double rackwidth = ngrid*spacing;
+    dim = G4ThreeVector(rackwidth, l_seg+2*t_guide, rackwidth);
     
     G4Tubs* lg_tube = new G4Tubs("lg_tube", 0, r_seg, l_seg/2+t_guide, 0, 2*M_PI);
     G4Tubs* glass_tube = new G4Tubs("glass_tube", 0, r_seg, l_seg/2, 0, 2*M_PI);
@@ -31,12 +34,25 @@ void DIMAArrayBuilder::construct() {
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.4,0.2,1.0,0.3)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), scint_log, "scint_phys", glass_log, false, 0, true);
     
-    for(int nx=0; nx<ngrid; nx++) {
-        for(int ny=0; ny<ngrid; ny++) {
-            G4ThreeVector tubePos((nx+0.5-ngrid/2.)*spacing, 0, (ny+0.5-ngrid/2.)*spacing);
-            myAssembly.AddPlacedVolume(tube_log, tubePos, rot_X_90);
+    G4Tubs* He3tube = new G4Tubs("3He_tube", 0, 1.2*cm, l_seg/2, 0, 2*M_PI);
+    
+    G4VSolid* rackSolid = new G4Box("rackSolid", spacing/2, t_rack/2, spacing/2);
+    rackSolid = new G4SubtractionSolid("rackSolid", rackSolid, lg_tube, rot_X_90, G4ThreeVector());
+    for(int dx = -1; dx <= 1; dx += 2)
+        for(int dy = -1; dy <= 1; dy += 2)
+            rackSolid  = new G4SubtractionSolid("rackSolid", rackSolid, He3tube, rot_X_90, G4ThreeVector(dx*spacing/2,0,dy*spacing/2));
+    G4LogicalVolume* rack_log = new G4LogicalVolume(rackSolid, MaterialsHelper::M().nat_Al, "rack_log");
+    rack_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.7,0.3,0.3,0.15)));
+    
+    for(int n=0; n<ngrid*ngrid; n++) {
+        G4ThreeVector tube_pos = getSegCenter(n);
+        myAssembly.AddPlacedVolume(tube_log, tube_pos, rot_X_90);
+        for(int ymul = -1; ymul <= 1; ymul += 2) {
+            G4ThreeVector rack_pos = tube_pos + G4ThreeVector(0,ymul*(l_seg-t_rack)/2.,0);
+            myAssembly.AddPlacedVolume(rack_log, rack_pos, NULL);
         }
     }
+    
 }
 
 int DIMAArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {
@@ -45,35 +61,18 @@ int DIMAArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     return nx + ngrid*nz;
 }
 
-/////////////////////////
-/////////////////////////
-/////////////////////////
-
-void DIMABoxBuilder::_construct() {
-    dim = myArray.getDimensions() + G4ThreeVector(14*cm, 30*cm, 8*cm);
-    addLayer(ShellLayerSpec(dim*0.5, dim*0.5, MaterialsHelper::M().Air, G4Colour(0.7,0.0,0.7,0.5)));
-    addLayer(ShellLayerSpec(G4ThreeVector(2*mm, 2*mm, 2*mm), G4ThreeVector(2*mm, 2*mm, 2*mm), MaterialsHelper::M().SS444, G4Colour(0.7,0.0,0.7,0.5)));
-    construct_layers();
+G4ThreeVector DIMAArrayBuilder::getSegCenter(int n) const {
+    return G4ThreeVector(((n%ngrid)+0.5-ngrid/2.)*spacing, 0, ((n/ngrid)+0.5-ngrid/2.)*spacing);
 }
 
 /////////////////////////
 /////////////////////////
 /////////////////////////
 
-G4VPhysicalVolume* DIMADetectorConstruction::Construct() {
-    
-    // world
-    dim = G4ThreeVector(0.5*m, 0.5*m, 0.5*m);
-    G4Box* worldBox = new G4Box("worldBox", dim[0]/2, dim[1]/2, dim[2]/2);
-    main_log = new G4LogicalVolume(worldBox, MaterialsHelper::M().Vacuum, "main_log");
-    theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), main_log, "world_phys", NULL, false,  0);
-    
-    myBox.construct(); addChild(&myBox);
-    new G4PVPlacement(NULL, G4ThreeVector(0,0,0), myBox.main_log, "box_phys", main_log, false, 0, true);
-    
-    myScintSD = new ScintSD("ScintSD", myBox.myArray, theWorld);
-    G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
-    myBox.myArray.setScintSD(myScintSD);
-    
-    return theWorld;
+void DIMABoxBuilder::_construct() {
+    dim = myArray.getDimensions() + G4ThreeVector(14*cm, 30*cm, 4*cm);
+    G4ThreeVector zOff(0,0,dim[2]/2);
+    addLayer(ShellLayerSpec(dim*0.5+zOff, dim*0.5-zOff, MaterialsHelper::M().Air, G4Colour(0.7,0.0,0.7,0.5)));
+    addLayer(ShellLayerSpec(G4ThreeVector(2*mm, 2*mm, 2*mm), G4ThreeVector(2*mm, 2*mm, 2*mm), MaterialsHelper::M().SS444, G4Colour(0.7,0.0,0.7,0.5)));
+    construct_layers();
 }

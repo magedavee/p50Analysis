@@ -16,6 +16,8 @@ public:
 
     /// get segment number at position in scintillator local coordinates
     virtual int getSegmentNum(const G4ThreeVector&) const { return 0; }
+    /// get segment center in scintillator local coordinates
+    virtual G4ThreeVector getSegCenter(int) const { return G4ThreeVector(); }
     
     /// assign SD to scintillator volumes
     virtual void setScintSD(G4VSensitiveDetector* SD) { scint_log->SetSensitiveDetector(SD); }

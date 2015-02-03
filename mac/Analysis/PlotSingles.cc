@@ -34,9 +34,9 @@ int main(int argc, char** argv) {
     hSingles->GetYaxis()->SetTitle("1/<dE/dx> [mm/MeV]");
     
     // "electron-like" energy deposition
-    TH1F* hSinglesE = (TH1F*)f.add(new TH1F("hSinglesE", "Singles energy spectrum", 400, 0, 4));
+    TH1F* hSinglesE = (TH1F*)f.add(new TH1F("hSinglesE", "Singles energy spectrum", 400, 0, 10));
     hSinglesE->GetXaxis()->SetTitle("Visible energy [MeVee]");
-    hSinglesE->GetYaxis()->SetTitle("Event rate [Hz/MeV]");
+    hSinglesE->GetYaxis()->SetTitle("Event rate [/neutron/MeV]");
     
     // segment multiplicity
     TH1F* hMult = (TH1F*)f.add(new TH1F("hMult", "Hit multiplicity", 16, 0.5, 16.5));
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
         
         // merge ionization tracks (all particles) into observable scintillator hits
         vector<IoniCluster> scintHits;
-        mergeIoniHits(sion->clusts, scintHits, 50.);
+        mergeIoniHits(sion->clusts, scintHits, 100.);
 
         int nseg = 0;
         for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
@@ -78,9 +78,12 @@ int main(int argc, char** argv) {
     // plot results
     
     hSinglesE->Draw("HIST");
+    gPad->SetLogy(true);
     gPad->Print((outpath+"/Singles_Energy.pdf").c_str());
     
+    gPad->SetLogy(false);
     gPad->SetLogz(true);
+    hSingles->SetMinimum(1e-6);
     hSingles->Draw("Col");
     gPad->Print((outpath+"/Singles_PseudoPSD.pdf").c_str());
     
