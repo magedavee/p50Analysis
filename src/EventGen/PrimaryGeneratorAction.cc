@@ -11,7 +11,6 @@
 #include "CosmicMuonModule.hh"
 #include "Cf252Module.hh"
 #include "SimpleBGModule.hh"
-#include "ThermalNModule.hh"
 #include "CosmicNeutronModule.hh"
 #include "GenPtclModule.hh"
 #include "HistogramModule.hh"
@@ -73,7 +72,7 @@ myPositioner(&myIsotPt),
 myCosineThrower(NULL),
 genModule(NULL), myCRYModule(NULL), myIBDModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL),
-myCf252Module(NULL) , mySimpleBGModule(NULL), myThermalNModule(NULL),
+myCf252Module(NULL) , mySimpleBGModule(NULL),
 genDir("/generator/"),
 modDir("/generator/module/"),
 posDir("/generator/vertex/"),
@@ -85,7 +84,6 @@ moduleCosMucmd("/generator/module/CosMu",this),
 moduleCosNcmd("/generator/module/CosN",this),
 moduleCf252cmd("/generator/module/Cf252",this),
 moduleSimpleBGcmd("/generator/module/SimpleBG",this),
-moduleThermalNcmd("/generator/module/ThermalN",this),
 moduleGPScmd("/generator/module/gps",this),
 moduleDecaySrccmd("/generator/module/decaysrc",this),
 moduleHistocmd("/generator/module/histogram",this),
@@ -139,9 +137,6 @@ dirFluxCmd("/generator/vertex/directional", this) {
     moduleSimpleBGcmd.SetGuidance("Use SimpleBG gamma event generator");
     moduleSimpleBGcmd.AvailableForStates(G4State_Idle);
     
-    moduleThermalNcmd.SetGuidance("Use thermal neutron event generator");
-    moduleThermalNcmd.AvailableForStates(G4State_Idle);
-    
     moduleGPScmd.SetGuidance("Use G4GeneralParticleSource generator");
     moduleGPScmd.AvailableForStates(G4State_Idle);
     
@@ -181,7 +176,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myCosmicNeutronModule) delete myCosmicNeutronModule;
     if(myCf252Module) delete myCf252Module;
     if(mySimpleBGModule) delete mySimpleBGModule;
-    if(myThermalNModule) delete myThermalNModule;
     if(myDecaySourceModule) delete myDecaySourceModule;
     if(myCosineThrower) delete myCosineThrower;
     if(myDirThrower) delete myDirThrower;
@@ -231,12 +225,6 @@ void PrimaryGeneratorAction::loadSimpleBGModule() {
     if(!mySimpleBGModule) mySimpleBGModule = new SimpleBGModule(this);
     G4cout << "Using SimpleBG event generator." << G4endl; 
     genModule = mySimpleBGModule;
-}
-
-void PrimaryGeneratorAction::loadThermalNModule() {
-    if(!myThermalNModule) myThermalNModule = new ThermalNModule(this);
-    G4cout << "Using thermal neutron event generator." << G4endl; 
-    genModule = myThermalNModule;
 }
 
 void PrimaryGeneratorAction::loadGPSModule() {
@@ -293,7 +281,6 @@ void PrimaryGeneratorAction::SetNewValue(G4UIcommand* command, G4String newValue
     else if(command == &moduleCosNcmd) loadCosmicNeutronModule();
     else if(command == &moduleCf252cmd) loadCf252Module();
     else if(command == &moduleSimpleBGcmd) loadSimpleBGModule();
-    else if(command == &moduleThermalNcmd) loadThermalNModule();
     else if(command == &moduleGPScmd) loadGPSModule();
     else if(command == &moduleDecaySrccmd) loadDecaySourceModule();
     else if(command == &moduleHistocmd) loadHistogramModule();

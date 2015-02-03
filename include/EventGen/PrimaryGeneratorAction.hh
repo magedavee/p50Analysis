@@ -29,7 +29,6 @@ class CosmicMuonModule;
 class CosmicNeutronModule;
 class Cf252Module;
 class SimpleBGModule;
-class ThermalNModule;
 class GenPtclModule;
 class DecaySourceModule;
 class HistogramModule;
@@ -99,8 +98,6 @@ public:
     void loadCf252Module();
     /// load SimpleBG gamma source as current generator
     void loadSimpleBGModule();
-    /// load ThermalN neutron source as current generator
-    void loadThermalNModule();
     /// load G4GeneralParticleSource
     void loadGPSModule();
     /// load nuclear decay source as current generator
@@ -129,7 +126,6 @@ protected:
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
     SimpleBGModule* mySimpleBGModule;           ///< SimpleBG gamma source generator
-    ThermalNModule* myThermalNModule;           ///< ThermalN neutron source generator
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
     DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
     HistogramModule* myHistogramModule;         ///< throw from histogram module
@@ -152,7 +148,6 @@ protected:
     G4UIcmdWithoutParameter moduleCosNcmd;      ///< UI command for using cosmic neutron generator
     G4UIcmdWithoutParameter moduleCf252cmd;     ///< UI command for using Cf252 neutron generator
     G4UIcmdWithoutParameter moduleSimpleBGcmd;  ///< UI command for using SimpleBG gamma generator
-    G4UIcmdWithoutParameter moduleThermalNcmd;  ///< UI command for using ThermalN neutron generator
     G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
     G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
     G4UIcmdWithoutParameter moduleHistocmd;     ///< UI command for using the nuclear decay source generator
