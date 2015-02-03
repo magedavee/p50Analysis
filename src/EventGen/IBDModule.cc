@@ -10,7 +10,7 @@ invNeutCmd("/generator/module/IBD/setNeutrons",this),
 invPosiCmd("/generator/module/IBD/setPositrons",this),
 invSeqCmd("/generator/module/IBD/setSequential",this),
 invNuCmd("/generator/module/IBD/setAntinus",this),
-Antinus(false), Neutrons(true), Positrons(true), Sequential(false), primary(true) {
+Antinus(false), Neutrons(true), Positrons(true), Sequential(false) {
     invNeutCmd.SetGuidance("Set IBD module to generate neutrons.");
     invNeutCmd.SetParameterName("neutrons",true);
     invNeutCmd.SetDefaultValue(true);
@@ -39,40 +39,61 @@ void IBDModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     else if(command == &invNuCmd) ToggleAntinuGeneration(invNuCmd.GetNewBoolValue(newValue));
 }
 
-void IBDModule::GeneratePrimaries(G4Event* anEvent) {    
-    vector<primaryPtcl> v;
-  
-    if( primary || !Sequential )
-        kinematics = GenerateReactionKinematics();
-  
-    if( Antinus && (primary || !Sequential) ) {
-        primaryPtcl p;
-        p.PDGid = -12; // electron antineutrino
-        p.KE = kinematics[10];
-        p.t = 0;
-        v.push_back(p);
-    }
-    if( Positrons && (!Sequential || primary) ) {
-        primaryPtcl p;
-        p.PDGid = -11; // positron
-        p.mom = G4ThreeVector(kinematics[1],kinematics[2],kinematics[3]);
-        p.KE = kinematics[0];
-        p.t = 0;
-        v.push_back(p);
-    }
-    if( Neutrons && (!Sequential || !primary) ){
-        primaryPtcl p;
-        p.PDGid = 2112; // neutron
-        p.mom = G4ThreeVector(kinematics[5], kinematics[6], kinematics[7]);
-        p.KE = kinematics[4];
-        p.t = 0;
-        v.push_back(p);
-    }
-        
-    if(Sequential) primary = !primary;
+void IBDModule::GeneratePrimaries(G4Event* anEvent) {
     
-    setVertices(v);
-    throwPrimaries(v, anEvent);
+    while(!vToThrow.size()) {
+        VertexPositioner* VP = myPGA->GetPositioner();
+        VP->proposePosition();
+        nuDirection = (VP->pos - VP->originPoint).unit();
+        kinematics = GenerateReactionKinematics();
+        
+        if(Positrons) {
+            primaryPtcl p;
+            p.PDGid = -11; // positron
+            p.mom = G4ThreeVector(kinematics[1],kinematics[2],kinematics[3]);
+            p.KE = kinematics[0];
+            p.t = 0;
+            vToThrow.push_back(p);
+        }
+        if(Neutrons){
+            primaryPtcl p;
+            p.PDGid = 2112; // neutron
+            p.mom = G4ThreeVector(kinematics[5], kinematics[6], kinematics[7]);
+            p.KE = kinematics[4];
+            p.t = 0;
+            vToThrow.push_back(p);
+        }
+        
+        if(!tryVertex(vToThrow)) {
+            vToThrow.clear();
+            continue;
+        }
+        
+        if(Antinus) {
+            vector<primaryPtcl> v = vToThrow;
+            vToThrow.clear();
+            
+            primaryPtcl p;
+            p.PDGid = -12; // electron antineutrino
+            p.KE = kinematics[10];
+            p.t = 0;
+            p.pos = VP->originPoint;
+            p.mom = nuDirection;
+            
+            vToThrow.push_back(p);
+            vToThrow.insert(vToThrow.end(), v.begin(), v.end());
+        }
+    }
+    
+    if(Sequential) {
+        vector<primaryPtcl> onePtcl;
+        onePtcl.push_back(vToThrow.back());
+        throwPrimaries(onePtcl, anEvent);
+        vToThrow.pop_back();
+    } else {
+        throwPrimaries(vToThrow, anEvent);
+        vToThrow.clear();
+    }
 }
 
 void IBDModule::ToggleNeutronGeneration(G4bool neutron) {

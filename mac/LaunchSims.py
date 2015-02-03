@@ -9,6 +9,9 @@ class parallelsubmitter:
     def __init__(self,nm):
         self.jobname = nm
     
+    def start_index(self):
+        return 0
+    
     def run_jobs(self, jcmd, r0, r1):
         parallel_jobfile = "jobs.txt"
         jobsout = open(parallel_jobfile,"w")
@@ -25,11 +28,13 @@ class qsubmitter:
         self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -o /home/ndenhall/data/job_submit
 #PBS -N %(jobname)s"""
         for e in ["PG4_AUX"]:
             self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
-                
+    
+    def start_index(self):
+        return 1
+    
     def run_jobs(self, jcmd, r0, r1):
         open("job_submit","w").write((self.setup + "\n#PBS -t %i-%i"%(r0+1, r1) + "\n%(xcmds)s\n")%self.settings + jcmd%{"jobnum":"${PBS_ARRAYID}"} + "\n")
         os.system("cat job_submit")
@@ -66,14 +71,13 @@ class SB_MC_Launcher:
         
         self.set_dirs()
         run_name = "Run_%(jobnum)s"
-        
+        i0 = self.submitter.start_index()
+         
         # set up macros
-        for rn in range(nruns):
+        for rn in range(rnmin, nruns):
             
-            self.settings["run_num"] += 1
-            if rn < rnmin:
-                continue
-            
+            self.settings["run_num"]= rn+i0
+    
             if self.vary_E:
                 self.settings["gun_energy"] = self.vary_E[rn]
             
@@ -97,6 +101,7 @@ if __name__=="__main__":
     parser = OptionParser()
     parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False, help="kill running jobs")
     parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
+    parser.add_option("--p20yale", dest="p20yale", action="store_true", default=False, help="Bare PROSPECT-20 'Yale' cell");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -108,3 +113,8 @@ if __name__=="__main__":
         L = SB_MC_Launcher("Test", 1e6)
         L.template = "Analysis/Private/PR2_Template.mac"
         L.launch_sims(100)
+        
+    if options.p20yale:
+        L = SB_MC_Launcher("P20-Yale-Bi207", 1e6)
+        L.template = "Analysis/Private/P20-Yale.mac"
+        L.launch_sims(40)

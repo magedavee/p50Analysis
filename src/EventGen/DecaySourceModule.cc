@@ -56,7 +56,10 @@ void DecaySourceModule::GeneratePrimaries(G4Event* anEvent) {
             if(throwSingle) break;
         }
         
-        if(v.size() && !tryVertex(v)) v.clear();
+        if(v.size()) {
+            myPGA->GetPositioner()->proposePosition();
+            if(!tryVertex(v)) v.clear();
+        }
     }
     
     throwPrimaries(v, anEvent);

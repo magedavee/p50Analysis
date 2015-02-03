@@ -30,9 +30,10 @@ public:
     /// Destructor
     virtual ~VertexPositioner() { }
     
+    /// propose a vertex position
+    virtual void proposePosition() = 0;
     /// Attempt to set position/momentum for particles; return whether attempt passed
     virtual bool tryVertex(vector<primaryPtcl>& v) = 0;
-    
     /// Set position, momentum for list of particles; return number of vertices tried
     virtual int setVertex(vector<primaryPtcl>& v);
     
@@ -44,7 +45,8 @@ public:
     /// Get "normalized" (to volume, surface, etc.) number of attempts
     virtual double getAttemptsNormalized() const { return getAttempts(); }
     
-    G4ThreeVector originDirection;      ///< "direction" for origin particle in 1/r^2 capture generators
+    G4ThreeVector pos;                  ///< proposed vertex position
+    G4ThreeVector originPoint;          ///< origin point for 1/r^2 capture generators
     
 protected:
     
@@ -55,13 +57,15 @@ protected:
 class IsotPtPositioner: public VertexPositioner {
 public:
     /// Constructor
-    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): VertexPositioner("IsotPtPositioner"), x0(x) { }
+    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): VertexPositioner("IsotPtPositioner") { setPos(x); }
     
     /// Set position, momentum for list of particles
     virtual bool tryVertex(vector<primaryPtcl>& v);
+    /// propose a vertex position: keep fixed pos
+    virtual void proposePosition() { }
+    /// set origin position
+    void setPos(G4ThreeVector x) { originPoint = pos = x; }
     
-    G4ThreeVector x0;   ///< vertex position
- 
 protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

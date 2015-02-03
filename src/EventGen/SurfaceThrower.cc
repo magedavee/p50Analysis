@@ -7,7 +7,7 @@
 #include <G4UnitsTable.hh>
 
 SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT, const string& nm):
-VertexPositioner(nm), outer(true), fromVolume(false), W(w) {
+VertexPositioner(nm), W(w) {
     if(!W) throw SMExcept("undefinedWorldVolume");
     setSourceTarget(SS,TT);
 }
@@ -15,11 +15,28 @@ VertexPositioner(nm), outer(true), fromVolume(false), W(w) {
 void SurfaceThrower::setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* TT) {
     S = SS;
     if(!S) { S = W; outer = fromVolume = false; }
+    Ssolid = S->GetLogicalVolume()->GetSolid();
     W2S.setParentChild(W,S);
-    sourceExtent = S->GetLogicalVolume()->GetSolid()->GetExtent();
+    sourceExtent = Ssolid->GetExtent();
+    sourceRadius = sourceExtent.GetExtentRadius();
+    sourceCenter = W2S.coordCtoP(sourceExtent.GetExtentCenter());
     
     T = TT;
-    if(T) W2T.setParentChild(W,T);
+    if(T) {
+        W2T.setParentChild(W,T);
+        Tsolid = T->GetLogicalVolume()->GetSolid();
+    } else {
+        W2T.setParentChild(W,W);
+        Tsolid = W->GetLogicalVolume()->GetSolid();
+    }
+    targetExtent = Tsolid->GetExtent();
+    targetRadius = targetExtent.GetExtentRadius();
+    targetCenter = W2T.coordCtoP(targetExtent.GetExtentCenter());
+    
+    rMin = (sourceCenter-targetCenter).mag();
+    rMax = rMin + sourceRadius + targetRadius;
+    rMin -= sourceRadius + targetRadius;
+    rMin = (rMin>0)? rMin : 0;
 }
 
 G4ThreeVector pointInSolid(const G4VisExtent& E, const G4VSolid* S) {
@@ -35,16 +52,38 @@ G4ThreeVector pointInSolid(const G4VisExtent& E, const G4VSolid* S) {
 }
 
 void SurfaceThrower::proposePosition() {
-    if(fromVolume) pos = pointInSolid(sourceExtent, S->GetLogicalVolume()->GetSolid());
-    else  {
-        // Note: this won't be right if solid doesn't return uniformly distributed points!
-        pos = S->GetLogicalVolume()->GetSolid()->GetPointOnSurface();
-        snorm = S->GetLogicalVolume()->GetSolid()->SurfaceNormal(pos);
+    while(true) {
+        if(fromVolume) pos = pointInSolid(sourceExtent, Ssolid);
+        else  {
+            // Note: this won't be right if solid doesn't return uniformly distributed points!
+            pos = Ssolid->GetPointOnSurface();
+            snorm = Ssolid->SurfaceNormal(pos);
+        }
+        pos = W2S.coordCtoP(pos);
+        
+        if(reScatter) {
+            originPoint = pos;
+            G4ThreeVector d = proposeDirection();
+            bool passNormal = true;
+            if(!fromVolume) {
+                double x = snorm.dot(d);
+                passNormal = ((outer && x>0) || (!outer && x<0)) && G4UniformRand() < fabs(x);
+            }
+            nSurfaceThrows += passNormal;
+            if(!passNormal) continue;
+            pos += d * (rMin + G4UniformRand()*(rMax-rMin));
+            if(!T || (T && Tsolid->Inside(W2T.coordPtoC(pos)) != kInside)) continue;
+        }
+        break;
     }
-    pos = W2S.coordCtoP(pos);
 }
 
 bool SurfaceThrower::tryMomentum(G4ThreeVector& mom) {
+    if(reScatter) {
+        if(!mom.mag2()) mom = proposeRescatter();
+        return true;
+    }
+    
     if(!mom.mag2()) mom = proposeDirection();
     bool passNormal = true;
     if(!fromVolume) {
@@ -60,7 +99,6 @@ bool SurfaceThrower::tryVertex(vector<primaryPtcl>& v) {
     
     vector<primaryPtcl> thrown;
     nAttempts++;
-    proposePosition();
     for(auto it = v.begin(); it != v.end(); it++) {
         primaryPtcl p = *it;
         p.pos = pos;

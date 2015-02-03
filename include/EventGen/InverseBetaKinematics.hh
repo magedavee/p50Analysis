@@ -80,6 +80,7 @@ protected:
     G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
     G4bool RawData;                             ///< Outputs generated numbers, set with verbosity > 2
     G4double antiNuMonoEnergy;                  ///< monoenergetic neutrino energy to generate (set =0 for spectrum)
+    G4ThreeVector nuDirection;                  ///< incident neutrino direction
     InverseBetaMessenger inv_messenger;         ///< messenger for this class
 };
 

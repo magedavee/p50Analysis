@@ -197,11 +197,6 @@ DirectionThrower* PrimaryGeneratorAction::GetDirectionThrower() {
     return myDirThrower;
 }
 
-void PrimaryGeneratorAction::loadGunModule() {
-    G4cout << "Using default particle gun event generator." << G4endl;
-    genModule = NULL;
-}
-
 void PrimaryGeneratorAction::loadCRYModule() {
     if(!myCRYModule) myCRYModule = new CRYModule(this);
     G4cout << "Using CRY event generator module; remember to provide setup!" << G4endl; 
@@ -289,8 +284,9 @@ void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
 }
 
 void PrimaryGeneratorAction::SetNewValue(G4UIcommand* command, G4String newValue) {
+    
     if(command == &verbCmd) SetVerbosity(verbCmd.GetNewIntValue(newValue));
-    else if(command == &moduleGuncmd) loadGunModule();
+    else if(command == &moduleGuncmd) { G4cout << "Using default particle gun event generator." << G4endl; genModule = NULL; }
     else if(command == &moduleCRYcmd) loadCRYModule();
     else if(command == &moduleIBDcmd) loadIBDModule();
     else if(command == &moduleCosMucmd) loadCosmicMuonModule();
@@ -314,6 +310,7 @@ void PrimaryGeneratorAction::SetNewValue(G4UIcommand* command, G4String newValue
         GetCosineThrower()->fromVolume = true;
         GetCosineThrower()->setSourceTarget(GetDetector()->ptclSrc, GetDetector()->ptclTrg);
         GetCosineThrower()->setExponent(0);
+        //GetCosineThrower()->reScatter = true;
     } else if(command == &scintSrcCmd) {
         ScintSegVol* V = GetDetector()->getScint();
         G4VPhysicalVolume* scph = V? V->scint_phys : NULL;

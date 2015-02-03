@@ -60,6 +60,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
     if(mode==TEST_CELL) {
         worldShell.mat = MaterialsHelper::M().Air;
+        //worldShell.setThick(3*m);
     } else if(mode==SLAB) {
         worldShell.lthick[2] =  worldShell.uthick[2];
     } else if(mode==PROSPECT) {
@@ -87,9 +88,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     if(mode==SPHERE) mySphere.scint_phys = ptclTrg;
     
     if(mode == TEST_CELL) {
-        //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
+        //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 2*cm, 0, 2*M_PI, 0, M_PI);
         //G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
-        //ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", main_log, false,  0);
+        //ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(200.*cm,200.*cm,200.*cm), sun_log, "sun_phys", main_log, false,  0);
     } else if(mode == PROSPECT2) {
         for(int nx = 0; nx<2; nx++) {
             for(int nz = 0; nz<2; nz++) {
