@@ -13,6 +13,7 @@
 #include "ScatterSlabBuilder.hh"
 #include "SphereShellBuilder.hh"
 #include "ScintSD.hh"
+#include "HFIRCoreBuilder.hh"
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4LogicalVolume.hh>
@@ -54,12 +55,13 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
-    vector<PR2MuVetoBuilder*> myPR2Veto;        ///< PROSPECT-2/20 muon vetos
+    vector<PR2MuVetoBuilder*> myPR2Veto;///< PROSPECT-2/20 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell
     PR20ShieldBuilder myPR20Shield;     ///< PROSPECT-20 shield
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
+    HFIRCoreBuilder myCore;             ///< reactor core geometry
     
     G4VPhysicalVolume* theWorld = NULL; ///< world volume
     G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume

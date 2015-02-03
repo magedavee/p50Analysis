@@ -126,10 +126,8 @@ void IBDModule::ToggleAntinuGeneration(G4bool b) {
 void IBDModule::fillNode(TXMLEngine& E) {
     vector<string> throwing;
     if(Antinus) throwing.push_back("antinu");
-    else {
-        if(Sequential || Positrons) throwing.push_back("positron");
-        if(Sequential || Neutrons) throwing.push_back("neutron");
-    }
+    if(Positrons) throwing.push_back("positron");
+    if(Neutrons) throwing.push_back("neutron");
     addAttr(E, "throwing", join(throwing,","));
     if(Sequential) addAttr(E, "mode", "sequential");
     if(antiNuMonoEnergy) {

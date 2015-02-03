@@ -310,7 +310,7 @@ void PrimaryGeneratorAction::SetNewValue(G4UIcommand* command, G4String newValue
         GetCosineThrower()->fromVolume = true;
         GetCosineThrower()->setSourceTarget(GetDetector()->ptclSrc, GetDetector()->ptclTrg);
         GetCosineThrower()->setExponent(0);
-        //GetCosineThrower()->reScatter = true;
+        if(myIBDModule && genModule == myIBDModule) GetCosineThrower()->reScatter = true;
     } else if(command == &scintSrcCmd) {
         ScintSegVol* V = GetDetector()->getScint();
         G4VPhysicalVolume* scph = V? V->scint_phys : NULL;

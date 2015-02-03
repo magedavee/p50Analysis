@@ -28,9 +28,11 @@ public:
     virtual void proposePosition();
     
     /// Get surface area of origin solid
-    double getOriginArea() const { return S? S->GetLogicalVolume()->GetSolid()->GetSurfaceArea() : 0; }
+    double getOriginArea() const { return Ssolid? Ssolid->GetSurfaceArea() : 0; }
     /// Get volume of origin solid
-    double getOriginVolume() const { return S? S->GetLogicalVolume()->GetSolid()->GetCubicVolume() : 0; }
+    double getOriginVolume() const { return Ssolid? Ssolid->GetCubicVolume() : 0; }
+    /// Get volume of target solid
+    double getTargetVolume() const { return Tsolid? Tsolid->GetCubicVolume() : 0; }
     /// Get "normalized" (to volume, surface, etc.) number of attempts
     virtual double getAttemptsNormalized() const { return getAttempts()/(fromVolume?1.:getOriginArea()); }
     

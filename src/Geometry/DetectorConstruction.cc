@@ -81,11 +81,22 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myPR20Shield.myInnerShield.myContents = &myPR20Cell;
     }
     
+    if(myCore.pos.mag2()) {
+        myCore.construct();
+        addChild(&myCore);
+        worldShell.setThick(myCore.pos.mag()+myCore.height);
+    }
+        
     construct();
     
     ptclTrg = myContents->main_phys;
     
     if(mode==SPHERE) mySphere.scint_phys = ptclTrg;
+    
+    if(myCore.pos.mag2()) {
+        ptclSrc = new G4PVPlacement(NULL, myCore.pos, myCore.main_log, "core_phys", main_log, false,  0, true);
+        if(getScint()) ptclTrg = getScint()->scint_phys;
+    }
     
     if(mode == TEST_CELL) {
         //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 2*cm, 0, 2*M_PI, 0, M_PI);

@@ -116,6 +116,11 @@ void SurfaceThrower::fillNode(TXMLEngine& E) {
     VertexPositioner::fillNode(E);
     if(fromVolume) addAttr(E, "s_volume", G4BestUnit(getOriginVolume(),"Volume"));
     else addAttr(E, "s_area", G4BestUnit(getOriginArea(),"Surface"));
+    if(T) addAttr(E, "t_volume", G4BestUnit(getTargetVolume(),"Volume"));
+    if(reScatter) {
+        addAttr(E, "reScatter","true");
+        addAttr(E, "ixn_length", G4BestUnit(rMax-rMin,"Length"));
+    }
     addAttr(E, "nAttempts", nAttempts);
     addAttr(E, "nSurfaceThrows", nSurfaceThrows);
     addAttr(E, "nHits", nHits);    
