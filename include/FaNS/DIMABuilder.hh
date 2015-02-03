@@ -16,6 +16,8 @@ public:
     int getSegmentNum(const G4ThreeVector& pos) const;
     /// get segment center in scintillator local coordinates
     virtual G4ThreeVector getSegCenter(int n) const;
+    /// get physical volume defining local coordinates
+    virtual G4VPhysicalVolume* getCoordVolume() const { return main_phys; }
     
     const int ngrid = 4;        ///< number of segments in each row/column
     double l_seg;               ///< scintillator tube length

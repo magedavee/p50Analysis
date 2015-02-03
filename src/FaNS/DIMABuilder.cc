@@ -20,6 +20,9 @@ void DIMAArrayBuilder::construct() {
     double rackwidth = ngrid*spacing;
     dim = G4ThreeVector(rackwidth, l_seg+2*t_guide, rackwidth);
     
+    G4Box* main_box = new G4Box("main_box", dim[0]/2, dim[1]/2, dim[2]/2);
+    main_log = new G4LogicalVolume(main_box, MaterialsHelper::M().Air, "array_log");
+    
     G4Tubs* lg_tube = new G4Tubs("lg_tube", 0, r_seg, l_seg/2+t_guide, 0, 2*M_PI);
     G4Tubs* glass_tube = new G4Tubs("glass_tube", 0, r_seg, l_seg/2, 0, 2*M_PI);
     G4Tubs* scint_tube = new G4Tubs("scint_tube", 0, r_seg-t_seg, l_seg/2, 0, 2*M_PI);
@@ -46,10 +49,10 @@ void DIMAArrayBuilder::construct() {
     
     for(int n=0; n<ngrid*ngrid; n++) {
         G4ThreeVector tube_pos = getSegCenter(n);
-        myAssembly.AddPlacedVolume(tube_log, tube_pos, rot_X_90);
+        new G4PVPlacement(rot_X_90, tube_pos, tube_log, "tube_phys", main_log, true, n, true);
         for(int ymul = -1; ymul <= 1; ymul += 2) {
             G4ThreeVector rack_pos = tube_pos + G4ThreeVector(0,ymul*(l_seg-t_rack)/2.,0);
-            myAssembly.AddPlacedVolume(rack_log, rack_pos, NULL);
+            new G4PVPlacement(NULL, rack_pos, rack_log, "rack_phys", main_log, true, 2*n+(ymul+1)/2, true);
         }
     }
     
@@ -73,6 +76,6 @@ void DIMABoxBuilder::_construct() {
     dim = myArray.getDimensions() + G4ThreeVector(14*cm, 30*cm, 4*cm);
     G4ThreeVector zOff(0,0,dim[2]/2);
     addLayer(ShellLayerSpec(dim*0.5+zOff, dim*0.5-zOff, MaterialsHelper::M().Air, G4Colour(0.7,0.0,0.7,0.5)));
-    addLayer(ShellLayerSpec(G4ThreeVector(2*mm, 2*mm, 2*mm), G4ThreeVector(2*mm, 2*mm, 2*mm), MaterialsHelper::M().SS444, G4Colour(0.7,0.0,0.7,0.5)));
+    addLayer(ShellLayerSpec(G4ThreeVector(2*mm, 2*mm, 2*mm), G4ThreeVector(2*mm, 2*mm, 10*mm), MaterialsHelper::M().SS444, G4Colour(0.7,0.0,0.7,0.5)));
     construct_layers();
 }
