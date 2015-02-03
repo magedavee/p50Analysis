@@ -28,6 +28,7 @@ bool IsotPtPositioner::tryVertex(vector<primaryPtcl>& v) {
         it->pos = pos;
         if(!it->mom.mag2()) it->mom = randomDirection();
     }
+    nAttempts++;
     return true;
 }
 

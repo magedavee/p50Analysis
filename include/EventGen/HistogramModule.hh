@@ -8,12 +8,13 @@
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
+#include <G4UIcmdWithADoubleAndUnit.hh>
 #include <G4UIcmdWithAnInteger.hh>
 
 class TH1;
 
 /// Generator module for throwing from user-supplied histogram
-// either as rate [Hz/bin] (for volume sources) or flux [Hz/cm^2/bin] (for surface source) vs kinetic energy [MeV] 
+/// either as rate [Hz/bin] (for volume sources) or flux [Hz/cm^2/bin] (for surface source) vs kinetic energy [MeV] 
 class HistogramModule: public PrimaryGeneratorModule, public G4UImessenger {
 public:
     /// Constructor
@@ -39,6 +40,7 @@ protected:
     void makeDistribution();
     
     TH1* myDist;                        ///< underlying energy distribution
+    double monoE = 0;                   ///< monoenergetic generator energy
     double netFlux;                     ///< total rate or flux
     
     int ptcl = 11;                      ///< PDG ID for particle to throw
@@ -46,6 +48,7 @@ protected:
     string hname = "hSpectrum";         ///< name of histogram in file
     
     G4UIdirectory hist_dir;             ///< UI directory for cosmic neutron generator controls
+    G4UIcmdWithADoubleAndUnit monoE_cmd;///< UI command for monoenergetic production
     G4UIcmdWithAString file_cmd;        ///< UI command for setting input file name
     G4UIcmdWithAString hname_cmd;       ///< UI command for setting histogram name
     G4UIcmdWithAnInteger ptcl_cmd;      ///< UI command for setting particle type

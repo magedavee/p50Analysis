@@ -8,9 +8,12 @@
 HistogramModule::HistogramModule(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "Histogram"), myDist(NULL),
 hist_dir("/generator/histogram/"),
+monoE_cmd("/generator/histogram/monoE",this),
 file_cmd("/generator/histogram/file",this),
 hname_cmd("/generator/histogram/hname",this),
 ptcl_cmd("/generator/histogram/ptcl",this) {
+    monoE_cmd.SetGuidance("Set monoenergetic production (0 for histogram).");
+    monoE_cmd.AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
     
     file_cmd.SetGuidance("Set .root filename for histogram.");
     file_cmd.AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
@@ -30,6 +33,7 @@ void HistogramModule::resetDistribution() {
 
 void HistogramModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &file_cmd) { fname = newValue; resetDistribution(); }
+    if(command == &monoE_cmd) { monoE = monoE_cmd.GetNewDoubleValue(newValue); }
     else if(command == &hname_cmd) { hname = newValue; resetDistribution(); }
     else if(command == &ptcl_cmd) { ptcl = ptcl_cmd.GetNewIntValue(newValue); }
 }
@@ -48,12 +52,12 @@ void HistogramModule::makeDistribution() {
 }
 
 void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
-    if(!myDist) makeDistribution();
-    if(!myDist) return;
+    if(!monoE && !myDist) makeDistribution();
+    if(!monoE && !myDist) return;
         
     primaryPtcl p;
     p.PDGid = ptcl;
-    p.KE = myDist->GetRandom() * MeV;
+    p.KE = monoE? monoE : myDist->GetRandom() * MeV;
     p.t = 0;
     
     vector<primaryPtcl> v;
@@ -63,15 +67,18 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 G4double HistogramModule::GetGeneratorTime() const {
-   return myPGA->GetPositioner()->getAttemptsNormalized() / netFlux;
+   return myPGA->GetPositioner()->getAttemptsNormalized() / (monoE? 1./s : netFlux);
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    SurfaceThrower* ST = dynamic_cast<SurfaceThrower*>(myPGA->GetPositioner());
-    if(ST && !ST->fromVolume)
-        addAttr(E, "flux", strip(G4BestUnit(netFlux*cm2,"Frequency"))+"/cm^2");
-    else addAttr(E, "rate", G4BestUnit(netFlux,"Frequency"));
-    addAttr(E, "file", fname);
-    addAttr(E, "histogram", hname);
+    if(monoE) addAttr(E, "monoE",G4BestUnit(monoE,"Energy"));
+    else {
+        SurfaceThrower* ST = dynamic_cast<SurfaceThrower*>(myPGA->GetPositioner());
+        if(ST && !ST->fromVolume)
+            addAttr(E, "flux", strip(G4BestUnit(netFlux*cm2,"Frequency"))+"/cm^2");
+        else addAttr(E, "rate", G4BestUnit(netFlux,"Frequency"));
+        addAttr(E, "file", fname);
+        addAttr(E, "histogram", hname);
+    }
     addAttr(E, "particle", ptcl);
 }
