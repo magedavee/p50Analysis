@@ -11,12 +11,12 @@
 #include <cassert>
 
 DetectorConstruction::DetectorConstruction():
-ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
+ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.75*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
     modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
-    worldShell.mat = MaterialsHelper::M().Vacuum;
+    worldShell.mat = MaterialsHelper::M().Air;
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -62,7 +62,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
                     : (Builder*)&mySphere );
 
     if(mode==TEST_CELL) {
-        worldShell.mat = MaterialsHelper::M().Air;
         //worldShell.setThick(3*m);
     } else if(mode==SLAB) {
         worldShell.lthick[2] =  worldShell.uthick[2];

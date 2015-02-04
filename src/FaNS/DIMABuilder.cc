@@ -17,12 +17,16 @@ l_seg(15*cm), r_seg(1.5*cm), t_seg(2.5*mm), t_guide(12*mm), t_rack(1*cm) {
 }
 
 void DIMAArrayBuilder::construct() {
+    
+    //////////
+    // overall container
     double rackwidth = ngrid*spacing;
     dim = G4ThreeVector(rackwidth, l_seg+2*t_guide, rackwidth);
-    
     G4Box* main_box = new G4Box("main_box", dim[0]/2, dim[1]/2, dim[2]/2);
     main_log = new G4LogicalVolume(main_box, MaterialsHelper::M().Air, "array_log");
     
+    //////////
+    // scintillator tube
     G4Tubs* lg_tube = new G4Tubs("lg_tube", 0, r_seg, l_seg/2+t_guide, 0, 2*M_PI);
     G4Tubs* glass_tube = new G4Tubs("glass_tube", 0, r_seg, l_seg/2, 0, 2*M_PI);
     G4Tubs* scint_tube = new G4Tubs("scint_tube", 0, r_seg-t_seg, l_seg/2, 0, 2*M_PI);
@@ -37,8 +41,12 @@ void DIMAArrayBuilder::construct() {
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.4,0.2,1.0,0.3)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), scint_log, "scint_phys", glass_log, false, 0, true);
     
+    //////////
+    // 3He tube placeholder (used for extra holes in tube holder)
     G4Tubs* He3tube = new G4Tubs("3He_tube", 0, 1.2*cm, l_seg/2, 0, 2*M_PI);
     
+    //////////
+    // tube holder rack (unit for one end of one tube)
     G4VSolid* rackSolid = new G4Box("rackSolid", spacing/2, t_rack/2, spacing/2);
     rackSolid = new G4SubtractionSolid("rackSolid", rackSolid, lg_tube, rot_X_90, G4ThreeVector());
     for(int dx = -1; dx <= 1; dx += 2)
@@ -47,6 +55,8 @@ void DIMAArrayBuilder::construct() {
     G4LogicalVolume* rack_log = new G4LogicalVolume(rackSolid, MaterialsHelper::M().nat_Al, "rack_log");
     rack_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.7,0.3,0.3,0.15)));
     
+    //////////
+    // assemble array
     for(int n=0; n<ngrid*ngrid; n++) {
         G4ThreeVector tube_pos = getSegCenter(n);
         new G4PVPlacement(rot_X_90, tube_pos, tube_log, "tube_phys", main_log, true, n, true);
@@ -55,7 +65,6 @@ void DIMAArrayBuilder::construct() {
             new G4PVPlacement(NULL, rack_pos, rack_log, "rack_phys", main_log, true, 2*n+(ymul+1)/2, true);
         }
     }
-    
 }
 
 int DIMAArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {

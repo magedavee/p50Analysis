@@ -4,7 +4,6 @@
 #include "strutils.hh"
 
 #include <G4Neutron.hh>
-#include <G4ParticleGun.hh>
 #include <G4ios.hh>
 #include <G4UnitsTable.hh>
 #include <G4VSolid.hh>

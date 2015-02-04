@@ -22,7 +22,6 @@
 
 #include <G4Event.hh>
 #include <G4GeneralParticleSource.hh>
-#include <G4ParticleGun.hh>
 #include <G4ParticleTable.hh>
 #include <G4ParticleTypes.hh>
 #include <G4ParticleDefinition.hh>
@@ -41,7 +40,7 @@ void PrimaryGeneratorModule::throwPrimaries(const vector<primaryPtcl>& v, G4Even
         
         G4ParticleGun* gn = myPGA->GetParticleGun();
         assert(gn);
-        gn->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
+        if(it->PDGid) gn->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(it->PDGid));
         gn->SetParticleEnergy(it->KE);
         gn->SetParticlePosition(it->pos);
         gn->SetParticleMomentumDirection(it->mom);

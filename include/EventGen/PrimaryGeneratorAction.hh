@@ -17,9 +17,9 @@
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcmdWith3Vector.hh>
 #include <G4UIcmdWith3VectorAndUnit.hh>
+#include <G4ParticleGun.hh>
 
 class G4Event;
-class G4ParticleGun;
 class G4GeneralParticleSource;
 class DetectorConstruction;
 

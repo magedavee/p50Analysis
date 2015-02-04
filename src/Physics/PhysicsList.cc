@@ -7,6 +7,11 @@
 #include <G4EmLivermorePhysics.hh>
 #include <G4EmPenelopePhysics.hh>
 
+#include <G4RadioactiveDecay.hh>
+#include <G4PhysicsListHelper.hh>
+#include <G4UAtomicDeexcitation.hh>
+#include <G4LossTableManager.hh>
+
 PhysicsList::PhysicsList(): XMLProvider("Physics"),
 myHadronic(new QGSP_BERT_HP()),
 physDir("/phys/"),
@@ -43,6 +48,20 @@ void PhysicsList::ConstructProcess() {
             if (myStepMax->IsApplicable(*particle)) particle->GetProcessManager()->AddDiscreteProcess(myStepMax);
         }
     }
+    
+    ////////////////////////
+    // ion radioactive decay
+    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+    radioactiveDecay->SetICM(true); //Internal Conversion
+    radioactiveDecay->SetARM(true); //Atomic Rearangement
+    G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+    ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
+    // Deexcitation (in case of Atomic Rearangement)
+    G4UAtomicDeexcitation* de = new G4UAtomicDeexcitation();
+    de->SetFluo(true);
+    de->SetAuger(true);
+    de->SetPIXE(true);
+    G4LossTableManager::Instance()->SetAtomDeexcitation(de); 
 }
 
 void PhysicsList::ConstructParticle() {

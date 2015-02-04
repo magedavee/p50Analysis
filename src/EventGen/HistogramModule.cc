@@ -10,9 +10,8 @@ PrimaryGeneratorModule(P, "Histogram"), myDist(NULL),
 hist_dir("/generator/histogram/"),
 monoE_cmd("/generator/histogram/monoE",this),
 file_cmd("/generator/histogram/file",this),
-hname_cmd("/generator/histogram/hname",this),
-ptcl_cmd("/generator/histogram/ptcl",this) {
-    monoE_cmd.SetGuidance("Set monoenergetic production (0 for histogram).");
+hname_cmd("/generator/histogram/hname",this) {
+    monoE_cmd.SetGuidance("Set monoenergetic production (< 0 for histogram).");
     monoE_cmd.AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
     
     file_cmd.SetGuidance("Set .root filename for histogram.");
@@ -20,9 +19,6 @@ ptcl_cmd("/generator/histogram/ptcl",this) {
     
     hname_cmd.SetGuidance("Set name of histogram to load.");
     hname_cmd.AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
-    
-    ptcl_cmd.SetGuidance("Set particle PDG PID to throw.");
-    ptcl_cmd.AvailableForStates(G4State_PreInit,G4State_Init,G4State_Idle);
 }
 
 void HistogramModule::resetDistribution() {
@@ -35,7 +31,6 @@ void HistogramModule::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &file_cmd) { fname = newValue; resetDistribution(); }
     if(command == &monoE_cmd) { monoE = monoE_cmd.GetNewDoubleValue(newValue); }
     else if(command == &hname_cmd) { hname = newValue; resetDistribution(); }
-    else if(command == &ptcl_cmd) { ptcl = ptcl_cmd.GetNewIntValue(newValue); }
 }
 
 void HistogramModule::makeDistribution() {
@@ -52,12 +47,12 @@ void HistogramModule::makeDistribution() {
 }
 
 void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
-    if(!monoE && !myDist) makeDistribution();
-    if(!monoE && !myDist) return;
+    if(monoE<0 && !myDist) makeDistribution();
+    if(monoE<0 && !myDist) return;
         
     primaryPtcl p;
-    p.PDGid = ptcl;
-    p.KE = monoE? monoE : myDist->GetRandom() * MeV;
+    p.PDGid = 0; // use /gun/ defaults
+    p.KE = monoE >= 0 ? monoE : myDist->GetRandom() * MeV;
     p.t = 0;
     
     vector<primaryPtcl> v;
@@ -67,11 +62,11 @@ void HistogramModule::GeneratePrimaries(G4Event* anEvent) {
 }
 
 G4double HistogramModule::GetGeneratorTime() const {
-   return myPGA->GetPositioner()->getAttemptsNormalized() / (monoE? 1./s : netFlux);
+   return myPGA->GetPositioner()->getAttemptsNormalized() / (monoE >= 0? 1./s : netFlux);
 }
 
 void HistogramModule::fillNode(TXMLEngine& E) {
-    if(monoE) addAttr(E, "monoE",G4BestUnit(monoE,"Energy"));
+    if(monoE >= 0) addAttr(E, "monoE",G4BestUnit(monoE,"Energy"));
     else {
         SurfaceThrower* ST = dynamic_cast<SurfaceThrower*>(myPGA->GetPositioner());
         if(ST && !ST->fromVolume)
@@ -80,5 +75,5 @@ void HistogramModule::fillNode(TXMLEngine& E) {
         addAttr(E, "file", fname);
         addAttr(E, "histogram", hname);
     }
-    addAttr(E, "particle", ptcl);
+    addAttr(E, "particle", myPGA->GetParticleGun()->GetParticleDefinition()->GetParticleName());
 }
