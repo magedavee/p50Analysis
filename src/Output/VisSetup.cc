@@ -16,6 +16,7 @@ VisSetup::VisSetup(G4VisManager* vis_manager) {
     pidModel->Set("mu-", G4Colour(0., 1.0, 1.0));               // cyan
     pidModel->Set("pi+", G4Colour(0.4, 0.2, 0.));               // dark orange-bown
     pidModel->Set("pi-", G4Colour(0., 0.2, 0.4));               // dark cyan
+    pidModel->Set("anti_nu_e", G4Colour(1., 1., 1., 0.05));     // transparent white
     
     vis_manager->RegisterModel(pidModel);
     vis_manager->SelectTrajectoryModel(pidModel->Name());

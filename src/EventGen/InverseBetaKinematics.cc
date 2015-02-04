@@ -95,11 +95,11 @@ vector<G4double> InverseBetaKinematics::GenerateReactionKinematics() const {
     G4double kePos = ePos - ePlusMass;
     G4double keN = eN - nMass;
     
-    // Placed into vector as { Positron: E, px, py, pz ; Neutron: E, px, py, pz ; Extra: positron angle wrt nu, neutron angle wrt nu } - 10 entries
+    // Placed into vector as { Positron: E, px, py, pz ; Neutron: E, px, py, pz ; Extra: positron angle wrt nu, neutron angle wrt nu, Neutrino Energy } - 11 entries
     vector<G4double> kinematics;
     kinematics.push_back(kePos); kinematics.push_back(pHatPos.x()); kinematics.push_back(pHatPos.y()); kinematics.push_back(pHatPos.z());
     kinematics.push_back(keN); kinematics.push_back(pHatN.x()); kinematics.push_back(pHatN.y()); kinematics.push_back(pHatN.z());
-    kinematics.push_back(thetaPos); kinematics.push_back(-thetaN);
+    kinematics.push_back(thetaPos); kinematics.push_back(-thetaN); kinematics.push_back(eNu);
     return kinematics;
 }
 

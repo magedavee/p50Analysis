@@ -14,7 +14,7 @@
 
 Cf252Module::Cf252Module(PrimaryGeneratorAction* P):
 PrimaryGeneratorModule(P, "Cf252"),
-netRate(1/s), a(1.18*MeV), b(1.03419/MeV) {
+netRate(1./s), a(1.18*MeV), b(1.03419/MeV) {
     const unsigned int nBins = 200;
     myDist = new TH1F("hCf252_Watt","Cf252 Neutron 'Watt' Spectrum", nBins, 0, 40*MeV);
     for(unsigned int i=0; i<nBins; i++) {
@@ -36,8 +36,6 @@ void Cf252Module::GeneratePrimaries(G4Event* anEvent) {
 }
 
 void Cf252Module::fillNode(TXMLEngine& E) {
-    addAttr(E, "rate", netRate);
     addAttr(E, "a", G4BestUnit(a,"Energy"));
     addAttr(E, "b", to_str(b*MeV)+"/MeV");
-    //addAttr(E, "t_frac", double(nHits)/double(nSurfaceThrows));
 }

@@ -13,6 +13,8 @@
 #include "ScatterSlabBuilder.hh"
 #include "SphereShellBuilder.hh"
 #include "ScintSD.hh"
+#include "HFIRCoreBuilder.hh"
+#include "DIMABuilder.hh"
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4LogicalVolume.hh>
@@ -45,6 +47,7 @@ public:
         PROSPECT20,     ///< PROSPECT-20 single cell prototype
         P20INNER,       ///< PROSPECT-20 with inner shield only
         P20CELL,        ///< PROSPECT-20 bare cell
+        DIMA,           ///< "DIMA" 16-channel scintillator array
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
         SPHERE          ///< concentric spheres
@@ -54,12 +57,14 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
-    vector<PR2MuVetoBuilder*> myPR2Veto;        ///< PROSPECT-2/20 muon vetos
+    vector<PR2MuVetoBuilder*> myPR2Veto;///< PROSPECT-2/20 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell
     PR20ShieldBuilder myPR20Shield;     ///< PROSPECT-20 shield
     ScatterSlabBuilder mySlab;          ///< toy slab geometry
     SphereShellBuilder mySphere;        ///< toy sphere geometry
+    HFIRCoreBuilder myCore;             ///< reactor core geometry
+    DIMABoxBuilder myDIMA;              ///< boxed DIMA detector
     
     G4VPhysicalVolume* theWorld = NULL; ///< world volume
     G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume

@@ -11,9 +11,13 @@ G4ThreeVector VertexPositioner::randomDirection() {
 }
 
 int VertexPositioner::setVertex(vector<primaryPtcl>& v) {
-    int ntries = 1;
+    int ntries = 0;
     vector<primaryPtcl> vorig = v;
-    while(!tryVertex(v)) { v = vorig; ntries++; }
+    do {
+        v = vorig;
+        proposePosition();
+        ntries++;
+    } while(!tryVertex(v));
     return ntries;
 }
 
@@ -21,12 +25,13 @@ int VertexPositioner::setVertex(vector<primaryPtcl>& v) {
 
 bool IsotPtPositioner::tryVertex(vector<primaryPtcl>& v) {
     for(auto it = v.begin(); it != v.end(); it++) {
-        it->pos = x0;
+        it->pos = pos;
         if(!it->mom.mag2()) it->mom = randomDirection();
     }
+    nAttempts++;
     return true;
 }
 
 void IsotPtPositioner::fillNode(TXMLEngine& E) {
-    addAttr(E, "pos", G4BestUnit(x0,"Length"));
+    addAttr(E, "pos", G4BestUnit(pos,"Length"));
 }

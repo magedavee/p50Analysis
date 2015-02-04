@@ -12,16 +12,20 @@
 class ScintSegVol: public Builder {
 public:
     /// Constructor
-    ScintSegVol(const string& n): Builder(n), scint_log(NULL), scint_phys(NULL) { }
+    ScintSegVol(const string& n): Builder(n) { }
 
     /// get segment number at position in scintillator local coordinates
     virtual int getSegmentNum(const G4ThreeVector&) const { return 0; }
+    /// get segment center in scintillator local coordinates
+    virtual G4ThreeVector getSegCenter(int) const { return G4ThreeVector(); }
+    /// get physical volume defining local coordinates
+    virtual G4VPhysicalVolume* getCoordVolume() const { return scint_phys; }
     
     /// assign SD to scintillator volumes
     virtual void setScintSD(G4VSensitiveDetector* SD) { scint_log->SetSensitiveDetector(SD); }
     
-    G4LogicalVolume* scint_log;         ///< liquid scintillator logical volume for setting sensitive detectors
-    G4VPhysicalVolume* scint_phys;      ///< (optional) liquid scintillator physical volume for storing local coordinates
+    G4LogicalVolume* scint_log = NULL;          ///< liquid scintillator logical volume for setting sensitive detectors
+    G4VPhysicalVolume* scint_phys = NULL;       ///< (optional) liquid scintillator physical volume for storing local coordinates
     
 protected:
     /// XML output contents

@@ -10,11 +10,17 @@
 
 #include <G4VUserPrimaryGeneratorAction.hh>
 #include <G4ThreeVector.hh>
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithoutParameter.hh>
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWith3Vector.hh>
+#include <G4UIcmdWith3VectorAndUnit.hh>
 
 class G4Event;
 class G4ParticleGun;
 class G4GeneralParticleSource;
-class PrimaryGeneratorMessenger;
 class DetectorConstruction;
 
 class CRYModule;
@@ -22,8 +28,6 @@ class IBDModule;
 class CosmicMuonModule;
 class CosmicNeutronModule;
 class Cf252Module;
-class SimpleBGModule;
-class ThermalNModule;
 class GenPtclModule;
 class DecaySourceModule;
 class HistogramModule;
@@ -56,16 +60,17 @@ protected:
 
 
 /// Class for generating primary particles for event
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction, public XMLProvider {
-    
-friend class PrimaryGeneratorMessenger;
-
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction,
+public XMLProvider, public G4UImessenger {
 public:
     /// constructor
     PrimaryGeneratorAction();
     /// destructor
     virtual ~PrimaryGeneratorAction();
 
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand*,G4String);
+    
     /// Generates a particle and launches it into the geometry
     void GeneratePrimaries(G4Event* anEvent);
 
@@ -80,8 +85,6 @@ public:
     
     G4int GetVerbosity() const { return verbose; }
     
-    /// load particle gun as current generator
-    void loadGunModule();
     /// load CRY as current generator
     void loadCRYModule();              
     /// load Inverse Beta Decay as current generator
@@ -92,10 +95,6 @@ public:
     void loadCosmicNeutronModule();
     /// load Cf252 neutron source as current generator
     void loadCf252Module();
-    /// load SimpleBG gamma source as current generator
-    void loadSimpleBGModule();
-    /// load ThermalN neutron source as current generator
-    void loadThermalNModule();
     /// load G4GeneralParticleSource
     void loadGPSModule();
     /// load nuclear decay source as current generator
@@ -123,8 +122,6 @@ protected:
     CosmicMuonModule* myCosmicMuonModule;       ///< Cosmic muons generator
     CosmicNeutronModule* myCosmicNeutronModule; ///< Cosmic neutrons generator
     Cf252Module* myCf252Module;                 ///< Cf252 neutron source generator
-    SimpleBGModule* mySimpleBGModule;           ///< SimpleBG gamma source generator
-    ThermalNModule* myThermalNModule;           ///< ThermalN neutron source generator
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
     DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
     HistogramModule* myHistogramModule;         ///< throw from histogram module
@@ -133,7 +130,29 @@ protected:
 
     G4ParticleGun* particle_gun;
     G4GeneralParticleSource* particle_source;
-    PrimaryGeneratorMessenger* myMessenger;
+    
+    PrimaryGeneratorAction* generator;          ///< generator being controlled
+    G4UIdirectory genDir;                       ///< UI directory for generator commands
+    G4UIdirectory modDir;                       ///< UI directory for module commands
+    G4UIdirectory posDir;                       ///< UI directory for vertex selection commands
+    
+    G4UIcmdWithAnInteger verbCmd;               ///< UI command for setting verbosity
+    G4UIcmdWithoutParameter moduleGuncmd;       ///< UI command for using "particle gun" generator
+    G4UIcmdWithoutParameter moduleCRYcmd;       ///< UI command for using CRY cosmic ray generator
+    G4UIcmdWithoutParameter moduleIBDcmd;       ///< UI command for using IBD generator
+    G4UIcmdWithoutParameter moduleCosMucmd;     ///< UI command for using cosmic muon generator
+    G4UIcmdWithoutParameter moduleCosNcmd;      ///< UI command for using cosmic neutron generator
+    G4UIcmdWithoutParameter moduleCf252cmd;     ///< UI command for using Cf252 neutron generator
+    G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
+    G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
+    G4UIcmdWithoutParameter moduleHistocmd;     ///< UI command for using the nuclear decay source generator
+    
+    G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
+    G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface
+    G4UIcmdWithoutParameter srcTargCmd;         ///< UI command for isotropic flux from source to target volume
+    G4UIcmdWithoutParameter scintSrcCmd;        ///< UI command for isotropic source in scintillator volume
+    G4UIcmdWithADouble cosFluxCmd;              ///< UI command for cos^x-weighted flux
+    G4UIcmdWith3Vector dirFluxCmd;              ///< UI command for directional flux
 };
 
 #endif

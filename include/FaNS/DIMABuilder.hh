@@ -1,8 +1,7 @@
-/// \file DIMADetectorConstruction.hh \brief Geometry for ``DIMA'' 16-channel scintillator detector.
+/// \file DIMABuilder.hh \brief Geometry for ``DIMA'' 16-channel scintillator detector.
 #ifndef DIMADETECTORCONSTRUCTION_HH
 #define DIMADETECTORCONSTRUCTION_HH
 
-#include "DetectorConstruction.hh"
 #include "ScintSegVol.hh"
 
 /// Builder for ``DIMA'' fast neutron spectrometer array
@@ -15,12 +14,17 @@ public:
     virtual void construct();
     /// identify hit segment number
     int getSegmentNum(const G4ThreeVector& pos) const;
+    /// get segment center in scintillator local coordinates
+    virtual G4ThreeVector getSegCenter(int n) const;
+    /// get physical volume defining local coordinates
+    virtual G4VPhysicalVolume* getCoordVolume() const { return main_phys; }
     
     const int ngrid = 4;        ///< number of segments in each row/column
     double l_seg;               ///< scintillator tube length
     double r_seg;               ///< scintillator tube outer radius
     double t_seg;               ///< scintillator tube wall thickness
     double t_guide;             ///< thickness of light guide endcaps
+    double t_rack;              ///< thickness of tube holder rack
     static double spacing;      ///< center-to-center array spacing
 };
 
@@ -34,18 +38,6 @@ public:
     virtual void _construct();
     
     DIMAArrayBuilder myArray;   ///< scintillator tube array
-};
-
-/// Drop-in replacement for DetectorConstruction, for ``Russian'' spectrometer model
-class DIMADetectorConstruction: public DetectorConstruction  {
-public:
-    /// Constructor
-    DIMADetectorConstruction() { }
-    
-    /// Assembles geometry of the simulation, returns world volume
-    virtual G4VPhysicalVolume* Construct();
-    
-    DIMABoxBuilder myBox;       ///< boxed DIMA detector
 };
 
 #endif

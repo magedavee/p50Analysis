@@ -15,7 +15,7 @@ ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.5*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Vacuum;
 }
 
@@ -27,6 +27,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         else if(modeName == "PROSPECT20") mode = PROSPECT20;
         else if(modeName == "P20Inner") mode = P20INNER;
         else if(modeName == "P20Cell") mode = P20CELL;
+        else if(modeName == "DIMA") mode = DIMA;
         else if(modeName == "scintCell") mode = TEST_CELL;
         else if(modeName == "slab") mode = SLAB;
         else if(modeName == "sphere") mode = SPHERE;
@@ -38,6 +39,7 @@ ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myPRShield.myDet.myTank;
     else if(mode == PROSPECT20 || mode==P20INNER || mode==P20CELL) return &myPR20Cell;
     else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
+    else if(mode == DIMA) return &myDIMA.myArray;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
     return NULL;
@@ -56,10 +58,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
                     : mode==SLAB ? &mySlab
                     : mode==TEST_CELL ? &myTestCell
                     : mode==P20CELL ? &myPR20Cell
+                    : mode==DIMA ? &myDIMA
                     : (Builder*)&mySphere );
 
     if(mode==TEST_CELL) {
         worldShell.mat = MaterialsHelper::M().Air;
+        //worldShell.setThick(3*m);
     } else if(mode==SLAB) {
         worldShell.lthick[2] =  worldShell.uthick[2];
     } else if(mode==PROSPECT) {
@@ -80,16 +84,27 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myPR20Shield.myInnerShield.myContents = &myPR20Cell;
     }
     
+    if(myCore.pos.mag2()) {
+        myCore.construct();
+        addChild(&myCore);
+        worldShell.setThick(myCore.pos.mag()+myCore.height);
+    }
+        
     construct();
     
     ptclTrg = myContents->main_phys;
     
     if(mode==SPHERE) mySphere.scint_phys = ptclTrg;
     
+    if(myCore.pos.mag2()) {
+        ptclSrc = new G4PVPlacement(NULL, myCore.pos, myCore.main_log, "core_phys", main_log, false,  0, true);
+        if(getScint()) ptclTrg = getScint()->scint_phys;
+    }
+    
     if(mode == TEST_CELL) {
-        //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 1.*mm, 0, 2*M_PI, 0, M_PI);
+        //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 2*cm, 0, 2*M_PI, 0, M_PI);
         //G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
-        //ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(30.*cm,0.,0.), sun_log, "sun_phys", main_log, false,  0);
+        //ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(200.*cm,200.*cm,200.*cm), sun_log, "sun_phys", main_log, false,  0);
     } else if(mode == PROSPECT2) {
         for(int nx = 0; nx<2; nx++) {
             for(int nz = 0; nz<2; nz++) {

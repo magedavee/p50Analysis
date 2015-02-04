@@ -35,11 +35,11 @@ protected:
     G4UIcmdWithABool invNuCmd;          ///< command to set antineutrino generation
     
     vector<G4double> kinematics;        ///< generated kinematics vector
+    vector<primaryPtcl> vToThrow;       ///< particles left to throw in "sequential" mode
     G4bool Antinus;                     ///< Flag to specify antineutrino (only) generation
     G4bool Neutrons;                    ///< Flag to specify neutron production
     G4bool Positrons;                   ///< Flag to specify positron production
     G4bool Sequential;                  ///< Flag to specify sequential positron and neutron production
-    G4bool primary;                     ///< whether this is positron in sequential generation
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);

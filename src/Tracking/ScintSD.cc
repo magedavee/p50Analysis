@@ -27,7 +27,7 @@ G4VSensitiveDetector(name), verbose(0), myScint(T) {
     mat_n = T.scint_log->GetMaterial()->GetElectronDensity()/(6.022e23/cm3);
     RootIO::GetInstance()->addScIoniBranch();
     RootIO::GetInstance()->addNCaptBranch();
-    W2S.setParentChild(W, T.scint_phys?T.scint_phys:W);
+    W2S.setParentChild(W, T.getCoordVolume()? T.getCoordVolume() : W);
 }
 
 void ScintSD::Initialize(G4HCofThisEvent*) {
