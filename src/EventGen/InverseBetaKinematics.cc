@@ -1,5 +1,6 @@
 #include "InverseBetaKinematics.hh"
 #include "InverseBetaMessenger.hh"
+#include "DwyerLangford.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <Randomize.hh>
@@ -21,24 +22,9 @@ pMass(G4Proton::ProtonDefinition()->GetPDGMass()),
 nMass(G4Neutron::NeutronDefinition()->GetPDGMass()),
 ePlusMass(G4Positron::PositronDefinition()->GetPDGMass()),
 verbose(v), antiNuMonoEnergy(0*MeV),
-inv_messenger(this) {
-    RawData = verbose > 2;
-    // load Dwyer spectrum data
-    char header[200];
-    G4double dummy;
-    G4int cnt=0;
-    char pnd = '#';
-    std::ifstream infile("antineutrinoSpectra_DwyerLangford_1keV_v0.txt",std::ifstream::in);
-    if(!infile.is_open()) G4cerr << "Problem opening Dwyer spectrum file" << G4endl;
-    while (infile.peek()==int(pnd)){
-        infile.getline(header,200);
-    }
-    while(infile >> dummy >> Dwyer235[cnt] >> Dwyer238[cnt] >> Dwyer239[cnt] >> Dwyer241[cnt]){
-        cnt++;
-    }
-    infile.close();
-    
-    PrintAllParameters();
+inv_messenger(this), DL() {
+  RawData = verbose > 2;
+  PrintAllParameters();
 }
 
 void InverseBetaKinematics::SetVerbosity(G4int v) {
@@ -229,11 +215,13 @@ G4double InverseBetaKinematics::GenerateDwyerAntiNeutrinoEnergy() const {
         
         // Calculate acceptance value - NormFactor is the maximum value of distribution to obtain a fraction
         G4double Phi = 0.; G4double NormFactor = 0.0;  G4double xsec = 0.0;
-        intE = 1000*energy-1800;
-        Phi += U235*Dwyer235[G4int(intE)];
-        Phi += Pu239*Dwyer239[G4int(intE)];
-        Phi += Pu241*Dwyer241[G4int(intE)];
-        Phi += U238*Dwyer238[G4int(intE)];
+	//   intE = 1000*energy-1800;
+	intE = 0;
+	while(DL.DwyerE[intE]<energy){ intE++;}
+        Phi += U235*DL.Dwyer235[intE];
+        Phi += Pu239*DL.Dwyer239[intE];
+        Phi += Pu241*DL.Dwyer241[intE];
+        Phi += U238*DL.Dwyer238[intE];
         
         NormFactor += U235*2.04e-03;
         NormFactor += Pu239*1.58e-03;     // equation 9 in Vogel and Beacom

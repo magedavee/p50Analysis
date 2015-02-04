@@ -3,6 +3,7 @@
 #define InverseBetaKinematics_H
 
 #include "InverseBetaMessenger.hh"
+#include "DwyerLangford.hh"
 #include <vector>
 using std::vector;
 
@@ -53,13 +54,9 @@ protected:
     /// Calculate Contribution from Uranium-238
     G4double CalculateU238Spectrum(G4double eNu) const;
     /// Calculate Fraction of Total Composition
-    G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
-    
-    G4double Dwyer235[10200];                   ///< Dwyer U235 spectrum table
-    G4double Dwyer238[10200];                   ///< Dwyer U238 spectrum table
-    G4double Dwyer239[10200];                   ///< Dwyer Pu239 spectrum table
-    G4double Dwyer241[10200];                   ///< Dwyer Pu241 spectrum table
-    G4bool dwyer;                               ///< whether to use Dwyer spectrum
+  G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
+   
+  G4bool dwyer;                               ///< whether to use Dwyer spectrum
     
     G4double U235, U238, Pu239, Pu241;          ///< Fuel compositions
     
@@ -82,6 +79,7 @@ protected:
     G4double antiNuMonoEnergy;                  ///< monoenergetic neutrino energy to generate (set =0 for spectrum)
     G4ThreeVector nuDirection;                  ///< incident neutrino direction
     InverseBetaMessenger inv_messenger;         ///< messenger for this class
+  DwyerLangford DL;
 };
 
 #endif
