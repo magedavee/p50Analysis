@@ -81,6 +81,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     } else if(mode==P20INNER) {
         myBuilding.myContents = &myPR20Shield.myInnerShield;
         myPR20Shield.myInnerShield.myContents = &myPR20Cell;
+    } else if(mode == DIMA) {
+        worldShell.setThick(0.1*m);
     }
     
     if(myCore.pos.mag2()) {
@@ -128,6 +130,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
             double veto_z = myBuilding.floor_pos[2] + myPR20Shield.getDimensions()[2] + 0.5*vdim[2] + 1*in;
             G4ThreeVector veto_pos( (nn==0? -15: nn==1? 5: nn==2? -5 : 15)*in, 0, veto_z + (nn/2)*(vdim[2] + 1*mm) );
             V->scint_phys = new G4PVPlacement(NULL, veto_pos, V->main_log, ("veto_phys_"+to_str(nn)).c_str(), myBuilding.inside_log, false, 0, true);
+        }
+    } else if(mode == DIMA) {
+        if(myDIMA.withLeadBrick) {
+            double brick_z = (myDIMA.getDimensions()+myDIMA.brickDim)[2]/2;
+            new G4PVPlacement(NULL, G4ThreeVector(0,0,brick_z), myDIMA.brick_log, "brick_phys", main_log, false, 0, true);
+            G4cout << "Placing gamma-blocker lead brick on DIMA, with top z =" << G4BestUnit(brick_z+myDIMA.brickDim[2]/2,"Length") << "\n";
         }
     }
     

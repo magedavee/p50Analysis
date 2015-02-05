@@ -4,6 +4,10 @@
 
 #include "ScintSegVol.hh"
 
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithABool.hh>
+
 /// Builder for ``DIMA'' fast neutron spectrometer array
 class DIMAArrayBuilder: public ScintSegVol {
 public:
@@ -29,15 +33,29 @@ public:
 };
 
 /// Builder for box/supports around DIMA array
-class DIMABoxBuilder: public ShellLayerBuilder {
+class DIMABoxBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// Constructor
-    DIMABoxBuilder(): ShellLayerBuilder("DIMABox")  { expand_to_contents = false; myContents = &myArray; }
+    DIMABoxBuilder();
     
     /// Construct geometry
     virtual void _construct();
     
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
+    
     DIMAArrayBuilder myArray;   ///< scintillator tube array
+    
+    bool withLeadBrick = false; ///< whether to place lead brick on top for Cf252 gamma blocker (done externally)
+    G4ThreeVector brickDim;     ///< dimensions of blocker brick
+    G4LogicalVolume* brick_log; ///< logical volume for blocker brick, awaiting possible placement
+    
+protected:
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
+    
+    G4UIdirectory dimaDir;      ///< UI directory for DIMA commands
+    G4UIcmdWithABool brickCmd;  ///< UI command for whether to stack gamma blocker brick on top
 };
 
 #endif

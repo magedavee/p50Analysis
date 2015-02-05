@@ -3,13 +3,14 @@
 #include "MaterialsHelper.hh"
 
 #include <G4SystemOfUnits.hh>
+#include <G4UnitsTable.hh>
 #include <G4PVPlacement.hh>
 #include <G4Tubs.hh>
 #include <G4Box.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4SDManager.hh>
 
-double DIMAArrayBuilder::spacing = 6*cm;
+double DIMAArrayBuilder::spacing = 2*in;
 
 DIMAArrayBuilder::DIMAArrayBuilder(): ScintSegVol("ScintArray"),
 l_seg(15*cm), r_seg(1.5*cm), t_seg(2.5*mm), t_guide(12*mm), t_rack(1*cm) {
@@ -43,7 +44,7 @@ void DIMAArrayBuilder::construct() {
     
     //////////
     // 3He tube placeholder (used for extra holes in tube holder)
-    G4Tubs* He3tube = new G4Tubs("3He_tube", 0, 1.2*cm, l_seg/2, 0, 2*M_PI);
+    G4Tubs* He3tube = new G4Tubs("3He_tube", 0, 0.35*in, l_seg/2, 0, 2*M_PI);
     
     //////////
     // tube holder rack (unit for one end of one tube)
@@ -81,10 +82,38 @@ G4ThreeVector DIMAArrayBuilder::getSegCenter(int n) const {
 /////////////////////////
 /////////////////////////
 
+DIMABoxBuilder::DIMABoxBuilder():
+ShellLayerBuilder("DIMABox"),
+brickDim(2*in, 3*in, 0.5*in),
+dimaDir("/geom/DIMA/"),
+brickCmd("/geom/DIMA/brick", this) {
+    expand_to_contents = false;
+    myContents = &myArray;
+    
+    dimaDir.SetGuidance("DIMA geometry settings");
+    dimaDir.AvailableForStates(G4State_PreInit);
+
+    brickCmd.SetGuidance("Set whether to add gamma-blocker lead brick atop DIMA");
+    brickCmd.SetDefaultValue(withLeadBrick);
+    brickCmd.AvailableForStates(G4State_PreInit);
+}
+
 void DIMABoxBuilder::_construct() {
-    dim = myArray.getDimensions() + G4ThreeVector(14*cm, 30*cm, 4*cm);
+    G4Box* brick_box = new G4Box("brick_box", brickDim[0]/2, brickDim[1]/2, brickDim[2]/2);
+    brick_log = new G4LogicalVolume(brick_box, MaterialsHelper::M().nat_Pb, "brick_log");
+    
+    dim = G4ThreeVector(16*in, 20.5*in, myArray.getDimensions()[2]+4*cm);
     G4ThreeVector zOff(0,0,dim[2]/2);
     addLayer(ShellLayerSpec(dim*0.5+zOff, dim*0.5-zOff, MaterialsHelper::M().Air, G4Colour(0.7,0.0,0.7,0.5)));
     addLayer(ShellLayerSpec(G4ThreeVector(2*mm, 2*mm, 2*mm), G4ThreeVector(2*mm, 2*mm, 10*mm), MaterialsHelper::M().SS444, G4Colour(0.7,0.0,0.7,0.5)));
     construct_layers();
+}
+
+void DIMABoxBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &brickCmd) withLeadBrick = brickCmd.GetNewBoolValue(newValue);
+}
+
+void DIMABoxBuilder::fillNode(TXMLEngine& E) {
+    ShellLayerBuilder::fillNode(E);
+    if(withLeadBrick) addAttr(E, "brick", G4BestUnit(brickDim,"Length"));
 }

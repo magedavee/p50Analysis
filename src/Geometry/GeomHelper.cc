@@ -4,6 +4,7 @@
 #include <G4LogicalVolume.hh>
 #include <G4VSolid.hh>
 #include <G4ios.hh>
+#include <G4UnitsTable.hh>
 
 #include <cassert>
 
@@ -35,7 +36,7 @@ void GeomHelper::calcChildOffset() {
     }
     
     rotPtoC = rotCtoP.inverse();
-    G4cout << rotCtoP << transCtoP << G4endl;
+    G4cout << rotCtoP << G4BestUnit(transCtoP,"Length") << G4endl;
 }
 
 G4ThreeVector GeomHelper::coordCtoP(G4ThreeVector x) const {
