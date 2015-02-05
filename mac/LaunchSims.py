@@ -28,15 +28,19 @@ class qsubmitter:
         self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -N %(jobname)s"""
-        for e in ["PG4_AUX"]:
-            self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
+#PBS -N %(jobname)s
+#PBS -q exclusive"""
+        #for e in [e for e in os.environ if "G4" in e ]:
+        #    self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
     
     def start_index(self):
         return 1
     
     def run_jobs(self, jcmd, r0, r1):
-        open("job_submit","w").write((self.setup + "\n#PBS -t %i-%i"%(r0+1, r1) + "\n%(xcmds)s\n")%self.settings + jcmd%{"jobnum":"${PBS_ARRAYID}"} + "\n")
+        subcmd = (self.setup + "\n#PBS -t %i-%i"%(r0+1, r1) + "\n%(xcmds)s\n")%self.settings
+        subcmd += "source ${HOME}/.bashrc\n"
+        subcmd += jcmd%{"jobnum":"${PBS_ARRAYID}"} + "\n"
+        open("job_submit","w").write(subcmd)
         os.system("cat job_submit")
         os.system("qsub -p -500 job_submit")
         os.system("rm job_submit")
@@ -102,6 +106,7 @@ if __name__=="__main__":
     parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False, help="kill running jobs")
     parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
     parser.add_option("--p20yale", dest="p20yale", action="store_true", default=False, help="Bare PROSPECT-20 'Yale' cell");
+    parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -118,3 +123,9 @@ if __name__=="__main__":
         L = SB_MC_Launcher("P20-Yale-Cf252", 3e5)
         L.template = "Analysis/Private/P20-Yale.mac"
         L.launch_sims(40)
+
+    if options.dima:
+        L = SB_MC_Launcher("DIMA-Cf252", 3e5)
+        L.template = "Analysis/Private/DIMA_Template.mac"
+        L.launch_sims(60)
+
