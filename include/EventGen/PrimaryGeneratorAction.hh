@@ -31,6 +31,7 @@ class Cf252Module;
 class GenPtclModule;
 class DecaySourceModule;
 class HistogramModule;
+class LLNLFissModule;
 
 class PrimaryGeneratorAction;
 
@@ -101,6 +102,8 @@ public:
     void loadDecaySourceModule();
     /// load histogram module as current generator
     void loadHistogramModule();
+    /// load LLNL Fission generator as current module
+    void loadLLNLFissModule();
     
 protected:
     
@@ -125,6 +128,7 @@ protected:
     GenPtclModule* myGPSModule;                 ///< G4GeneralParticleSource grnerator
     DecaySourceModule* myDecaySourceModule;     ///< nuclear decay event genertor
     HistogramModule* myHistogramModule;         ///< throw from histogram module
+    LLNLFissModule* myLLNLFissModule;           ///< LLNL fission generator module
     
     G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
@@ -146,6 +150,7 @@ protected:
     G4UIcmdWithoutParameter moduleGPScmd;       ///< UI command for using the G4GeneralParticleSource generator
     G4UIcmdWithoutParameter moduleDecaySrccmd;  ///< UI command for using the nuclear decay source generator
     G4UIcmdWithoutParameter moduleHistocmd;     ///< UI command for using the nuclear decay source generator
+    G4UIcmdWithoutParameter moduleLLNLFisscmd;  ///< UI command for using the LLNL fission generator
     
     G4UIcmdWith3VectorAndUnit ptPosCmd;         ///< UI command for setting isotropic point source positioner
     G4UIcmdWithoutParameter isotFluxCmd;        ///< UI command for isotropic flux from world volume surface

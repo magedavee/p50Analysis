@@ -13,6 +13,7 @@
 #include "CosmicNeutronModule.hh"
 #include "GenPtclModule.hh"
 #include "HistogramModule.hh"
+#include "LLNLFissModule.hh"
 
 #include <math.h>
 #include <string>
@@ -70,7 +71,7 @@ myPositioner(&myIsotPt),
 myCosineThrower(NULL),
 genModule(NULL), myCRYModule(NULL), myIBDModule(NULL),
 myCosmicMuonModule(NULL), myCosmicNeutronModule(NULL),
-myCf252Module(NULL),
+myCf252Module(NULL), myHistogramModule(NULL), myLLNLFissModule(NULL),
 genDir("/generator/"),
 modDir("/generator/module/"),
 posDir("/generator/vertex/"),
@@ -84,6 +85,7 @@ moduleCf252cmd("/generator/module/Cf252",this),
 moduleGPScmd("/generator/module/gps",this),
 moduleDecaySrccmd("/generator/module/decaysrc",this),
 moduleHistocmd("/generator/module/histogram",this),
+moduleLLNLFisscmd("/generator/module/fission",this),
 ptPosCmd("/generator/vertex/isotpt", this),
 isotFluxCmd("/generator/vertex/isotworld", this),
 srcTargCmd("/generator/vertex/srctarg", this),
@@ -140,6 +142,9 @@ dirFluxCmd("/generator/vertex/directional", this) {
     moduleHistocmd.SetGuidance("Use histogram event generator");
     moduleHistocmd.AvailableForStates(G4State_Idle);
     
+    moduleLLNLFisscmd.SetGuidance("Use LLNL fission event generator");
+    moduleLLNLFisscmd.AvailableForStates(G4State_Idle);
+    
     ptPosCmd.SetGuidance("Generate events with isotropic momenta from specified point");
     ptPosCmd.AvailableForStates(G4State_Idle);
     
@@ -170,6 +175,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     if(myCosmicNeutronModule) delete myCosmicNeutronModule;
     if(myCf252Module) delete myCf252Module;
     if(myDecaySourceModule) delete myDecaySourceModule;
+    if(myLLNLFissModule) delete myLLNLFissModule;
     if(myCosineThrower) delete myCosineThrower;
     if(myDirThrower) delete myDirThrower;
 }
@@ -232,6 +238,12 @@ void PrimaryGeneratorAction::loadHistogramModule() {
     genModule = myHistogramModule;
 }
 
+void PrimaryGeneratorAction::loadLLNLFissModule() {
+    if(!myLLNLFissModule) myLLNLFissModule = new LLNLFissModule(this);
+    G4cout << "Using LLNLFissModule." << G4endl; 
+    genModule = myLLNLFissModule;
+}
+
 void PrimaryGeneratorAction::SetVerbosity(G4int v) {
     verbose = v;
     if(verbose > 1) G4cout << "PrimaryGeneratorAction verbosity set to " << v << "." << G4endl;
@@ -270,6 +282,7 @@ void PrimaryGeneratorAction::SetNewValue(G4UIcommand* command, G4String newValue
     else if(command == &moduleGPScmd) loadGPSModule();
     else if(command == &moduleDecaySrccmd) loadDecaySourceModule();
     else if(command == &moduleHistocmd) loadHistogramModule();
+    else if(command == &moduleLLNLFisscmd) loadLLNLFissModule();
     
     else if(command == &ptPosCmd) {
         myPositioner = &myIsotPt;
