@@ -29,7 +29,7 @@ void DIMAArrayBuilder::construct() {
     //////////
     // scintillator tube
     G4Tubs* lg_tube = new G4Tubs("lg_tube", 0, r_seg, l_seg/2+t_guide, 0, 2*M_PI);
-    G4Tubs* glass_tube = new G4Tubs("glass_tube", 0, r_seg, l_seg/2, 0, 2*M_PI);
+    G4Tubs* glass_tube = new G4Tubs("glass_tube", 0, r_seg-100*um, l_seg/2, 0, 2*M_PI);
     G4Tubs* scint_tube = new G4Tubs("scint_tube", 0, r_seg-t_seg, l_seg/2, 0, 2*M_PI);
     
     G4LogicalVolume* tube_log = new G4LogicalVolume(lg_tube, MaterialsHelper::M().PMMA, "tube_log");
@@ -38,7 +38,7 @@ void DIMAArrayBuilder::construct() {
     glass_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.8,0.8,0.0,0.15)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), glass_log, "glass_phys", tube_log, false, 0, true);
     //scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, 0.001, true), "scint_log");
-    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().EJ309, "scint_log");
+    scint_log = new G4LogicalVolume(scint_tube, MaterialsHelper::M().UG_AB, "scint_log");
     scint_log->SetVisAttributes(new G4VisAttributes(G4Colour(0.4,0.2,1.0,0.3)));
     new G4PVPlacement(NULL, G4ThreeVector(0,0,0), scint_log, "scint_phys", glass_log, false, 0, true);
     
@@ -70,7 +70,7 @@ void DIMAArrayBuilder::construct() {
 
 int DIMAArrayBuilder::getSegmentNum(const G4ThreeVector& pos) const {
     int nx = floor(pos[0]/spacing + ngrid/2.);
-    int nz = floor(pos[2]/spacing + ngrid/2.);
+    int nz = ngrid-1-floor(pos[2]/spacing + ngrid/2.);
     return nx + ngrid*nz;
 }
 
