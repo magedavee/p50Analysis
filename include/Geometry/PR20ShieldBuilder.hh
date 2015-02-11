@@ -4,26 +4,44 @@
 
 #include "Builder.hh"
 
+#include <G4UImessenger.hh>
+#include <G4UIcmdWithABool.hh>
+
 /// Builder for PROSPECT-20 inner shielding cave
-class PR20InnerShieldBuilder: public ShellLayerBuilder {
+class PR20InnerShieldBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// constructor
-    PR20InnerShieldBuilder(): ShellLayerBuilder("PROSPECT20_Inner") { expand_to_contents = false; place_centered = false; }
+    PR20InnerShieldBuilder();
     
     /// Construct geometry
     void _construct();
+    
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
+    
+    bool withWaterBricks = false;       ///< whether to build borated water bricks layer
+    
+protected:
+    G4UIcmdWithABool waterBrickCmd;     ///< UI command for enabling/disabling water bricks layer
 };
 
 /// Builder for PROSPECT-20 inner+outer cave
-class PR20ShieldBuilder: public ShellLayerBuilder {
+class PR20ShieldBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// constructor
-    PR20ShieldBuilder(): ShellLayerBuilder("PROSPECT20") { myContents = &myInnerShield; place_centered = false; }
+    PR20ShieldBuilder();
     
     /// Construct geometry
     void _construct();
     
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
+    
     PR20InnerShieldBuilder myInnerShield;       ///< inner shield layers
+    bool withWaterBricks = false;       ///< whether to build borated water bricks layer
+    
+protected:    
+    G4UIcmdWithABool waterBrickCmd;     ///< UI command for enabling/disabling water bricks layer
 };
 
 #endif

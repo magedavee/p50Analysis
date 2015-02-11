@@ -55,14 +55,14 @@ int main(int argc, char** argv) {
     
     hnPos.ScaleBinsize();
     hnPos.Scale(1./D.genTime);
-    hnPos.SetMaximum(80);
+    //hnPos.SetMaximum(80);
     hnPos.Print("Col",outpath+"/nCapPos");
     
     gPad->SetLogz(true);
     hIPos.ScaleBinsize();
     hIPos.Scale(1./D.genTime);
-    hIPos.SetMinimum(100);
-    hIPos.SetMaximum(100000);
+    //hIPos.SetMinimum(100);
+    //hIPos.SetMaximum(100000);
     hIPos.Print("Col Z",outpath+"/IoniPos");
     
     return 0;

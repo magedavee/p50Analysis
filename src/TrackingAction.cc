@@ -2,6 +2,7 @@
 #include "RootIO.hh"
 
 #include <G4Track.hh>
+#include <G4SystemOfUnits.hh>
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
     // record neutron generation
@@ -14,4 +15,10 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
         nc.vol = -1000;
         RootIO::GetNCapt().AddNCapt(nc);
     }
+    
+    // immediate secondaries from long-lived primaries: doesn't work!
+    //if(aTrack->GetParentID()==1 && aTrack->GetGlobalTime() > 0.1*s) {
+    //    G4Track* tr = (G4Track*)aTrack;
+    //    tr->SetGlobalTime(0);
+    //}
 }

@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     // "electron-like" energy deposition
     TH1F* hSinglesE = (TH1F*)f.add(new TH1F("hSinglesE", "Singles energy spectrum", 400, 0, 10));
     hSinglesE->GetXaxis()->SetTitle("Visible energy [MeVee]");
-    hSinglesE->GetYaxis()->SetTitle("Event rate [/neutron/MeV]");
+    hSinglesE->GetYaxis()->SetTitle("Event rate [/decay/MeV]");
     
     // segment multiplicity
     TH1F* hMult = (TH1F*)f.add(new TH1F("hMult", "Hit multiplicity", 16, 0.5, 16.5));
@@ -59,8 +59,9 @@ int main(int argc, char** argv) {
             if(its->vol < 0 || its->vol > 1000) continue; // exclude dead and veto volumes
             double E = its->Equench();
             if(E>0.1) nseg++; // trigger threshold > 0.1 MeV
-            hSinglesE->Fill(E);
-            hSingles->Fill(E,its->E/its->EdEdx);
+            double pseudopsd = its->E/its->EdEdx; 
+            if(pseudopsd > 0.1) hSinglesE->Fill(E);
+            hSingles->Fill(E,pseudopsd);
         }
         if(nseg) hMult->Fill(nseg);
         
@@ -78,7 +79,7 @@ int main(int argc, char** argv) {
     // plot results
     
     hSinglesE->Draw("HIST");
-    gPad->SetLogy(true);
+    //gPad->SetLogy(true);
     gPad->Print((outpath+"/Singles_Energy.pdf").c_str());
     
     gPad->SetLogy(false);

@@ -73,11 +73,16 @@ public:
     G4Material* Pyrex;          ///< Pyrex borosilicate glass
     G4Material* Concrete;       ///< Concrete
     G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
+    G4Material* BoricAcid;      ///< anhydrous boric acid B(OH)_3
     
     /// get 6Li-loaded version of scintillator (option for natural or enriched 6Li)
     G4Material* get6LiLS(G4Material* base, double loading, bool enriched = true);
+    /// get boric acid loaded water
+    G4Material* getBoratedH2O(double loading);
     /// get 3He gas at specified density
     G4Material* get3He(double dens);
+    /// shortcut to get named G4Element
+    G4Element* getEl(const string& name) const;    
     
 protected:
     /// Constructor

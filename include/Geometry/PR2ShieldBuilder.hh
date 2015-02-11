@@ -5,14 +5,27 @@
 #include "Builder.hh"
 #include "ScintSegVol.hh"
 
+#include <G4UImessenger.hh>
+#include <G4UIcmdWithABool.hh>
+
 /// Builder for PROSPECT-2 shielding cave
-class PR2ShieldBuilder: public ShellLayerBuilder {
+class PR2ShieldBuilder: public ShellLayerBuilder, public G4UImessenger {
 public:
     /// constructor
-    PR2ShieldBuilder(): ShellLayerBuilder("PROSPECT2") { expand_to_contents = false; place_centered = false; }
+    PR2ShieldBuilder();
     
     /// Construct geometry
     void _construct();
+    
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
+    
+    bool withWaterBricks = false;       ///< whether to build borated water bricks layer
+    bool P2B_or_not_2B = false;         ///< enlarged "PROSPECT-2B" shield mode
+    
+protected:    
+    G4UIcmdWithABool waterBrickCmd;     ///< UI command for enabling/disabling water bricks layer
+    G4UIcmdWithABool mode2Bcmd;         ///< UI command for enabling/disabling "2B" configuration
 };
 
 /// Builder for PROSPECT-2/20 muon veto

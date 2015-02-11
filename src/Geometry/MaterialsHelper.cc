@@ -16,6 +16,7 @@ MaterialsHelper::MaterialsHelper() {
     
     G4cout << "Initializing materials..." << G4endl;
     room_T = 293.15*kelvin;
+    G4int nAtoms = 0; // placeholder variable for assuring G4int type
     
     nist = G4NistManager::Instance();
     
@@ -107,9 +108,9 @@ MaterialsHelper::MaterialsHelper() {
     PMMA_white = new G4Material("PMMA_white", PMMA->GetDensity(), PMMA);
     
     PEEK = new G4Material("PEEK", 1.32*g/cm3, 3, kStateSolid, room_T);
-    PEEK->AddElement(nist->FindOrBuildElement("H",true), 12);
-    PEEK->AddElement(nist->FindOrBuildElement("C",true), 19);
-    PEEK->AddElement(nist->FindOrBuildElement("O",true), 3);
+    PEEK->AddElement(getEl("H"), nAtoms = 12);
+    PEEK->AddElement(getEl("C"), nAtoms = 19);
+    PEEK->AddElement(getEl("O"), nAtoms = 3);
     
     Polyeth = nist->FindOrBuildMaterial("G4_POLYETHYLENE", true, true);
     Polystyrene = nist->FindOrBuildMaterial("G4_POLYSTYRENE", true, true);
@@ -151,17 +152,38 @@ MaterialsHelper::MaterialsHelper() {
     */
         
     Dirt = new G4Material("Dirt", 1.52*g/cm3, 5);
-    G4int nAtoms = 0;
-    Dirt->AddElement(nist->FindOrBuildElement("C"),  nAtoms=  1);
-    Dirt->AddElement(nist->FindOrBuildElement("Si"), nAtoms= 29);
-    Dirt->AddElement(nist->FindOrBuildElement("Al"), nAtoms= 15);
-    Dirt->AddElement(nist->FindOrBuildElement("Fe"), nAtoms=  5);
-    Dirt->AddElement(nist->FindOrBuildElement("O"),  nAtoms= 50);
+    Dirt->AddElement(getEl("C"),  nAtoms=  1);
+    Dirt->AddElement(getEl("Si"), nAtoms= 29);
+    Dirt->AddElement(getEl("Al"), nAtoms= 15);
+    Dirt->AddElement(getEl("Fe"), nAtoms=  5);
+    Dirt->AddElement(getEl("O"),  nAtoms= 50);
     
     setupOptical();
     
-    // pre-build LS for availability in named materials catalog
+    BoricAcid = new G4Material("BoricAcid", 1.435*g/cm3, 3);
+    BoricAcid->AddElement(getEl("B"), nAtoms=  1);
+    BoricAcid->AddElement(getEl("O"), nAtoms= 3);
+    BoricAcid->AddElement(getEl("H"), nAtoms= 3);
+    
+    // pre-build some materials for availability in named materials catalog
     get6LiLS(EJ309, 0.001);
+    getBoratedH2O(0.02);
+}
+
+G4Element* MaterialsHelper::getEl(const string& name) const {
+    return G4NistManager::Instance()->FindOrBuildElement(name);
+}
+
+G4Material* MaterialsHelper::getBoratedH2O(double loading) {
+    string mnm = "H2O_"+to_str(100*loading)+"wt%_Boron";
+    if(!xmats.count(mnm)) {
+        G4Material* BW = new G4Material(mnm.c_str(), Water->GetDensity(), 2, Water->GetState(), Water->GetTemperature());
+        const double massratio = (3*(15.999+1.008)+10.81)/10.81; // ratio of boric acid mass to boron mass
+        BW->AddMaterial(Water, 1.-loading*massratio);
+        BW->AddMaterial(BoricAcid, loading*massratio);
+        xmats[mnm] = BW;
+    }
+    return xmats[mnm];
 }
 
 G4Material* MaterialsHelper::get6LiLS(G4Material* base, double loading, bool enriched) {
