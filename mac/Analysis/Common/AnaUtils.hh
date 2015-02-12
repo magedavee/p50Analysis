@@ -58,6 +58,9 @@ void describe_event(TClonesArray* clusts, TClonesArray* nCapts = NULL);
 /// text table of histogram
 void printHisto(const TH1* h);
 
+/// histogram integral and error specified by x axis range
+double integralAndError(TH1* h, double x0, double x1, Double_t& err, const string& option = "");
+
 /// (x,y,z) position projection histograms
 class ProfileHistos {
 public:

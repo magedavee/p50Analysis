@@ -80,6 +80,14 @@ void printHisto(const TH1* h) {
         printf("%.5g\t%.5g\t%.5g\n",A->GetBinLowEdge(i),A->GetBinUpEdge(i),h->GetBinContent(i));
 }
 
+double integralAndError(TH1* h, double x0, double x1, Double_t& err, const string& option) {
+    if(!h) {
+        err = 0;
+        return 0;
+    }
+    return h->IntegralAndError(h->FindBin(x0), h->FindBin(x1), err, option.c_str());
+}
+
 /////////////////////////////////////
 /////////////////////////////////////
 /////////////////////////////////////
