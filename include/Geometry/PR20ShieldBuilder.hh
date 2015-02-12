@@ -6,6 +6,8 @@
 
 #include <G4UImessenger.hh>
 #include <G4UIcmdWithABool.hh>
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4UIcmdWithADouble.hh>
 
 /// Builder for PROSPECT-20 inner shielding cave
 class PR20InnerShieldBuilder: public ShellLayerBuilder, public G4UImessenger {
@@ -38,10 +40,12 @@ public:
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
     PR20InnerShieldBuilder myInnerShield;       ///< inner shield layers
-    bool withWaterBricks = false;       ///< whether to build borated water bricks layer
+    int nWaterBrickLayers = 0;                  ///< number of 9" waterbrick layers to build
+    double wbloading = 0.02;                    ///< waterbrick boron mass fraction loading
     
 protected:    
-    G4UIcmdWithABool waterBrickCmd;     ///< UI command for enabling/disabling water bricks layer
+    G4UIcmdWithAnInteger waterBrickCmd;         ///< UI command for setting water bricks layers
+    G4UIcmdWithADouble wbLoadingCmd;            ///< UI command for setting water bricks boron loading
 };
 
 #endif

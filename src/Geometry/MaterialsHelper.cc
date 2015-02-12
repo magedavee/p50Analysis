@@ -175,6 +175,7 @@ G4Element* MaterialsHelper::getEl(const string& name) const {
 }
 
 G4Material* MaterialsHelper::getBoratedH2O(double loading) {
+    if(!loading) return Water;
     string mnm = "H2O_"+to_str(100*loading)+"wt%_Boron";
     if(!xmats.count(mnm)) {
         G4Material* BW = new G4Material(mnm.c_str(), Water->GetDensity(), 2, Water->GetState(), Water->GetTemperature());

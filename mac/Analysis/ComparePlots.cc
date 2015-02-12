@@ -2,11 +2,12 @@
 
 void CompareMultiFiles() {
     vector<string> fnames;
-    fnames.push_back("${PG4_OUTDIR}/P20Inner_nBG/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_nBG/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20_nBG_IBD/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20_WB_nBG_IBD/Plots/PROSPECT-2.root");
+    
     
     vector<string> hnames;
-    hnames.push_back("hFNEnergy");
+    hnames.push_back("hIBDEnergy");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
@@ -38,8 +39,9 @@ void CompareMultiFiles() {
         }
         
         for(size_t i=0; i<hs.size(); i++) {
-            hs[i]->SetLineColor(4-2*i);
-            hs[i]->GetYaxis()->SetTitleOffset(1.5);
+            hs[i]->SetLineColor(2+2*i);
+            hs[i]->SetMaximum(20);
+            //hs[i]->GetYaxis()->SetTitleOffset(1.5);
             //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
             hs[i]->Draw(i?"HIST Same":"HIST");
         }
