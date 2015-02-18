@@ -1,5 +1,5 @@
 #include "IoniSD.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include <cassert>
 

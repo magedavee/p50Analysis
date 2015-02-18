@@ -1,9 +1,9 @@
 #include "FluxCounterSD.hh"
 #include "Event.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 FluxCounterSD::FluxCounterSD(G4String name): G4VSensitiveDetector(name) {
-    RootIO::GetInstance()->addFluxBranch();
+    FileIO::GetInstance()->addFluxBranch();
 }
 
 G4bool FluxCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -25,6 +25,6 @@ G4bool FluxCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     G4ThreeVector p = p0->GetMomentumDirection();
     for(int i=0; i<3; i++) P.p[i] = p[i];
         
-    RootIO::GetFlux().AddParticle(P);
+    FileIO::GetFlux().AddParticle(P);
     return true;
 }

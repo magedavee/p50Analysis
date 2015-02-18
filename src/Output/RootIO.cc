@@ -5,11 +5,8 @@
 #include <TTree.h>
 
 #include "RootIO.hh"
-
 #include <G4ios.hh>
 
-
-static RootIO* instance = NULL;
 
 RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
     dataTree = new TTree("PG4","PROSPECT Geant4 simulation");
@@ -17,19 +14,6 @@ RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
     addPrimBranch();
     addEvtBranch();
     G4cout << "RootIO initialized. Remember to specify output filename." << G4endl;
-}
-
-void RootIO::Clear() {
-    for(auto it = subObjs.begin(); it != subObjs.end(); it++)
-        (*it)->Clear();
-}
-
-RootIO* RootIO::GetInstance() {
-    if (instance == NULL) {
-        G4cout << "Instantiating ROOT output instance" << G4endl;
-        instance = new RootIO();
-    }
-    return instance;
 }
 
 void RootIO::WriteFile() {
@@ -46,7 +30,7 @@ void RootIO::WriteFile() {
     outfile = NULL;
 }
 
-void RootIO::FillTree() {
+void RootIO::SaveEvent() {
     if(!dataTree) return;
     dataTree->Fill(); 
     writecount++;
@@ -55,8 +39,6 @@ void RootIO::FillTree() {
         writecount=0;
     }
 }
-
-
 
 void RootIO::addEvtBranch() {
     if(pmcevent) return; // already set up
@@ -99,8 +81,6 @@ void RootIO::addVetoIoniBranch() {
     subObjs.push_back(pvetoIoni = &vetoIoni);
     dataTree->Branch("VetoIoni",&pvetoIoni);
 }
-
-
 
 void RootIO::SetFileName(G4String filename) {
     fname = filename;

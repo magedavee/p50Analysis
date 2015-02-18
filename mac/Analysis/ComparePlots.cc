@@ -12,6 +12,7 @@ void CompareMultiFiles() {
     
     fnames.push_back("${PG4_OUTDIR}/P20_Aug28P/Plots/PROSPECT-2.root");
     fnames.push_back("${PG4_OUTDIR}/P20_WB_Aug28P/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20_WBPb_Aug28P/Plots/PROSPECT-2.root");
     
     vector<string> hnames;
     //hnames.push_back("hIBDEnergy");
@@ -47,8 +48,8 @@ void CompareMultiFiles() {
         }
         
         for(size_t i=0; i<hs.size(); i++) {
-            //hs[i]->SetLineColor(i? (i==1?2:4): 1);
-            hs[i]->SetLineColor(2+2*i);
+            hs[i]->SetLineColor(i? (i==1?4:2): 1);
+            //hs[i]->SetLineColor(2+2*i);
             
             //hs[i]->SetMaximum(20);
             hs[i]->SetTitle("gamma singles");

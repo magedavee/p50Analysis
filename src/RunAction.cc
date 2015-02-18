@@ -1,6 +1,6 @@
 #include "RunAction.hh"
 
-#include "RootIO.hh"
+#include "FileIO.hh"
 #include "RunMessenger.hh"
 #include "EventAction.hh"
 #include "StackingAction.hh"
@@ -44,7 +44,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun) {
     G4int numOfEvents = aRun->GetNumberOfEvent();
     if (numOfEvents == 0) return;
     
-    RootIO* R = RootIO::GetInstance();
+    FileIO* R = FileIO::GetInstance();
     
     // set up XML output
     children.clear();

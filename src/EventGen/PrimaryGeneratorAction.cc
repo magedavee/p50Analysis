@@ -4,7 +4,7 @@
 
 #include "DetectorConstruction.hh"
 #include "RunAction.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include "CRYModule.hh"
 #include "IBDModule.hh"
@@ -252,7 +252,7 @@ void PrimaryGeneratorAction::SetVerbosity(G4int v) {
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if(genModule) {
     genModule->GeneratePrimaries(anEvent);
-    RootIO::GetEvent().t = genModule->GetGeneratorTime();
+    FileIO::GetEvent().t = genModule->GetGeneratorTime();
   } else {
     assert(particle_gun);
     particle_gun->GeneratePrimaryVertex(anEvent);

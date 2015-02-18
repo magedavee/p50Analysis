@@ -1,7 +1,7 @@
 #include "RunMessenger.hh"
 
 #include "RunAction.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
@@ -52,6 +52,6 @@ void RunMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
     } else if(command == primOnlyCmd) {
         run->SetPrimariesOnly();
     } else if(command == outFileName) {
-        RootIO::GetInstance()->SetFileName(newValue);
+        FileIO::GetInstance()->SetFileName(newValue);
     } else G4cout << "Command not found." << G4endl;
 }

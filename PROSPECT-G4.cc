@@ -27,7 +27,7 @@
 #include "TrackingAction.hh"
 #include "PhysicsList.hh"
 #include "XSDump.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 /// main() function for PROSPECT-G4 simulation executable
 int main(int argc,char** argv) {
@@ -116,7 +116,7 @@ int main(int argc,char** argv) {
     delete run_manager;
     // All other processes owned and deleted by G4RunManager
     
-    RootIO::GetInstance()->WriteFile();
+    FileIO::GetInstance()->WriteFile();
     
     return 0;
 }

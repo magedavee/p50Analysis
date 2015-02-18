@@ -1,6 +1,6 @@
 #include "ScintSD.hh"
 
-#include "RootIO.hh"
+#include "FileIO.hh"
 #include "RunAction.hh"
 #include "ScintTankBuilder.hh"
 
@@ -25,8 +25,8 @@ ScintSD::ScintSD(G4String name, ScintSegVol& T, G4VPhysicalVolume* W):
 G4VSensitiveDetector(name), verbose(0), myScint(T) {
     time_gap = 1*ns;
     mat_n = T.scint_log->GetMaterial()->GetElectronDensity()/(6.022e23/cm3);
-    RootIO::GetInstance()->addScIoniBranch();
-    RootIO::GetInstance()->addNCaptBranch();
+    FileIO::GetInstance()->addScIoniBranch();
+    FileIO::GetInstance()->addNCaptBranch();
     W2S.setParentChild(W, T.getCoordVolume()? T.getCoordVolume() : W);
 }
 
@@ -97,7 +97,7 @@ G4bool ScintSD::ProcessNeutronHits(G4Step* aStep, G4TouchableHistory*) {
     }
     
     if(isCapt || (nc.capt_Z == 3 && nc.capt_A == 7)) {
-        RootIO::GetNCapt().AddNCapt(nc);
+        FileIO::GetNCapt().AddNCapt(nc);
     
         if(verbose >= 2) {
             G4cout << "Neutron ( KE=" << G4BestUnit(nc.E,"Energy") << ") capture at [ " << G4BestUnit(localPrePos,"Length") << "] with "
@@ -124,5 +124,5 @@ void ScintSD::EndOfEvent(G4HCofThisEvent*) {
         makeClusters(it->second, clusts);
     }
     std::sort(clusts.begin(), clusts.end(), compare_ioni_times);
-    for(auto it = clusts.begin(); it != clusts.end(); it++)  RootIO::GetScIoni().AddIoniCluster(*it);
+    for(auto it = clusts.begin(); it != clusts.end(); it++)  FileIO::GetScIoni().AddIoniCluster(*it);
 }

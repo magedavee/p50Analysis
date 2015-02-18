@@ -1,12 +1,12 @@
 #include "MuVetoSD.hh"
 
-#include "RootIO.hh"
+#include "FileIO.hh"
 #include <G4Step.hh>
 #include <G4ios.hh>
 
 MuVetoSD::MuVetoSD(G4String name, G4LogicalVolume* V):
 G4VSensitiveDetector(name), myVol(V) {
-    RootIO::GetInstance()->addVetoIoniBranch();
+    FileIO::GetInstance()->addVetoIoniBranch();
 }
 
 void MuVetoSD::Initialize(G4HCofThisEvent*) {
@@ -32,5 +32,5 @@ void MuVetoSD::EndOfEvent(G4HCofThisEvent*) {
     vector<IoniCluster> clusts;
     makeClusters(hit_history, clusts);
     std::sort(clusts.begin(), clusts.end(), compare_muioni_times);
-    for(auto it = clusts.begin(); it != clusts.end(); it++)  RootIO::GetVetoIoni().AddIoniCluster(*it);
+    for(auto it = clusts.begin(); it != clusts.end(); it++)  FileIO::GetVetoIoni().AddIoniCluster(*it);
 }

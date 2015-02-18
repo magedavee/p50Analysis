@@ -1,5 +1,5 @@
 #include "TrackingAction.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include <G4Track.hh>
 #include <G4SystemOfUnits.hh>
@@ -13,7 +13,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
         for(int i=0; i<3; i++) nc.x[i] = aTrack->GetPosition()[i];
         nc.capt_A = 1;
         nc.vol = -1000;
-        RootIO::GetNCapt().AddNCapt(nc);
+        FileIO::GetNCapt().AddNCapt(nc);
     }
     
     // immediate secondaries from long-lived primaries: doesn't work!

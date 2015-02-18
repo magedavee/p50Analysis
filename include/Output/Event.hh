@@ -11,19 +11,22 @@ using std::map;
 
 class TClonesArray;
 
-/// Primary particle specification for ROOT output
-class ParticleVertex: public TObject {
-public:
-    /// constructor
-    ParticleVertex(): PID(0), E(0), t(0) {}
-    
-    Int_t PID;          ///< PDG particle ID code
+/// underlying struct for ParticleVertex data
+struct s_ParticleVertex {
+    Int_t PID = 0;      ///< PDG particle ID code
     Double_t x[3];      ///< vertex position
     Double_t p[3];      ///< momentum direction
-    Double_t E;         ///< kinetic energy
-    Double_t t;         ///< initial time
-    
-    ClassDef(ParticleVertex,2);
+    Double_t E = 0;     ///< kinetic energy
+    Double_t t = 0;     ///< initial time
+    Long64_t evt = 0;   ///< event number
+};
+
+/// Primary particle specification for ROOT output
+class ParticleVertex: public s_ParticleVertex, public TObject {
+public:
+    /// constructor
+    ParticleVertex() {}
+    ClassDef(ParticleVertex,3);
 };
 
 /// Event containing a list of particles
@@ -45,22 +48,26 @@ public:
     ClassDef(ParticleEvent,1);
 };
 
-/// Ionization energy deposition in event
-class IoniCluster: public TObject {
-public:
-    /// constructor
-    IoniCluster(): E(0.), t(0.), dt(0.), EdEdx(0), EdEdx2(0), vol(0), PID(0) {}
-    
-    Double_t E;         ///< deposited energy
-    Double_t t;         ///< average time
-    Double_t dt;        ///< RMS timing spread
+/// underlying struct for IoniCluster data
+struct s_IoniCluster {
+    Double_t E = 0;     ///< deposited energy
+    Double_t t = 0;     ///< average time
+    Double_t dt = 0;    ///< RMS timing spread
     Double_t x[3];      ///< average position
     Double_t dx[3];     ///< RMS position spread
-    Double_t EdEdx;     ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
-    Double_t EdEdx2;    ///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
-    Double_t l;         ///< track length
-    Int_t vol;          ///< volume ID number
-    Int_t PID;          ///< ionizing particle type
+    Double_t EdEdx = 0; ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
+    Double_t EdEdx2 = 0;///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
+    Double_t l = 0;     ///< track length
+    Int_t vol = 0;      ///< volume ID number
+    Int_t PID = 0;      ///< ionizing particle type
+    Long64_t evt = 0;   ///< event number
+};
+
+/// Ionization energy deposition in event
+class IoniCluster: public s_IoniCluster, public TObject {
+public:
+    /// constructor
+    IoniCluster() { }
     
     /// energy-weighted sum
     void operator+=(const IoniCluster& r);
@@ -69,7 +76,7 @@ public:
     /// quenched energy approximation
     Double_t Equench() const;
     
-    ClassDef(IoniCluster,4);
+    ClassDef(IoniCluster,5);
 };
 
 /// Event containing a list of ionization clusters
@@ -94,28 +101,32 @@ public:
     ClassDef(IoniClusterEvent,1);
 };
 
+/// underlying struct for NCapt data
+struct s_NCapt {
+    Double_t t = 0;     ///< time of capture
+    Double_t E = 0;     ///< kinetic energy at capture
+    Double_t x[3];      ///< position of capture
+    Int_t Ngamma = 0;   ///< number of gammas produced
+    Double_t Egamma = 0;///< total energy of gammas produced
+    Int_t Nprod = 0;    ///< total number of secondary products
+    Int_t capt_A = 0;   ///< capture nucleus A
+    Int_t capt_Z = 0;   ///< capture nucleus Z
+    Int_t vol = 0;      ///< volume
+    Long64_t evt = 0;   ///< event number
+};
+    
 /// Neutron capture in event
-class NCapt: public TObject {
+class NCapt: public s_NCapt, public TObject {
 public:
     /// constructor
-    NCapt(): t(0.), E(0.), Ngamma(0), Egamma(0), Nprod(0), capt_A(0), capt_Z(0), vol(0) { }
-    
-    Double_t t;         ///< time of capture
-    Double_t E;         ///< kinetic energy at capture
-    Double_t x[3];      ///< position of capture
-    Int_t Ngamma;       ///< number of gammas produced
-    Double_t Egamma;    ///< total energy of gammas produced
-    Int_t Nprod;        ///< total number of secondary products
-    Int_t capt_A;       ///< capture nucleus A
-    Int_t capt_Z;       ///< capture nucleus Z
-    Int_t vol;          ///< volume ID number
+    NCapt() { }
     
     /// Sort by time. Returns 0 when equal, -1 when this is smaller and +1 when bigger.
     virtual Int_t Compare(const TObject* obj) const;
     /// Identify that these are sortable objects
     virtual Bool_t IsSortable() const { return kTRUE; }
     
-    ClassDef(NCapt,1);
+    ClassDef(NCapt,2);
 };
 
 /// Event containing a list of neutron captures

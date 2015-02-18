@@ -13,7 +13,7 @@
 #include "NeutronDetectionScorer.hh"
 
 #include "NeutronHit.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include <G4SystemOfUnits.hh>
 #include "G4Track.hh"
@@ -83,7 +83,7 @@ G4bool NeutronDetectionScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
             G4double totGammaE = 0.0;   // total energy of gammas produced
             for(vector<G4Track*>::iterator itrTrack = secondaries->begin() ; itrTrack != secondaries->end(); itrTrack++) {
                 //G4int Z = (*itrTrack)->GetDefinition()->GetAtomicNumber();
-                //if(1 <= Z && Z <= 100)  RootIO::GetInstance()->GetEvent()->fNcap = Z;
+                //if(1 <= Z && Z <= 100)  FileIO::GetInstance()->GetEvent()->fNcap = Z;
                 if((*itrTrack)->GetDefinition() == G4Gamma::GammaDefinition()) {
                     totGammaE += (*itrTrack)->GetKineticEnergy();
                     nGamma++;

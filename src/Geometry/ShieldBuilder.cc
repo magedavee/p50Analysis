@@ -1,7 +1,7 @@
 #include "ShieldBuilder.hh"
 #include "MaterialsHelper.hh"
 #include "MuVetoSD.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
@@ -38,7 +38,7 @@ void ShieldBuilder::_construct() {
     // muon veto layer
     for(auto it = layers.begin(); it != layers.end(); it++) {
         if(it->mat == MaterialsHelper::M().PVT) {
-            RootIO::GetInstance()->addVetoIoniBranch();
+            FileIO::GetInstance()->addVetoIoniBranch();
             MuVetoSD* V = new MuVetoSD("MuVetoSD",main_log);
             G4SDManager::GetSDMpointer()->AddNewDetector(V);
             main_log->SetSensitiveDetector(V);

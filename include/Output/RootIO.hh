@@ -1,86 +1,45 @@
-/// \file RootIO.hh \brief ROOT output trees setup.
+/// \file FileIO.hh \brief ROOT output trees setup.
 #ifndef INCLUDE_ROOTIO_HH
 /// Assure this header file is loaded only once
 #define INCLUDE_ROOTIO_HH
 
-#include "Event.hh"
-#include <vector>
-
-#include <G4String.hh>
+#include "FileIO.hh"
 class TFile;
 class TTree;
-using std::vector;
 
 /// Class with singleton instance for managing MC output via ROOT
-class RootIO {
+class RootIO: public FileIO {
 public: 
-    /// Get class singleton instance
-    static RootIO* GetInstance();
+    /// Constructor
+    RootIO();
+    /// Destructor
+    virtual ~RootIO() { }
     
-    /// Get reference for current event
-    static Event& GetEvent() { return GetInstance()->mcevent; }
-    /// Get reference for current event primaries
-    static ParticleEvent& GetPrim() { return GetInstance()->primPtcls; }
-    /// Get reference for flux counter
-    static ParticleEvent& GetFlux() { return GetInstance()->fluxCounter; }
-    /// Get reference for current event neutron captures
-    static NCaptEvent& GetNCapt() { return GetInstance()->scintNCapt; }
-    /// Get reference for current event scintillator ionization
-    static IoniClusterEvent& GetScIoni() { return GetInstance()->scintIoni; }
-    /// Get reference for current event muon veto ionization
-    static IoniClusterEvent& GetVetoIoni() { return GetInstance()->vetoIoni; }
-    
-    /// Write data to file
-    void WriteFile();
-    /// Add current Event to output TTree
-    void FillTree();
-    
-    /// Reset data to initial values
-    void Clear();
-    /// Set output file
-    void SetFileName(G4String filename);
-    /// Get output filename
-    G4String GetFileName() const { return fname; }
-
-    Event mcevent;              ///< event basic data fill point
-    ParticleEvent primPtcls;    ///< event primary particles fill point
-    ParticleEvent fluxCounter;  ///< (optional) flux counter fill point
-    NCaptEvent scintNCapt;      ///< liquid scintillator neutron captures fill point
-    IoniClusterEvent scintIoni; ///< liquid scintillator ionization fill point
-    IoniClusterEvent vetoIoni;  ///< muon veto panels ionization fill point
+    /// Open named output file
+    virtual void SetFileName(G4String filename);
+    /// Finalize/close file output
+    virtual void WriteFile();
+    /// Add current Event to output file
+    virtual void SaveEvent();
     
     /// record event numbering
-    void addEvtBranch();
+    virtual void addEvtBranch();
     /// record primary particles
-    void addPrimBranch();
+    virtual void addPrimBranch();
     /// record scintillator ionization
-    void addScIoniBranch();
+    virtual void addScIoniBranch();
     /// record neutron captures
-    void addNCaptBranch();
+    virtual void addNCaptBranch();
     /// record fluxCounter contents
-    void addFluxBranch();
+    virtual void addFluxBranch();
     /// record muon veto ionization
-    void addVetoIoniBranch();
+    virtual void addVetoIoniBranch();
     
-protected:
-    /// Constructor; protected for singleton instantiation
-    RootIO();
-  
 private:
     
-    int writecount;                     ///< count number of events recorded to file
-    G4String fname;                     ///< file name
-    TFile* outfile;                     ///< output file
-    TTree* dataTree;                    ///< output events TTree
-    
-    Event* pmcevent = NULL;             ///< pointer to mcevent, for TTree setup
-    ParticleEvent* pprimPtcls = NULL;   ///< pointer to primPtcls, for TTree setup
-    ParticleEvent* pfluxCounter = NULL; ///< pointer to fluxCounter, for TTree setup
-    NCaptEvent* pscintNCapt = NULL;     ///< pointer to scintNCapt, for TTree setup
-    IoniClusterEvent* pscintIoni = NULL;///< pointer to scintIoni, for TTree setup
-    IoniClusterEvent* pvetoIoni = NULL; ///< pointer to vetoIoni, for TTree setup
-    
-    vector<TObject*> subObjs;      ///< list of pointers to write points to Clear()
+    int writecount;     ///< count number of events recorded to file
+    TFile* outfile;     ///< output file
+    TTree* dataTree;    ///< output events TTree
 };
 
 #endif

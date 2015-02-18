@@ -95,6 +95,10 @@ link_directories(${LIBRARY_OUTPUT_PATH})
 
 add_executable(PROSPECT-G4 PROSPECT-G4.cc)
 target_link_libraries(PROSPECT-G4 EventLib ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+if(WITH_HDF5)
+    add_definitions(-DWITH_HDF5)
+    target_link_libraries(PROSPECT-G4 hdf5 hdf5_hl)
+endif()
 
 install(TARGETS PROSPECT-G4 DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 

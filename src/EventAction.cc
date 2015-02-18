@@ -1,5 +1,5 @@
 #include "EventAction.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 #include <TClonesArray.h>
 
 #include "RunAction.hh"
@@ -24,21 +24,21 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
     }
     
     // Clear prior event data (keeping time set by event generator)
-    double tGen = RootIO::GetEvent().t;
-    RootIO::GetInstance()->Clear();
-    RootIO::GetEvent().N = eventNumber;
-    RootIO::GetEvent().t = tGen;
+    double tGen = FileIO::GetEvent().t;
+    FileIO::GetInstance()->Clear();
+    FileIO::GetEvent().N = eventNumber;
+    FileIO::GetEvent().t = tGen;
 }
 
 bool EventAction::keepEvent() const {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
     if(reclevel >= 5
-        || (reclevel == 3 && RootIO::GetFlux().nParticles > 0)
-        || (reclevel >= 2 && RootIO::GetScIoni().nIoniClusts > 0)) return true;
-    if(reclevel == -1 && RootIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
+        || (reclevel == 3 && FileIO::GetFlux().nParticles > 0)
+        || (reclevel >= 2 && FileIO::GetScIoni().nIoniClusts > 0)) return true;
+    if(reclevel == -1 && FileIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
         vector<IoniCluster> scintHits;
-        mergeIoniHits(RootIO::GetScIoni().clusts, scintHits, 100);
+        mergeIoniHits(FileIO::GetScIoni().clusts, scintHits, 100);
         int nNcapt = 0;
         int nIoni = 0;
         for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
@@ -58,7 +58,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     if(keepEvent()) {
         
         // record event primaries information
-        ParticleEvent& prim = RootIO::GetPrim();
+        ParticleEvent& prim = FileIO::GetPrim();
         for(G4int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
             const G4PrimaryVertex* v = anEvent->GetPrimaryVertex(i); 
             assert(v);
@@ -79,14 +79,14 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
         }
         
         // sort neutrons by time
-        RootIO::GetNCapt().nCapts->Sort();
+        FileIO::GetNCapt().nCapts->Sort();
         
         // record computation time and flags
         SteppingAction* sa = (SteppingAction*)(G4RunManager::GetRunManager()->GetUserSteppingAction());
-        if(sa->isTrapped) RootIO::GetEvent().flg |= Event::EVT_TRAPPED;
-        RootIO::GetEvent().ct = sa->timeSpentSoFar;
+        if(sa->isTrapped) FileIO::GetEvent().flg |= Event::EVT_TRAPPED;
+        FileIO::GetEvent().ct = sa->timeSpentSoFar;
             
-        RootIO::GetInstance()->FillTree();
+        FileIO::GetInstance()->SaveEvent();
     }
 }
 
