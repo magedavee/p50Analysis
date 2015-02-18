@@ -148,17 +148,19 @@ public:
     ClassDef(NCaptEvent,1);
 };
 
+/// underlying struct for Event data
+struct s_Event {
+    Long64_t N = 0;     ///< event number
+    Double_t t = 0;     ///< event time
+    Double_t ct = 0;    ///< computer time to calculate event
+    Int_t flg = 0;      ///< event flags
+};
+
 /// Basic event header information
-class Event: public TObject {
+class Event: public s_Event, public TObject {
 public:
-    
     /// Constructor
-    Event(): N(0), t(0) { }
-    
-    Int_t N;            ///< event number
-    Double_t t;         ///< event time
-    Double_t ct;        ///< computer time to calculate event
-    Int_t flg;          ///< event flags
+    Event() { }
     
     /// flags for event status
     enum evtFlags {
@@ -168,7 +170,7 @@ public:
     /// Clear data for new event
     void Clear(Option_t* ="") { N = t = ct = flg = 0; }
     
-    ClassDef(Event,5);
+    ClassDef(Event,6);
 };
 
 /// merge ionization events into single history; return total in each volume

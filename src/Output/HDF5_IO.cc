@@ -5,47 +5,15 @@
 #include <G4ios.hh>
 #include <cassert>
 
-const size_t IoniCluster_offsets[11] = {    
-    HOFFSET(s_IoniCluster,E),
-    HOFFSET(s_IoniCluster,t),
-    HOFFSET(s_IoniCluster,dt),
-    HOFFSET(s_IoniCluster,x),
-    HOFFSET(s_IoniCluster,dx),
-    HOFFSET(s_IoniCluster,EdEdx),
-    HOFFSET(s_IoniCluster,EdEdx2),
-    HOFFSET(s_IoniCluster,l),
-    HOFFSET(s_IoniCluster,vol),
-    HOFFSET(s_IoniCluster,PID),
-    HOFFSET(s_IoniCluster,evt)
-};
-
-const size_t IoniCluster_sizes[11] = {
-    sizeof(s_IoniCluster::E),
-    sizeof(s_IoniCluster::t),
-    sizeof(s_IoniCluster::dt),
-    sizeof(s_IoniCluster::x),
-    sizeof(s_IoniCluster::dx),
-    sizeof(s_IoniCluster::EdEdx),
-    sizeof(s_IoniCluster::EdEdx2),
-    sizeof(s_IoniCluster::l),
-    sizeof(s_IoniCluster::vol),
-    sizeof(s_IoniCluster::PID),
-    sizeof(s_IoniCluster::evt)
-};
-
 HDF5_IO::HDF5_IO() {
     const hsize_t array_dim = 3;
     vec3_tid = H5Tarray_create(H5T_NATIVE_DOUBLE, 1, &array_dim); // double[3] array type
     
-    //addPrimBranch();
-    //addEvtBranch();
     G4cout << "HDF5_IO initialized. Remember to specify output filename." << G4endl;
 }
 
 HDF5_IO::~HDF5_IO() {
     H5Tclose(vec3_tid);
-    //H5Sclose(space);
-    //H5Dclose(dataset);
     H5Fclose(outfile_id);
 }
 
@@ -64,12 +32,37 @@ void HDF5_IO::SaveEvent() {
     
     herr_t err;
     
+    if(pmcevent) {
+        err = H5TBappend_records(outfile_id, "Evt", 1, sizeof(s_Event), Event_offsets, Event_sizes, (s_Event*)pmcevent);
+        assert(err >= 0);
+    }
+    
     if(pscintIoni) {
-        Int_t nIoni = pscintIoni->clusts->GetEntriesFast();
-        for(Int_t i=0; i<nIoni; i++) {
-            IoniCluster* ei = (IoniCluster*)pscintIoni->clusts->At(i);
-            ei->evt = pmcevent? pmcevent->N : 0;
-            err = H5TBappend_records(outfile_id, "ScIoni", 1, sizeof(s_IoniCluster), IoniCluster_offsets, IoniCluster_sizes, (s_IoniCluster*)ei);
+        Int_t n = pscintIoni->clusts->GetEntriesFast();
+        for(Int_t i=0; i<n; i++) {
+            IoniCluster* x = (IoniCluster*)pscintIoni->clusts->At(i);
+            x->evt = mcevent.N;
+            err = H5TBappend_records(outfile_id, "ScIoni", 1, sizeof(s_IoniCluster), IoniCluster_offsets, IoniCluster_sizes, (s_IoniCluster*)x);
+            assert(err >= 0);
+        }
+    }
+    
+    if(pprimPtcls) {
+        Int_t n = pprimPtcls->particles->GetEntriesFast();
+        for(Int_t i=0; i<n; i++) {
+            ParticleVertex* x = (ParticleVertex*)pprimPtcls->particles->At(i);
+            x->evt = mcevent.N;
+            err = H5TBappend_records(outfile_id, "Prim", 1, sizeof(s_ParticleVertex), ParticleVertex_offsets, ParticleVertex_sizes, (s_ParticleVertex*)x);
+            assert(err >= 0);
+        }
+    }
+    
+    if(pscintNCapt) {
+        Int_t n = pscintNCapt->nCapts->GetEntriesFast();
+        for(Int_t i=0; i<n; i++) {
+            NCapt* x = (NCapt*)pscintNCapt->nCapts->At(i);
+            x->evt = mcevent.N;
+            err = H5TBappend_records(outfile_id, "NCapt", 1, sizeof(s_NCapt), NCapt_offsets, NCapt_sizes, (s_NCapt*)x);
             assert(err >= 0);
         }
     }
@@ -78,7 +71,6 @@ void HDF5_IO::SaveEvent() {
 void HDF5_IO::addScIoniBranch() {
     if(pscintIoni) return; // already set up
     assert(outfile_id);
-    
     G4cout << "HDF5_IO Setting up 'ScIoni' output branch...\n";
     subObjs.push_back(pscintIoni = &scintIoni);
     
@@ -89,12 +81,58 @@ void HDF5_IO::addScIoniBranch() {
         vec3_tid, vec3_tid, H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE,
         H5T_NATIVE_INT, H5T_NATIVE_INT, H5T_NATIVE_INT64
     };
-    
-    //for(hsize_t i=0; i<n_fields; i++) G4cout << field_names[i] << ": size = " << IoniCluster_sizes[i] << ", offset = " << IoniCluster_offsets[i] << G4endl;
-    
+        
     herr_t err = H5TBmake_table("Scintillator Ionization", outfile_id, "ScIoni",
                                 n_fields, 0, sizeof(s_IoniCluster), field_names, IoniCluster_offsets, field_types,
-                                100, NULL, 6, NULL);
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_IO::addPrimBranch() {
+    if(pprimPtcls) return; // already set up
+    assert(outfile_id);
+    G4cout << "HDF5_IO Setting up 'Prim' output branch...\n";
+    subObjs.push_back(pprimPtcls = &primPtcls);
+    
+    const hsize_t n_fields = 6;    
+    const char* field_names[n_fields] = { "PID", "x", "p", "E", "t", "evt" };
+    const hid_t field_types[n_fields] = { H5T_NATIVE_INT, vec3_tid, vec3_tid, H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, H5T_NATIVE_INT64 };
+    
+    herr_t err = H5TBmake_table("Primary particles", outfile_id, "Prim",
+                                n_fields, 0, sizeof(s_ParticleVertex), field_names, ParticleVertex_offsets, field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_IO::addNCaptBranch() {
+    if(pscintNCapt) return;
+    assert(outfile_id);
+    G4cout << "HDF5_IO Setting up 'NCapt' output branch...\n";
+    subObjs.push_back(pscintNCapt = &scintNCapt);
+    
+    const hsize_t n_fields = 10;    
+    const char* field_names[n_fields] = { "t", "E", "x", "Ngamma", "Egamma", "Nprod", "capt_A", "capt_Z", "vol", "evt" };
+    const hid_t field_types[n_fields] = { H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, vec3_tid, H5T_NATIVE_INT, H5T_NATIVE_DOUBLE,
+        H5T_NATIVE_INT, H5T_NATIVE_INT, H5T_NATIVE_INT, H5T_NATIVE_INT, H5T_NATIVE_INT64 };
+    herr_t err = H5TBmake_table("Neutron captures", outfile_id, "NCapt",
+                                n_fields, 0, sizeof(s_NCapt), field_names, NCapt_offsets, field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_IO::addEvtBranch() {
+    if(pmcevent) return; // already set up
+    assert(outfile_id);
+    G4cout << "HDF5_IO Setting up 'Evt' output branch...\n";
+    subObjs.push_back(pmcevent = &mcevent);
+
+    const hsize_t n_fields = 4;    
+    const char* field_names[n_fields] = { "N", "t", "ct", "flg" };
+    const hid_t field_types[n_fields] = { H5T_NATIVE_INT64, H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, H5T_NATIVE_INT };
+
+    herr_t err = H5TBmake_table("Event calculation info", outfile_id, "Evt",
+                                n_fields, 0, sizeof(s_Event), field_names, Event_offsets, field_types,
+                                nchunk, NULL, compress, NULL);
     assert(err >= 0);
 }
 
@@ -106,6 +144,8 @@ void HDF5_IO::SetFileName(G4String filename) {
                            H5P_DEFAULT,   // create_ID
                            H5P_DEFAULT    // access_ID
                           );
+    addEvtBranch();
+    addPrimBranch();
 }
 
 #endif

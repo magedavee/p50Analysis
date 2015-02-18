@@ -13,6 +13,7 @@
 #pragma link C++ struct s_NCapt+;
 #pragma link C++ class NCapt+;
 #pragma link C++ class NCaptEvent+;
+#pragma link C++ struct s_Event+;
 #pragma link C++ class Event+;
 
 #include <vector>
