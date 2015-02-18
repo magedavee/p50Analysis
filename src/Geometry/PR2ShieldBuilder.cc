@@ -7,17 +7,46 @@
 #include <G4PVPlacement.hh>
 #include "SMExcept.hh"
 #include "strutils.hh"
+#include <cassert>
 
-PR2ShieldBuilder::PR2ShieldBuilder(): ShellLayerBuilder("PROSPECT2"),
-waterBrickCmd("/geom/PR2Shield/waterbricks",this),
+
+WaterbrickerBuilder::WaterbrickerBuilder(const string& name): ShellLayerBuilder(name),
+waterBrickCmd(("/geom/"+name+"/waterbricks").c_str(),this),
+wbMatCmd(("/geom/"+name+"/waterbrickmat").c_str(),this) {
+    waterBrickCmd.SetGuidance("Set number of 9\" waterbrick layers to construct.");
+    waterBrickCmd.SetDefaultValue(nWaterBrickLayers);
+    waterBrickCmd.AvailableForStates(G4State_PreInit);
+    
+    wbMatCmd.SetGuidance("Set waterbrick material by name.");
+    wbMatCmd.AvailableForStates(G4State_PreInit);
+}
+    
+void WaterbrickerBuilder::addWaterbricks() {
+    if(!wbMat) wbMat = MaterialsHelper::M().Water;
+    if(nWaterBrickLayers > 0) {
+        double wbt = nWaterBrickLayers*9*in;
+        addLayer(ShellLayerSpec(G4ThreeVector(wbt,wbt,wbt), G4ThreeVector(wbt,wbt,0), wbMat, G4Colour(0.5,0.5,1.0,0.5)));
+    }
+}
+
+void WaterbrickerBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &waterBrickCmd) {
+        nWaterBrickLayers = waterBrickCmd.GetNewIntValue(newValue);
+        G4cout << "Adding " << nWaterBrickLayers << " waterbrick layers.\n";
+    } else if(command == &wbMatCmd) {
+        wbMat = G4Material::GetMaterial(newValue);
+        assert(wbMat);
+    }
+}
+
+/////////////////////////////////
+/////////////////////////////////
+
+PR2ShieldBuilder::PR2ShieldBuilder(): WaterbrickerBuilder("PROSPECT2"),
 mode2Bcmd("/geom/PR2Shield/P2B",this) {
     expand_to_contents = false;
     place_centered = false;
-    
-    waterBrickCmd.SetGuidance("Set whether to build water bricks shield layer.");
-    waterBrickCmd.SetDefaultValue(withWaterBricks);
-    waterBrickCmd.AvailableForStates(G4State_PreInit);
-    
+
     mode2Bcmd.SetGuidance("Set whether to build \"2B\" enlarged shield.");
     mode2Bcmd.SetDefaultValue(P2B_or_not_2B);
     mode2Bcmd.AvailableForStates(G4State_PreInit);
@@ -37,7 +66,7 @@ void PR2ShieldBuilder::_construct() {
     
     assert(!P2B_or_not_2B); // not yet implemented!
     
-    if(withWaterBricks) addLayer(ShellLayerSpec(G4ThreeVector(9*in,9*in,9*in), G4ThreeVector(9*in,9*in,0), MaterialsHelper::M().getBoratedH2O(0.02), G4Colour(0.5,0.5,1.0,0.5)));
+    addWaterbricks();
     
     construct_layers();
     
@@ -48,8 +77,7 @@ void PR2ShieldBuilder::_construct() {
 }
 
 void PR2ShieldBuilder::SetNewValue(G4UIcommand* command, G4String newvalue) {
-    if(command == &waterBrickCmd) withWaterBricks = waterBrickCmd.GetNewBoolValue(newvalue);
-    else if(command == &mode2Bcmd) P2B_or_not_2B = mode2Bcmd.GetNewBoolValue(newvalue);
+    if(command == &mode2Bcmd) P2B_or_not_2B = mode2Bcmd.GetNewBoolValue(newvalue);
 }
 
 ////////////////////////////

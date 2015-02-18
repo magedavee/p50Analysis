@@ -3,16 +3,19 @@
 void CompareMultiFiles() {
     vector<string> fnames;
     
-    fnames.push_back("${PG4_OUTDIR}/P20_nBG_IBD/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_WB_nBG_IBD/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_2WB_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_WB_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_2WB_nBG_IBD/Plots/PROSPECT-2.root");
     
     //fnames.push_back("${PG4_OUTDIR}/P20_muBG/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WB_muBG/Plots/PROSPECT-2.root");
     
+    fnames.push_back("${PG4_OUTDIR}/P20_Aug28P/Plots/PROSPECT-2.root");
+    fnames.push_back("${PG4_OUTDIR}/P20_WB_Aug28P/Plots/PROSPECT-2.root");
+    
     vector<string> hnames;
-    hnames.push_back("hIBDEnergy");
-    //hnames.push_back("hSinglesE");
+    //hnames.push_back("hIBDEnergy");
+    hnames.push_back("hSinglesE");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
@@ -44,14 +47,18 @@ void CompareMultiFiles() {
         }
         
         for(size_t i=0; i<hs.size(); i++) {
-            hs[i]->SetLineColor(i? (i==1?2:4): 1);
-            hs[i]->SetMaximum(20);
+            //hs[i]->SetLineColor(i? (i==1?2:4): 1);
+            hs[i]->SetLineColor(2+2*i);
+            
+            //hs[i]->SetMaximum(20);
+            hs[i]->SetTitle("gamma singles");
+            hs[i]->GetYaxis()->SetTitle("rate [arb. units]");
             //hs[i]->GetYaxis()->SetTitleOffset(1.5);
             //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
             hs[i]->Draw(i?"HIST Same":"HIST");
         }
         
-        //gPad->SetLogy(true);
+        gPad->SetLogy(true);
         //gPad->SetLogx(true);
         gPad->Print(("~/Desktop/"+*ithn+".pdf").c_str());
     }

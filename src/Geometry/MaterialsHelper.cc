@@ -140,7 +140,6 @@ MaterialsHelper::MaterialsHelper() {
     Pyrex = nist->FindOrBuildMaterial("G4_Pyrex_Glass", true, true);
     
     Concrete = nist->FindOrBuildMaterial("G4_CONCRETE");
-    
     /*
     Concrete = new G4Material("Concrete", 2.3*g/cm3, 6, kStateSolid, room_T);
     Concrete->AddMaterial(nat_Si, 0.227915);
@@ -157,17 +156,29 @@ MaterialsHelper::MaterialsHelper() {
     Dirt->AddElement(getEl("Al"), nAtoms= 15);
     Dirt->AddElement(getEl("Fe"), nAtoms=  5);
     Dirt->AddElement(getEl("O"),  nAtoms= 50);
-    
-    setupOptical();
-    
+        
     BoricAcid = new G4Material("BoricAcid", 1.435*g/cm3, 3);
     BoricAcid->AddElement(getEl("B"), nAtoms=  1);
     BoricAcid->AddElement(getEl("O"), nAtoms= 3);
     BoricAcid->AddElement(getEl("H"), nAtoms= 3);
     
+    Lead_II_Acetate = new G4Material("Lead_II_Acetate", 3.25*g/cm3, 4);
+    Lead_II_Acetate->AddElement(getEl("Pb"), nAtoms=  1);
+    Lead_II_Acetate->AddElement(getEl("C"), nAtoms= 4);
+    Lead_II_Acetate->AddElement(getEl("H"), nAtoms= 6);
+    Lead_II_Acetate->AddElement(getEl("O"), nAtoms= 4);
+    
+    LeadWater = new G4Material("LeadWater", Water->GetDensity()+0.4*g/cm3, 2, Water->GetState(), Water->GetTemperature());
+    const double PbFrac = 0.4/1.4;
+    LeadWater->AddMaterial(Water, 1.-PbFrac);
+    LeadWater->AddMaterial(Lead_II_Acetate, PbFrac);
+    
+    setupOptical();
+    
     // pre-build some materials for availability in named materials catalog
     get6LiLS(EJ309, 0.001);
     getBoratedH2O(0.02);
+    getBoratedH2O(0.05);
 }
 
 G4Element* MaterialsHelper::getEl(const string& name) const {

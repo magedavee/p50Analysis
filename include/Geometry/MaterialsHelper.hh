@@ -74,6 +74,8 @@ public:
     G4Material* Concrete;       ///< Concrete
     G4Material* Dirt;           ///<  "Dirt,"  From PNNL-20401
     G4Material* BoricAcid;      ///< anhydrous boric acid B(OH)_3
+    G4Material* Lead_II_Acetate;///< anhydrous Pb(CH_3COO)_2
+    G4Material* LeadWater;      ///< water + 400g/l Lead_II_Acetate
     
     /// get 6Li-loaded version of scintillator (option for natural or enriched 6Li)
     G4Material* get6LiLS(G4Material* base, double loading, bool enriched = true);
