@@ -257,6 +257,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
     assert(particle_gun);
     particle_gun->GeneratePrimaryVertex(anEvent);
   }
+  nThrows++;
 }
 
 void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
@@ -267,6 +268,7 @@ void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
     } else {
         addAttr(E,"time",G4BestUnit(1*s, "Time"));
     }
+    addAttr(E,"throws",nThrows);
     if(myPositioner) addChild(myPositioner);
 }
 

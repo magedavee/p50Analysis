@@ -18,6 +18,14 @@ VPATH = Common/:Private/
 objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o TimeStructure.o XMLInfo.o
 _examples = PlotFlux PlotIBD PlotPos PlotPrimaries TestCell
 
+# optional HDF5-dependent components
+ifeq ($(WITH_HDF5),true)
+	LDFLAGS += -lhdf5 -lhdf5_hl
+	CXXFLAGS += -DWITH_HDF5
+	objects += HDF5Reader.o
+	_examples += DetectorResponse
+endif
+
 all: $(objects)
 examples: $(objects) $(_examples)
 

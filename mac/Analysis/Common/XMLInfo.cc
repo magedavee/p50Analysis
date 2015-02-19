@@ -44,6 +44,13 @@ double XMLInfo::getSegments(int& nx, int& ny) {
     return fromUnits(E.GetAttr(gnode,"seg_size"));
 }
 
+size_t XMLInfo::getEvts() {
+    XMLNodePointer_t gnode = findChild(docRoot,"PrimaryGenerator");
+    assert(gnode);
+    if(!gnode) return 0;
+    return atoi(E.GetAttr(gnode,"throws"));
+}
+
 XMLNodePointer_t XMLInfo::findChild(XMLNodePointer_t N, const string& nm) {
     if(!N) return NULL;
     //std::cout << "Searching for child node '" << nm << "'...\n";

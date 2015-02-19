@@ -136,7 +136,7 @@ void HDF5_IO::addEvtBranch() {
     assert(err >= 0);
 }
 
-void HDF5_IO::SetFileName(G4String filename) {
+void HDF5_IO::SetFileName(const string& filename) {
     assert(!outfile_id);
     fname = filename;
     outfile_id = H5Fcreate(fname.c_str(), // file name

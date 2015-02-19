@@ -61,6 +61,9 @@ struct s_IoniCluster {
     Int_t vol = 0;      ///< volume ID number
     Int_t PID = 0;      ///< ionizing particle type
     Long64_t evt = 0;   ///< event number
+    
+    /// energy-weighted sum
+    void operator+=(const s_IoniCluster& r);
 };
 
 /// Ionization energy deposition in event

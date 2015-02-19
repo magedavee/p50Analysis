@@ -82,10 +82,10 @@ void RootIO::addVetoIoniBranch() {
     dataTree->Branch("VetoIoni",&pvetoIoni);
 }
 
-void RootIO::SetFileName(G4String filename) {
+void RootIO::SetFileName(const string& filename) {
     fname = filename;
     G4cout << "RootIO: Setting output file to '" << fname << "'\n";
-    outfile = new TFile(filename,"RECREATE");
+    outfile = new TFile(fname.c_str(), "RECREATE");
     outfile->cd();
     dataTree->SetDirectory(outfile);
 }

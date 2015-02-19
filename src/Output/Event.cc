@@ -37,7 +37,7 @@ void ParticleEvent::AddParticle(const ParticleVertex& P) {
 //------------------------------------------
 ////////////////////////////////////////////
 
-void IoniCluster::operator+=(const IoniCluster& r) {
+void s_IoniCluster::operator+=(const s_IoniCluster& r) {
     Double_t EE = E + r.E;
     dt = ((dt*dt+t*t)*E + (r.dt*r.dt+r.t*r.t)*r.E)/EE;
     t = (t*E+r.t*r.E)/EE;
@@ -53,6 +53,10 @@ void IoniCluster::operator+=(const IoniCluster& r) {
     E = EE;
 }
 
+void IoniCluster::operator+=(const IoniCluster& r) {
+    (s_IoniCluster)(*this) += (const s_IoniCluster&)r;
+}
+    
 Double_t IoniCluster::dxtot() const {
     return sqrt(dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 }

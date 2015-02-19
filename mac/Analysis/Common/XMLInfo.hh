@@ -28,6 +28,8 @@ public:
     double getCalcTime();
     /// get scintillator segmentation; returns segment size
     double getSegments(int& nx, int& ny);
+    /// get number of events thrown
+    size_t getEvts();
     
 protected:
     TXMLEngine E;               ///< ROOT XML reader engine

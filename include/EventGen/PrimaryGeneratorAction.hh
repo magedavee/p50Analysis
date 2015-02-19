@@ -112,6 +112,8 @@ protected:
     /// Set event generator log verbosity
     void SetVerbosity(G4int);
     
+    size_t nThrows = 0;                         ///< counter for number of events thrown
+    
     DetectorConstruction* detect;               ///< pointer to detector construction
     
     VertexPositioner* myPositioner;             ///< positioner for vertex and momentum direction

@@ -5,7 +5,8 @@
 #include "Event.hh"
 #include <vector>
 using std::vector;
-#include <G4String.hh>
+#include <string>
+using std::string;
 
 /// Base class for managing file IO; subclassed for ROOT or HDF5 output
 class FileIO {
@@ -30,7 +31,7 @@ public:
     static IoniClusterEvent& GetVetoIoni() { return GetInstance()->vetoIoni; }
     
     /// Open named output file
-    virtual void SetFileName(G4String filename) = 0;
+    virtual void SetFileName(const string& filename) = 0;
     /// Finalize/close file output
     virtual void WriteFile() = 0;
     /// Add current Event to output file
@@ -39,7 +40,7 @@ public:
     /// Reset data to initial values
     void Clear();
     /// Get output filename
-    G4String GetFileName() const { return fname; }
+    string GetFileName() const { return fname; }
     
     Event mcevent;              ///< event basic data fill point
     ParticleEvent primPtcls;    ///< event primary particles fill point
@@ -65,7 +66,7 @@ protected:
     /// Constructor; protected for singleton instantiation
     FileIO() { }
     
-    G4String fname;                     ///< output file name
+    string fname;                       ///< output file name
     
     Event* pmcevent = NULL;             ///< pointer to mcevent, for TTree setup
     ParticleEvent* pprimPtcls = NULL;   ///< pointer to primPtcls, for TTree setup

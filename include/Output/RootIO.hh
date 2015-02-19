@@ -16,7 +16,7 @@ public:
     virtual ~RootIO() { }
     
     /// Open named output file
-    virtual void SetFileName(G4String filename);
+    virtual void SetFileName(const string& filename);
     /// Finalize/close file output
     virtual void WriteFile();
     /// Add current Event to output file
