@@ -23,6 +23,7 @@ bool SimIoniReader::loadIoni() {
     return err >= 0;
 }
 
+/// comparison function for time-sorting hits
 bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return a.t < b.t; }
 
 bool SimIoniReader::loadMergedIoni() {

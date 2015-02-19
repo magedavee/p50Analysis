@@ -12,6 +12,9 @@ struct s_PhysPulse {
     Double_t PSD = 0;   ///< Pulse-shape-discrimination value [arb]
 };
 
+/// comparison function for time-sorting hits
+bool compare_hit_times(const s_PhysPulse& a, const s_PhysPulse& b) { return a.t < b.t; }
+
 const hsize_t n_PhysPulse_fields = 6;
 
 /// element offsets for s_PhysPulse

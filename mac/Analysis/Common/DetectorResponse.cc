@@ -1,5 +1,7 @@
 #include "DetectorResponse.hh"
 #include "XMLInfo.hh"
+#include <cmath>
+#include <TRandom3.h>
 
 double DetectorResponse::Equench(const s_IoniCluster& evt) const {
     const double c_1 = 0.1049;
@@ -37,6 +39,8 @@ int main(int argc, char** argv) {
     string fbase = f_in.substr(0, f_in.size()-fext.size()-1); // base filename less extension
     string f_out = fbase+"_DetSim."+fext;
     
+    bool fullsort = true; // whether to cache all events in memory and time-sort
+    
     // open input file
     SimIoniReader SIR(f_in);
     XMLInfo XI(f_in+".xml");
@@ -60,15 +64,31 @@ int main(int argc, char** argv) {
     // convert events to detector response
     DetectorResponse DR;
     size_t nMerged = 0;
+    vector<s_PhysPulse> allPulses;
+    TRandom3 r;
     while(SIR.loadMergedIoni()) {
         if(!(SIR.nRead % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
+        double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
         for(auto it = SIR.merged.begin(); it != SIR.merged.end(); it++) {
             s_PhysPulse p = DR.genResponse(*it);
-            p.t += (p.evt*runtime/runthrows); // constant-spacing event time offsets
-            err = H5TBappend_records(outfile_id, "PhysDat", 1, sizeof(s_PhysPulse), PhysPulse_offsets, PhysPulse_sizes, &p);
-            assert(err >= 0);
+            if(!fullsort) {
+                err = H5TBappend_records(outfile_id, "PhysDat", 1, sizeof(s_PhysPulse), PhysPulse_offsets, PhysPulse_sizes, &p);
+                assert(err >= 0);
+            } else {
+                p.t += evttime;
+                while(p.t > runtime) p.t -= runtime*floor(p.t/runtime); // wrap around long-delayed events to start of run
+                allPulses.push_back(p);
+            }
             nMerged++;
         }
+    }
+    // optional full time sorting
+    if(allPulses.size()) {
+        printf("\nMaster time merge and output... "); fflush(stdout);
+        std::sort(allPulses.begin(), allPulses.end(), compare_hit_times);
+        err = H5TBappend_records(outfile_id, "PhysDat", allPulses.size(), sizeof(s_PhysPulse), PhysPulse_offsets, PhysPulse_sizes, allPulses.data());
+        assert(err >= 0);
+        printf("Done.");
     }
     printf("\nRead %llu ionizations into %zu merged events.\nOutput '%s'\n", SIR.nRead, nMerged, f_out.c_str());
     
