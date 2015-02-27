@@ -3,6 +3,8 @@
 /// Assure this header is loaded only once
 #define EVENT_HH
 
+#include "AnalysisTypes.hh"
+
 #include <TObject.h>
 #include <vector>
 #include <map>
@@ -10,16 +12,6 @@ using std::vector;
 using std::map;
 
 class TClonesArray;
-
-/// underlying struct for ParticleVertex data
-struct s_ParticleVertex {
-    Int_t PID = 0;      ///< PDG particle ID code
-    Double_t x[3];      ///< vertex position
-    Double_t p[3];      ///< momentum direction
-    Double_t E = 0;     ///< kinetic energy
-    Double_t t = 0;     ///< initial time
-    Long64_t evt = 0;   ///< event number
-};
 
 /// Primary particle specification for ROOT output
 class ParticleVertex: public s_ParticleVertex, public TObject {
@@ -103,20 +95,6 @@ public:
     
     ClassDef(IoniClusterEvent,1);
 };
-
-/// underlying struct for NCapt data
-struct s_NCapt {
-    Double_t t = 0;     ///< time of capture
-    Double_t E = 0;     ///< kinetic energy at capture
-    Double_t x[3];      ///< position of capture
-    Int_t Ngamma = 0;   ///< number of gammas produced
-    Double_t Egamma = 0;///< total energy of gammas produced
-    Int_t Nprod = 0;    ///< total number of secondary products
-    Int_t capt_A = 0;   ///< capture nucleus A
-    Int_t capt_Z = 0;   ///< capture nucleus Z
-    Int_t vol = 0;      ///< volume
-    Long64_t evt = 0;   ///< event number
-};
     
 /// Neutron capture in event
 class NCapt: public s_NCapt, public TObject {
@@ -151,14 +129,6 @@ public:
     ClassDef(NCaptEvent,1);
 };
 
-/// underlying struct for Event data
-struct s_Event {
-    Long64_t N = 0;     ///< event number
-    Double_t t = 0;     ///< event time
-    Double_t ct = 0;    ///< computer time to calculate event
-    Int_t flg = 0;      ///< event flags
-};
-
 /// Basic event header information
 class Event: public s_Event, public TObject {
 public:
@@ -181,16 +151,6 @@ map<Int_t, double> mergeIoniHits(TClonesArray* clusts, vector<IoniCluster>& hitH
 
 /// merge ionization events into single history, regardless of volume
 vector<IoniCluster> mergeIoniHits(const vector<IoniCluster>& hts, double dt_max);
-
-/// identified hit classifications
-enum HitTypeID {
-    IONI_HIT,       ///< electron/gamma ionization
-    NCAPT_HIT,      ///< neutron capture hit
-    RECOIL_HIT,     ///< nucleus recoil
-    VETO_HIT,       ///< veto detector hit
-    DEAD_HIT,       ///< dead volume or non-detected hit
-    CRAZY_HIT       ///< unclassifiable event
-};
 
 /// classify observed "hit type" of ionization cluster
 HitTypeID classifyHit(const IoniCluster& h);

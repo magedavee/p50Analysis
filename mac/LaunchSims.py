@@ -52,6 +52,7 @@ class SB_MC_Launcher:
         self.settings["simName"] = simname
         self.settings["preinit"] = ""
         self.settings["reclevel"] = 2
+        self.settings["out_sfx"] = "root"
         self.template = "CRY_Template.mac"
         self.vary_E = None
         self.bin_name = os.environ["PG4_BIN"]
@@ -86,7 +87,7 @@ class SB_MC_Launcher:
                 self.settings["gun_energy"] = self.vary_E[rn]
             
             rname = run_name%{"jobnum":"%i"%self.settings["run_num"]}
-            self.settings["outfile"] = "%s/%s.root"%(self.outdir, rname)
+            self.settings["outfile"] = "%s/%s.%s"%(self.outdir, rname, self.settings["out_sfx"])
             
             # fill in macro template
             macrodat = open(self.template,"r").read()%self.settings
@@ -96,6 +97,27 @@ class SB_MC_Launcher:
         jcmd = "%s %s/%s.mac > %s/%s.txt 2>&1"%(self.bin_name, self.macro_dir, run_name, self.log_dir, run_name)
         self.submitter.run_jobs(jcmd,rnmin,nruns)
 
+class H5_DetResponse_Launcher:
+    def __init__(self, simname):
+        self.settings = {"simName": simname}
+        if not os.system("which qsub"):
+            self.submitter = qsubmitter(self.settings["simName"])
+        else:
+            self.submitter = parallelsubmitter(self.settings["simName"])
+            
+    def launch_converter(self):
+        rmin = 10000000
+        rmax = -1
+        basedir = os.environ["PG4_OUTDIR"]+"/"+self.settings["simName"]
+        flist = [f for f in os.listdir(basedir) if f[-3:] == ".h5" and f.split("_")[-1] != "DetSim.h5"]
+        for f in flist:
+            rnum = int(f.split("_")[-1].split(".")[0])
+            if rnum < rmin:
+                rmin = rnum
+            if rnum > rmax:
+                rmax = rnum
+        jcmd = "Analysis/DetectorResponse %s/Run_%%(jobnum)s.h5"%basedir
+        self.submitter.run_jobs(jcmd,rmin,rmax-rmin)
 
 def logrange(n,x0,x1):
     return [exp(log(x0)*(1-l)+log(x1)*l) for l in [x/float(n-1) for x in range(n)]]
@@ -107,6 +129,7 @@ if __name__=="__main__":
     parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
     parser.add_option("--p20yale", dest="p20yale", action="store_true", default=False, help="Bare PROSPECT-20 'Yale' cell");
     parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
+    parser.add_option("--h5resp", dest="h5resp", action="store_true", default=False, help="HDF5-based detector response");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -125,7 +148,11 @@ if __name__=="__main__":
         L.launch_sims(40)
 
     if options.dima:
-        L = SB_MC_Launcher("DIMA-Cf252", 3e5)
+        L = SB_MC_Launcher("DIMA-Co60", 1e6)
         L.template = "Analysis/Private/DIMA_Template.mac"
-        L.launch_sims(60)
-
+        L.settings["out_sfx"] = "h5"
+        L.launch_sims(60,5)
+    
+    if options.h5resp:
+        L = H5_DetResponse_Launcher("DIMA-Co60")
+        L.launch_converter()

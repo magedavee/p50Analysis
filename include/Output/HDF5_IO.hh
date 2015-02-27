@@ -5,8 +5,7 @@
 #ifdef WITH_HDF5
 
 #include "FileIO.hh"
-#include "hdf5.h"
-#include "hdf5_hl.h"
+#include "HDF5_Table_Cache.hh"
 
 /// HDF5-formatted output file
 class HDF5_IO: public FileIO {
@@ -35,9 +34,14 @@ public:
     
 protected:
     
+    HDF5_Table_Writer<s_Event> evt_writer;              ///< buffered output for s_Event
+    HDF5_Table_Writer<s_IoniCluster> ioni_writer;       ///< cached output for s_IoniCluster
+    HDF5_Table_Writer<s_ParticleVertex> prim_writer;    ///< cached output for primaries s_ParticleVertex
+    HDF5_Table_Writer<s_NCapt> ncapt_writer;            ///< buffered output for s_NCapt
+    
     hid_t outfile_id = 0;       ///< output HDF5 file ID
     hid_t vec3_tid = 0;         ///< type ID for double[3]
-    int nchunk = 100;           ///< "chunk" size for tables
+    int nchunk = 1024;          ///< "chunk" size for tables
     int compress = 9;           ///< compression level for tables
 };
 

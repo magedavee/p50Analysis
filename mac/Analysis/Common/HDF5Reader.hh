@@ -14,7 +14,7 @@ public:
     virtual ~SimIoniReader();
     
     /// Load next single ionization record from file; return whether event good, or file finished.
-    bool loadIoni();
+    bool loadIoni() { nRead++; return ioni_reader.next(ioni); }
     /// Load next merged event from file; return whether event good, or file finished.
     bool loadMergedIoni();
     
@@ -25,10 +25,10 @@ public:
     hsize_t nrecords = 0;               ///< number of table records
     
 protected:
+    HDF5_Table_Cache<s_IoniCluster> ioni_reader;       ///< cached output for s_IoniCluster
     Long64_t current_evt = 0;           ///< current event number
     hid_t infile_id = 0;                ///< input HDF5 file ID
     hsize_t nfields = 0;                ///< number of table fields
-    
 };
 
 #endif

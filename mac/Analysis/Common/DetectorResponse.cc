@@ -49,17 +49,16 @@ int main(int argc, char** argv) {
     printf("Input file for %zu primary events in %.1f seconds simulated time.\n", runthrows, runtime*1e-9);
     
     // set up output file
-    hid_t outfile_id = H5Fcreate(f_out.c_str(), // file name
-                                 H5F_ACC_TRUNC, // access_mode : overwrite old file with new data
-                                 H5P_DEFAULT,   // create_ID
-                                 H5P_DEFAULT    // access_ID
-    );
+    hid_t outfile_id = H5Fcreate(f_out.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     assert(outfile_id >= 0);
-    herr_t err = H5TBmake_table("Simulated detector response", outfile_id, "PhysDat",
+    int nchunk = 1024;
+    herr_t err = H5TBmake_table("Simulated detector response", outfile_id, "PhysPulse",
                                 n_PhysPulse_fields, 0, sizeof(s_PhysPulse),
                                 PhysPulse_field_names, PhysPulse_offsets, PhysPulse_field_types,
-                                100, NULL, 9, NULL);
+                                nchunk, NULL, 9, NULL);
     assert(err >= 0);
+    HDF5_Table_Writer<s_PhysPulse> pulse_writer("PhysPulse", PhysPulse_offsets, PhysPulse_sizes, nchunk);
+    pulse_writer.setFile(outfile_id);
     
     // convert events to detector response
     DetectorResponse DR;
@@ -71,10 +70,8 @@ int main(int argc, char** argv) {
         double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
         for(auto it = SIR.merged.begin(); it != SIR.merged.end(); it++) {
             s_PhysPulse p = DR.genResponse(*it);
-            if(!fullsort) {
-                err = H5TBappend_records(outfile_id, "PhysDat", 1, sizeof(s_PhysPulse), PhysPulse_offsets, PhysPulse_sizes, &p);
-                assert(err >= 0);
-            } else {
+            if(!fullsort) pulse_writer.write(p);
+            else {
                 p.t += evttime;
                 while(p.t > runtime) p.t -= runtime*floor(p.t/runtime); // wrap around long-delayed events to start of run
                 allPulses.push_back(p);
@@ -86,12 +83,16 @@ int main(int argc, char** argv) {
     if(allPulses.size()) {
         printf("\nMaster time merge and output... "); fflush(stdout);
         std::sort(allPulses.begin(), allPulses.end(), compare_hit_times);
-        err = H5TBappend_records(outfile_id, "PhysDat", allPulses.size(), sizeof(s_PhysPulse), PhysPulse_offsets, PhysPulse_sizes, allPulses.data());
-        assert(err >= 0);
+        pulse_writer.write(allPulses);
         printf("Done.");
     }
     printf("\nRead %llu ionizations into %zu merged events.\nOutput '%s'\n", SIR.nRead, nMerged, f_out.c_str());
     
+    runtime /= 1e9; // convert to seconds
+    err = H5LTset_attribute_double(outfile_id, "PhysPulse", "runtime", &runtime, 1);
+    assert(err >= 0);
+    
+    pulse_writer.setFile(0);
     H5Fclose(outfile_id);
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "HDF5Reader.hh"
 
-SimIoniReader::SimIoniReader(const string& f_in) {
+SimIoniReader::SimIoniReader(const string& f_in): ioni_reader("ScIoni",IoniCluster_offsets, IoniCluster_sizes,1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
     assert(infile_id > 0);
     ioni.evt = -1;
@@ -8,6 +8,7 @@ SimIoniReader::SimIoniReader(const string& f_in) {
     herr_t err = H5TBget_table_info(infile_id, "ScIoni", &nfields, &nrecords );
     assert(err >= 0);
     printf("Reading table 'ScIoni' with %llu records from '%s'.\n", nrecords, f_in.c_str());
+    ioni_reader.setFile(infile_id);
 }
 
 SimIoniReader::~SimIoniReader() { 
@@ -15,12 +16,6 @@ SimIoniReader::~SimIoniReader() {
         herr_t err = H5Fclose(infile_id);
         assert(err >= 0);
     }
-}
-
-bool SimIoniReader::loadIoni() {
-    if(nRead >= nrecords) return false;
-    herr_t err = H5TBread_records(infile_id, "ScIoni", nRead++, 1, sizeof(s_IoniCluster), IoniCluster_offsets, IoniCluster_sizes,  &ioni);
-    return err >= 0;
 }
 
 /// comparison function for time-sorting hits

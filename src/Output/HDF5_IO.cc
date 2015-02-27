@@ -5,16 +5,23 @@
 #include <G4ios.hh>
 #include <cassert>
 
-HDF5_IO::HDF5_IO() {
+HDF5_IO::HDF5_IO():
+evt_writer("Evt", Event_offsets, Event_sizes, nchunk),
+ioni_writer("ScIoni", IoniCluster_offsets, IoniCluster_sizes, nchunk),
+prim_writer("Prim", ParticleVertex_offsets, ParticleVertex_sizes, nchunk),
+ncapt_writer("NCapt", NCapt_offsets, NCapt_sizes, nchunk) {
     const hsize_t array_dim = 3;
     vec3_tid = H5Tarray_create(H5T_NATIVE_DOUBLE, 1, &array_dim); // double[3] array type
-    
     G4cout << "HDF5_IO initialized. Remember to specify output filename." << G4endl;
 }
 
 HDF5_IO::~HDF5_IO() {
+    evt_writer.setFile(0);
+    ioni_writer.setFile(0);
+    prim_writer.setFile(0);
+    ncapt_writer.setFile(0);
     H5Tclose(vec3_tid);
-    H5Fclose(outfile_id);
+    if(outfile_id) H5Fclose(outfile_id);
 }
 
 void HDF5_IO::WriteFile() {
@@ -25,25 +32,24 @@ void HDF5_IO::WriteFile() {
     std::cout << "Writing events to HDF5 file '" << fname << "' and closing..." << std::endl;
     H5Fclose(outfile_id);
     outfile_id = 0;
+    
+    evt_writer.setFile(0);
+    ioni_writer.setFile(0);
+    prim_writer.setFile(0);
+    ncapt_writer.setFile(0);
 }
 
 void HDF5_IO::SaveEvent() {
     if(!outfile_id) return;
     
-    herr_t err;
-    
-    if(pmcevent) {
-        err = H5TBappend_records(outfile_id, "Evt", 1, sizeof(s_Event), Event_offsets, Event_sizes, (s_Event*)pmcevent);
-        assert(err >= 0);
-    }
+    if(pmcevent) evt_writer.write(*pmcevent);
     
     if(pscintIoni) {
         Int_t n = pscintIoni->clusts->GetEntriesFast();
         for(Int_t i=0; i<n; i++) {
             IoniCluster* x = (IoniCluster*)pscintIoni->clusts->At(i);
             x->evt = mcevent.N;
-            err = H5TBappend_records(outfile_id, "ScIoni", 1, sizeof(s_IoniCluster), IoniCluster_offsets, IoniCluster_sizes, (s_IoniCluster*)x);
-            assert(err >= 0);
+            ioni_writer.write(*x);
         }
     }
     
@@ -52,8 +58,7 @@ void HDF5_IO::SaveEvent() {
         for(Int_t i=0; i<n; i++) {
             ParticleVertex* x = (ParticleVertex*)pprimPtcls->particles->At(i);
             x->evt = mcevent.N;
-            err = H5TBappend_records(outfile_id, "Prim", 1, sizeof(s_ParticleVertex), ParticleVertex_offsets, ParticleVertex_sizes, (s_ParticleVertex*)x);
-            assert(err >= 0);
+            prim_writer.write(*x);
         }
     }
     
@@ -62,8 +67,7 @@ void HDF5_IO::SaveEvent() {
         for(Int_t i=0; i<n; i++) {
             NCapt* x = (NCapt*)pscintNCapt->nCapts->At(i);
             x->evt = mcevent.N;
-            err = H5TBappend_records(outfile_id, "NCapt", 1, sizeof(s_NCapt), NCapt_offsets, NCapt_sizes, (s_NCapt*)x);
-            assert(err >= 0);
+            ncapt_writer.write(*x);
         }
     }
 }
@@ -146,6 +150,11 @@ void HDF5_IO::SetFileName(const string& filename) {
                           );
     addEvtBranch();
     addPrimBranch();
+    
+    evt_writer.setFile(outfile_id);
+    ioni_writer.setFile(outfile_id);
+    prim_writer.setFile(outfile_id);
+    ncapt_writer.setFile(outfile_id);
 }
 
 #endif
