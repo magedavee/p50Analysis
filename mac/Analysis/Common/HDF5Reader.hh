@@ -14,7 +14,7 @@ public:
     virtual ~SimIoniReader();
     
     /// Load next single ionization record from file; return whether event good, or file finished.
-    bool loadIoni() { return ioni_reader.next(ioni); }
+    bool loadIoni() { if(ioni_reader.next(ioni))  nRead++; else return false; return true; }
     /// Load next merged event from file; return whether event good, or file finished.
     bool loadMergedIoni();
     

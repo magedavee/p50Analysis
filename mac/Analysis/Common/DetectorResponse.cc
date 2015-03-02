@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     }
     // optional full time sorting
     if(allPulses.size()) {
-        printf("\nMaster time merge and output... "); fflush(stdout);
+        printf("\nMaster time merge and output of %zu pulses... ", allPulses.size()); fflush(stdout);
         std::sort(allPulses.begin(), allPulses.end(), compare_hit_times);
         pulse_writer.write(allPulses);
         printf("Done.");
