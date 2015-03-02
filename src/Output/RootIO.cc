@@ -5,15 +5,32 @@
 #include <TTree.h>
 
 #include "RootIO.hh"
+
 #include <G4ios.hh>
 
+
+static RootIO* instance = NULL;
 
 RootIO::RootIO(): writecount(0), outfile(NULL), dataTree(NULL) {
     dataTree = new TTree("PG4","PROSPECT Geant4 simulation");
     dataTree->SetDirectory(NULL);
     addPrimBranch();
     addEvtBranch();
+    addOpticalBranch();
     G4cout << "RootIO initialized. Remember to specify output filename." << G4endl;
+}
+
+void RootIO::Clear() {
+    for(auto it = subObjs.begin(); it != subObjs.end(); it++)
+        (*it)->Clear();
+}
+
+RootIO* RootIO::GetInstance() {
+    if (instance == NULL) {
+        G4cout << "Instantiating ROOT output instance" << G4endl;
+        instance = new RootIO();
+    }
+    return instance;
 }
 
 void RootIO::WriteFile() {
@@ -30,15 +47,17 @@ void RootIO::WriteFile() {
     outfile = NULL;
 }
 
-void RootIO::SaveEvent() {
+void RootIO::FillTree() {
     if(!dataTree) return;
-    dataTree->Fill(); 
+    dataTree->Fill();
     writecount++;
     if(writecount==500) {
         dataTree->AutoSave("SaveSelf");
         writecount=0;
     }
 }
+
+
 
 void RootIO::addEvtBranch() {
     if(pmcevent) return; // already set up
@@ -52,6 +71,13 @@ void RootIO::addPrimBranch() {
     G4cout << "RootIO Setting up 'Prim' output branch...\n";
     subObjs.push_back(pprimPtcls = &primPtcls);
     dataTree->Branch("Prim",&pprimPtcls);
+}
+
+void RootIO::addOpticalBranch() {
+    if(poptPhotoCounter) return; // already set up
+    G4cout << "RootIO Setting up 'Optical' output branch...\n";
+    subObjs.push_back(poptPhotoCounter = &optPhotoCounter);
+    dataTree->Branch("Optical",&poptPhotoCounter);
 }
 
 void RootIO::addScIoniBranch() {
@@ -82,10 +108,12 @@ void RootIO::addVetoIoniBranch() {
     dataTree->Branch("VetoIoni",&pvetoIoni);
 }
 
-void RootIO::SetFileName(const string& filename) {
+
+
+void RootIO::SetFileName(G4String filename) {
     fname = filename;
     G4cout << "RootIO: Setting output file to '" << fname << "'\n";
-    outfile = new TFile(fname.c_str(), "RECREATE");
+    outfile = new TFile(filename,"RECREATE");
     outfile->cd();
     dataTree->SetDirectory(outfile);
 }
