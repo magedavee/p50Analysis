@@ -104,6 +104,8 @@ public:
     /// get layer dimensions
     G4ThreeVector getLayerDim(unsigned int n) { assert(n<layer_dim.size()); return layer_dim[n]; }
     
+    /// Construct and place contents (subclass _construct() for layer specification).
+    virtual void construct();
     /// construct layers (call after defining layers in _construct())
     virtual void construct_layers();
     
