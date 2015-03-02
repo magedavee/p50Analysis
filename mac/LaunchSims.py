@@ -13,7 +13,7 @@ class parallelsubmitter:
         return 0
     
     def run_jobs(self, jcmd, r0, r1):
-        parallel_jobfile = "jobs.txt"
+        parallel_jobfile = "jobs_%s.txt"%self.jobname
         jobsout = open(parallel_jobfile,"w")
         for rn in range(r0,r1):
             jobsout.write(jcmd%{"jobnum":"%i"%rn} + "\n")
@@ -101,9 +101,9 @@ class H5_DetResponse_Launcher:
     def __init__(self, simname):
         self.settings = {"simName": simname}
         if not os.system("which qsub"):
-            self.submitter = qsubmitter(self.settings["simName"])
+            self.submitter = qsubmitter(self.settings["simName"]+"_Response")
         else:
-            self.submitter = parallelsubmitter(self.settings["simName"])
+            self.submitter = parallelsubmitter(self.settings["simName"]+"_Response")
             
     def launch_converter(self):
         rmin = 10000000
@@ -116,7 +116,7 @@ class H5_DetResponse_Launcher:
                 rmin = rnum
             if rnum > rmax:
                 rmax = rnum
-        jcmd = "Analysis/DetectorResponse %s/Run_%%(jobnum)s.h5"%basedir
+        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5; fi"%{"basedir":basedir}
         self.submitter.run_jobs(jcmd,rmin,rmax-rmin)
 
 def logrange(n,x0,x1):
@@ -148,10 +148,10 @@ if __name__=="__main__":
         L.launch_sims(40)
 
     if options.dima:
-        L = SB_MC_Launcher("DIMA-Co60", 1e6)
+        L = SB_MC_Launcher("DIMA-Co60-B", 1e6)
         L.template = "Analysis/Private/DIMA_Template.mac"
         L.settings["out_sfx"] = "h5"
-        L.launch_sims(60,5)
+        L.launch_sims(60)
     
     if options.h5resp:
         L = H5_DetResponse_Launcher("DIMA-Co60")

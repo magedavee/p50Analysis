@@ -23,6 +23,8 @@ public:
     bool next(T& val);
     /// (re)set read file
     void setFile(hid_t f);
+    /// get number of rows read
+    void getNRead() const { return nread; }
     
 protected:
     string tablename;           ///< name of table to read

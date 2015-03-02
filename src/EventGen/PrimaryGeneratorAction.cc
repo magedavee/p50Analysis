@@ -268,7 +268,7 @@ void PrimaryGeneratorAction::fillNode(TXMLEngine& E) {
     } else {
         addAttr(E,"time",G4BestUnit(1*s, "Time"));
     }
-    addAttr(E,"throws",nThrows);
+    addAttrI(E,"throws",nThrows);
     if(myPositioner) addChild(myPositioner);
 }
 
