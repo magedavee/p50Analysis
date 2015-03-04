@@ -138,8 +138,9 @@ if __name__=="__main__":
         
     if options.p2:
         # 1e7 for CRY, 1e6 for P2/P20 neutrons (no building)
-        L = SB_MC_Launcher("Test", 1e6)
+        L = SB_MC_Launcher("P2B_muBG", 1e7)
         L.template = "Analysis/Private/PR2_Template.mac"
+        L.settings["out_sfx"] = "h5"
         L.launch_sims(100)
         
     if options.p20yale:
@@ -154,5 +155,5 @@ if __name__=="__main__":
         L.launch_sims(60)
     
     if options.h5resp:
-        L = H5_DetResponse_Launcher("DIMA-Co60")
+        L = H5_DetResponse_Launcher("P2B_muBG")
         L.launch_converter()

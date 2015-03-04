@@ -3,6 +3,7 @@
 #define ANALYSISTYPES_HH
 
 #include <Rtypes.h> // ROOT data types
+#include <cmath>
 
 // ///////////////////////
 // Simulation truth values
@@ -16,6 +17,38 @@ struct s_ParticleVertex {
     Double_t E = 0;     ///< kinetic energy
     Double_t t = 0;     ///< initial time
     Long64_t evt = 0;   ///< event number
+};
+
+/// underlying struct for IoniCluster data
+struct s_IoniCluster {
+    Double_t E = 0;     ///< deposited energy
+    Double_t t = 0;     ///< average time
+    Double_t dt = 0;    ///< RMS timing spread
+    Double_t x[3];      ///< average position
+    Double_t dx[3];     ///< RMS position spread
+    Double_t EdEdx = 0; ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
+    Double_t EdEdx2 = 0;///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
+    Double_t l = 0;     ///< track length
+    Int_t vol = 0;      ///< volume ID number
+    Int_t PID = 0;      ///< ionizing particle type
+    Long64_t evt = 0;   ///< event number
+    
+    /// energy-weighted sum
+    void operator+=(const s_IoniCluster& r) {
+        Double_t EE = E + r.E;
+        dt = ((dt*dt+t*t)*E + (r.dt*r.dt+r.t*r.t)*r.E)/EE;
+        t = (t*E+r.t*r.E)/EE;
+        dt = sqrt(dt - t*t);
+        l += r.l;
+        for(unsigned int i=0; i<3; i++) {
+            dx[i] = ((dx[i]*dx[i]+x[i]*x[i])*E + (r.dx[i]*r.dx[i]+r.x[i]*r.x[i])*r.E)/EE;
+            x[i] = (x[i]*E+r.x[i]*r.E)/EE;
+            dx[i] = sqrt(dx[i] - x[i]*x[i]);
+        }
+        EdEdx += r.EdEdx;
+        EdEdx2 += r.EdEdx2;
+        E = EE;
+    }
 };
 
 /// underlying struct for NCapt data

@@ -40,24 +40,6 @@ public:
     ClassDef(ParticleEvent,1);
 };
 
-/// underlying struct for IoniCluster data
-struct s_IoniCluster {
-    Double_t E = 0;     ///< deposited energy
-    Double_t t = 0;     ///< average time
-    Double_t dt = 0;    ///< RMS timing spread
-    Double_t x[3];      ///< average position
-    Double_t dx[3];     ///< RMS position spread
-    Double_t EdEdx = 0; ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
-    Double_t EdEdx2 = 0;///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
-    Double_t l = 0;     ///< track length
-    Int_t vol = 0;      ///< volume ID number
-    Int_t PID = 0;      ///< ionizing particle type
-    Long64_t evt = 0;   ///< event number
-    
-    /// energy-weighted sum
-    void operator+=(const s_IoniCluster& r);
-};
-
 /// Ionization energy deposition in event
 class IoniCluster: public s_IoniCluster, public TObject {
 public:
