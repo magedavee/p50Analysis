@@ -44,6 +44,7 @@ public:
     enum buildMode {
         PROSPECT,       ///< PROSPECT detector
         PROSPECT2,      ///< PROSPECT-2 small prototype
+        PROSPECT2B,     ///< PROSPECT-2B 2-l cell in modified 20 shielding
         PROSPECT20,     ///< PROSPECT-20 single cell prototype
         P20INNER,       ///< PROSPECT-20 with inner shield only
         P20CELL,        ///< PROSPECT-20 bare cell
@@ -57,6 +58,7 @@ public:
     BuildingBuilder myBuilding;         ///< building containing detector
     ShieldBuilder myPRShield;           ///< PROSPECT shielded detector
     PR2ShieldBuilder myPR2Shield;       ///< PROSPECT-2 shielding cave
+    P2BShieldBuilder myP2BShield;       ///< PROSPECT-2B shielding cave
     vector<PR2MuVetoBuilder*> myPR2Veto;///< PROSPECT-2/20 muon vetos
     ScintCellBuilder myTestCell;        ///< test scintillator-filled cell
     PR20CellBuilder myPR20Cell;         ///< PROSPECT-20 cell

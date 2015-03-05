@@ -18,7 +18,7 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     
     p.evt = evt.evt;
     p.seg = evt.vol;
-    p.E = Equench(evt);
+    p.E = evt.E; //Equench(evt);
     p.t = evt.t;
     p.y = evt.x[1];
     p.PSD = PSD(evt);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     }
     // optional full time sorting
     if(allPulses.size()) {
-        printf("\nMaster time merge and output... "); fflush(stdout);
+        printf("\nMaster time merge and output of %zu pulses... ", allPulses.size()); fflush(stdout);
         std::sort(allPulses.begin(), allPulses.end(), compare_hit_times);
         pulse_writer.write(allPulses);
         printf("Done.");

@@ -65,13 +65,16 @@ G4VPhysicalVolume* ShellLayerSpec::wrap(G4LogicalVolume*& child, G4ThreeVector& 
 ////
 
 void ShellLayerBuilder::construct_layers() {
-    smassert(!layer_log.size());
-    dim = (expand_to_contents && myContents)?  myContents->getDimensions() : G4ThreeVector();
-    inside_log = main_log = NULL;
+    if(!layer_log.size()) {
+        dim = (expand_to_contents && myContents)?  myContents->getDimensions() : G4ThreeVector();
+        inside_log = main_log = NULL;
+    }
+    
     unsigned int nlayers = 0;
     for(auto it = layers.begin(); it != layers.end(); it++) {
         if(!it->mat) continue;
         nlayers++;
+        if(nlayers <= layer_log.size()) continue; // skip previously constructed layers
         it->wrap(main_log, dim, nodeName+"_layer_"+to_str(nlayers));
         if(!inside_log) {
             inside_log = main_log;
@@ -81,8 +84,13 @@ void ShellLayerBuilder::construct_layers() {
         }
         layer_log.push_back(main_log);
         layer_dim.push_back(dim);
-        addChild(&(*it));
     }
+}
+
+void ShellLayerBuilder::construct() {
+    ContainerBuilder::construct();
+    for(auto it = layers.begin(); it != layers.end(); it++)
+        addChild(&(*it));
 }
 
 void ShellLayerBuilder::fillNode(TXMLEngine& E) {

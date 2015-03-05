@@ -15,7 +15,7 @@ ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.75*m),
 geomDir("/geom/"), modeCmd("/geom/mode",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT2B PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
     worldShell.mat = MaterialsHelper::M().Air;
 }
 
@@ -24,6 +24,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         modeName = newValue;
         if(modeName == "PROSPECT") mode = PROSPECT;
         else if(modeName == "PROSPECT2") mode = PROSPECT2;
+        else if(modeName == "PROSPECT2B") mode = PROSPECT2B;
         else if(modeName == "PROSPECT20") mode = PROSPECT20;
         else if(modeName == "P20Inner") mode = P20INNER;
         else if(modeName == "P20Cell") mode = P20CELL;
@@ -38,7 +39,7 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
 ScintSegVol* DetectorConstruction::getScint() {
     if(mode == PROSPECT) return &myPRShield.myDet.myTank;
     else if(mode == PROSPECT20 || mode==P20INNER || mode==P20CELL) return &myPR20Cell;
-    else if(mode == TEST_CELL || mode == PROSPECT2) return &myTestCell;
+    else if(mode == TEST_CELL || mode == PROSPECT2 || mode == PROSPECT2B) return &myTestCell;
     else if(mode == DIMA) return &myDIMA.myArray;
     else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
@@ -54,7 +55,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Starting detector construction..." << G4endl;
     
-    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT20 || mode==P20INNER) ? &myBuilding
+    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT2B || mode==PROSPECT20 || mode==P20INNER) ? &myBuilding
                     : mode==SLAB ? &mySlab
                     : mode==TEST_CELL ? &myTestCell
                     : mode==P20CELL ? &myPR20Cell
@@ -75,6 +76,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         myPR2Shield.placementRot = Builder::rot_X_90;
         myBuilding.wall_clearance = myBuilding.ceil_clearance = 0.25*m;
         worldShell.setThick(0.2*m);
+    } else if(mode==PROSPECT2B) {
+        myBuilding.myContents = &myP2BShield;
+        myP2BShield.myContents = &myTestCell;
+        myP2BShield.placementRot = Builder::rot_X_90;
     } else if(mode==PROSPECT20) {
         myBuilding.myContents = &myPR20Shield;
         myPR20Shield.myInnerShield.myContents = &myPR20Cell;

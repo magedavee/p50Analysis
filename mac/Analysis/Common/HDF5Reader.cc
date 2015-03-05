@@ -25,7 +25,7 @@ bool SimIoniReader::loadMergedIoni() {
     map<Int_t, vector<s_IoniCluster> > volClusts;
     
     if(ioni.evt > 0) volClusts[ioni.vol].push_back(ioni); // use event from previous read
-    else if(nRead) return false; // file is exhausted
+    else if(ioni_reader.getNRead()) return false; // file is exhausted
     
     current_evt = ioni.evt; // = -1 on the first time
     

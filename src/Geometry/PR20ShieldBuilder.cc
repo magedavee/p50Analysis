@@ -41,3 +41,14 @@ void PR20ShieldBuilder::_construct() {
     addWaterbricks();
     construct_layers();
 }
+
+////////////////////////////////
+////////////////////////////////
+
+void P2BShieldBuilder::_construct() {
+    PR20InnerShieldBuilder::_construct();
+    addLayer(ShellLayerSpec(G4ThreeVector(1*in, 1*in, 2*in), G4ThreeVector(1*in, 1*in, 1*in), MaterialsHelper::M().BPoly30, G4Colour(0.5,1.0,0.5,0.5)));
+    addLayer(ShellLayerSpec(G4ThreeVector(2*in, 4*in, 4*in), G4ThreeVector(4*in, 4*in, 0), MaterialsHelper::M().BPoly5, G4Colour(1,1,0.8,0.5)));
+    addLayer(ShellLayerSpec(G4ThreeVector(4*in, 4*in, 4*in), G4ThreeVector(4*in, 4*in, 0), MaterialsHelper::M().Polyeth, G4Colour(0.7,0.7,1.0,0.5)));
+    construct_layers();   
+}

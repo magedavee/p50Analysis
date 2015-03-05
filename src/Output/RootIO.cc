@@ -82,6 +82,13 @@ void RootIO::addVetoIoniBranch() {
     dataTree->Branch("VetoIoni",&pvetoIoni);
 }
 
+void RootIO::addOpticalBranch() {
+    if(poptPhotoCounter) return; // already set up
+    G4cout << "RootIO Setting up 'Optical' output branch...\n";
+    subObjs.push_back(poptPhotoCounter = &optPhotoCounter);
+    dataTree->Branch("Optical",&poptPhotoCounter);
+}
+
 void RootIO::SetFileName(const string& filename) {
     fname = filename;
     G4cout << "RootIO: Setting output file to '" << fname << "'\n";
@@ -89,3 +96,4 @@ void RootIO::SetFileName(const string& filename) {
     outfile->cd();
     dataTree->SetDirectory(outfile);
 }
+
