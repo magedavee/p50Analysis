@@ -56,7 +56,7 @@ public:
     vector<int> getRunlist() const;
     
     /// get list of run file names in directory
-    vector<string> getFileList() const;
+    vector<string> getFileList(const string& sfx = ".root") const;
     
     /// make TChain from files in directory
     TChain* makeTChain() const;

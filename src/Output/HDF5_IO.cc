@@ -1,7 +1,6 @@
 #ifdef WITH_HDF5
 
 #include "HDF5_IO.hh"
-#include "HDF5_StructInfo.hh"
 #include <TClonesArray.h>
 #include <G4ios.hh>
 #include <cassert>

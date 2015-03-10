@@ -1,4 +1,5 @@
 #include "HDF5Reader.hh"
+#include "HDF5_StructInfo.hh"
 
 SimIoniReader::SimIoniReader(const string& f_in): ioni_reader("ScIoni",IoniCluster_offsets, IoniCluster_sizes,1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);

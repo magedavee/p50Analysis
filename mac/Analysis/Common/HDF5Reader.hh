@@ -6,7 +6,7 @@
 #include "HDF5_IO.hh"
 
 /// Simulation reader and time-series merger
-class SimIoniReader {
+class SimIoniReader: protected HDF5_StructInfo {
 public:
     /// Constructor
     SimIoniReader(const string& f_in);

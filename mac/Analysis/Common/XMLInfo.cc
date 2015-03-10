@@ -122,10 +122,10 @@ vector<int> OutDirLoader::getRunlist() const {
     return v;
 }
 
-vector<string> OutDirLoader::getFileList() const {
+vector<string> OutDirLoader::getFileList(const string& sfx) const {
     vector<string> v;
     for(map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
-        v.push_back(bpath+"/Run_"+to_str(it->first)+".root");
+        v.push_back(bpath+"/Run_"+to_str(it->first)+sfx);
     return v;
 }
 
