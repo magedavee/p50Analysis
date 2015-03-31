@@ -57,7 +57,3 @@ void DetVolBuilder::construct() {
         new G4PVPlacement(&myTank.rotRod, G4ThreeVector(pos[0],pos[1],-pmt_z), myPMT.main_log, "DetVol_PMT_phys_"+to_str(2*i+1), inner_log, true, 2*i+1, true);
     }
 }
-
-void DetVolBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}

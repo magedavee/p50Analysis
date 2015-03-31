@@ -35,7 +35,3 @@ void SeparatorBuilder::construct() {
     main_log = new G4LogicalVolume(main_box, MaterialsHelper::M().PMMA, "Separator_main_Log");
     main_log->SetVisAttributes(&sep_vis);
 }
-
-void SeparatorBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}

@@ -31,6 +31,11 @@ void Builder::placeInto(ContainerBuilder& B) {
     else myAssembly.MakeImprint(B.inside_log, place_v, B.placementRot, 0, true);
 }
 
+void Builder::fillNode(TXMLEngine& E) {
+    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    if(main_log) addAttr(E, "mass", G4BestUnit(main_log->GetMass(),"Mass"));
+}
+
 void ContainerBuilder::construct() {
     if(!myContents) { _construct(); return; }
     addChild(myContents);
@@ -93,6 +98,4 @@ void ShellLayerBuilder::construct() {
         addChild(&(*it));
 }
 
-void ShellLayerBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}
+

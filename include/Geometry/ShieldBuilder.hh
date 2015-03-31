@@ -36,9 +36,6 @@ protected:
     G4UIcmdWithoutParameter clearCmd;           ///< command to remove shielding layers
     G4UIcmdWithADoubleAndUnit vetoCmd;          ///< command to add muon veto shell layer
     G4UIcmdWithADoubleAndUnit nshellCmd;        ///< command to add neutron shield steel shell layer
-    
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

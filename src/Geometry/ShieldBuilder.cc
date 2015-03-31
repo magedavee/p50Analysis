@@ -63,7 +63,3 @@ void ShieldBuilder::SetNewValue(G4UIcommand* command, G4String newvalue) {
         addLayer(S);
     } else G4cout << "Unknown command!" << G4endl;
 }
-
-void ShieldBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}

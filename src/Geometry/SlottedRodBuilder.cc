@@ -21,7 +21,7 @@ rod_vis(G4Colour(1.0,1.0,0.5)) {
 }
 
 void RodBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E,"dim",G4BestUnit(dim,"Length"));
+    Builder::fillNode(E);
     addAttr(E,"r_hole",G4BestUnit(r_hole,"Length"));
 }
 

@@ -130,6 +130,7 @@ if __name__=="__main__":
     parser.add_option("--p20yale", dest="p20yale", action="store_true", default=False, help="Bare PROSPECT-20 'Yale' cell");
     parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
     parser.add_option("--h5resp", dest="h5resp", action="store_true", default=False, help="HDF5-based detector response");
+    parser.add_option("--ibd", dest="ibd", action="store_true", default=False, help="PROSPECT IBD events");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -148,6 +149,12 @@ if __name__=="__main__":
         L.template = "Analysis/Private/P20-Yale.mac"
         L.launch_sims(40)
 
+    if options.ibd:
+        L = SB_MC_Launcher("P2k_IBD", 1e5)
+        L.template = "Analysis/Private/IBDTemplate.mac"
+        L.settings["out_sfx"] = "h5"
+        L.launch_sims(40)
+        
     if options.dima:
         L = SB_MC_Launcher("DIMA-Co60-B", 1e6)
         L.template = "Analysis/Private/DIMA_Template.mac"
@@ -155,5 +162,5 @@ if __name__=="__main__":
         L.launch_sims(60)
     
     if options.h5resp:
-        L = H5_DetResponse_Launcher("P2B_muBG")
+        L = H5_DetResponse_Launcher("P2k_IBD")
         L.launch_converter()

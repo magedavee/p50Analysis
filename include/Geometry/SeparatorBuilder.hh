@@ -33,9 +33,6 @@ protected:
     G4VisAttributes sep_vis;    ///< visualization settings
     G4UIdirectory ui_dir;       ///< UI directory for separator-related commands
     G4UIcmdWithADoubleAndUnit thick_cmd; ///< UI command for thickness
-    
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif
