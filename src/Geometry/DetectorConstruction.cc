@@ -144,7 +144,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         }
     }
     
-    G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
+    //G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
     G4cout << "Detector construction complete." << G4endl;
     

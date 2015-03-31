@@ -28,6 +28,13 @@ stepMaxCmd("/phys/stepMax",this) {
     
     stepMaxCmd.SetGuidance("Set limit on maximum step length.");
     stepMaxCmd.AvailableForStates(G4State_PreInit);
+	for (G4int i = 0; ; ++i) {
+		G4VPhysicsConstructor* elem =
+			const_cast<G4VPhysicsConstructor*> (myHadronic->GetPhysics(i));
+		if (elem == NULL) break;
+		G4cout << "RegisterPhysics: " << elem->GetPhysicsName() << G4endl;
+		RegisterPhysics(elem);
+	}
 }
 
 PhysicsList::~PhysicsList() {
@@ -35,10 +42,11 @@ PhysicsList::~PhysicsList() {
 }
 
 void PhysicsList::ConstructProcess() {
-    if(myEMPhys) {
-        AddTransportation();
-        myEMPhys->ConstructProcess();
-    } else myHadronic->ConstructProcess();
+    //if(myEMPhys) {
+    //    AddTransportation();
+    //    myEMPhys->ConstructProcess();
+    //} else myHadronic->ConstructProcess();
+	G4VModularPhysicsList::ConstructProcess();
     
     if(myStepMax) {
         G4cout << "Setting step-size limits to " << G4BestUnit(myStepMax->GetMaxStep(),"Length") << ".\n";
@@ -90,6 +98,7 @@ void PhysicsList::SetNewValue(G4UIcommand* command, G4String newValue) {
     if(command == &opticalCmd) {
         if(!myOptPhys) {
             myOptPhys = new G4OpticalPhysics(0);
+			G4cout << "RegisterPhysics: " << myOptPhys->GetPhysicsName() << G4endl;
             RegisterPhysics(myOptPhys);
         }
     } else if(command == &emCmd) {
@@ -97,7 +106,8 @@ void PhysicsList::SetNewValue(G4UIcommand* command, G4String newValue) {
             if(newValue == "Livermore") myEMPhys = new G4EmLivermorePhysics();
             else if(newValue == "Penelope") myEMPhys = new G4EmPenelopePhysics();
             else myEMPhys = new G4EmStandardPhysics();
-            //RegisterPhysics(myEMPhys);
+			G4cout << "ReplacePhysics: " << myEMPhys->GetPhysicsName() << G4endl;
+			ReplacePhysics(myEMPhys);
         }
     } else if(command == &stepMaxCmd) {
         if(!myStepMax) myStepMax = new StepMax();

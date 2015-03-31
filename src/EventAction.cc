@@ -36,6 +36,9 @@ bool EventAction::keepEvent() const {
     if(reclevel >= 5
         || (reclevel == 3 && FileIO::GetFlux().nParticles > 0)
         || (reclevel >= 2 && FileIO::GetScIoni().nIoniClusts > 0)) return true;
+    if(reclevel == -1 && FileIO::GetPhoto().nParticles > 0) { // optical photon
+		return true;
+	}
     if(reclevel == -1 && FileIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
         vector<IoniCluster> scintHits;
         mergeIoniHits(FileIO::GetScIoni().clusts, scintHits, 100);
