@@ -3,21 +3,22 @@
 void CompareMultiFiles() {
     vector<string> fnames;
     
-    fnames.push_back("${PG4_OUTDIR}/P20_nBG_IBD/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_WB_nBG_IBD/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_2WB_nBG_IBD/Plots/PROSPECT-2.root");
-    fnames.push_back("${PG4_OUTDIR}/P20_WBPb_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_WB_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_2WB_nBG_IBD/Plots/PROSPECT-2.root");
+    //fnames.push_back("${PG4_OUTDIR}/P20_WBPb_nBG_IBD/Plots/PROSPECT-2.root");
     
-    //fnames.push_back("${PG4_OUTDIR}/P20_muBG/Plots/PROSPECT-2.root");
-    //fnames.push_back("${PG4_OUTDIR}/P20_WB_muBG/Plots/PROSPECT-2.root");
+    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P2B_muBG/Sim_P2B_muBG.root");
+    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P2B_nBG/Sim_P2B_nBG.root");
     
     //fnames.push_back("${PG4_OUTDIR}/P20_Aug28P/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WB_Aug28P/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WBPb_Aug28P/Plots/PROSPECT-2.root");
     
     vector<string> hnames;
-    hnames.push_back("hIBDEnergy");
+    //hnames.push_back("hIBDEnergy");
     //hnames.push_back("hSinglesE");
+    hnames.push_back("hEnergyPSD");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
@@ -47,23 +48,31 @@ void CompareMultiFiles() {
             h->GetFunction(fitname.c_str())->ResetBit(TF1::kNotDraw); // make "projname" visible (= 1<<9)
             
         }
+        if(!hs.size()) continue;
         
-        for(size_t i=0; i<hs.size(); i++) {
-            //hs[i]->SetLineColor(i? (i==1?4:2): 1);
-            //hs[i]->SetLineColor(2+2*i);
-            hs[i]->SetLineColor(1+i);
-            
-            hs[i]->SetMaximum(20);
-            //hs[i]->SetTitle("gamma singles");
-            //hs[i]->GetYaxis()->SetTitle("rate [arb. units]");
-            //hs[i]->GetYaxis()->SetTitleOffset(1.5);
-            
-            //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
-            hs[i]->Draw(i?"HIST Same":"HIST");
+        if(true) { // sum histrograms
+            for(size_t i=1; i<hs.size(); i++) hs[0]->Add(hs[i]);
+            hs[0]->SetMinimum(1e-6);
+            hs[0]->Draw("Col");
+        } else {
+            for(size_t i=0; i<hs.size(); i++) {
+                //hs[i]->SetLineColor(i? (i==1?4:2): 1);
+                //hs[i]->SetLineColor(2+2*i);
+                hs[i]->SetLineColor(1+i);
+                
+                hs[i]->SetMaximum(20);
+                //hs[i]->SetTitle("gamma singles");
+                //hs[i]->GetYaxis()->SetTitle("rate [arb. units]");
+                //hs[i]->GetYaxis()->SetTitleOffset(1.5);
+                
+                //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
+                hs[i]->Draw(i?"HIST Same":"HIST");
+            }
         }
         
         //gPad->SetLogy(true);
         //gPad->SetLogx(true);
+        gPad->SetLogz(true);
         gPad->Print(("~/Desktop/"+*ithn+".pdf").c_str());
     }
 }

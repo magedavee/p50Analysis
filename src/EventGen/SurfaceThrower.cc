@@ -5,6 +5,7 @@
 #include <G4VSolid.hh>
 #include <Randomize.hh>
 #include <G4UnitsTable.hh>
+#include <G4SystemOfUnits.hh>
 
 SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT, const string& nm):
 VertexPositioner(nm), W(w) {
@@ -73,6 +74,8 @@ void SurfaceThrower::proposePosition() {
             if(!passNormal) continue;
             pos += d * (rMin + G4UniformRand()*(rMax-rMin));
             if(!T || (T && Tsolid->Inside(W2T.coordPtoC(pos)) != kInside)) continue;
+        } else {
+            originPoint = pos + randomDirection()*um;
         }
         break;
     }

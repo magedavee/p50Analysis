@@ -41,6 +41,9 @@ public:
 protected:
     G4ThreeVector dim;          ///< outer dimensions
     static double in;           ///< conveniece definition for inch
+    
+    /// XML output contents
+    virtual void fillNode(TXMLEngine& E);
 };
 
 /// Base class for "container" assemblies with inner volume for placing components
@@ -114,9 +117,6 @@ protected:
     vector<ShellLayerSpec> layers;      ///< descriptions of each layer
     vector<G4LogicalVolume*> layer_log; ///< logical volumes at each layer
     vector<G4ThreeVector> layer_dim;    ///< dimensions of each layer
-    
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
 };
 
 

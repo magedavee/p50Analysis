@@ -22,9 +22,6 @@ public:
 private:
     
     G4VisAttributes main_vis;   ///< visualization settings for volume
-    
-    /// XML output contents
-    virtual void fillNode(TXMLEngine& E);
 };
 
 #endif

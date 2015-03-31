@@ -23,7 +23,3 @@ void FluxCounterBuilder::construct() {
     G4SDManager::GetSDMpointer()->AddNewDetector(mySD);
     main_log->SetSensitiveDetector(mySD);
 }
-
-void FluxCounterBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
-}
