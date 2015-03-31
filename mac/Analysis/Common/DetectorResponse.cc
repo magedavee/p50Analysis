@@ -24,7 +24,7 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     p.seg = evt.vol;
     p.E = Equench(evt);
     p.t = evt.t;
-    p.y = evt.x[1];
+    p.y = evt.x[2];
     p.PSD = PSD(evt);
     
     return p;
