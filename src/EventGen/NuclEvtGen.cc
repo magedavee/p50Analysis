@@ -579,26 +579,26 @@ NucDecayLibrary::~NucDecayLibrary() {
         delete(it->second);
 }
 
-NucDecaySystem& NucDecayLibrary::getGenerator(const std::string& nm) {
-    auto it = NDs.find(nm);
+NucDecaySystem& NucDecayLibrary::getGenerator(const std::string& n) {
+    auto it = NDs.find(n);
     if(it != NDs.end()) return *(it->second);
-    string fname = datpath+"/"+nm+".txt"; 
+    string fname = datpath+"/"+n+".txt"; 
     if(!fileExists(fname)) {
         SMExcept e("MissingDecayData");
         e.insert("fname",fname);
         throw(e);
     }
-    auto ret = NDs.insert(std::pair<std::string,NucDecaySystem*>(nm,new NucDecaySystem(SMFile(fname),BEL,tcut)));
+    auto ret = NDs.insert(std::pair<std::string,NucDecaySystem*>(n,new NucDecaySystem(SMFile(fname),BEL,tcut)));
     return *(ret.first->second);
 }
 
-bool NucDecayLibrary::hasGenerator(const std::string& nm) {
-    if(cantdothis.count(nm)) return false;
+bool NucDecayLibrary::hasGenerator(const std::string& n) {
+    if(cantdothis.count(n)) return false;
     try {
-        getGenerator(nm);
+        getGenerator(n);
         return true;
     } catch(...) {
-        cantdothis.insert(nm);
+        cantdothis.insert(n);
     }
     return false;
 }

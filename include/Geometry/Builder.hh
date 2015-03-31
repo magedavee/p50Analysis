@@ -86,7 +86,7 @@ public:
     /// set uniform thickness in all directions
     void setThick(double t) { uthick = lthick = G4ThreeVector(t,t,t); }
     /// "wrap" child volume in specified layers; return physical placed child volume
-    G4VPhysicalVolume* wrap(G4LogicalVolume*& child, G4ThreeVector& dim, const G4String& nm) const;
+    G4VPhysicalVolume* wrap(G4LogicalVolume*& child, G4ThreeVector& dim, const G4String& n) const;
     
 protected:
     /// XML output contents

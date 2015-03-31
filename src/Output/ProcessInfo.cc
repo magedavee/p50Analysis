@@ -13,8 +13,8 @@ void ProcessInfo::fillNode(TXMLEngine& E) {
     passwd* p = getpwuid(uid);
     if(p && p->pw_name) addAttr(E, "uname",p->pw_name);
     
-    char nm[1024];
-    gethostname(nm, 1024);
-    addAttr(E, "host", nm);
+    char hname[1024];
+    gethostname(hname, 1024);
+    addAttr(E, "host", hname);
     addAttr(E, "Geant4", G4Version);
 }
