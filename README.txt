@@ -45,10 +45,11 @@ export LD_LIBRARY_PATH=${PG4_LIB_DIR}:${LD_LIBRARY_PATH}
 optional: 'make doc' to generate Doxygen documentation
 
 For locally-installed HDF5 builds, use cmake with the option to generate the "high level" library libhdf5_hl.a;
-set HDF5_DIR to point to your HDF5 build:
+set environment variables to point to your HDF5 headers and build:
 
 cmake ../hdf5-1.8.14/ -DHDF5_BUILD_HL_LIB=ON
-export HDF5_DIR=<path/to/hdf5-build>
+export HDF5_SRCDIR=<../hdf5-1.8.14>/src/
+export HDF5_LIBDIR=<path/to/hdf5-build>/bin/
 
 Running
 =======
