@@ -7,8 +7,8 @@
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
     // PSD
     const double u = atan(0.2*evt.EdEdx/evt.E)*2/M_PI;
-    const double PSD_gamma = 0.14;
-    const double PSD_ncapt = 0.31;
+    const double PSD_gamma = 0.22;
+    const double PSD_ncapt = 0.35;
     PSD = PSD_gamma + (u-0.04)/(0.98-0.04)*(PSD_ncapt - PSD_gamma);
     
     // quenched energy

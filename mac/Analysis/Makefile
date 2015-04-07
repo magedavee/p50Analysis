@@ -20,7 +20,7 @@ _examples = PlotFlux PlotIBD PlotPos PlotPrimaries TestCell
 
 # optional HDF5-dependent components
 ifeq ($(WITH_HDF5),true)
-	LDFLAGS += -L$(HDF5_LIBDIR)/bin/ -lhdf5 -lhdf5_hl
+	LDFLAGS += -L$(HDF5_LIBDIR)cd ../PROSPECT -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR)
 	objects += HDF5Reader.o
 	_examples += DetectorResponse

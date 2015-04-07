@@ -8,17 +8,16 @@ void CompareMultiFiles() {
     //fnames.push_back("${PG4_OUTDIR}/P20_2WB_nBG_IBD/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WBPb_nBG_IBD/Plots/PROSPECT-2.root");
     
-    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P2B_muBG/Sim_P2B_muBG.root");
-    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P2B_nBG/Sim_P2B_nBG.root");
+    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P20_Co60_0cm/Sim_P20_Co60_0cm.root");
+    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P20_Bare_Co60_0cm/Sim_P20_Bare_Co60_0cm.root");
+    fnames.push_back("${P2_PULSEDAT}/Sim/Sim_P20_Co60_0cm_Inner/Sim_P20_Co60_0cm.root");
     
     //fnames.push_back("${PG4_OUTDIR}/P20_Aug28P/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WB_Aug28P/Plots/PROSPECT-2.root");
     //fnames.push_back("${PG4_OUTDIR}/P20_WBPb_Aug28P/Plots/PROSPECT-2.root");
     
     vector<string> hnames;
-    //hnames.push_back("hIBDEnergy");
-    //hnames.push_back("hSinglesE");
-    hnames.push_back("hEnergyPSD");
+    hnames.push_back("hSinglesE");
     
     for(auto ithn = hnames.begin(); ithn != hnames.end(); ithn++) {
         
@@ -50,7 +49,7 @@ void CompareMultiFiles() {
         }
         if(!hs.size()) continue;
         
-        if(true) { // sum histrograms
+        if(false) { // sum histrograms
             for(size_t i=1; i<hs.size(); i++) hs[0]->Add(hs[i]);
             hs[0]->SetMinimum(1e-6);
             hs[0]->Draw("Col");
@@ -58,11 +57,11 @@ void CompareMultiFiles() {
             for(size_t i=0; i<hs.size(); i++) {
                 //hs[i]->SetLineColor(i? (i==1?4:2): 1);
                 //hs[i]->SetLineColor(2+2*i);
-                hs[i]->SetLineColor(1+i);
+                hs[i]->SetLineColor(i?i==2?4:2:1);
                 
-                hs[i]->SetMaximum(20);
-                //hs[i]->SetTitle("gamma singles");
-                //hs[i]->GetYaxis()->SetTitle("rate [arb. units]");
+                //hs[i]->SetMaximum(20);
+                hs[i]->SetTitle("Simulated PROSPECT-20 ^{60}Co spectrum");
+                hs[i]->GetYaxis()->SetTitle("rate [counts/MeV/decay]");
                 //hs[i]->GetYaxis()->SetTitleOffset(1.5);
                 
                 //hs[i]->Draw(i?"HIST E1 X0 Same":"HIST E1 X0");
