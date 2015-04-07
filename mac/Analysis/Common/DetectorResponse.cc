@@ -32,7 +32,7 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     quenchPSD(evt,Equench,PSD);
     p.E = Equench;
     p.t = evt.t;
-    p.y = evt.x[2];
+    p.y = evt.x[1]; // x[2] for multi-cell PROSPECTS; x[1] for P20
     p.PSD = PSD;
     
     return p;
@@ -40,8 +40,8 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
 
 int main(int argc, char** argv) {
 
-    if(argc != 2) {
-        printf("Argument: <PROSPECT-G4 HDF5 filename>\n");
+    if(argc < 2) {
+        printf("Arguments: <PROSPECT-G4 HDF5 filename> [P20 reflectorless mode]\n");
         return -1;
     }
     
@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     
     // open input file
     SimIoniReader SIR(f_in);
+    SIR.P20reflectorless = (argc==3);
     XMLInfo XI(f_in+".xml");
     double runtime = XI.getGenTime(); // [ns]
     size_t runthrows = XI.getEvts();

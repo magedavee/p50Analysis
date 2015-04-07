@@ -14,7 +14,7 @@ public:
     virtual ~SimIoniReader();
     
     /// Load next single ionization record from file; return whether event good, or file finished.
-    bool loadIoni() { if(ioni_reader.next(ioni))  nRead++; else return false; return true; }
+    bool loadIoni();
     /// Load next merged event from file; return whether event good, or file finished.
     bool loadMergedIoni();
     
@@ -23,7 +23,8 @@ public:
     double dt_max = 50;                 ///< time to separate events [ns]
     hsize_t nRead = 0;                  ///< number of records read so far
     hsize_t nrecords = 0;               ///< number of table records
-    
+    bool P20reflectorless = false;      ///< special mode for merging reflectorless P20 outer volume events
+ 
 protected:
     HDF5_Table_Cache<s_IoniCluster> ioni_reader;       ///< cached output for s_IoniCluster
     Long64_t current_evt = 0;           ///< current event number

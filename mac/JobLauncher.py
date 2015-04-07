@@ -109,6 +109,7 @@ class SB_MC_Launcher:
 class H5_DetResponse_Launcher:
     def __init__(self, simname, forceParallel = False):
         self.settings = {"simName": simname}
+        self.settings["xargs"] = ""
         if not forceParallel and not os.system("which qsub"):
             self.submitter = qsubmitter(self.settings["simName"]+"_Response")
         elif not os.system("which parallel"):
@@ -127,7 +128,7 @@ class H5_DetResponse_Launcher:
             if rnum > rmax:
                 rmax = rnum
 	rmin = 0
-        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(auxdir)s/../mac/Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5; fi"%{"basedir":basedir, "auxdir":os.environ["PG4_AUX"]}
+        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(auxdir)s/../mac/Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5 %(xargs)s; fi"%{"basedir":basedir, "auxdir":os.environ["PG4_AUX"], "xargs":self.settings["xargs"]}
         self.submitter.run_jobs(jcmd,rmin,rmax-rmin)
 
 def logrange(n,x0,x1):
