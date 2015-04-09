@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *~
 *.o
 *.a
@@ -5,3 +6,11 @@
 *.root
 */aCORN/
 Aux/NIST_*
+=======
+*.pyc
+build
+ChangeLog
+MANIFEST
+dist
+.tox
+>>>>>>> 3fd5fede40dc2e2955231192c5fefb71aa07ff9b
