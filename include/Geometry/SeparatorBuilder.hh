@@ -16,7 +16,7 @@
 class SeparatorBuilder: public Builder, public G4UImessenger {
 public:
     /// Constructor
-    SeparatorBuilder();
+    SeparatorBuilder(const string& uiname = "separator");
     
     /// Construct geometry
     void construct();

@@ -110,10 +110,12 @@ void ScintTankBuilder::construct() {
             
             unsigned int copynum = nx + (nSegX+1)*ny;
             
-            G4PVPlacement* rod = new G4PVPlacement(&rotRod, r0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                   myRod->main_log, "ScintTank_rod_phys_"+to_str(copynum),
-                                                   scint_log, true, copynum, true);
-            new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myRod->myOptSurf.S);
+            if(myRod->main_log) {
+                G4PVPlacement* rod = new G4PVPlacement(&rotRod, r0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
+                                                    myRod->main_log, "ScintTank_rod_phys_"+to_str(copynum),
+                                                    scint_log, true, copynum, true);
+                new G4LogicalBorderSurface("RodOpticalBorder_"+to_str(copynum), scint_phys, rod, myRod->myOptSurf.S);
+            }
             
             if(gammacatcher_log && nx < nSegX && ny < nSegY) {
                 for(int sgn = -1; sgn <= 1; sgn += 2) {
@@ -123,14 +125,16 @@ void ScintTankBuilder::construct() {
                 }
             }
             
-            if(nx < nSegX)
-                seps.push_back(new G4PVPlacement(rotSepX, sx0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                 mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
-                                                 scint_log, true, copynum, true));
-            if(ny < nSegY)
-                seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
-                                                 mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
-                                                 scint_log, true, copynum, true));
+            if(mySeparator.main_log) {
+                if(nx < nSegX)
+                    seps.push_back(new G4PVPlacement(rotSepX, sx0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
+                                                    mySeparator.main_log, "ScintTank_sepX_phys"+to_str(copynum),
+                                                    scint_log, true, copynum, true));
+                if(ny < nSegY)
+                    seps.push_back(new G4PVPlacement(&rotRod, sy0 + G4ThreeVector(nx*lat_size, ny*lat_size, 0),
+                                                    mySeparator.main_log, "ScintTank_sepY_phys"+to_str(copynum),
+                                                    scint_log, true, copynum, true));
+            }
         }
     }
     
