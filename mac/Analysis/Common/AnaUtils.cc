@@ -33,11 +33,11 @@ void normalize_to_bin_width(TH1* f, double xscale) {
     f->Scale(xscale);
 }
 
-TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, double bmin, double bmax) {
+TH1F* logHist(const string& n, const string& descrip, unsigned int nbins, double bmin, double bmax) {
     vector<Double_t> binEdges(nbins+1);
     for(unsigned int i=0; i<=nbins; i++)
         binEdges[i] = exp((nbins-i)*log(bmin)/nbins + i*log(bmax)/nbins);
-    return new TH1F(nm.c_str(), descrip.c_str(), nbins, &binEdges[0]);
+    return new TH1F(n.c_str(), descrip.c_str(), nbins, &binEdges[0]);
 }
 
 void fill_interp(TH1* h, double x, double w) {
@@ -93,18 +93,18 @@ double integralAndError(TH1* h, double x0, double x1, Double_t& err, const strin
 /////////////////////////////////////
 
 
-ProfileHistos::ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const string& u) {
-    h_xy = new TH2F((nm+"_xy").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+ProfileHistos::ProfileHistos(int nbins, double r, const string& n, const string& ttl, const string& u) {
+    h_xy = new TH2F((n+"_xy").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
     h_xy->GetXaxis()->SetTitle(("x position "+u).c_str());
     h_xy->GetYaxis()->SetTitle(("y position "+u).c_str());
     h[0] = h_xy;
         
-    h_xz = new TH2F((nm+"_xz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+    h_xz = new TH2F((n+"_xz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
     h_xz->GetXaxis()->SetTitle(("x position "+u).c_str());
     h_xz->GetYaxis()->SetTitle(("z position "+u).c_str());
     h[1] = h_xz;
     
-    h_yz = new TH2F((nm+"_yz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
+    h_yz = new TH2F((n+"_yz").c_str(), ttl.c_str(), nbins,-r,r, nbins,-r,r);
     h_yz->GetXaxis()->SetTitle(("y position "+u).c_str());
     h_yz->GetYaxis()->SetTitle(("z position "+u).c_str());
     h[2] = h_yz;

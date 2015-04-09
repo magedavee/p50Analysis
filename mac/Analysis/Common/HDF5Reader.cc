@@ -22,6 +22,14 @@ SimIoniReader::~SimIoniReader() {
 /// comparison function for time-sorting hits
 bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return a.t < b.t; }
 
+bool SimIoniReader::loadIoni() {
+    if(ioni_reader.next(ioni)) {
+        nRead++;
+        if(P20reflectorless && ioni.vol == 1) ioni.vol = 0;
+        return true;
+    } else return false;
+}
+
 bool SimIoniReader::loadMergedIoni() {
     map<Int_t, vector<s_IoniCluster> > volClusts;
     

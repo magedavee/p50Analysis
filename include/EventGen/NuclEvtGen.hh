@@ -304,9 +304,9 @@ public:
     /// destructor
     ~NucDecayLibrary();
     /// check if generator is available
-    bool hasGenerator(const std::string& nm);
+    bool hasGenerator(const std::string& n);
     /// get decay generator by name
-    NucDecaySystem& getGenerator(const std::string& nm);
+    NucDecaySystem& getGenerator(const std::string& n);
     
     string datpath;             ///< path to data folder
     double tcut;                ///< event generator default cutoff time

@@ -12,23 +12,23 @@
 /// Simulated particle vertex information
 struct s_ParticleVertex {
     Int_t PID = 0;      ///< PDG particle ID code
-    Double_t x[3];      ///< vertex position
+    Double_t x[3];      ///< vertex position [mm]
     Double_t p[3];      ///< momentum direction
-    Double_t E = 0;     ///< kinetic energy
-    Double_t t = 0;     ///< initial time
+    Double_t E = 0;     ///< kinetic energy [MeV]
+    Double_t t = 0;     ///< initial time [ns]
     Long64_t evt = 0;   ///< event number
 };
 
 /// underlying struct for IoniCluster data
 struct s_IoniCluster {
-    Double_t E = 0;     ///< deposited energy
-    Double_t t = 0;     ///< average time
-    Double_t dt = 0;    ///< RMS timing spread
-    Double_t x[3];      ///< average position
-    Double_t dx[3];     ///< RMS position spread
+    Double_t E = 0;     ///< deposited energy [MeVee]
+    Double_t t = 0;     ///< average time [ns]
+    Double_t dt = 0;    ///< RMS timing spread [ns]
+    Double_t x[3];      ///< average position [mm]
+    Double_t dx[3];     ///< RMS position spread [mm]
     Double_t EdEdx = 0; ///< approximated energy-weighted \f$dE/dx\f$ \f$\int dE/dx dE\f$ for quenching calculation
     Double_t EdEdx2 = 0;///< approximated energy-weighted \f$(dE/dx)^2\f$ \f$\int (dE/dx)^2 dE\f$ for quenching calculation
-    Double_t l = 0;     ///< track length
+    Double_t l = 0;     ///< track length [mm]
     Int_t vol = 0;      ///< volume ID number
     Int_t PID = 0;      ///< ionizing particle type
     Long64_t evt = 0;   ///< event number
@@ -53,9 +53,9 @@ struct s_IoniCluster {
 
 /// underlying struct for NCapt data
 struct s_NCapt {
-    Double_t t = 0;     ///< time of capture
-    Double_t E = 0;     ///< kinetic energy at capture
-    Double_t x[3];      ///< position of capture
+    Double_t t = 0;     ///< time of capture [ns]
+    Double_t E = 0;     ///< kinetic energy at capture [MeV]
+    Double_t x[3];      ///< position of capture [mm]
     Int_t Ngamma = 0;   ///< number of gammas produced
     Double_t Egamma = 0;///< total energy of gammas produced
     Int_t Nprod = 0;    ///< total number of secondary products

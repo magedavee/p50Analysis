@@ -16,8 +16,8 @@ template<typename T>
 class HDF5_Table_Cache {
 public:
     /// Constructor, from name of table and struct offsets/sizes
-    HDF5_Table_Cache(const string& nm, const size_t* ofs, const size_t* szs, hsize_t nc = 1024):
-    tablename(nm), offsets(ofs), sizes(szs), nchunk(nc)  { }
+    HDF5_Table_Cache(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc = 1024):
+    tablename(tname), offsets(ofs), sizes(szs), nchunk(nc)  { }
     
     /// get next table row; return whether successful or failed (end-of-file)
     bool next(T& val);
@@ -45,8 +45,8 @@ template<typename T>
 class HDF5_Table_Writer {
 public:
     /// Constructor, from name of table and struct offsets/sizes
-    HDF5_Table_Writer(const string& nm, const size_t* ofs, const size_t* szs, hsize_t nc = 1024):
-    tablename(nm), offsets(ofs), sizes(szs), nchunk(nc)  { }
+    HDF5_Table_Writer(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc = 1024):
+    tablename(tname), offsets(ofs), sizes(szs), nchunk(nc)  { }
     /// Destructor
     ~HDF5_Table_Writer() { flush(); }
     

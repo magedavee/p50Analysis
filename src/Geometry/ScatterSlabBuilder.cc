@@ -60,7 +60,7 @@ void ScatterSlabBuilder::construct() {
 }
 
 void ScatterSlabBuilder::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    Builder::fillNode(E);
     addAttr(E, "thick", G4BestUnit(thick,"Length"));
     if(mat) addAttr(E, "mat", mat->GetName());
 }

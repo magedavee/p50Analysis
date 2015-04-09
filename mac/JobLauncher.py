@@ -5,6 +5,17 @@ import os
 from math import *
 from random import shuffle
 
+class dumbsubmitter:
+    def __init__(self,nm):
+        self.jobname = nm
+    def start_index(self):
+        return 0
+    def run_jobs(self, jcmd, r0, r1):
+        for rn in range(r0,r1):
+            cmd = jcmd%{"jobnum":"%i"%rn}
+            print cmd
+            os.system(cmd)
+
 class parallelsubmitter:
     def __init__(self,nm):
         self.jobname = nm
@@ -28,10 +39,8 @@ class qsubmitter:
         self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -N %(jobname)s
+#PBS -N %(jobname)s"""
 #PBS -q exclusive"""
-        #for e in [e for e in os.environ if "G4" in e ]:
-        #    self.setup += "\n#PBS -v %s=%s"%(e,os.environ[e])
     
     def start_index(self):
         return 1
@@ -98,13 +107,15 @@ class SB_MC_Launcher:
         self.submitter.run_jobs(jcmd,rnmin,nruns)
 
 class H5_DetResponse_Launcher:
-    def __init__(self, simname):
+    def __init__(self, simname, forceParallel = False):
         self.settings = {"simName": simname}
-        if not os.system("which qsub"):
+        self.settings["xargs"] = ""
+        if not forceParallel and not os.system("which qsub"):
             self.submitter = qsubmitter(self.settings["simName"]+"_Response")
-        else:
+        elif not os.system("which parallel"):
             self.submitter = parallelsubmitter(self.settings["simName"]+"_Response")
-            
+        else:
+            self.submitter = dumbsubmitter(self.settings["simName"]+"_Response")
     def launch_converter(self):
         rmin = 10000000
         rmax = -1
@@ -116,44 +127,9 @@ class H5_DetResponse_Launcher:
                 rmin = rnum
             if rnum > rmax:
                 rmax = rnum
-        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5; fi"%{"basedir":basedir}
+	rmin = 0
+        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(auxdir)s/../mac/Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5 %(xargs)s; fi"%{"basedir":basedir, "auxdir":os.environ["PG4_AUX"], "xargs":self.settings["xargs"]}
         self.submitter.run_jobs(jcmd,rmin,rmax-rmin)
 
 def logrange(n,x0,x1):
     return [exp(log(x0)*(1-l)+log(x1)*l) for l in [x/float(n-1) for x in range(n)]]
-    
-if __name__=="__main__":
-    
-    parser = OptionParser()
-    parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False, help="kill running jobs")
-    parser.add_option("--p2", dest="p2", action="store_true", default=False, help="PROSPECT-2 backgrounds");
-    parser.add_option("--p20yale", dest="p20yale", action="store_true", default=False, help="Bare PROSPECT-20 'Yale' cell");
-    parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
-    parser.add_option("--h5resp", dest="h5resp", action="store_true", default=False, help="HDF5-based detector response");
-    
-    options, args = parser.parse_args()
-    if options.kill:
-        os.system("killall -9 parallel")
-        exit(0)
-        
-    if options.p2:
-        # 1e7 for CRY, 1e6 for P2/P20 neutrons (no building)
-        L = SB_MC_Launcher("P2B_nBG", 1e6)
-        L.template = "Analysis/Private/PR2_Template.mac"
-        L.settings["out_sfx"] = "h5"
-        L.launch_sims(100)
-        
-    if options.p20yale:
-        L = SB_MC_Launcher("P20-Yale-Cf252", 3e5)
-        L.template = "Analysis/Private/P20-Yale.mac"
-        L.launch_sims(40)
-
-    if options.dima:
-        L = SB_MC_Launcher("DIMA-Co60-B", 1e6)
-        L.template = "Analysis/Private/DIMA_Template.mac"
-        L.settings["out_sfx"] = "h5"
-        L.launch_sims(60)
-    
-    if options.h5resp:
-        L = H5_DetResponse_Launcher("P2B_muBG")
-        L.launch_converter()

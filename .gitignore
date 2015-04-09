@@ -3,5 +3,7 @@
 *.a
 *.pdf
 *.root
+*.pyc
 */aCORN/
 Aux/NIST_*
+mac/LaunchSims.py

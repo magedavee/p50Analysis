@@ -52,6 +52,8 @@ void PinwheelRodBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
 void PinwheelRodBuilder::construct() {
     myOptSurf.construct();
     
+    if(!w_inner) return;
+    
     double w_total = w_inner + 2*(t_panel+t_hook);
     dim = G4ThreeVector(w_total, w_total, length);
         

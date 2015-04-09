@@ -167,8 +167,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {
+    ShellLayerBuilder::fillNode(E);
     addAttr(E, "mode", modeName);
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
 
 /*

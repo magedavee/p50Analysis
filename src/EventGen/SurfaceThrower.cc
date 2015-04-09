@@ -7,8 +7,8 @@
 #include <G4UnitsTable.hh>
 #include <G4SystemOfUnits.hh>
 
-SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT, const string& nm):
-VertexPositioner(nm), W(w) {
+SurfaceThrower::SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS, G4VPhysicalVolume* TT, const string& n):
+VertexPositioner(n), W(w) {
     if(!W) throw SMExcept("undefinedWorldVolume");
     setSourceTarget(SS,TT);
 }
