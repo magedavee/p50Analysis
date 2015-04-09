@@ -14,14 +14,14 @@ LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXML
 # things to build
 #
 
-VPATH = Common/:Private/
+VPATH = Common/:Private/:../../src/Output/
 objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o TimeStructure.o XMLInfo.o
 _examples = PlotFlux PlotIBD PlotPos PlotPrimaries TestCell
 
 # optional HDF5-dependent components
 ifeq ($(WITH_HDF5),true)
-	LDFLAGS += -lhdf5 -lhdf5_hl
-	CXXFLAGS += -DWITH_HDF5
+	LDFLAGS += -L$(HDF5_LIBDIR) -lhdf5 -lhdf5_hl
+	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR)
 	objects += HDF5Reader.o
 	_examples += DetectorResponse
 endif

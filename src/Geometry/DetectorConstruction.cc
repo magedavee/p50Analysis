@@ -144,7 +144,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         }
     }
     
-    G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
+    //G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
     G4cout << "Detector construction complete." << G4endl;
     
@@ -167,8 +167,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 }
 
 void DetectorConstruction::fillNode(TXMLEngine& E) {
+    ShellLayerBuilder::fillNode(E);
     addAttr(E, "mode", modeName);
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
 
 /*

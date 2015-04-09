@@ -4,8 +4,10 @@
 *.a
 *.pdf
 *.root
+*.pyc
 */aCORN/
 Aux/NIST_*
+<<<<<<< HEAD
 =======
 *.pyc
 build
@@ -14,3 +16,6 @@ MANIFEST
 dist
 .tox
 >>>>>>> 3fd5fede40dc2e2955231192c5fefb71aa07ff9b
+=======
+mac/LaunchSims.py
+>>>>>>> 175ffa2a2169018a58cdb27da19e5ed2bded824e

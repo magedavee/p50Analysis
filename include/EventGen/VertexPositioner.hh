@@ -26,7 +26,7 @@ public:
 class VertexPositioner: public XMLProvider {
 public:
     /// Constructor
-    VertexPositioner(const string& nm = "VertexPositioner"): XMLProvider(nm) { }
+    VertexPositioner(const string& n = "VertexPositioner"): XMLProvider(n) { }
     /// Destructor
     virtual ~VertexPositioner() { }
     

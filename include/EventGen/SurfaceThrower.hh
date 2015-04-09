@@ -16,7 +16,7 @@
 class SurfaceThrower: public VertexPositioner {
 public:
     /// Constructor, specifying world volume and optional source/target volumes
-    SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS = NULL, G4VPhysicalVolume* TT = NULL, const string& nm = "SurfaceThrower");
+    SurfaceThrower(G4VPhysicalVolume* w, G4VPhysicalVolume* SS = NULL, G4VPhysicalVolume* TT = NULL, const string& n = "SurfaceThrower");
     
     /// Set source (surface) and target (volume)
     void setSourceTarget(G4VPhysicalVolume* SS, G4VPhysicalVolume* TT = NULL);

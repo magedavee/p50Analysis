@@ -3,6 +3,8 @@
 #define STEPPINGACTION_HH
 
 #include <G4UserSteppingAction.hh>
+#include "G4OpBoundaryProcess.hh"
+#include "G4ProcessManager.hh"
 
 /// user stepping action to check for and abort "trapped" events
 class SteppingAction : public G4UserSteppingAction {
@@ -18,6 +20,11 @@ public:
     
     bool isTrapped;             ///< whether current event is "trapped"
     double timeSpentSoFar;      ///< CPU time spent on current event
+    bool debugOptical = false;  ///< print optical photon debugging info
+    
+private:
+    /// print debugging information for optical photons at boundary
+    void CheckBoundaryStatus(G4OpBoundaryProcessStatus boundaryStatus);
 };
 
 #endif

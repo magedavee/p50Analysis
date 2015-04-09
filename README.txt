@@ -21,6 +21,8 @@ compile with -fPIC ("export CXXFLAGS=-fPIC")
 
 Doxygen (www.doxygen.org), optional for generating comments-based documentation
 
+HDF5 (http://www.hdfgroup.org/HDF5/) including "high level" libraries, optional for HDF5 output
+
 Building
 ========
 Make sure Geant4 and ROOT environment variables are properly set by "geant4.sh" and "thisroot.sh" setup scripts
@@ -41,6 +43,13 @@ export PG4_LIB_DIR=<path to install directory>/lib/
 export LD_LIBRARY_PATH=${PG4_LIB_DIR}:${LD_LIBRARY_PATH}
 
 optional: 'make doc' to generate Doxygen documentation
+
+For locally-installed HDF5 builds, use cmake with the option to generate the "high level" library libhdf5_hl.a;
+set environment variables to point to your HDF5 headers and build:
+
+cmake ../hdf5-1.8.14/ -DHDF5_BUILD_HL_LIB=ON
+export HDF5_SRCDIR=<../hdf5-1.8.14>/src/
+export HDF5_LIBDIR=<path/to/hdf5-build>/bin/
 
 Running
 =======

@@ -44,7 +44,7 @@ void scale_times_bin(TH1* f);
 void normalize_to_bin_width(TH1* f, double xscale = 1.);
 
 /// Logarithmically-binned histogram
-TH1F* logHist(const string& nm, const string& descrip, unsigned int nbins, double bmin, double bmax);
+TH1F* logHist(const string& n, const string& descrip, unsigned int nbins, double bmin, double bmax);
 
 /// Fill histogram preserving *average* value interpolated between bins
 void fill_interp(TH1* h, double x, double w = 1.0);
@@ -65,7 +65,7 @@ double integralAndError(TH1* h, double x0, double x1, Double_t& err, const strin
 class ProfileHistos {
 public:
     /// Constructor
-    ProfileHistos(int nbins, double r, const string& nm, const string& ttl, const string& u);
+    ProfileHistos(int nbins, double r, const string& n, const string& ttl, const string& u);
     
     /// scale to bin size
     void ScaleBinsize() { for(int i=0; i<3; i++) h[i]->Scale(1./h[i]->GetXaxis()->GetBinWidth(1)/h[i]->GetYaxis()->GetBinWidth(1)); }

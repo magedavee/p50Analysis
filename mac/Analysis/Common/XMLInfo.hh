@@ -37,9 +37,9 @@ protected:
     XMLNodePointer_t docRoot;   ///< root node of document
     
     /// find named child node of given node
-    XMLNodePointer_t findChild(XMLNodePointer_t N, const string& nm);
+    XMLNodePointer_t findChild(XMLNodePointer_t N, const string& n);
     /// recursively search whole tree for first such named node
-    XMLNodePointer_t findChildRecursive(XMLNodePointer_t N, const string& nm);
+    XMLNodePointer_t findChildRecursive(XMLNodePointer_t N, const string& n);
     
     /// parse Geant4 string with units
     double fromUnits(const string& s) const;
@@ -56,7 +56,7 @@ public:
     vector<int> getRunlist() const;
     
     /// get list of run file names in directory
-    vector<string> getFileList() const;
+    vector<string> getFileList(const string& sfx = ".root") const;
     
     /// make TChain from files in directory
     TChain* makeTChain() const;

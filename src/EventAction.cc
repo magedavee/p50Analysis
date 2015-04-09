@@ -33,21 +33,13 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
 bool EventAction::keepEvent() const {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
+    
+    if(reclevel == -1) return FileIO::GetPhoto().nParticles > 0;
+    
     if(reclevel >= 5
         || (reclevel == 3 && FileIO::GetFlux().nParticles > 0)
         || (reclevel >= 2 && FileIO::GetScIoni().nIoniClusts > 0)) return true;
-    if(reclevel == -1 && FileIO::GetScIoni().nIoniClusts > 0) { // IBD candidates only
-        vector<IoniCluster> scintHits;
-        mergeIoniHits(FileIO::GetScIoni().clusts, scintHits, 100);
-        int nNcapt = 0;
-        int nIoni = 0;
-        for(auto its = scintHits.begin(); its != scintHits.end(); its++) {
-            HitTypeID tp = classifyHit(*its);
-            if(tp==NCAPT_HIT) nNcapt++;
-            if(tp==IONI_HIT) nIoni++;
-        }
-        return nNcapt && nIoni;
-    }
+    
     return false;
 }
 

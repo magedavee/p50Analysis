@@ -1,35 +1,47 @@
 #include "DetectorResponse.hh"
+#include "HDF5_StructInfo.hh"
 #include "XMLInfo.hh"
 #include <cmath>
 #include <TRandom3.h>
 
-double DetectorResponse::Equench(const s_IoniCluster& evt) const {
+void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
+    // PSD
+    const double u = atan(0.2*evt.EdEdx/evt.E)*2/M_PI;
+    const double PSD_gamma = 0.22;
+    const double PSD_ncapt = 0.35;
+    PSD = PSD_gamma + (u-0.04)/(0.98-0.04)*(PSD_ncapt - PSD_gamma);
+    
+    // quenched energy
     const double c_1 = 0.1049;
     const double c_2 = -8.72117e-05;
-    return evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
-}
-
-double DetectorResponse::PSD(const s_IoniCluster& evt) const {
-    return evt.E/evt.EdEdx; 
+    Equench = evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
+    
+    // interpolate between quenched and unquenched energy
+    const double u_upper = 0.9;
+    const double u_lower = 0.1;
+    if(u <= u_lower) Equench = evt.E;
+    else if(u < u_upper) Equench = Equench*(u-u_lower)/(u_upper - u_lower) + evt.E*(u_upper-u)/(u_upper - u_lower);
 }
 
 s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     s_PhysPulse p;
+    double PSD, Equench;
     
     p.evt = evt.evt;
     p.seg = evt.vol;
-    p.E = evt.E; //Equench(evt);
+    quenchPSD(evt,Equench,PSD);
+    p.E = Equench;
     p.t = evt.t;
-    p.y = evt.x[1];
-    p.PSD = PSD(evt);
+    p.y = evt.x[1]; // x[2] for multi-cell PROSPECTS; x[1] for P20
+    p.PSD = PSD;
     
     return p;
 }
 
 int main(int argc, char** argv) {
 
-    if(argc != 2) {
-        printf("Argument: <PROSPECT-G4 HDF5 filename>\n");
+    if(argc < 2) {
+        printf("Arguments: <PROSPECT-G4 HDF5 filename> [P20 reflectorless mode]\n");
         return -1;
     }
     
@@ -43,6 +55,7 @@ int main(int argc, char** argv) {
     
     // open input file
     SimIoniReader SIR(f_in);
+    SIR.P20reflectorless = (argc==3);
     XMLInfo XI(f_in+".xml");
     double runtime = XI.getGenTime(); // [ns]
     size_t runthrows = XI.getEvts();
@@ -53,11 +66,11 @@ int main(int argc, char** argv) {
     assert(outfile_id >= 0);
     int nchunk = 1024;
     herr_t err = H5TBmake_table("Simulated detector response", outfile_id, "PhysPulse",
-                                n_PhysPulse_fields, 0, sizeof(s_PhysPulse),
-                                PhysPulse_field_names, PhysPulse_offsets, PhysPulse_field_types,
+                                HDF5_StructInfo::n_PhysPulse_fields, 0, sizeof(s_PhysPulse),
+                                HDF5_StructInfo::PhysPulse_field_names, HDF5_StructInfo::PhysPulse_offsets, HDF5_StructInfo::PhysPulse_field_types,
                                 nchunk, NULL, 9, NULL);
     assert(err >= 0);
-    HDF5_Table_Writer<s_PhysPulse> pulse_writer("PhysPulse", PhysPulse_offsets, PhysPulse_sizes, nchunk);
+    HDF5_Table_Writer<s_PhysPulse> pulse_writer("PhysPulse", HDF5_StructInfo::PhysPulse_offsets, HDF5_StructInfo::PhysPulse_sizes, nchunk);
     pulse_writer.setFile(outfile_id);
     
     // convert events to detector response

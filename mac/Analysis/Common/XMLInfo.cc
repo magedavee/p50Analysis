@@ -51,25 +51,25 @@ size_t XMLInfo::getEvts() {
     return atoi(E.GetAttr(gnode,"throws"));
 }
 
-XMLNodePointer_t XMLInfo::findChild(XMLNodePointer_t N, const string& nm) {
+XMLNodePointer_t XMLInfo::findChild(XMLNodePointer_t N, const string& n) {
     if(!N) return NULL;
-    //std::cout << "Searching for child node '" << nm << "'...\n";
+    //std::cout << "Searching for child node '" << n << "'...\n";
     XMLNodePointer_t C = E.GetChild(N);
     while(C) {
         //std::cout << "\t" <<  E.GetNodeName(C) << "\n";
-        if(nm == E.GetNodeName(C)) return C;
+        if(n == E.GetNodeName(C)) return C;
         C = E.GetNext(C);
     }
     return NULL;
 }
 
-XMLNodePointer_t XMLInfo::findChildRecursive(XMLNodePointer_t N, const string& nm) {
+XMLNodePointer_t XMLInfo::findChildRecursive(XMLNodePointer_t N, const string& n) {
     if(!N) return NULL;
-    XMLNodePointer_t nd = findChild(N,nm);
+    XMLNodePointer_t nd = findChild(N,n);
     if(nd) return nd;
     XMLNodePointer_t C = E.GetChild(N);
     while(C) {
-        nd = findChildRecursive(C,nm);
+        nd = findChildRecursive(C,n);
         if(nd) return nd;
         C = E.GetNext(C);
     }
@@ -122,10 +122,10 @@ vector<int> OutDirLoader::getRunlist() const {
     return v;
 }
 
-vector<string> OutDirLoader::getFileList() const {
+vector<string> OutDirLoader::getFileList(const string& sfx) const {
     vector<string> v;
     for(map<int, XMLInfo*>::const_iterator it = myInfo.begin(); it != myInfo.end(); it++)
-        v.push_back(bpath+"/Run_"+to_str(it->first)+".root");
+        v.push_back(bpath+"/Run_"+to_str(it->first)+sfx);
     return v;
 }
 

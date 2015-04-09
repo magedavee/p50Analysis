@@ -322,6 +322,7 @@ void MaterialsHelper::setupOptical() {
     
     ////////////////////////
     EJ309->GetIonisation()->SetBirksConstant(0.1*mm/MeV); // TODO
+    EJ309->SetMaterialPropertiesTable(mptCumene); // TODO
     
     //////////////////////////////////////////////////////////////////
     // Anthracene-doped Polyvinyltoluene Plastic Scintillator - EJ-500

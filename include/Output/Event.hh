@@ -14,11 +14,11 @@ using std::map;
 class TClonesArray;
 
 /// Primary particle specification for ROOT output
-class ParticleVertex: public s_ParticleVertex, public TObject {
+class ParticleVertex: public TObject, public s_ParticleVertex {
 public:
     /// constructor
     ParticleVertex() {}
-    ClassDef(ParticleVertex,3);
+    ClassDef(ParticleVertex,4);
 };
 
 /// Event containing a list of particles
@@ -41,7 +41,7 @@ public:
 };
 
 /// Ionization energy deposition in event
-class IoniCluster: public s_IoniCluster, public TObject {
+class IoniCluster: public TObject, public s_IoniCluster {
 public:
     /// constructor
     IoniCluster() { }
@@ -53,7 +53,7 @@ public:
     /// quenched energy approximation
     Double_t Equench() const;
     
-    ClassDef(IoniCluster,5);
+    ClassDef(IoniCluster,6);
 };
 
 /// Event containing a list of ionization clusters
@@ -79,7 +79,7 @@ public:
 };
     
 /// Neutron capture in event
-class NCapt: public s_NCapt, public TObject {
+class NCapt: public TObject, public s_NCapt {
 public:
     /// constructor
     NCapt() { }
@@ -89,7 +89,7 @@ public:
     /// Identify that these are sortable objects
     virtual Bool_t IsSortable() const { return kTRUE; }
     
-    ClassDef(NCapt,2);
+    ClassDef(NCapt,3);
 };
 
 /// Event containing a list of neutron captures
@@ -112,7 +112,7 @@ public:
 };
 
 /// Basic event header information
-class Event: public s_Event, public TObject {
+class Event: public TObject, public s_Event {
 public:
     /// Constructor
     Event() { }
@@ -125,7 +125,7 @@ public:
     /// Clear data for new event
     void Clear(Option_t* ="") { N = t = ct = flg = 0; }
     
-    ClassDef(Event,6);
+    ClassDef(Event,7);
 };
 
 /// merge ionization events into single history; return total in each volume

@@ -8,7 +8,8 @@
 
 PR20CellBuilder::PR20CellBuilder(): ScintSegVol("PR20_Cell"),
 inner_width(6*in), inner_length(1*m), wall_thick(0.5*in),
-flange_thick(1*in), flange_width(7.5*in), panel_sep(144*mm) { }
+flange_thick(1*in), flange_width(7.5*in), panel_sep(144*mm),
+mySeparator("P20separator") { }
     
 void PR20CellBuilder::construct() {
     mySeparator.width = panel_sep - mySeparator.totalThick;
@@ -41,13 +42,16 @@ void PR20CellBuilder::construct() {
     scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "scint_phys", cell_log, false, 0, true);
     scint_log->SetVisAttributes(new G4VisAttributes(G4Color(0.5,0.5,1.0,0.7)));
     
-    new G4PVPlacement(rot_X_90, G4ThreeVector(-panel_sep/2., 0, 0), mySeparator.main_log, "panel", scint_log, true, 0, true);
-    new G4PVPlacement(rot_X_90, G4ThreeVector(panel_sep/2., 0, 0), mySeparator.main_log, "panel", scint_log, true, 1, true);
-    new G4PVPlacement(rot_X_90_Z_90, G4ThreeVector(0, 0, -panel_sep/2.), mySeparator.main_log, "panel", scint_log, true, 2, true);
-    new G4PVPlacement(rot_X_90_Z_90, G4ThreeVector(0, 0, panel_sep/2.), mySeparator.main_log, "panel", scint_log, true, 3, true);
+    if(mySeparator.main_log) {
+        new G4PVPlacement(rot_X_90, G4ThreeVector(-panel_sep/2., 0, 0), mySeparator.main_log, "panel", scint_log, true, 0, true);
+        new G4PVPlacement(rot_X_90, G4ThreeVector(panel_sep/2., 0, 0), mySeparator.main_log, "panel", scint_log, true, 1, true);
+        new G4PVPlacement(rot_X_90_Z_90, G4ThreeVector(0, 0, -panel_sep/2.), mySeparator.main_log, "panel", scint_log, true, 2, true);
+        new G4PVPlacement(rot_X_90_Z_90, G4ThreeVector(0, 0, panel_sep/2.), mySeparator.main_log, "panel", scint_log, true, 3, true);
+    }
 }
 
 int PR20CellBuilder::getSegmentNum(const G4ThreeVector& pos) const {
+    if(!mySeparator.main_log) return 0;
     double lmax = (panel_sep-mySeparator.totalThick)/2.;
     return !(fabs(pos[0]) < lmax && fabs(pos[2]) < lmax && fabs(pos[1]) < inner_length/2);
 }

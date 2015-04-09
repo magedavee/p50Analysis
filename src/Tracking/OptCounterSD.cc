@@ -1,29 +1,28 @@
 #include "OptCounterSD.hh"
 #include "Event.hh"
-#include "RootIO.hh"
+#include "FileIO.hh"
 
 OptCounterSD::OptCounterSD(G4String name): G4VSensitiveDetector(name) {
-    RootIO::GetInstance()->addOpticalBranch();
+    FileIO::GetInstance()->addOpticalBranch();
 }
 
 G4bool OptCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
-    G4StepPoint* p0 = aStep->GetPreStepPoint();
-    G4StepPoint* p1 = aStep->GetPostStepPoint();
+    collectHitInfo(aStep);
 
-    // particles entering volume only: previously in a different physical volume
-    if(p0->GetPhysicalVolume() == p1->GetPhysicalVolume()) return false;
-    
+    G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+    //G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
+
     ParticleVertex P;
-    P.PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    if(record_PIDs.size() && !record_PIDs.count(P.PID)) return false; // only particles on list
+    P.PID = PID;
     
-    P.E = p0->GetKineticEnergy();
-    P.t = p0->GetGlobalTime();
-    G4ThreeVector x = p0->GetPosition();
+    P.E = preStepPoint->GetKineticEnergy();
+    P.t = preStepPoint->GetGlobalTime();
+    G4ThreeVector x = worldPrePos;
     for(int i=0; i<3; i++) P.x[i] = x[i];
-    G4ThreeVector p = p0->GetMomentumDirection();
+    G4ThreeVector p = preStepPoint->GetMomentumDirection();
     for(int i=0; i<3; i++) P.p[i] = p[i];
+    //printf("P (E=%g, t=%g, x(%g,%g,%g), p(%g,%g,%g), PID=%d\n",P.E, P.t, x[0],P.x[1],P.x[2],P.p[0],P.p[1],P.p[2],P.PID);
     
-    RootIO::GetPhoto().AddParticle(P);
+    FileIO::GetPhoto().AddParticle(P);
     return true;
 }

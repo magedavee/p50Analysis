@@ -6,9 +6,10 @@
 
 #include "FileIO.hh"
 #include "HDF5_Table_Cache.hh"
+#include "HDF5_StructInfo.hh"
 
 /// HDF5-formatted output file
-class HDF5_IO: public FileIO {
+class HDF5_IO: public FileIO, protected HDF5_StructInfo {
 public:
     /// Constructor
     HDF5_IO();
