@@ -14,6 +14,15 @@ public:
     /// Constructor
     HDF5_StructInfo() { }
     
+    /// set up s_IoniCluster table
+    void makeScIoniTable(hid_t outfile_id, int nchunk, int compress) const;
+    /// set up s_ParticleVertex primaries table
+    void makePrimTable(hid_t outfile_id, int nchunk, int compress) const;
+    /// set up s_NCapt table
+    void makeNCaptTable(hid_t outfile_id, int nchunk, int compress) const;
+    /// set up s_Event table
+    void makeEvtTable(hid_t outfile_id, int nchunk, int compress) const;
+    
     // double[3] array type
     static hsize_t const array_dim_3;
     static hid_t const vec3_tid;

@@ -31,7 +31,6 @@ void RootIO::WriteFile() {
 }
 
 void RootIO::SaveEvent() {
-	G4cout<<"dataTree="<<dataTree<<G4endl;
     if(!dataTree) return;
     dataTree->Fill(); 
     writecount++;

@@ -75,11 +75,7 @@ void HDF5_IO::addScIoniBranch() {
     G4cout << "HDF5_IO Setting up 'ScIoni' output branch...\n";
     subObjs.push_back(pscintIoni = &scintIoni);
     
-    herr_t err = H5TBmake_table("Scintillator Ionization", outfile_id, "ScIoni",
-                                n_IoniCluster_fields, 0, sizeof(s_IoniCluster),
-                                IoniCluster_field_names, IoniCluster_offsets, IoniCluster_field_types,
-                                nchunk, NULL, compress, NULL);
-    assert(err >= 0);
+    makeScIoniTable(outfile_id, nchunk, compress);
 }
 
 void HDF5_IO::addPrimBranch() {
@@ -88,11 +84,7 @@ void HDF5_IO::addPrimBranch() {
     G4cout << "HDF5_IO Setting up 'Prim' output branch...\n";
     subObjs.push_back(pprimPtcls = &primPtcls);
         
-    herr_t err = H5TBmake_table("Primary particles", outfile_id, "Prim",
-                                n_ParticleVertex_fields, 0, sizeof(s_ParticleVertex),
-                                ParticleVertex_field_names, ParticleVertex_offsets, ParticleVertex_field_types,
-                                nchunk, NULL, compress, NULL);
-    assert(err >= 0);
+    makePrimTable(outfile_id, nchunk, compress);
 }
 
 void HDF5_IO::addNCaptBranch() {
@@ -101,11 +93,7 @@ void HDF5_IO::addNCaptBranch() {
     G4cout << "HDF5_IO Setting up 'NCapt' output branch...\n";
     subObjs.push_back(pscintNCapt = &scintNCapt);
       
-    herr_t err = H5TBmake_table("Neutron captures", outfile_id, "NCapt",
-                                n_NCapt_fields, 0, sizeof(s_NCapt),
-                                NCapt_field_names, NCapt_offsets, NCapt_field_types,
-                                nchunk, NULL, compress, NULL);
-    assert(err >= 0);
+    makeNCaptTable(outfile_id, nchunk, compress);
 }
 
 void HDF5_IO::addEvtBranch() {
@@ -114,11 +102,7 @@ void HDF5_IO::addEvtBranch() {
     G4cout << "HDF5_IO Setting up 'Evt' output branch...\n";
     subObjs.push_back(pmcevent = &mcevent);
   
-    herr_t err = H5TBmake_table("Event calculation info", outfile_id, "Evt",
-                                n_Event_fields, 0, sizeof(s_Event),
-                                Event_field_names, Event_offsets, Event_field_types,
-                                nchunk, NULL, compress, NULL);
-    assert(err >= 0);
+    makeEvtTable(outfile_id, nchunk, compress);
 }
 
 void HDF5_IO::SetFileName(const string& filename) {

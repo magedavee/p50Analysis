@@ -7,10 +7,10 @@ OptCounterSD::OptCounterSD(G4String name): G4VSensitiveDetector(name) {
 }
 
 G4bool OptCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
-	collectHitInfo(aStep);
+    collectHitInfo(aStep);
 
     G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-    G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
+    //G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
 
     ParticleVertex P;
     P.PID = PID;
@@ -21,7 +21,7 @@ G4bool OptCounterSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     for(int i=0; i<3; i++) P.x[i] = x[i];
     G4ThreeVector p = preStepPoint->GetMomentumDirection();
     for(int i=0; i<3; i++) P.p[i] = p[i];
-	//printf("P (E=%g, t=%g, x(%g,%g,%g), p(%g,%g,%g), PID=%d\n",P.E, P.t, x[0],P.x[1],P.x[2],P.p[0],P.p[1],P.p[2],P.PID);
+    //printf("P (E=%g, t=%g, x(%g,%g,%g), p(%g,%g,%g), PID=%d\n",P.E, P.t, x[0],P.x[1],P.x[2],P.p[0],P.p[1],P.p[2],P.PID);
     
     FileIO::GetPhoto().AddParticle(P);
     return true;

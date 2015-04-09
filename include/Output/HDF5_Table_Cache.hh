@@ -25,6 +25,10 @@ public:
     void setFile(hid_t f);
     /// get number of rows read
     hsize_t getNRead() const { return nread; }
+    /// get identifying number for value type
+    static int64_t getIdentifier(const T& val);
+    /// set identifying number for value type
+    static void setIdentifier(T& val, int64_t id);
     
 protected:
     string tablename;           ///< name of table to read
@@ -67,6 +71,22 @@ protected:
     
     vector<T> cached;           ///< cached output data
     hsize_t nchunk;             ///< cacheing chunk size
+};
+
+/// Combined HDF5 reader/writer for transferring select events subset
+template<typename T>
+class HDF5_Table_Transfer {
+public:
+    /// Constructor
+    HDF5_Table_Transfer(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc = 1024);
+    /// Transfer all entries with specified ID (assumed ascending), optionally re-numbering; return false at EOF.
+    bool transferID(int64_t id, int64_t newID = -1);
+    /// Transfer a (sorted ascending) list of ID-numbered rows
+    bool transferIDs(const vector<int64_t>& ids, int64_t newID);
+    
+    T row;                              ///< table row being transferred
+    HDF5_Table_Cache<T> tableIn;        ///< input table
+    HDF5_Table_Writer<T> tableOut;      ///< output table
 };
 
 ///////////////////////////////////////////////
@@ -127,6 +147,39 @@ bool HDF5_Table_Cache<T>::next(T& val) {
     }
     if(cache_idx >= cached.size()) return false;
     val = cached[cache_idx++];
+    return true;
+}
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+template<typename T>
+HDF5_Table_Transfer<T>::HDF5_Table_Transfer(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc):
+tableIn(tname,ofs,szs,nc), tableOut(tname,ofs,szs,nc) { }
+
+template<typename T>
+bool HDF5_Table_Transfer<T>::transferID(int64_t id, int64_t newID) {
+    int64_t current_id;
+    if(!tableIn.getNRead())
+        if(!tableIn.next(row))
+            return false;
+    while((current_id = tableIn.getIdentifier(row)) <= id) {
+        if(current_id == id) {
+            if(newID >= 0) tableIn.setIdentifier(row, newID);
+            tableOut.write(row);
+        }
+        if(!tableIn.next(row)) return false;
+    }
+    return true;
+}
+
+template<typename T>
+bool HDF5_Table_Transfer<T>::transferIDs(const vector<int64_t>& ids, int64_t newID) {
+    for(auto it = ids.begin(); it != ids.end(); it++) {
+        if(!transferID(*it, newID)) return false;
+        if(newID >= 0) newID++;
+    }
     return true;
 }
 

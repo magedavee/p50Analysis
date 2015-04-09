@@ -1,6 +1,7 @@
 #ifdef WITH_HDF5
 
 #include "HDF5_StructInfo.hh"
+#include <cassert>
 
 hsize_t const HDF5_StructInfo::array_dim_3 = 3;
 hid_t const HDF5_StructInfo::vec3_tid = H5Tarray_create(H5T_NATIVE_DOUBLE, 1, &HDF5_StructInfo::array_dim_3);
@@ -196,5 +197,42 @@ size_t const HDF5_StructInfo::HDF5_StructInfo::Event_sizes[n_Event_fields] = {
 const char* HDF5_StructInfo::Event_field_names[n_Event_fields] = { "N", "t", "ct", "flg" };
 
 hid_t const HDF5_StructInfo::Event_field_types[n_Event_fields] = { H5T_NATIVE_INT64, H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, H5T_NATIVE_INT };
+
+
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+
+void HDF5_StructInfo::makeScIoniTable(hid_t outfile_id, int nchunk, int compress) const {
+    herr_t err = H5TBmake_table("Scintillator Ionization", outfile_id, "ScIoni",
+                                n_IoniCluster_fields, 0, sizeof(s_IoniCluster),
+                                IoniCluster_field_names, IoniCluster_offsets, IoniCluster_field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_StructInfo::makePrimTable(hid_t outfile_id, int nchunk, int compress) const {
+    herr_t err = H5TBmake_table("Primary particles", outfile_id, "Prim",
+                                n_ParticleVertex_fields, 0, sizeof(s_ParticleVertex),
+                                ParticleVertex_field_names, ParticleVertex_offsets, ParticleVertex_field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_StructInfo::makeNCaptTable(hid_t outfile_id, int nchunk, int compress) const {
+    herr_t err = H5TBmake_table("Neutron captures", outfile_id, "NCapt",
+                                n_NCapt_fields, 0, sizeof(s_NCapt),
+                                NCapt_field_names, NCapt_offsets, NCapt_field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
+
+void HDF5_StructInfo::makeEvtTable(hid_t outfile_id, int nchunk, int compress) const {
+    herr_t err = H5TBmake_table("Event calculation info", outfile_id, "Evt",
+                                n_Event_fields, 0, sizeof(s_Event),
+                                Event_field_names, Event_offsets, Event_field_types,
+                                nchunk, NULL, compress, NULL);
+    assert(err >= 0);
+}
 
 #endif
