@@ -5,7 +5,7 @@
 #include <cassert>
 
 void ScintSegVol::fillNode(TXMLEngine& E) {
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
+    Builder::fillNode(E);
     if(scint_log) {
         addAttr(E, "scint", scint_log->GetMaterial()->GetName());
         addAttr(E,"e_density", to_str(scint_log->GetMaterial()->GetElectronDensity()/(6.022e23/cm3))+" mol/cm^3");

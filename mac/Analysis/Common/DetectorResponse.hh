@@ -13,10 +13,9 @@ public:
     /// Destructor
     virtual ~DetectorResponse() { }
     
-    /// quenched energy approximation
-    virtual double Equench(const s_IoniCluster& evt) const;
-    /// PSD approximation
-    virtual double PSD(const s_IoniCluster& evt) const;
+    /// combined PSD and quenching approximation calculation
+    virtual void quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const;
+
     /// calculate detector response to ionization event
     virtual s_PhysPulse genResponse(const s_IoniCluster& evt) const;
 };

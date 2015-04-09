@@ -28,6 +28,7 @@ void HFIRCoreBuilder::construct() {
 }
 
 void HFIRCoreBuilder::fillNode(TXMLEngine& E) {
+    Builder::fillNode(E);
     addAttr(E, "r0", G4BestUnit(r0,"Length"));
     addAttr(E, "r1", G4BestUnit(r1,"Length"));
     addAttr(E, "height", G4BestUnit(height,"Length"));

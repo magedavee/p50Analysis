@@ -48,7 +48,7 @@ void PMTBuilder::construct() {
 }
 
 void PMTBuilder::fillNode(TXMLEngine& E) {
+    Builder::fillNode(E);
     addAttr(E, "len", G4BestUnit(length,"Length"));
     addAttr(E, "d", G4BestUnit(diameter,"Length"));
-    addAttr(E, "dim", G4BestUnit(dim,"Length"));
 }
