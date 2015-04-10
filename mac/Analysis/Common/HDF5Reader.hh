@@ -55,12 +55,13 @@ public:
     /// Set total time attribute
     void setTotalTime(double t);
     
+    int64_t nTransferred = 0;                           ///< total number of events transferred
+
 protected:
     hid_t outfile_id = 0;                               ///< output HDF5 file ID
     int nchunk = 1024;                                  ///< "chunk" size for tables
     int compress = 9;                                   ///< compression level for tables
     hid_t infile_id = 0;                                ///< input HDF5 file ID
-    int64_t nTransferred = 0;                           ///< total number of events transferred
     HDF5_Table_Transfer<s_Event> evt_xfer;              ///< event transferrer for s_Event
     HDF5_Table_Transfer<s_IoniCluster> ioni_xfer;       ///< event transferrer for s_IoniCluster
     HDF5_Table_Transfer<s_ParticleVertex> prim_xfer;    ///< event transferrer for primaries s_ParticleVertex

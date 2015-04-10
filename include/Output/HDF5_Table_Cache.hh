@@ -25,6 +25,8 @@ public:
     void setFile(hid_t f);
     /// get number of rows read
     hsize_t getNRead() const { return nread; }
+    /// get number of rows available
+    hsize_t getNRows() const { return maxread; }
     /// get identifying number for value type
     static int64_t getIdentifier(const T& val);
     /// set identifying number for value type
@@ -84,6 +86,7 @@ public:
     /// Transfer a (sorted ascending) list of ID-numbered rows
     bool transferIDs(const vector<int64_t>& ids, int64_t newID);
     
+    string tablename;                   ///< name of table to transfer
     T row;                              ///< table row being transferred
     HDF5_Table_Cache<T> tableIn;        ///< input table
     HDF5_Table_Writer<T> tableOut;      ///< output table
@@ -156,14 +159,12 @@ bool HDF5_Table_Cache<T>::next(T& val) {
 
 template<typename T>
 HDF5_Table_Transfer<T>::HDF5_Table_Transfer(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc):
-tableIn(tname,ofs,szs,nc), tableOut(tname,ofs,szs,nc) { }
+tablename(tname), tableIn(tname,ofs,szs,nc), tableOut(tname,ofs,szs,nc) { }
 
 template<typename T>
 bool HDF5_Table_Transfer<T>::transferID(int64_t id, int64_t newID) {
     int64_t current_id;
-    if(!tableIn.getNRead())
-        if(!tableIn.next(row))
-            return false;
+    if(!tableIn.getNRead() && !tableIn.next(row)) return false;
     while((current_id = tableIn.getIdentifier(row)) <= id) {
         if(current_id == id) {
             if(newID >= 0) tableIn.setIdentifier(row, newID);
@@ -180,6 +181,7 @@ bool HDF5_Table_Transfer<T>::transferIDs(const vector<int64_t>& ids, int64_t new
         if(!transferID(*it, newID)) return false;
         if(newID >= 0) newID++;
     }
+    tableOut.flush();
     return true;
 }
 

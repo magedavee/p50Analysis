@@ -100,8 +100,8 @@ void  HDF5_Table_Cache<s_NCapt>::setIdentifier(s_NCapt& val, int64_t newID) { va
 SimEventSelector::SimEventSelector():
 evt_xfer("Evt", Event_offsets, Event_sizes, nchunk),
 ioni_xfer("ScIoni", IoniCluster_offsets, IoniCluster_sizes, nchunk),
-prim_xfer("Prim", IoniCluster_offsets, IoniCluster_sizes, nchunk),
-ncapt_xfer("NCapt", IoniCluster_offsets, IoniCluster_sizes, nchunk) { }
+prim_xfer("Prim", ParticleVertex_offsets, ParticleVertex_sizes, nchunk),
+ncapt_xfer("NCapt", NCapt_offsets, NCapt_sizes, nchunk) { }
 
 void SimEventSelector::setOutfile(const string& filename) {
     assert(!outfile_id);
@@ -133,7 +133,7 @@ void SimEventSelector::setInfile(const string& filename) {
 }
 
 void SimEventSelector::transfer(const vector<int64_t>& ids) {
-    printf("Preparing to transfer %zu events...\n", ids.size());
+    printf("Transferring %zu events...", ids.size()); fflush(stdout);
     
     evt_xfer.transferIDs(ids, nTransferred);
     ioni_xfer.transferIDs(ids, nTransferred);
@@ -141,6 +141,8 @@ void SimEventSelector::transfer(const vector<int64_t>& ids) {
     ncapt_xfer.transferIDs(ids, nTransferred);
     
     nTransferred += ids.size();
+
+    printf(" Done.\n");
 }
 
 void SimEventSelector::transfer(const string& evtfile) {
@@ -155,6 +157,13 @@ void SimEventSelector::transfer(const string& evtfile) {
 }
 
 void SimEventSelector::setTotalTime(double t) {
-    herr_t err = H5LTset_attribute_double(outfile_id, "DetPulse", "runtime", &t, 1);
+    herr_t err = H5LTset_attribute_double(outfile_id, "Evt", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "ScIoni", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "Prim", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "NCapt", "runtime", &t, 1);
     assert(err >= 0);
 }
+

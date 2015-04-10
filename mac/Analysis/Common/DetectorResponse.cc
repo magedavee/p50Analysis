@@ -32,7 +32,7 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     quenchPSD(evt,Equench,PSD);
     p.E = Equench;
     p.t = evt.t;
-    p.y = evt.x[1]; // x[2] for multi-cell PROSPECTS; x[1] for P20
+    p.y = evt.x[2]; // x[2] for multi-cell PROSPECTS; x[1] for P20
     p.PSD = PSD;
     
     return p;
