@@ -153,3 +153,8 @@ void SimEventSelector::transfer(const string& evtfile) {
     }
     transfer(v);
 }
+
+void SimEventSelector::setTotalTime(double t) {
+    herr_t err = H5LTset_attribute_double(outfile_id, "DetPulse", "runtime", &t, 1);
+    assert(err >= 0);
+}

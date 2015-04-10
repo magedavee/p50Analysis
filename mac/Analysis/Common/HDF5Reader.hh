@@ -52,6 +52,8 @@ public:
     void transfer(const vector<int64_t>& ids);
     /// Transfer events in file-specified list
     void transfer(const string& evtfile);
+    /// Set total time attribute
+    void setTotalTime(double t);
     
 protected:
     hid_t outfile_id = 0;                               ///< output HDF5 file ID

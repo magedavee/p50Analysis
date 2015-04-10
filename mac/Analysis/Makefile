@@ -23,7 +23,7 @@ ifeq ($(WITH_HDF5),true)
 	LDFLAGS += -L$(HDF5_LIBDIR) -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR)
 	objects += HDF5Reader.o
-	_examples += DetectorResponse
+	_examples += DetectorResponse SelectH5Events
 endif
 
 all: $(objects)
