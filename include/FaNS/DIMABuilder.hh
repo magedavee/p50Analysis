@@ -45,6 +45,8 @@ public:
     void SetNewValue(G4UIcommand* command, G4String newValue);
     
     DIMAArrayBuilder myArray;   ///< scintillator tube array
+    /// get physical volume defining local coordinates
+    virtual G4VPhysicalVolume* getCoordVolume() const { return myArray.getCoordVolume(); }
     
     bool withLeadBrick = false; ///< whether to place lead brick on top for Cf252 gamma blocker (done externally)
     G4ThreeVector brickDim;     ///< dimensions of blocker brick
