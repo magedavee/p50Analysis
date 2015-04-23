@@ -11,12 +11,19 @@
 #include <cassert>
 
 DetectorConstruction::DetectorConstruction():
-ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT), worldShell(0.75*m),
-geomDir("/geom/"), modeCmd("/geom/mode",this) {
+ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT),
+geomDir("/geom/"),
+modeCmd("/geom/mode",this),
+vetoCmd("/geom/muveto",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
     modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT2B PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
+    
+    vetoCmd.SetGuidance("Set whether to build muon veto paddles.");
+    vetoCmd.AvailableForStates(G4State_PreInit);
+    
     worldShell.mat = MaterialsHelper::M().Air;
+    worldShell.setThick(0.2*m);
 }
 
 void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) {
@@ -33,7 +40,8 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         else if(modeName == "slab") mode = SLAB;
         else if(modeName == "sphere") mode = SPHERE;
         else { modeName = "???"; G4cout << "Unknown mode '" << newValue << "'!" << G4endl; assert(false); }
-    } else G4cout << "Unknown command!" << G4endl;
+    } else if(command == &vetoCmd) withVetos = vetoCmd.GetNewBoolValue(newValue);
+    else G4cout << "Unknown command!" << G4endl;
 }
 
 ScintSegVol* DetectorConstruction::getScint() {
@@ -111,7 +119,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         //G4Sphere* sun_sphere = new G4Sphere("sun_sphere", 0, 2*cm, 0, 2*M_PI, 0, M_PI);
         //G4LogicalVolume* sun_log = new G4LogicalVolume(sun_sphere, MaterialsHelper::M().Vacuum, "sun_log");
         //ptclSrc = new G4PVPlacement(NULL, G4ThreeVector(200.*cm,200.*cm,200.*cm), sun_log, "sun_phys", main_log, false,  0);
-    } else if(mode == PROSPECT2) {
+    } else if(mode == PROSPECT2 && withVetos) {
         for(int nx = 0; nx<2; nx++) {
             for(int nz = 0; nz<2; nz++) {
                 int nn = nx+2*nz;
@@ -125,7 +133,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
                 V->scint_phys = new G4PVPlacement(NULL, veto_pos, V->main_log, ("veto_phys_"+to_str(nn)).c_str(), myBuilding.inside_log, false, 0, true);
             }
         }
-    } else if(mode == PROSPECT20) {
+    } else if(mode == PROSPECT20 && withVetos) {
         for(int nn = 0; nn < 4; nn++) {
             myPR2Veto.push_back(new PR2MuVetoBuilder(nn));
             PR2MuVetoBuilder* V = myPR2Veto.back();

@@ -27,7 +27,8 @@ public:
     double ceil_thick;          ///< thickness of ceiling above detector
     double ceil_clearance;      ///< space between detector and ceiling
     double floor_thick;         ///< thickness of floor
-    bool makeVacuum;            ///< whether to turn building materials to vacuum
+    bool makeVacuum = false;    ///< whether to turn building materials to vacuum
+    bool makeOpen = false;      ///< whether to make open air instead of building
     
 private:
     
@@ -35,7 +36,8 @@ private:
     
     G4UIcmdWithADoubleAndUnit ceilCmd;  ///< UI command for ceiling thickness
     G4UIcmdWithoutParameter vacuumCmd;  ///< UI command to turn building materials into vacuum
-        
+    G4UIcmdWithoutParameter openCmd;    ///< UI command to replace building with open air
+    
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
 };

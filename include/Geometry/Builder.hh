@@ -71,7 +71,7 @@ public:
     ShellLayerSpec(G4ThreeVector u, G4ThreeVector l, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
     XMLProvider("ShellLayer"), uthick(u), lthick(l), mat(M), vis(c) { }
     /// Constructor
-    ShellLayerSpec(double t, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
+    ShellLayerSpec(double t = 0, G4Material* M = NULL, const G4Colour& c = G4Colour(0.5,0.5,0.2)):
     XMLProvider("ShellLayer"), uthick(t, t, t), lthick(t, t, 0), mat(M), vis(c) { }
     
     G4ThreeVector uthick;       ///< thickness on upper (positive) side on each axis

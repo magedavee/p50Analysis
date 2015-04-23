@@ -39,7 +39,7 @@ class qsubmitter:
         self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -N %(jobname)s"""
+#PBS -N %(jobname)s
 #PBS -q exclusive"""
     
     def start_index(self):

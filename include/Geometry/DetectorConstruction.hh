@@ -22,6 +22,7 @@
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
 #include <G4UIcmdWithAString.hh>
+#include <G4UIcmdWithABool.hh>
 
 /// Geant4 detector construction user class
 class DetectorConstruction: public G4VUserDetectorConstruction, public ShellLayerBuilder,  public G4UImessenger {
@@ -67,6 +68,7 @@ public:
     SphereShellBuilder mySphere;        ///< toy sphere geometry
     HFIRCoreBuilder myCore;             ///< reactor core geometry
     DIMABoxBuilder myDIMA;              ///< boxed DIMA detector
+    bool withVetos = true;              ///< whether to add muon veto paddles
     
     G4VPhysicalVolume* theWorld = NULL; ///< world volume
     G4VPhysicalVolume* ptclSrc = NULL;  ///< optional event generator source volume
@@ -78,6 +80,7 @@ protected:
     ScintSD* myScintSD = NULL;          ///< sensitive detector for scintillator volume
     G4UIdirectory geomDir;              ///< UI directory for construction geometry commands
     G4UIcmdWithAString modeCmd;         ///< UI command for setting construction mode
+    G4UIcmdWithABool vetoCmd;           ///< UI command to enable/disable muon veto construction
     
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
