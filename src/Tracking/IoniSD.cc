@@ -35,7 +35,7 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 
 ////////////////////////////////////////////////////////////////
 
-IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(10*keV) { }
+IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(100*eV) { }
 
 void IoniSD::collectHitInfo(G4Step* aStep) {
     worldPrePos = aStep->GetPreStepPoint()->GetPosition(); // track occurred in this volume
@@ -118,7 +118,7 @@ void IoniSD::makeClusters(vector<IonisationHit*>& hits, vector<IoniCluster>& clu
     ihit++;
     for(; ihit != hits.end(); ihit++) {
         if((*ihit)->GetTime() > prevHit->GetTime() + time_gap) {
-            if(prevHit->GetEnergyDeposit() > edep_threshold) clusts.push_back(hitToCluster(prevHit, PID, seg_id));
+            if(prevHit->GetEnergyDeposit() > edep_threshold || !prevHit->GetEnergyDeposit()) clusts.push_back(hitToCluster(prevHit, PID, seg_id));
             else delete prevHit;
             prevHit = *ihit;
         } else {
@@ -126,6 +126,6 @@ void IoniSD::makeClusters(vector<IonisationHit*>& hits, vector<IoniCluster>& clu
             delete *ihit;
         }
     }
-    if(prevHit->GetEnergyDeposit() > edep_threshold) clusts.push_back(hitToCluster(prevHit, PID, seg_id));
+    if(prevHit->GetEnergyDeposit() > edep_threshold || !prevHit->GetEnergyDeposit()) clusts.push_back(hitToCluster(prevHit, PID, seg_id));
     else delete prevHit;
 }

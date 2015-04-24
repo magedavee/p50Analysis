@@ -49,6 +49,15 @@ G4bool ScintSD::ProcessHits(G4Step* aStep, G4TouchableHistory* H) {
     if(I)  hit_history[std::pair<G4int,G4int>(PID,seg_id)].push_back(I);
     secondaries_counter[aStep->GetTrack()->GetTrackID()] = aStep->GetSecondary()->size();
     
+    // tag antineutrinos generated in volume
+    if(PID == -12 && !aStep->GetPreStepPoint()->GetLocalTime()) {
+        notable = true;
+        IonisationHit* nuHit = new IonisationHit();
+        nuHit->SetPos(localPrePos);
+        nuHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime());
+        hit_history[std::pair<G4int,G4int>(PID,seg_id)].push_back(nuHit);
+    }
+    
     return notable;
 }
 

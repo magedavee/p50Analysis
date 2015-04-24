@@ -5,13 +5,6 @@
 #include "AnaUtils.hh"
 #include "HDF5_IO.hh"
 
-/// Reader for PROSPECT-G4 HDF5 simulation output files
-class PG4_HDF5_Reader: protected HDF5_StructInfo {
-public:
-protected:
-    HDF5_Table_Cache<s_IoniCluster> ioni_reader;       ///< cached output for s_IoniCluster
-};
-
 /// Simulation reader and time-series merger for ionization events
 class SimIoniReader: protected HDF5_StructInfo {
 public:
