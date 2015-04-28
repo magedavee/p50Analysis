@@ -17,16 +17,25 @@ public:
     bool loadIoni();
     /// Load next merged event from file; return whether event good, or file finished.
     bool loadMergedIoni();
+    /// Load primaries list for next event from file
+    bool loadPrimaries();
+    /// get number of ionization records read
+    hsize_t getNRead() const { return ioni_reader.getNRead(); }
     
     s_IoniCluster ioni;                 ///< next un-merged event loaded
+    s_ParticleVertex next_prim;         ///< next primary event loaded
+    
+    vector<s_ParticleVertex> prim;      ///< event primaries
     vector<s_IoniCluster> merged;       ///< most recently completed merged event
+    
     double dt_max = 50;                 ///< time to separate events [ns]
-    hsize_t nRead = 0;                  ///< number of records read so far
     hsize_t nrecords = 0;               ///< number of table records
     bool P20reflectorless = false;      ///< special mode for merging reflectorless P20 outer volume events
  
 protected:
-    HDF5_Table_Cache<s_IoniCluster> ioni_reader;       ///< cached output for s_IoniCluster
+    HDF5_Table_Cache<s_IoniCluster> ioni_reader;        ///< cached output for s_IoniCluster
+    HDF5_Table_Cache<s_ParticleVertex> prim_reader;     ///< event primaries information reader
+    
     Long64_t current_evt = 0;           ///< current event number
     hid_t infile_id = 0;                ///< input HDF5 file ID
     hsize_t nfields = 0;                ///< number of table fields

@@ -5,15 +5,23 @@
 #include <fstream>
 #include <iostream>
 
-SimIoniReader::SimIoniReader(const string& f_in): ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024) {
+SimIoniReader::SimIoniReader(const string& f_in):
+ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024),
+prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
     assert(infile_id > 0);
-    ioni.evt = -1;
+    next_prim.evt = ioni.evt = -1;
     
-    herr_t err = H5TBget_table_info(infile_id, "ScIoni", &nfields, &nrecords );
+    herr_t err = H5TBget_table_info(infile_id, "Prim", &nfields, &nrecords );
+    assert(err >= 0);
+    printf("Reading table 'Prim' with %llu records from '%s'.\n", nrecords, f_in.c_str());
+    
+    err = H5TBget_table_info(infile_id, "ScIoni", &nfields, &nrecords );
     assert(err >= 0);
     printf("Reading table 'ScIoni' with %llu records from '%s'.\n", nrecords, f_in.c_str());
+
     ioni_reader.setFile(infile_id);
+    prim_reader.setFile(infile_id);
 }
 
 SimIoniReader::~SimIoniReader() { 
@@ -28,7 +36,6 @@ bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return 
 
 bool SimIoniReader::loadIoni() {
     while(ioni_reader.next(ioni)) {
-        nRead++;
         if(!ioni.E) continue; // ignore 0-energy (neutrino tag) entries
         if(P20reflectorless && ioni.vol == 1) ioni.vol = 0;
         assert(ioni.t == ioni.t); // NaN check
@@ -72,6 +79,25 @@ bool SimIoniReader::loadMergedIoni() {
     std::sort(merged.begin(), merged.end(), compare_hit_times);
     
     return true;
+}
+
+bool SimIoniReader::loadPrimaries() {
+    prim.clear();
+    if(next_prim.evt > 0) prim.push_back(next_prim);
+    else if(prim_reader.getNRead()) return false; // file is exhausted
+    
+    current_evt = next_prim.evt; // = -1 on the first time
+    while(true) {
+        if(!prim_reader.next(next_prim)) {
+            next_prim.evt = -1;
+            break;
+        }
+        if(current_evt < 0) current_evt = next_prim.evt;
+        if(next_prim.evt != current_evt) break;
+        prim.push_back(next_prim);
+    }
+    
+    return prim.size();
 }
 
 /////////////////////////////

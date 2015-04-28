@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     vector<s_PhysPulse> allPulses;
     TRandom3 r;
     while(SIR.loadMergedIoni()) {
-        if(!(SIR.nRead % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
+        if(!(SIR.getNRead() % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
         double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
         assert(evttime == evttime); // NaN check
         for(auto it = SIR.merged.begin(); it != SIR.merged.end(); it++) {
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
         pulse_writer.write(allPulses);
         printf("Done.");
     }
-    printf("\nRead %llu ionizations into %zu merged events.\nOutput '%s'\n", SIR.nRead, nMerged, f_out.c_str());
+    printf("\nRead %llu ionizations into %zu merged events.\nOutput '%s'\n", SIR.getNRead(), nMerged, f_out.c_str());
     
     runtime /= 1e9; // convert to seconds
     err = H5LTset_attribute_double(outfile_id, "PhysPulse", "runtime", &runtime, 1);
