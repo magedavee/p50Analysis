@@ -3,6 +3,7 @@
 #include "XMLInfo.hh"
 #include <cmath>
 #include <TRandom3.h>
+#include <cassert>
 
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
     // PSD
@@ -31,8 +32,9 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     p.seg = evt.vol;
     quenchPSD(evt,Equench,PSD);
     p.E = Equench;
+    assert(evt.t == evt.t); // NaN check
     p.t = evt.t;
-    p.y = evt.x[1]; // x[2] for multi-cell PROSPECTS; x[1] for P20 and DIMA
+    p.y = evt.x[2]; // x[2] for multi-cell PROSPECTS; x[1] for P20 and DIMA
     p.PSD = PSD;
     
     return p;
@@ -58,6 +60,7 @@ int main(int argc, char** argv) {
     SIR.P20reflectorless = (argc==3);
     XMLInfo XI(f_in+".xml");
     double runtime = XI.getGenTime(); // [ns]
+    assert(runtime && runtime==runtime);
     size_t runthrows = XI.getEvts();
     printf("Input file for %zu primary events in %.1f seconds simulated time.\n", runthrows, runtime*1e-9);
     
@@ -81,7 +84,9 @@ int main(int argc, char** argv) {
     while(SIR.loadMergedIoni()) {
         if(!(SIR.nRead % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
         double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
+        assert(evttime == evttime); // NaN check
         for(auto it = SIR.merged.begin(); it != SIR.merged.end(); it++) {
+	    if(it->vol >= 1000) continue;
             s_PhysPulse p = DR.genResponse(*it);
             if(!fullsort) pulse_writer.write(p);
             else {
@@ -109,3 +114,4 @@ int main(int argc, char** argv) {
     H5Fclose(outfile_id);
     return 0;
 }
+

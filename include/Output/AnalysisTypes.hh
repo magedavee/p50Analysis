@@ -36,15 +36,25 @@ struct s_IoniCluster {
     /// energy-weighted sum
     void operator+=(const s_IoniCluster& r) {
         Double_t EE = E + r.E;
-        dt = ((dt*dt+t*t)*E + (r.dt*r.dt+r.t*r.t)*r.E)/EE;
-        t = (t*E+r.t*r.E)/EE;
-        dt = sqrt(dt - t*t);
-        l += r.l;
-        for(unsigned int i=0; i<3; i++) {
-            dx[i] = ((dx[i]*dx[i]+x[i]*x[i])*E + (r.dx[i]*r.dx[i]+r.x[i]*r.x[i])*r.E)/EE;
-            x[i] = (x[i]*E+r.x[i]*r.E)/EE;
-            dx[i] = sqrt(dx[i] - x[i]*x[i]);
+        if(EE) {
+            dt = ((dt*dt+t*t)*E + (r.dt*r.dt+r.t*r.t)*r.E)/EE;
+            t = (t*E+r.t*r.E)/EE;
+            for(unsigned int i=0; i<3; i++) {
+                dx[i] = ((dx[i]*dx[i]+x[i]*x[i])*E + (r.dx[i]*r.dx[i]+r.x[i]*r.x[i])*r.E)/EE;
+                x[i] = (x[i]*E+r.x[i]*r.E)/EE;
+                dx[i] = sqrt(dx[i] - x[i]*x[i]);
+            }
+        } else {
+            dt = 0.5*(dt*dt+t*t + r.dt*r.dt+r.t*r.t);
+            t = 0.5*(t+r.t);
+            for(unsigned int i=0; i<3; i++) {
+                dx[i] = 0.5*(dx[i] + r.dx[i]);
+                x[i] = 0.5*(x[i] + r.x[i]);
+                dx[i] = sqrt(dx[i] - x[i]*x[i]);
+            }
         }
+        l += r.l;
+        dt = sqrt(dt - t*t);
         EdEdx += r.EdEdx;
         EdEdx2 += r.EdEdx2;
         E = EE;

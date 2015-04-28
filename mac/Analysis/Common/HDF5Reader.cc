@@ -27,11 +27,14 @@ SimIoniReader::~SimIoniReader() {
 bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return a.t < b.t; }
 
 bool SimIoniReader::loadIoni() {
-    if(ioni_reader.next(ioni)) {
+    while(ioni_reader.next(ioni)) {
         nRead++;
+        if(!ioni.E) continue; // ignore 0-energy (neutrino tag) entries
         if(P20reflectorless && ioni.vol == 1) ioni.vol = 0;
+        assert(ioni.t == ioni.t); // NaN check
         return true;
-    } else return false;
+    }
+    return false;
 }
 
 bool SimIoniReader::loadMergedIoni() {
