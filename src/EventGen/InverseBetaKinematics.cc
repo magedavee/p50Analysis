@@ -14,6 +14,7 @@
 #include <math.h>
 #include <fstream>
 #include <map>
+#include <cassert>
 using std::map;
 
 InverseBetaKinematics::InverseBetaKinematics(G4int v):
@@ -65,45 +66,39 @@ void InverseBetaKinematics::SetAntiNeutrinoMonoEnergy(G4double E) {
     }
 }
 
-vector<G4double> InverseBetaKinematics::GenerateReactionKinematics() const {    
+IBDKinematics InverseBetaKinematics::GenerateReactionKinematics() const {
+    IBDKinematics K;
+    
     // Generates an antineutrino energy according to chosen fuel composition
-    G4double eNu = GenerateAntiNeutrinoEnergy();
+    K.Enu = GenerateAntiNeutrinoEnergy();
+    K.phat_nu = nuDirection;
     
     // Computes the various energies and angles using the four-vector solution
-    G4double thetaPos = GeneratePositronAngle(eNu);
-    if(thetaPos < 0.*deg || thetaPos > 180.*deg) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, positron angle out of range. ***" << G4endl; return GenerateReactionKinematics(); }
-    G4double ePos = CalculatePositronEnergy(thetaPos, eNu);
-    if(ePos < 0.) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, negative positron momentum/energy. ***" << G4endl; return GenerateReactionKinematics(); }
-    G4double eN = CalculateNeutronEnergy(ePos, eNu);
-    if(eN < 0.) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, negative neutron energy/momentum. ***" << G4endl; return GenerateReactionKinematics(); }
-    G4double thetaN = CalculateNeutronAngle(eN, eNu);
-    if(thetaN < 0. || thetaN > 180.*deg) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, neutron angle out of range. ***" << G4endl; return GenerateReactionKinematics(); }
+    K.theta_e = GeneratePositronAngle(K.Enu);    
+    K.Ee = CalculatePositronEnergy(K.theta_e, K.Enu);
+    K.En = CalculateNeutronEnergy(K.Ee, K.Enu);    
+    K.theta_n = CalculateNeutronAngle(K.En, K.Enu);
     G4double phiPos = 360.*G4UniformRand()*deg;
-    G4double phiN = 0.*deg;
-    phiN = (phiPos < 180.*deg)? phiPos + 180.*deg : phiPos - 180.*deg;
+    G4double phiN = (phiPos < 180.*deg)? phiPos + 180.*deg : phiPos - 180.*deg;
     
     // try again if not kinematically allowed
-    if(!CheckFourVectorSolution(eNu,ePos,eN,thetaPos,thetaN)) return GenerateReactionKinematics();
-    
-    // Assembles kinematics results into ThreeVectors to obtain <x,y,z> from <r,theta,phi>
-    G4ThreeVector pHatPos(0.,0.,0.); pHatPos.setRThetaPhi(1.,thetaPos,phiPos);
-    G4ThreeVector pHatN(0.,0.,0.); pHatN.setRThetaPhi(1.,thetaN,phiN);
-    
-    // TODO rotate to incident antinu frame
+    if(!CheckFourVectorSolution(K.Enu, K.Ee, K.En, K.theta_e, K.theta_n)) return GenerateReactionKinematics();
     
     // Convert total energy to kinetic energy for neutron and positron
-    G4double kePos = ePos - ePlusMass;
-    G4double keN = eN - nMass;
+    K.Ee -= ePlusMass;
+    K.En -= nMass;
     
-    // Placed into vector as { Positron: E, px, py, pz ; Neutron: E, px, py, pz ; Extra: positron angle wrt nu, neutron angle wrt nu, Neutrino Energy } - 11 entries
-    vector<G4double> kinematics;
-    kinematics.push_back(kePos); kinematics.push_back(pHatPos.x()); kinematics.push_back(pHatPos.y()); kinematics.push_back(pHatPos.z());
-    kinematics.push_back(keN); kinematics.push_back(pHatN.x()); kinematics.push_back(pHatN.y()); kinematics.push_back(pHatN.z());
-    kinematics.push_back(thetaPos); kinematics.push_back(-thetaN); kinematics.push_back(eNu);
-    return kinematics;
+    // positron, neutrino momentum direction vectors
+    K.phat_e.setRThetaPhi(1., K.theta_e, phiPos);
+    K.phat_n.setRThetaPhi(1., K.theta_n, phiN);
+    // rotate to incident antinu frame
+    K.phat_e.rotateUz(-nuDirection);
+    K.phat_n.rotateUz(-nuDirection);
+    
+    return K;
 }
 
-void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const {
+void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int) const {
     // Generates histograms for particle kinetic energies and relative directions
     map<G4double,G4int>* thePosEHistogram = new map<G4double,G4int>();
     map<G4double,G4int>* theNEHistogram = new map<G4double,G4int>();
@@ -146,6 +141,7 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const {
     }
     
     // Uses random number generator to sample from spectrum n times
+    /*
     G4int reps = 1;
     while(reps <= n) {
         vector<G4double> kinematics = GenerateReactionKinematics();
@@ -168,6 +164,7 @@ void InverseBetaKinematics::GenerateKinematicsWithoutSimulation(G4int n) const {
         if(reps % 100000 == 0) { G4cout << "Completed " << reps << " samples." << G4endl; }
         reps++;
     }
+    */
 }
 
 G4double InverseBetaKinematics::GenerateAntiNeutrinoEnergy() const {
@@ -262,6 +259,7 @@ G4double InverseBetaKinematics::GeneratePositronAngle(G4double eNu) const {
     while (ySeed > Probability); // Acceptance condition
     ePlusAngle = xSeed;
     
+    assert(0 <= ePlusAngle && ePlusAngle <= 180.*deg);
     return ePlusAngle;
 }
 
@@ -295,6 +293,7 @@ G4double InverseBetaKinematics::CalculatePositronEnergy(G4double ePlusAngle, G4d
         ePlusEnergy = sqrt(ePlusMomentum*ePlusMomentum + ePlusMass*ePlusMass);
     }
     
+    assert(ePlusEnergy >= 0.);
     return ePlusEnergy;
 }
 
@@ -305,7 +304,7 @@ G4double InverseBetaKinematics::CalculateNeutronEnergy(G4double ePlusEnergy, G4d
     // Determine validity of calculated total energy
     G4double rootCheck = nEnergy*nEnergy - nMass*nMass;
     if(rootCheck < 0.) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, neutron total energy less than rest mass energy. ***" << G4endl; nEnergy = -1.; }
-    
+    assert(nEnergy >= 0);
     return nEnergy;
 }
 
@@ -325,10 +324,11 @@ G4double InverseBetaKinematics::CalculateNeutronAngle(G4double nEnergy, G4double
     if(cosNAngle > 1.0 && (cosNAngle - 1.0) < 1.e-8)   { cosNAngle = 1.; }	// This accounts for some slight mathematical deviations due to computation
     
     // Negative angles shown to mathematically equate to corresponding positive angle
-    nAngle = std::fabs(acos(cosNAngle));
+    nAngle = fabs(acos(cosNAngle));
     
     // Determine validity of calculated neutron angle
-    if(std::fabs(cosNAngle) > 1.0) { G4cout << "*** ERROR: Unexpected error in InverseBetaKinematics, neutron angle cosine is out of acceptable bounds. ***" << G4endl; nAngle = 10.; }
+    assert(fabs(cosNAngle) <= 1.0);
+    assert(0. <= nAngle && nAngle <= 180.*deg);
     
     return nAngle;
 }
