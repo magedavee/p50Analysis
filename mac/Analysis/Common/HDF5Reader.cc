@@ -9,6 +9,7 @@ SimIoniReader::SimIoniReader(const string& f_in):
 ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024),
 prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(infile_id <= 0) { printf("Unable to open file '%s'!\n", f_in.c_str()); return; }
     assert(infile_id > 0);
     next_prim.evt = ioni.evt = -1;
     

@@ -13,6 +13,8 @@ public:
     /// Destructor
     virtual ~DetectorResponse() { }
     
+    /// non-PSD-interpolated quenching calculation
+    virtual double calcQuench(const s_IoniCluster& evt) const;
     /// combined PSD and quenching approximation calculation
     virtual void quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const;
 

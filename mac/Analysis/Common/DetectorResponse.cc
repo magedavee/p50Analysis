@@ -5,20 +5,22 @@
 #include <TRandom3.h>
 #include <cassert>
 
-void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
-    // PSD
-    const double u = atan(0.2*evt.EdEdx/evt.E)*2/M_PI;
-    const double PSD_gamma = 0.22;
-    const double PSD_ncapt = 0.35;
-    PSD = PSD_gamma + (u-0.04)/(0.98-0.04)*(PSD_ncapt - PSD_gamma);
-    
-    // quenched energy
+double DetectorResponse::calcQuench(const s_IoniCluster& evt) const {
     const double c_1 = 0.1049;
     const double c_2 = -8.72117e-05;
-    Equench = evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
-    
+    return evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
+}
+
+void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
+    // PSD, scaling from raw variable u to data-like values
+    const double u = atan(0.06*evt.EdEdx/evt.E)*2/M_PI;
+    const double PSD_gamma = 0.22; // target "gamma-like" PSD value
+    const double PSD_ncapt = 0.35; // target neutron capture PSD value
+    PSD = PSD_gamma + (u-0.01)/(0.89-0.02)*(PSD_ncapt - PSD_gamma);
+
     // interpolate between quenched and unquenched energy
-    const double u_upper = 0.9;
+    Equench = calcQuench(evt);
+    const double u_upper = 0.25;
     const double u_lower = 0.1;
     if(u <= u_lower) Equench = evt.E;
     else if(u < u_upper) Equench = Equench*(u-u_lower)/(u_upper - u_lower) + evt.E*(u_upper-u)/(u_upper - u_lower);
