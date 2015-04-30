@@ -110,3 +110,7 @@ For example, "make MuVeto" will compile MuVeto.cc to an executable named
 scripts along similar lines to MuVeto.cc, and compile them without needing
 to modify the Makefile.
 
+For access to shared analysis utilities from PROSPECT2x_Analysis in the makefile,
+set the environment variable:
+    export MPM_P2X_ANALYSIS=<... path to ...>/PROSPECT2x_Analysis/cpp/
+    
