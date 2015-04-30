@@ -41,7 +41,6 @@ bool SimIoniReader::loadMergedIoni() {
     
     map<Int_t, vector<s_IoniCluster> > volClusts;
     for(auto it = ioni_reader.event_read.begin(); it != ioni_reader.event_read.end(); it++) {
-        if(P20reflectorless && it->vol == 1) it->vol = 0;
         if(!it->E) continue; // ignore 0-energy (neutrino tag) entries
         assert(it->t == it->t); // NaN check
         Int_t V = it->vol;

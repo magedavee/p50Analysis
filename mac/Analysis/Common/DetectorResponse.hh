@@ -16,7 +16,7 @@ public:
     virtual ~DetectorResponse() { }
     
     /// add ionization hit
-    void addIoni(const s_IoniCluster& h) { addSingle(new TimedIoniCluster(h)); }
+    void addIoni(const s_IoniCluster& h);
     
     /// non-PSD-interpolated quenching calculation
     virtual double calcQuench(const s_IoniCluster& evt) const;
@@ -27,6 +27,8 @@ public:
     virtual s_PhysPulse genResponse(const s_IoniCluster& evt) const;
     
     vector<s_PhysPulse> event_response;         ///< detector response pulses generated
+    size_t cellaxis = 2;                        ///< coordinate for cell long dimension; 2 for multi-cell PROSPECTS; 1 for P20 and DIMA
+    bool P20reflectorless = false;              ///< special mode for "reflectorless" P20 volume merging
     
 protected:
     /// create new cluster object of appropriate sub-class type; will be managed in pool.

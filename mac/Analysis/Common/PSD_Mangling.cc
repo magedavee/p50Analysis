@@ -2,7 +2,7 @@
 #include "XMLInfo.hh"
 #include <cmath>
 
-// make PSD_Mangling -j4; ./PSD_Mangling; evince InputPSD.pdf 
+// make PSD_Mangling -j4; ./PSD_Mangling; evince hEnergyPSD.pdf 
 
 double Equench(const s_IoniCluster& evt) {
     const double c_1 = 0.1049;
@@ -13,7 +13,7 @@ double Equench(const s_IoniCluster& evt) {
 TH1* loadPSD(const string& basedir) {
     
     // input PSD histogram
-    double k0 = 0.06;
+    double k0 = 0.10;
     TH1F* inputPSD = new TH1F(("inputPSD_"+basedir).c_str(), "Simulation PSD proxy", 100, 0, 1);
     inputPSD->GetXaxis()->SetTitle("2/#pi atan(dE/dx)"); 
     inputPSD->GetYaxis()->SetTitle("rate [mHz/bin]"); 

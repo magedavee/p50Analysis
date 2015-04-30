@@ -26,7 +26,6 @@ public:
     
     double dt_max = 50;                 ///< time to separate events [ns]
     hsize_t nrecords = 0;               ///< number of table records
-    bool P20reflectorless = false;      ///< special mode for merging reflectorless P20 outer volume events
  
     HDF5_Table_Cache<s_IoniCluster> ioni_reader;        ///< cached output for s_IoniCluster
     HDF5_Table_Cache<s_ParticleVertex> prim_reader;     ///< event primaries information reader

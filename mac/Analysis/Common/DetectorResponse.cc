@@ -5,6 +5,13 @@
 #include <TRandom3.h>
 #include <cassert>
 
+void DetectorResponse::addIoni(const s_IoniCluster& h) {
+    if(!h.E) return; // skip zero-energy neutrino tags
+    TimedIoniCluster* tc = new TimedIoniCluster(h);
+    if(P20reflectorless && h.vol == 1) tc->vol = 0;
+    addSingle(tc);
+}
+
 double DetectorResponse::calcQuench(const s_IoniCluster& evt) const {
     const double c_1 = 0.1049;
     const double c_2 = -8.72117e-05;
@@ -13,10 +20,14 @@ double DetectorResponse::calcQuench(const s_IoniCluster& evt) const {
 
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
     // PSD, scaling from raw variable u to data-like values
-    const double u = atan(0.06*evt.EdEdx/evt.E)*2/M_PI;
-    const double PSD_gamma = 0.22; // target "gamma-like" PSD value
-    const double PSD_ncapt = 0.35; // target neutron capture PSD value
-    PSD = PSD_gamma + (u-0.01)/(0.89-0.02)*(PSD_ncapt - PSD_gamma);
+    // a = 0.06 -> .01, .89
+    // a = 0.08 -> .02, .92
+    // a = 0.10 -> .02, .935
+    const double a = 0.10;
+    const double u = atan(a*evt.EdEdx/evt.E)*2/M_PI;
+    const double PSD_gamma = 0.22;      // target "gamma-like" PSD value
+    const double PSD_ncapt = 0.363;     // target neutron capture PSD value
+    PSD = PSD_gamma + (u-0.02)/(0.935-0.02)*(PSD_ncapt - PSD_gamma);
 
     // interpolate between quenched and unquenched energy
     Equench = calcQuench(evt);
@@ -36,7 +47,7 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     p.E = Equench;
     assert(evt.t == evt.t); // NaN check
     p.t = evt.t;
-    p.y = evt.x[2]; // x[2] for multi-cell PROSPECTS; x[1] for P20 and DIMA
+    p.y = evt.x[cellaxis];
     p.PSD = PSD;
     
     return p;
@@ -77,7 +88,7 @@ void DetectorResponse::processMid(TimedObject* O) {
         volPhys.seg = it->first;
         volPhys.E = volIoni.E;          // summed quenched energy
         volPhys.t = volIoni.t;
-        volPhys.y = volIoni.x[2];       // x[2] for multi-cell PROSPECTS; x[1] for P20 and DIMA
+        volPhys.y = volIoni.x[cellaxis];
         volPhys.PSD = EqPSD/volIoni.E;
         event_response.push_back(volPhys);
     }
@@ -85,13 +96,17 @@ void DetectorResponse::processMid(TimedObject* O) {
 
 int main(int argc, char** argv) {
 
-    if(argc < 2) {
-        printf("Arguments: <PROSPECT-G4 HDF5 filename> [P20 reflectorless mode]\n");
+    if(argc != 2) {
+        printf("Arguments: <PROSPECT-G4 HDF5 filename>\n");
         return -1;
     }
     
     string f_in = argv[1];
     string fext = split(f_in,".").back(); // file extension
+    auto pathels = split(f_in,"/");
+    assert(pathels.size() >= 2);
+    string detname = split(pathels[pathels.size()-2],"_-")[0]; // simulation detector
+    assert(detname == "P20" || detname == "P2k" || detname == "DIMA");
     assert(fext == "h5");
     string fbase = f_in.substr(0, f_in.size()-fext.size()-1); // base filename less extension
     string f_out = fbase+"_DetSim."+fext;
@@ -100,7 +115,6 @@ int main(int argc, char** argv) {
     
     // open input file
     SimIoniReader SIR(f_in);
-    SIR.P20reflectorless = (argc==3);
     XMLInfo XI(f_in+".xml");
     double runtime = XI.getGenTime(); // [ns]
     assert(runtime && runtime==runtime);
@@ -121,6 +135,8 @@ int main(int argc, char** argv) {
     
     // convert events to detector response
     DetectorResponse DR;
+    if(detname == "P20" || detname == "DIMA") DR.cellaxis = 1;
+    DR.P20reflectorless = (detname == "P20");
     size_t nMerged = 0;
     vector<s_PhysPulse> allPulses;
     TRandom3 r;
@@ -128,8 +144,9 @@ int main(int argc, char** argv) {
         //if(!(SIR.getNRead() % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
         // calculate detector response
         DR.event_response.clear();
-        for(auto it = SIR.ioni_reader.event_read.begin(); it != SIR.ioni_reader.event_read.end(); it++)
+        for(auto it = SIR.ioni_reader.event_read.begin(); it != SIR.ioni_reader.event_read.end(); it++) {
             if(it->vol < 1000) DR.addIoni(*it); // skip muon veto hits
+        }
         DR.clearWindow();
         // record results, with optional global time offset
         double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
