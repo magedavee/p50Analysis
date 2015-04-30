@@ -42,6 +42,47 @@ s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
     return p;
 }
 
+void DetectorResponse::processMid(TimedObject* O) {
+    TimedCluster* C = dynamic_cast<TimedCluster*>(O);
+    assert(C);
+    
+    /// sum hits grouped by volume and particle ID
+    map<int, map<int, s_IoniCluster> > volHits;
+    for(auto it = C->objs().begin(); it != C->objs().end(); it++) {
+        TimedIoniCluster* h = dynamic_cast<TimedIoniCluster*>(*it);
+        assert(h);
+        // special case: combine alpha, triton due to current quenching calculation. TODO: fix quenching calc so these are separate.
+        if(h->PID == 1000020040) h->PID = 1000010030;
+        
+        map<int, s_IoniCluster>& m = volHits[h->vol];
+        auto prevHit = m.find(h->PID);
+        if(prevHit == m.end()) m.insert(std::pair<int,s_IoniCluster>(h->PID, *h));
+        else prevHit->second += *h;
+    }
+    
+    /// quench and merge hits in each volume
+    double PSD, Equench;
+    for(auto it = volHits.begin(); it != volHits.end(); it++) {
+        s_IoniCluster volIoni;  // quenched-energy-summed response from different particles
+        s_PhysPulse volPhys;    // detector physics response
+        double EqPSD = 0;       // quenched-energy-weighted average PSD
+        for(auto ith = it->second.begin(); ith != it->second.end(); ith++) {
+            volPhys.evt = ith->second.evt;              // preserve MC event number (should be same for all *ith)
+            quenchPSD(ith->second, Equench, PSD);       // calculate individual particle quenching/PSD
+            EqPSD += Equench*PSD;
+            ith->second.E = Equench;                    // replace energy with quenched energy for averaging different particles
+            volIoni += ith->second;
+        }
+        if(!volIoni.E) continue;        // ignore zero-energy hits
+        volPhys.seg = it->first;
+        volPhys.E = volIoni.E;          // summed quenched energy
+        volPhys.t = volIoni.t;
+        volPhys.y = volIoni.x[2];       // x[2] for multi-cell PROSPECTS; x[1] for P20 and DIMA
+        volPhys.PSD = EqPSD/volIoni.E;
+        event_response.push_back(volPhys);
+    }
+}
+
 int main(int argc, char** argv) {
 
     if(argc < 2) {
@@ -83,18 +124,21 @@ int main(int argc, char** argv) {
     size_t nMerged = 0;
     vector<s_PhysPulse> allPulses;
     TRandom3 r;
-    while(SIR.loadMergedIoni()) {
-        if(!(SIR.getNRead() % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
+    while(SIR.ioni_reader.loadEvent()) {
+        //if(!(SIR.getNRead() % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
+        // calculate detector response
+        DR.event_response.clear();
+        for(auto it = SIR.ioni_reader.event_read.begin(); it != SIR.ioni_reader.event_read.end(); it++)
+            if(it->vol < 1000) DR.addIoni(*it); // skip muon veto hits
+        DR.clearWindow();
+        // record results, with optional global time offset
         double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
-        assert(evttime == evttime); // NaN check
-        for(auto it = SIR.merged.begin(); it != SIR.merged.end(); it++) {
-	    if(it->vol >= 1000) continue;
-            s_PhysPulse p = DR.genResponse(*it);
-            if(!fullsort) pulse_writer.write(p);
+        for(auto it = DR.event_response.begin(); it != DR.event_response.end(); it++) {
+            if(!fullsort) pulse_writer.write(*it);
             else {
-                p.t += evttime;
-                while(p.t > runtime) p.t -= runtime*floor(p.t/runtime); // wrap around long-delayed events to start of run
-                allPulses.push_back(p);
+                it->t += evttime;
+                while(it->t > runtime) it->t -= runtime*floor(it->t/runtime); // wrap around long-delayed events to start of run
+                allPulses.push_back(*it);
             }
             nMerged++;
         }
@@ -116,4 +160,3 @@ int main(int argc, char** argv) {
     H5Fclose(outfile_id);
     return 0;
 }
-
