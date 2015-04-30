@@ -7,11 +7,11 @@
 
 SimIoniReader::SimIoniReader(const string& f_in):
 ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024),
-prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024) {
+prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024),
+ncapt_reader("NCapt", NCapt_offsets, NCapt_sizes, 1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
     if(infile_id <= 0) { printf("Unable to open file '%s'!\n", f_in.c_str()); return; }
     assert(infile_id > 0);
-    next_prim.evt = ioni.evt = -1;
     
     herr_t err = H5TBget_table_info(infile_id, "Prim", &nfields, &nrecords );
     assert(err >= 0);
@@ -23,6 +23,7 @@ prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024) {
 
     ioni_reader.setFile(infile_id);
     prim_reader.setFile(infile_id);
+    ncapt_reader.setFile(infile_id);
 }
 
 SimIoniReader::~SimIoniReader() { 
@@ -35,44 +36,24 @@ SimIoniReader::~SimIoniReader() {
 /// comparison function for time-sorting hits
 bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return a.t < b.t; }
 
-bool SimIoniReader::loadIoni() {
-    while(ioni_reader.next(ioni)) {
-        if(!ioni.E) continue; // ignore 0-energy (neutrino tag) entries
-        if(P20reflectorless && ioni.vol == 1) ioni.vol = 0;
-        assert(ioni.t == ioni.t); // NaN check
-        return true;
-    }
-    return false;
-}
-
 bool SimIoniReader::loadMergedIoni() {
+    if(!ioni_reader.loadEvent()) return false;
+    
     map<Int_t, vector<s_IoniCluster> > volClusts;
-    
-    if(ioni.evt > 0) volClusts[ioni.vol].push_back(ioni); // use event from previous read
-    else if(ioni_reader.getNRead()) return false; // file is exhausted
-    
-    current_evt = ioni.evt; // = -1 on the first time
-    
-    while(true) {
-        if(!loadIoni()) {
-            ioni.evt = -1;
-            break;
-        }
-        if(current_evt < 0) current_evt = ioni.evt;
-        if(ioni.evt != current_evt) break;
-        
-        Int_t V = ioni.vol;
-        if(!volClusts.count(V)) volClusts[V].push_back(ioni);
+    for(auto it = ioni_reader.event_read.begin(); it != ioni_reader.event_read.end(); it++) {
+        if(P20reflectorless && it->vol == 1) it->vol = 0;
+        if(!it->E) continue; // ignore 0-energy (neutrino tag) entries
+        assert(it->t == it->t); // NaN check
+        Int_t V = it->vol;
+        if(!volClusts.count(V)) volClusts[V].push_back(*it);
         else {
-            if(ioni.t > volClusts[V].back().t + dt_max)
-                volClusts[V].push_back(ioni);
+            if(it->t > volClusts[V].back().t + dt_max)
+                volClusts[V].push_back(*it);
             else
-                volClusts[V].back() += ioni;
+                volClusts[V].back() += *it;
         }
     }
-    
-    if(!volClusts.size()) return false; // out of data!
-    
+
     // merge and sort into single detector history
     merged.clear();
     for(auto it = volClusts.begin(); it != volClusts.end(); it++)
@@ -82,23 +63,11 @@ bool SimIoniReader::loadMergedIoni() {
     return true;
 }
 
-bool SimIoniReader::loadPrimaries() {
-    prim.clear();
-    if(next_prim.evt > 0) prim.push_back(next_prim);
-    else if(prim_reader.getNRead()) return false; // file is exhausted
-    
-    current_evt = next_prim.evt; // = -1 on the first time
-    while(true) {
-        if(!prim_reader.next(next_prim)) {
-            next_prim.evt = -1;
-            break;
-        }
-        if(current_evt < 0) current_evt = next_prim.evt;
-        if(next_prim.evt != current_evt) break;
-        prim.push_back(next_prim);
-    }
-    
-    return prim.size();
+double SimIoniReader::getAttr(const string& tbl, const string& attr) {
+    double val = 0;
+    herr_t err = H5LTget_attribute_double(infile_id, tbl.c_str(), attr.c_str(), &val);
+    assert(err >= 0);
+    return val;
 }
 
 /////////////////////////////

@@ -5,7 +5,7 @@ Geant4-based Monte Carlo simulation for PROSPECT detector
 
 Dependencies
 ============
-cmake
+cmake (http://www.cmake.org/), sufficiently new version for other dependencies (>= 3 recommended)
 
 Geant4 (http://geant4.cern.ch); known to compile with versions 4.10.00, 4.10.01
     cmake flags: -DGEANT4_INSTALL_DATA=ON -DGEANT4_BUILD_CXXSTD=c++11
@@ -22,6 +22,7 @@ compile with -fPIC ("export CXXFLAGS=-fPIC")
 Doxygen (www.doxygen.org), optional for generating comments-based documentation
 
 HDF5 (http://www.hdfgroup.org/HDF5/) including "high level" libraries, optional for HDF5 output
+cmake-based installers provided at https://www.hdfgroup.org/HDF5/release/cmakebuild.html
 
 Building
 ========
@@ -44,12 +45,12 @@ export LD_LIBRARY_PATH=${PG4_LIB_DIR}:${LD_LIBRARY_PATH}
 
 optional: 'make doc' to generate Doxygen documentation
 
-For locally-installed HDF5 builds, use cmake with the option to generate the "high level" library libhdf5_hl.a;
-set environment variables to point to your HDF5 headers and build:
+For locally-installed HDF5 builds, use cmake with the `-DHDF5_BUILD_HL_LIB=ON` option
+    to generate the "high level" library libhdf5_hl.a;
+    set environment variables to point to your HDF5 headers and build:
 
-cmake ../hdf5-1.8.14/ -DHDF5_BUILD_HL_LIB=ON
-export HDF5_SRCDIR=<../hdf5-1.8.14>/src/
-export HDF5_LIBDIR=<path/to/hdf5-build>/bin/
+export HDF5_SRCDIR=<HDF5 cmake source directory>/src/
+export HDF5_LIBDIR=<HDF5 cmake build directory>/bin/
 
 Running
 =======
@@ -69,8 +70,9 @@ export PG4_AUX=<path to source directory>/Aux/
 Output
 ======
 
-Simulation output is a ROOT TTree with event data, and an XML metadata file (same name as ROOT output,
-but with added ".xml" suffix) containing simulation setup information.
+Simulation output is a ROOT TTree or HDF5 tables with event data,
+and an XML metadata file (same name as ROOT/HDF5 output, but with added ".xml" suffix)
+containing simulation setup information.
 
 The branches of the TTree (named "PG4") vary depending on the systems activated in the analysis;
 for example, a muon veto ionization branch named "VetoIoni," which is generated when the muon veto

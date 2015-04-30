@@ -32,11 +32,16 @@ public:
     /// set identifying number for value type
     static void setIdentifier(T& val, int64_t id);
     
+    /// load next "event" of entries with same identifer
+    bool loadEvent();           
+    vector<T> event_read;       ///< list of items in event
+    
 protected:
     string tablename;           ///< name of table to read
     const size_t* offsets;      ///< data type offsets
     const size_t* sizes;        ///< data type sizes
     hid_t infile_id = 0;        ///< file to read from
+    T next_read;                ///< next item read in for event list reads
     
     vector<T> cached;           ///< cached read data
     size_t cache_idx = 0;       ///< index in cached data
@@ -135,6 +140,7 @@ void HDF5_Table_Cache<T>::setFile(hid_t f) {
         herr_t err = H5TBget_table_info(infile_id, tablename.c_str(), &nfields, &maxread);
         assert(err >= 0);
     }
+    setIdentifier(next_read, -1);
 }
 
 template<typename T>
@@ -151,6 +157,25 @@ bool HDF5_Table_Cache<T>::next(T& val) {
     if(cache_idx >= cached.size()) return false;
     val = cached[cache_idx++];
     return true;
+}
+
+template<typename T>
+bool HDF5_Table_Cache<T>::loadEvent() {
+    event_read.clear();
+    int64_t current_evt = getIdentifier(next_read); // = -1 on the first and last time
+    if(current_evt > 0) event_read.push_back(next_read);
+    else if(getNRead()) return false; // file is exhausted
+    
+    while(true) {
+        if(!next(next_read)) {
+            setIdentifier(next_read, -1);
+            break;
+        }
+        if(current_evt < 0) current_evt = getIdentifier(next_read);
+        else if(getIdentifier(next_read) != current_evt) break;
+        event_read.push_back(next_read);
+    }
+    return event_read.size();
 }
 
 ///////////////////////////////////////////////
