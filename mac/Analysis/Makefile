@@ -22,8 +22,8 @@ _examples = PlotFlux PlotPos PlotPrimaries TestCell
 ifeq ($(WITH_HDF5),true)
 	LDFLAGS += -L$(HDF5_LIBDIR) -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR)
-	objects += HDF5Reader.o TimeStructure.o IoniTiming.o
-	_examples += DetectorResponse SelectH5Events
+	objects += HDF5Reader.o TimeStructure.o IoniTiming.o DetectorResponse.o
+	_examples += CalcDetectorResponse SelectH5Events
 endif
 
 all: $(objects)

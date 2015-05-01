@@ -1,8 +1,5 @@
 #include "DetectorResponse.hh"
-#include "HDF5_StructInfo.hh"
-#include "XMLInfo.hh"
 #include <cmath>
-#include <TRandom3.h>
 #include <cassert>
 
 void DetectorResponse::addIoni(const s_IoniCluster& h) {
@@ -18,16 +15,17 @@ double DetectorResponse::calcQuench(const s_IoniCluster& evt) const {
     return evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
 }
 
+double DetectorResponse::psd_f(const s_IoniCluster& evt) const {
+    return atan(psd_a*evt.EdEdx/evt.E)*2/M_PI;
+}
+
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
+    const double u = psd_f(evt);
     // PSD, scaling from raw variable u to data-like values
     // a = 0.06 -> .01, .89
     // a = 0.08 -> .02, .92
     // a = 0.10 -> .02, .935
-    const double a = 0.10;
-    const double u = atan(a*evt.EdEdx/evt.E)*2/M_PI;
-    const double PSD_gamma = 0.22;      // target "gamma-like" PSD value
-    const double PSD_ncapt = 0.363;     // target neutron capture PSD value
-    PSD = PSD_gamma + (u-0.02)/(0.935-0.02)*(PSD_ncapt - PSD_gamma);
+    PSD = PSD_gamma + (u-PSD_gamma0)/(PSD_ncapt0-PSD_gamma0)*(PSD_ncapt - PSD_gamma);
 
     // interpolate between quenched and unquenched energy
     Equench = calcQuench(evt);
@@ -92,88 +90,4 @@ void DetectorResponse::processMid(TimedObject* O) {
         volPhys.PSD = EqPSD/volIoni.E;
         event_response.push_back(volPhys);
     }
-}
-
-int main(int argc, char** argv) {
-
-    if(argc != 2) {
-        printf("Arguments: <PROSPECT-G4 HDF5 filename>\n");
-        return -1;
-    }
-    
-    string f_in = argv[1];
-    string fext = split(f_in,".").back(); // file extension
-    auto pathels = split(f_in,"/");
-    assert(pathels.size() >= 2);
-    string detname = split(pathels[pathels.size()-2],"_-")[0]; // simulation detector
-    assert(detname == "P20" || detname == "P2k" || detname == "DIMA");
-    assert(fext == "h5");
-    string fbase = f_in.substr(0, f_in.size()-fext.size()-1); // base filename less extension
-    string f_out = fbase+"_DetSim."+fext;
-    
-    bool fullsort = true; // whether to cache all events in memory and time-sort
-    
-    // open input file
-    SimIoniReader SIR(f_in);
-    XMLInfo XI(f_in+".xml");
-    double runtime = XI.getGenTime(); // [ns]
-    assert(runtime && runtime==runtime);
-    size_t runthrows = XI.getEvts();
-    printf("Input file for %zu primary events in %.1f seconds simulated time.\n", runthrows, runtime*1e-9);
-    
-    // set up output file
-    hid_t outfile_id = H5Fcreate(f_out.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    assert(outfile_id >= 0);
-    int nchunk = 1024;
-    herr_t err = H5TBmake_table("Simulated detector response", outfile_id, "PhysPulse",
-                                HDF5_StructInfo::n_PhysPulse_fields, 0, sizeof(s_PhysPulse),
-                                HDF5_StructInfo::PhysPulse_field_names, HDF5_StructInfo::PhysPulse_offsets, HDF5_StructInfo::PhysPulse_field_types,
-                                nchunk, NULL, 9, NULL);
-    assert(err >= 0);
-    HDF5_Table_Writer<s_PhysPulse> pulse_writer("PhysPulse", HDF5_StructInfo::PhysPulse_offsets, HDF5_StructInfo::PhysPulse_sizes, nchunk);
-    pulse_writer.setFile(outfile_id);
-    
-    // convert events to detector response
-    DetectorResponse DR;
-    if(detname == "P20" || detname == "DIMA") DR.cellaxis = 1;
-    DR.P20reflectorless = (detname == "P20");
-    size_t nMerged = 0;
-    vector<s_PhysPulse> allPulses;
-    TRandom3 r;
-    while(SIR.ioni_reader.loadEvent()) {
-        //if(!(SIR.getNRead() % (SIR.nrecords/20))) { cout << "*"; cout.flush(); }
-        // calculate detector response
-        DR.event_response.clear();
-        for(auto it = SIR.ioni_reader.event_read.begin(); it != SIR.ioni_reader.event_read.end(); it++) {
-            if(it->vol < 1000) DR.addIoni(*it); // skip muon veto hits
-        }
-        DR.clearWindow();
-        // record results, with optional global time offset
-        double evttime = r.Rndm()*runtime; // uniform random time offset for event cluster
-        for(auto it = DR.event_response.begin(); it != DR.event_response.end(); it++) {
-            if(!fullsort) pulse_writer.write(*it);
-            else {
-                it->t += evttime;
-                while(it->t > runtime) it->t -= runtime*floor(it->t/runtime); // wrap around long-delayed events to start of run
-                allPulses.push_back(*it);
-            }
-            nMerged++;
-        }
-    }
-    // optional full time sorting
-    if(allPulses.size()) {
-        printf("\nMaster time merge and output of %zu pulses... ", allPulses.size()); fflush(stdout);
-        std::sort(allPulses.begin(), allPulses.end(), compare_hit_times);
-        pulse_writer.write(allPulses);
-        printf("Done.");
-    }
-    printf("\nRead %llu ionizations into %zu merged events.\nOutput '%s'\n", SIR.getNRead(), nMerged, f_out.c_str());
-    
-    runtime /= 1e9; // convert to seconds
-    err = H5LTset_attribute_double(outfile_id, "PhysPulse", "runtime", &runtime, 1);
-    assert(err >= 0);
-    
-    pulse_writer.setFile(0);
-    H5Fclose(outfile_id);
-    return 0;
 }

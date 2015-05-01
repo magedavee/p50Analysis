@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
         SES.transfer(inDir+"/Run_"+to_str(*it)+"_EvtList.txt");
         totalTime += ODL.getXML(*it)->getGenTime()*1e-9;
     }
-    printf("Selected %li events from %.2f h simulated time.\n", SES.nTransferred, totalTime/3600);
+    printf("Selected %lli events from %.2f h simulated time.\n", SES.nTransferred, totalTime/3600);
     SES.setTotalTime(totalTime);
     
     return 0;

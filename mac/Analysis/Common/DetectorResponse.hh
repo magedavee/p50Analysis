@@ -4,9 +4,6 @@
 #include "TimeStructure.hh"
 #include "IoniTiming.hh"
 
-/// comparison function for time-sorting hits
-bool compare_hit_times(const s_PhysPulse& a, const s_PhysPulse& b) { return a.t < b.t; }
-
 /// "Detector response" base class for converting s_IoniCluster to s_PhysPulse
 class DetectorResponse: public ClustersWindow {
 public:
@@ -26,9 +23,18 @@ public:
     /// calculate detector response to ionization event
     virtual s_PhysPulse genResponse(const s_IoniCluster& evt) const;
     
+    /// calculate pre-mapping PSD f(evt; a)
+    virtual double psd_f(const s_IoniCluster& evt) const;
+    
     vector<s_PhysPulse> event_response;         ///< detector response pulses generated
     size_t cellaxis = 2;                        ///< coordinate for cell long dimension; 2 for multi-cell PROSPECTS; 1 for P20 and DIMA
     bool P20reflectorless = false;              ///< special mode for "reflectorless" P20 volume merging
+    
+    double psd_a = 0.10;                        ///< PSD remapping stretch factor
+    double PSD_gamma0 = 0.02;                   ///< input "gamma-like" PSD value
+    double PSD_gamma = 0.22;                    ///< target "gamma-like" PSD value
+    double PSD_ncapt0 = 0.935;                  ///< input neutron capture PSD value
+    double PSD_ncapt = 0.363;                   ///< target neutron capture PSD value
     
 protected:
     /// create new cluster object of appropriate sub-class type; will be managed in pool.
