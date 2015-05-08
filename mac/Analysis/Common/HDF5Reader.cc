@@ -5,15 +5,25 @@
 #include <fstream>
 #include <iostream>
 
-SimIoniReader::SimIoniReader(const string& f_in): ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024) {
+SimIoniReader::SimIoniReader(const string& f_in):
+ioni_reader("ScIoni", IoniCluster_offsets, IoniCluster_sizes, 1024),
+prim_reader("Prim", ParticleVertex_offsets, ParticleVertex_sizes, 1024),
+ncapt_reader("NCapt", NCapt_offsets, NCapt_sizes, 1024) {
     infile_id = H5Fopen(f_in.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(infile_id <= 0) { printf("Unable to open file '%s'!\n", f_in.c_str()); return; }
     assert(infile_id > 0);
-    ioni.evt = -1;
     
-    herr_t err = H5TBget_table_info(infile_id, "ScIoni", &nfields, &nrecords );
+    herr_t err = H5TBget_table_info(infile_id, "Prim", &nfields, &nrecords );
+    assert(err >= 0);
+    printf("Reading table 'Prim' with %llu records from '%s'.\n", nrecords, f_in.c_str());
+    
+    err = H5TBget_table_info(infile_id, "ScIoni", &nfields, &nrecords );
     assert(err >= 0);
     printf("Reading table 'ScIoni' with %llu records from '%s'.\n", nrecords, f_in.c_str());
+
     ioni_reader.setFile(infile_id);
+    prim_reader.setFile(infile_id);
+    ncapt_reader.setFile(infile_id);
 }
 
 SimIoniReader::~SimIoniReader() { 
@@ -26,42 +36,23 @@ SimIoniReader::~SimIoniReader() {
 /// comparison function for time-sorting hits
 bool compare_hit_times(const s_IoniCluster& a, const s_IoniCluster& b) { return a.t < b.t; }
 
-bool SimIoniReader::loadIoni() {
-    if(ioni_reader.next(ioni)) {
-        nRead++;
-        if(P20reflectorless && ioni.vol == 1) ioni.vol = 0;
-        return true;
-    } else return false;
-}
-
 bool SimIoniReader::loadMergedIoni() {
+    if(!ioni_reader.loadEvent()) return false;
+    
     map<Int_t, vector<s_IoniCluster> > volClusts;
-    
-    if(ioni.evt > 0) volClusts[ioni.vol].push_back(ioni); // use event from previous read
-    else if(ioni_reader.getNRead()) return false; // file is exhausted
-    
-    current_evt = ioni.evt; // = -1 on the first time
-    
-    while(true) {
-        if(!loadIoni()) {
-            ioni.evt = -1;
-            break;
-        }
-        if(current_evt < 0) current_evt = ioni.evt;
-        if(ioni.evt != current_evt) break;
-        
-        Int_t V = ioni.vol;
-        if(!volClusts.count(V)) volClusts[V].push_back(ioni);
+    for(auto it = ioni_reader.event_read.begin(); it != ioni_reader.event_read.end(); it++) {
+        if(!it->E) continue; // ignore 0-energy (neutrino tag) entries
+        assert(it->t == it->t); // NaN check
+        Int_t V = it->vol;
+        if(!volClusts.count(V)) volClusts[V].push_back(*it);
         else {
-            if(ioni.t > volClusts[V].back().t + dt_max)
-                volClusts[V].push_back(ioni);
+            if(it->t > volClusts[V].back().t + dt_max)
+                volClusts[V].push_back(*it);
             else
-                volClusts[V].back() += ioni;
+                volClusts[V].back() += *it;
         }
     }
-    
-    if(!volClusts.size()) return false; // out of data!
-    
+
     // merge and sort into single detector history
     merged.clear();
     for(auto it = volClusts.begin(); it != volClusts.end(); it++)
@@ -69,6 +60,13 @@ bool SimIoniReader::loadMergedIoni() {
     std::sort(merged.begin(), merged.end(), compare_hit_times);
     
     return true;
+}
+
+double SimIoniReader::getAttr(const string& tbl, const string& attr) {
+    double val = 0;
+    herr_t err = H5LTget_attribute_double(infile_id, tbl.c_str(), attr.c_str(), &val);
+    assert(err >= 0);
+    return val;
 }
 
 /////////////////////////////
@@ -100,8 +98,8 @@ void  HDF5_Table_Cache<s_NCapt>::setIdentifier(s_NCapt& val, int64_t newID) { va
 SimEventSelector::SimEventSelector():
 evt_xfer("Evt", Event_offsets, Event_sizes, nchunk),
 ioni_xfer("ScIoni", IoniCluster_offsets, IoniCluster_sizes, nchunk),
-prim_xfer("Prim", IoniCluster_offsets, IoniCluster_sizes, nchunk),
-ncapt_xfer("NCapt", IoniCluster_offsets, IoniCluster_sizes, nchunk) { }
+prim_xfer("Prim", ParticleVertex_offsets, ParticleVertex_sizes, nchunk),
+ncapt_xfer("NCapt", NCapt_offsets, NCapt_sizes, nchunk) { }
 
 void SimEventSelector::setOutfile(const string& filename) {
     assert(!outfile_id);
@@ -133,7 +131,7 @@ void SimEventSelector::setInfile(const string& filename) {
 }
 
 void SimEventSelector::transfer(const vector<int64_t>& ids) {
-    printf("Preparing to transfer %zu events...\n", ids.size());
+    printf("Transferring %zu events...", ids.size()); fflush(stdout);
     
     evt_xfer.transferIDs(ids, nTransferred);
     ioni_xfer.transferIDs(ids, nTransferred);
@@ -141,6 +139,8 @@ void SimEventSelector::transfer(const vector<int64_t>& ids) {
     ncapt_xfer.transferIDs(ids, nTransferred);
     
     nTransferred += ids.size();
+
+    printf(" Done.\n");
 }
 
 void SimEventSelector::transfer(const string& evtfile) {
@@ -153,3 +153,15 @@ void SimEventSelector::transfer(const string& evtfile) {
     }
     transfer(v);
 }
+
+void SimEventSelector::setTotalTime(double t) {
+    herr_t err = H5LTset_attribute_double(outfile_id, "Evt", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "ScIoni", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "Prim", "runtime", &t, 1);
+    assert(err >= 0);
+    err = H5LTset_attribute_double(outfile_id, "NCapt", "runtime", &t, 1);
+    assert(err >= 0);
+}
+

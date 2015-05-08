@@ -7,6 +7,18 @@
 #include <vector>
 using std::vector;
 
+/// specification for inverse beta decay kinematics
+struct IBDKinematics {
+    double Ee;                  ///< positron kinetic energy
+    double En;                  ///< neutron kinetic energy
+    double Enu;                 ///< antineutrino kinetic energy
+    double theta_e;             ///< positron angle to neutrino
+    double theta_n;             ///< neutron angle to neutrino
+    G4ThreeVector phat_e;       ///< positron momentum direction
+    G4ThreeVector phat_n;       ///< neutron momentum direction
+    G4ThreeVector phat_nu;      ///< antineutrino momentum direction
+};
+
 /// Kinematics generator for inverse beta decay
 class InverseBetaKinematics {
 public:
@@ -22,8 +34,8 @@ public:
     /// Set whether to use Dwyer spectrum
     void SetDwyer(G4bool val) { dwyer = val; }
     
-    /// generate reaction kinematics vector
-    vector<double> GenerateReactionKinematics() const;
+    /// generate reaction kinematics
+    IBDKinematics GenerateReactionKinematics() const;
     /// Spectrum Test Function
     void GenerateKinematicsWithoutSimulation(G4int n = 1) const;
     /// calculate antinu energy
@@ -54,9 +66,9 @@ protected:
     /// Calculate Contribution from Uranium-238
     G4double CalculateU238Spectrum(G4double eNu) const;
     /// Calculate Fraction of Total Composition
-  G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
+    G4double CalculateFractionComposition(G4double x) const { return x / (U235 + U238 + Pu239 + Pu241); }
    
-  G4bool dwyer;                               ///< whether to use Dwyer spectrum
+    G4bool dwyer;                               ///< whether to use Dwyer spectrum
     
     G4double U235, U238, Pu239, Pu241;          ///< Fuel compositions
     
@@ -79,7 +91,7 @@ protected:
     G4double antiNuMonoEnergy;                  ///< monoenergetic neutrino energy to generate (set =0 for spectrum)
     G4ThreeVector nuDirection;                  ///< incident neutrino direction
     InverseBetaMessenger inv_messenger;         ///< messenger for this class
-  DwyerLangford DL;
+    DwyerLangford DL;
 };
 
 #endif

@@ -4,11 +4,12 @@
 #include <G4SystemOfUnits.hh>
 
 BuildingBuilder::BuildingBuilder(): ShellLayerBuilder("Building"),
-wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m), ceil_clearance(0.5*m),
-floor_thick(0.1*m), makeVacuum(false),
+wall_thick(0.5*m), wall_clearance(1.*m), ceil_thick(0.5*m),
+ceil_clearance(0.5*m), floor_thick(0.1*m),
 building_ui_dir("/geom/building/"),
 ceilCmd("/geom/building/ceilthick",this),
-vacuumCmd("/geom/building/makeVacuum",this) {
+vacuumCmd("/geom/building/makeVacuum",this),
+openCmd("/geom/building/makeOpen",this) {
     place_centered = false;
     
     ceilCmd.SetGuidance("Set thickness of building ceiling");
@@ -27,7 +28,7 @@ void BuildingBuilder::_construct() {
     ShellLayerSpec Swall(G4ThreeVector(wall_thick, wall_thick, ceil_thick),
                          G4ThreeVector(wall_thick, wall_thick, floor_thick),
                          makeVacuum? MaterialsHelper::M().Vacuum : MaterialsHelper::M().Concrete, G4Colour(0.3, 0.4, 0.4));
-    addLayer(Swall);
+    if(!makeOpen) addLayer(Swall);
     
     construct_layers();
 }
@@ -35,10 +36,11 @@ void BuildingBuilder::_construct() {
 void BuildingBuilder::SetNewValue(G4UIcommand* command, G4String value) {
     if(command == &ceilCmd) ceil_thick = ceilCmd.GetNewDoubleValue(value);
     else if(command == &vacuumCmd) makeVacuum = true;
+    else if(command == &openCmd) { makeOpen = true; wall_clearance = ceil_clearance = 1*mm; }
     else G4cout << "Unknown command!" << G4endl;
 }
 
 void BuildingBuilder::fillNode(TXMLEngine& E) {
     ShellLayerBuilder::fillNode(E);
-    addAttr(E, "mode", makeVacuum? "vacuum" : "normal");
+    addAttr(E, "mode", makeOpen? "open" : makeVacuum? "vacuum" : "normal");
 }

@@ -7,23 +7,23 @@
 .SUFFIXES: .c .cc .cpp .o
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
-	-I. -ICommon/ -I../../include/Output/ 
+	-I. -ICommon/ -I../../include/Output/ -I${MPM_P2X_ANALYSIS}
 LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXMLIO
 
 #
 # things to build
 #
 
-VPATH = Common/:Private/:../../src/Output/
-objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o TimeStructure.o XMLInfo.o
-_examples = PlotFlux PlotIBD PlotPos PlotPrimaries TestCell
+VPATH = ${MPM_P2X_ANALYSIS}:Common/:Private/:../../src/Output/
+objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o XMLInfo.o
+_examples = PlotFlux PlotPos PlotPrimaries TestCell
 
 # optional HDF5-dependent components
 ifeq ($(WITH_HDF5),true)
 	LDFLAGS += -L$(HDF5_LIBDIR) -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR)
-	objects += HDF5Reader.o
-	_examples += DetectorResponse
+	objects += HDF5Reader.o TimeStructure.o IoniTiming.o DetectorResponse.o
+	_examples += CalcDetectorResponse SelectH5Events
 endif
 
 all: $(objects)

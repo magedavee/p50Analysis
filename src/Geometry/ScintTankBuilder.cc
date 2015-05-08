@@ -17,7 +17,7 @@
 #include <G4LogicalBorderSurface.hh>
 
 ScintTankBuilder::ScintTankBuilder(const string& snm): ScintSegVol(snm),
-tank_depth(120*cm), gc_thick(0*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
+tank_depth(100*cm), gc_thick(0*cm), tank_wall_thick(2*cm), ls_buffer_thick(5*cm),
 seg_size(14.4*cm), nSegX(14), nSegY(10), scint6LiLoading(0.001), theta_pw(0),
 tank_ui_dir("/geom/tank/"),
 nsegXcmd("/geom/tank/nSegX",this),

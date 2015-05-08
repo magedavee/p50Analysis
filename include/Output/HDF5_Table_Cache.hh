@@ -25,16 +25,23 @@ public:
     void setFile(hid_t f);
     /// get number of rows read
     hsize_t getNRead() const { return nread; }
+    /// get number of rows available
+    hsize_t getNRows() const { return maxread; }
     /// get identifying number for value type
     static int64_t getIdentifier(const T& val);
     /// set identifying number for value type
     static void setIdentifier(T& val, int64_t id);
+    
+    /// load next "event" of entries with same identifer
+    bool loadEvent();           
+    vector<T> event_read;       ///< list of items in event
     
 protected:
     string tablename;           ///< name of table to read
     const size_t* offsets;      ///< data type offsets
     const size_t* sizes;        ///< data type sizes
     hid_t infile_id = 0;        ///< file to read from
+    T next_read;                ///< next item read in for event list reads
     
     vector<T> cached;           ///< cached read data
     size_t cache_idx = 0;       ///< index in cached data
@@ -84,6 +91,7 @@ public:
     /// Transfer a (sorted ascending) list of ID-numbered rows
     bool transferIDs(const vector<int64_t>& ids, int64_t newID);
     
+    string tablename;                   ///< name of table to transfer
     T row;                              ///< table row being transferred
     HDF5_Table_Cache<T> tableIn;        ///< input table
     HDF5_Table_Writer<T> tableOut;      ///< output table
@@ -132,6 +140,7 @@ void HDF5_Table_Cache<T>::setFile(hid_t f) {
         herr_t err = H5TBget_table_info(infile_id, tablename.c_str(), &nfields, &maxread);
         assert(err >= 0);
     }
+    setIdentifier(next_read, -1);
 }
 
 template<typename T>
@@ -150,20 +159,37 @@ bool HDF5_Table_Cache<T>::next(T& val) {
     return true;
 }
 
+template<typename T>
+bool HDF5_Table_Cache<T>::loadEvent() {
+    event_read.clear();
+    int64_t current_evt = getIdentifier(next_read); // = -1 on the first and last time
+    if(current_evt > 0) event_read.push_back(next_read);
+    else if(getNRead()) return false; // file is exhausted
+    
+    while(true) {
+        if(!next(next_read)) {
+            setIdentifier(next_read, -1);
+            break;
+        }
+        if(current_evt < 0) current_evt = getIdentifier(next_read);
+        else if(getIdentifier(next_read) != current_evt) break;
+        event_read.push_back(next_read);
+    }
+    return event_read.size();
+}
+
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 
 template<typename T>
 HDF5_Table_Transfer<T>::HDF5_Table_Transfer(const string& tname, const size_t* ofs, const size_t* szs, hsize_t nc):
-tableIn(tname,ofs,szs,nc), tableOut(tname,ofs,szs,nc) { }
+tablename(tname), tableIn(tname,ofs,szs,nc), tableOut(tname,ofs,szs,nc) { }
 
 template<typename T>
 bool HDF5_Table_Transfer<T>::transferID(int64_t id, int64_t newID) {
     int64_t current_id;
-    if(!tableIn.getNRead())
-        if(!tableIn.next(row))
-            return false;
+    if(!tableIn.getNRead() && !tableIn.next(row)) return false;
     while((current_id = tableIn.getIdentifier(row)) <= id) {
         if(current_id == id) {
             if(newID >= 0) tableIn.setIdentifier(row, newID);
@@ -180,6 +206,7 @@ bool HDF5_Table_Transfer<T>::transferIDs(const vector<int64_t>& ids, int64_t new
         if(!transferID(*it, newID)) return false;
         if(newID >= 0) newID++;
     }
+    tableOut.flush();
     return true;
 }
 

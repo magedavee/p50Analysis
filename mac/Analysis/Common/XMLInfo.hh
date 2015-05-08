@@ -63,6 +63,8 @@ public:
 
     /// get representative XMLInfo file
     XMLInfo* getXML() { return myInfo.size()? myInfo.begin()->second : NULL; }
+    /// get XML info for run
+    XMLInfo* getXML(int r) { auto it = myInfo.find(r); return it == myInfo.end()? NULL : it->second; }
     
     /// convert volume number to x,y segment number
     void volToXY(int v, int& x, int& y) const { if(v < 0) x = y = -1; else { x = v%nx; y = v/nx; } }

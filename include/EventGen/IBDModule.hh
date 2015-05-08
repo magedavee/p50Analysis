@@ -34,7 +34,7 @@ protected:
     G4UIcmdWithABool invSeqCmd;         ///< command to set "sequential" mode
     G4UIcmdWithABool invNuCmd;          ///< command to set antineutrino generation
     
-    vector<G4double> kinematics;        ///< generated kinematics vector
+    IBDKinematics kinematics;           ///< generated kinematics
     vector<primaryPtcl> vToThrow;       ///< particles left to throw in "sequential" mode
     G4bool Antinus;                     ///< Flag to specify antineutrino (only) generation
     G4bool Neutrons;                    ///< Flag to specify neutron production

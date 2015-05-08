@@ -39,7 +39,7 @@ class qsubmitter:
         self.settings = {"jobname":nm, "xcmds":""}
         self.setup = """#!/bin/bash
 #PBS -j oe
-#PBS -N %(jobname)s"""
+#PBS -N %(jobname)s
 #PBS -q exclusive"""
     
     def start_index(self):
@@ -120,7 +120,7 @@ class H5_DetResponse_Launcher:
         rmin = 10000000
         rmax = -1
         basedir = os.environ["PG4_OUTDIR"]+"/"+self.settings["simName"]
-        flist = [f for f in os.listdir(basedir) if f[-3:] == ".h5" and f.split("_")[-1] != "DetSim.h5"]
+        flist = [f for f in os.listdir(basedir) if f[:4] == "Run_" and f[-3:] == ".h5" and f.split("_")[-1] != "DetSim.h5"]
         for f in flist:
             rnum = int(f.split("_")[-1].split(".")[0])
             if rnum < rmin:
@@ -129,7 +129,7 @@ class H5_DetResponse_Launcher:
                 rmax = rnum
 	rmin = 0
         jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(auxdir)s/../mac/Analysis/DetectorResponse %(basedir)s/Run_%%(jobnum)s.h5 %(xargs)s; fi"%{"basedir":basedir, "auxdir":os.environ["PG4_AUX"], "xargs":self.settings["xargs"]}
-        self.submitter.run_jobs(jcmd,rmin,rmax-rmin)
+        self.submitter.run_jobs(jcmd,rmin,rmax-rmin+1)
 
 def logrange(n,x0,x1):
     return [exp(log(x0)*(1-l)+log(x1)*l) for l in [x/float(n-1) for x in range(n)]]

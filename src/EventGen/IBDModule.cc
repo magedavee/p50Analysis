@@ -50,16 +50,16 @@ void IBDModule::GeneratePrimaries(G4Event* anEvent) {
         if(Positrons) {
             primaryPtcl p;
             p.PDGid = -11; // positron
-            p.mom = G4ThreeVector(kinematics[1],kinematics[2],kinematics[3]);
-            p.KE = kinematics[0];
+            p.mom = kinematics.phat_e;
+            p.KE = kinematics.Ee;
             p.t = 0;
             vToThrow.push_back(p);
         }
         if(Neutrons){
             primaryPtcl p;
             p.PDGid = 2112; // neutron
-            p.mom = G4ThreeVector(kinematics[5], kinematics[6], kinematics[7]);
-            p.KE = kinematics[4];
+            p.mom = kinematics.phat_n;
+            p.KE = kinematics.En;
             p.t = 0;
             vToThrow.push_back(p);
         }
@@ -75,7 +75,7 @@ void IBDModule::GeneratePrimaries(G4Event* anEvent) {
             
             primaryPtcl p;
             p.PDGid = -12; // electron antineutrino
-            p.KE = kinematics[10];
+            p.KE = kinematics.Enu;
             p.t = 0;
             p.pos = VP->originPoint;
             p.mom = nuDirection;
