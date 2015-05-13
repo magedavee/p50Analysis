@@ -1,0 +1,14 @@
+/output/setRunNum %(run_num)i
+/output/filename %(outfile)s
+/output/setRecordLevel 2
+
+/geom/mode PROSPECT
+/geom/building/makeOpen
+
+/run/initialize
+
+/generator/module/IBD
+/generator/module/IBD/setAntinus true
+/generator/vertex/scintvol
+
+/run/beamOn %(nevents)i

@@ -20,7 +20,7 @@ double DetectorResponse::psd_f(const s_IoniCluster& evt) const {
 }
 
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
-    const double u = psd_f(evt);
+    const double u = (evt.PID==11? PSD_gamma0 : psd_f(evt));
     // PSD, scaling from raw variable u to data-like values
     // a = 0.06 -> .01, .89
     // a = 0.08 -> .02, .92

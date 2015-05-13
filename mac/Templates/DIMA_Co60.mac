@@ -1,0 +1,21 @@
+/output/setRunNum %(run_num)i
+/output/filename %(outfile)s
+/output/setRecordLevel 2
+
+/geom/mode DIMA
+#/geom/DIMA/brick true
+
+/run/initialize
+
+/generator/module/decaysrc
+/generator/decaySource/type Co60
+
+# CAUTION: causes problem with time quantization from long decay delay!
+#/generator/module/histogram
+#/generator/histogram/monoE 0 MeV
+#/gun/particle ion
+#/gun/ion 27 60
+
+/generator/vertex/isotpt 0 0 15.2 cm
+
+/run/beamOn %(nevents)i

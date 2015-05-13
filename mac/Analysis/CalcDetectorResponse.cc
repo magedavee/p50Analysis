@@ -17,7 +17,7 @@ void plot_PSD(const string& basedir) {
     auto flist = ODL.getFileList(".h5");
     
     DetectorResponse DR;
-    DR.psd_a = 0.05;
+    DR.psd_a = 0.10;
     DR.PSD_gamma0 = DR.PSD_gamma = 0;
     DR.PSD_ncapt0 = DR.PSD_ncapt = 1;
     
