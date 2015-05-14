@@ -16,11 +16,13 @@ if __name__=="__main__":
         os.system("killall -9 parallel")
         exit(0)
     
-    #if options.p20:
-    #    L = SB_MC_Launcher("P20_IBD", 2e4)
-    #    L.template = "Templates/P2k_IBD.mac"
-    #    L.settings["out_sfx"] = "h5"
-    #    L.launch_sims(40)
+    if options.p20:
+        # nBG: 2e5 in 33min in building; 4e5 in 22min open building (=500s sim)
+        # muBG: 4e6 in 33min in building; 1e7 in XX min open building (= sim)
+        L = SB_MC_Launcher("P20_muBG_LoLi", 1e7)
+        L.template = "Templates/P20_muBG.mac"
+        L.settings["out_sfx"] = "h5"
+        L.launch_sims(96*5)
         
     if options.p2k:
         # IBD: 1e4 = 15min

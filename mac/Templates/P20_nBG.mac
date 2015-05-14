@@ -1,0 +1,18 @@
+/output/setRunNum %(run_num)i
+/output/filename %(outfile)s
+/output/setRecordLevel 2
+
+/geom/mode PROSPECT20
+/geom/P20separator/thick 0 mm
+/geom/P20/scint6Li 0.00082
+/geom/muveto false
+/geom/building/makeOpen
+
+/run/initialize
+
+/generator/module/CosN
+/generator/cosmic_n/water 0.2
+/generator/cosmic_n/thermal 0.7
+/generator/vertex/cosx 2.5
+
+/run/beamOn %(nevents)i

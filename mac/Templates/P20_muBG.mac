@@ -1,0 +1,21 @@
+/output/setRunNum %(run_num)i
+/output/filename %(outfile)s
+/output/setRecordLevel 2
+
+/geom/mode PROSPECT20
+/geom/P20separator/thick 0 mm
+/geom/P20/scint6Li 0.00082
+/geom/muveto false
+/geom/building/makeOpen
+
+/run/initialize
+
+/generator/module/CRY
+/CRY/input returnNeutrons 0
+/CRY/input date 3-13-2015
+/CRY/input latitude 36.0
+/CRY/input altitude 0.0
+/CRY/input subboxLength 20
+/CRY/update
+
+/run/beamOn %(nevents)i

@@ -9,7 +9,16 @@
 PR20CellBuilder::PR20CellBuilder(): ScintSegVol("PR20_Cell"),
 inner_width(6*in), inner_length(1*m), wall_thick(0.5*in),
 flange_thick(1*in), flange_width(7.5*in), panel_sep(144*mm),
-mySeparator("P20separator") { }
+scintLiLoading(0.001), mySeparator("P20separator"),
+P20Dir("/geom/P20/"),
+loadingCmd("/geom/P20/scint6Li",this) {
+    loadingCmd.SetGuidance("Set P20 cell 6Li loading mass fraction.");
+    loadingCmd.AvailableForStates(G4State_PreInit);
+}
+
+void PR20CellBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &loadingCmd) scintLiLoading = loadingCmd.GetNewDoubleValue(newValue);
+}
     
 void PR20CellBuilder::construct() {
     mySeparator.width = panel_sep - mySeparator.totalThick;
@@ -38,7 +47,7 @@ void PR20CellBuilder::construct() {
     new G4PVPlacement(NULL, G4ThreeVector(), cell_log, "cell_phys", main_log, false, 0, true);
     
     G4Box* scint_box = new G4Box("scint_box", inner_width/2, inner_length/2, inner_width/2);
-    scint_log =  new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, 0.001), "scint_log");
+    scint_log =  new G4LogicalVolume(scint_box, MaterialsHelper::M().get6LiLS(MaterialsHelper::M().EJ309, scintLiLoading), "scint_log");
     scint_phys = new G4PVPlacement(NULL, G4ThreeVector(), scint_log, "scint_phys", cell_log, false, 0, true);
     scint_log->SetVisAttributes(new G4VisAttributes(G4Color(0.5,0.5,1.0,0.7)));
     
