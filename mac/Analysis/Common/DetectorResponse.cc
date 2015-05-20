@@ -20,20 +20,13 @@ double DetectorResponse::psd_f(const s_IoniCluster& evt) const {
 }
 
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
-    
-    const double u = psd_f(evt); //(evt.PID==11? PSD_gamma0 : psd_f(evt));
+    const double u = (abs(evt.PID)==11? PSD_gamma0 : psd_f(evt)); // always the same PSD for electrons/positrons
     // PSD, scaling from raw variable u to data-like values
     // a = 0.06 -> .01, .89
     // a = 0.08 -> .02, .92
     // a = 0.10 -> .02, .935
     PSD = PSD_gamma + (u-PSD_gamma0)/(PSD_ncapt0-PSD_gamma0)*(PSD_ncapt - PSD_gamma);
     Equench = calcQuench(evt);
-    
-    // interpolate between quenched and unquenched energy
-    //const double u_upper = 0.25;
-    //const double u_lower = 0.1;
-    //if(u <= u_lower) Equench = evt.E;
-    //else if(u < u_upper) Equench = Equench*(u-u_lower)/(u_upper - u_lower) + evt.E*(u_upper-u)/(u_upper - u_lower);
 }
 
 s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
