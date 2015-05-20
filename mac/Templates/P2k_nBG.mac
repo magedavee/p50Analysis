@@ -3,7 +3,8 @@
 /output/setRecordLevel 2
 
 /geom/mode PROSPECT
-/geom/building/makeOpen
+/geom/tank/scint6Li 0.00082
+#/geom/building/makeOpen
 
 /run/initialize
 

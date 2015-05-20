@@ -10,9 +10,9 @@ void DetectorResponse::addIoni(const s_IoniCluster& h) {
 }
 
 double DetectorResponse::calcQuench(const s_IoniCluster& evt) const {
-    const double c_1 = 0.1049;
-    const double c_2 = -8.72117e-05;
-    return evt.E / (1 + c_1*evt.EdEdx/evt.E + c_2*evt.EdEdx2/evt.E);
+    double d = evt.EdEdx/evt.E;
+    const double x[4] = { -0.00405158, 0.00760515, 2.47702e-06, 0.000554217 };
+    return evt.E * (1. + x[3]*d*d)/(1 + x[0]*d + x[1]*d*d + x[2]*d*d*d);
 }
 
 double DetectorResponse::psd_f(const s_IoniCluster& evt) const {
@@ -20,19 +20,20 @@ double DetectorResponse::psd_f(const s_IoniCluster& evt) const {
 }
 
 void DetectorResponse::quenchPSD(const s_IoniCluster& evt, double& Equench, double& PSD) const {
-    const double u = (evt.PID==11? PSD_gamma0 : psd_f(evt));
+    
+    const double u = psd_f(evt); //(evt.PID==11? PSD_gamma0 : psd_f(evt));
     // PSD, scaling from raw variable u to data-like values
     // a = 0.06 -> .01, .89
     // a = 0.08 -> .02, .92
     // a = 0.10 -> .02, .935
     PSD = PSD_gamma + (u-PSD_gamma0)/(PSD_ncapt0-PSD_gamma0)*(PSD_ncapt - PSD_gamma);
-
-    // interpolate between quenched and unquenched energy
     Equench = calcQuench(evt);
-    const double u_upper = 0.25;
-    const double u_lower = 0.1;
-    if(u <= u_lower) Equench = evt.E;
-    else if(u < u_upper) Equench = Equench*(u-u_lower)/(u_upper - u_lower) + evt.E*(u_upper-u)/(u_upper - u_lower);
+    
+    // interpolate between quenched and unquenched energy
+    //const double u_upper = 0.25;
+    //const double u_lower = 0.1;
+    //if(u <= u_lower) Equench = evt.E;
+    //else if(u < u_upper) Equench = Equench*(u-u_lower)/(u_upper - u_lower) + evt.E*(u_upper-u)/(u_upper - u_lower);
 }
 
 s_PhysPulse DetectorResponse::genResponse(const s_IoniCluster& evt) const {
@@ -60,8 +61,6 @@ void DetectorResponse::processMid(TimedObject* O) {
     for(auto it = C->objs().begin(); it != C->objs().end(); it++) {
         TimedIoniCluster* h = dynamic_cast<TimedIoniCluster*>(*it);
         assert(h);
-        // special case: combine alpha, triton due to current quenching calculation. TODO: fix quenching calc so these are separate.
-        if(h->PID == 1000020040) h->PID = 1000010030;
         
         map<int, s_IoniCluster>& m = volHits[h->vol];
         auto prevHit = m.find(h->PID);

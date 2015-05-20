@@ -6,7 +6,8 @@
 /geom/P20separator/thick 0 mm
 /geom/P20/scint6Li 0.00082
 /geom/muveto false
-/geom/building/makeOpen
+#/geom/building/makeOpen
+/geom/PROSPECT20/waterbricks 1
 
 /run/initialize
 
