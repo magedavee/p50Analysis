@@ -8,7 +8,7 @@
 
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
 	-I. -ICommon/ -I../../include/Output/ -I${MPM_P2X_ANALYSIS}
-LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lXMLIO
+LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lgsl -lXMLIO
 
 #
 # things to build

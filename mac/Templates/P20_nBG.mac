@@ -2,9 +2,12 @@
 /output/filename %(outfile)s
 /output/setRecordLevel 2
 
-/geom/mode PROSPECT
-/geom/tank/scint6Li 0.00082
+/geom/mode PROSPECT20
+/geom/P20separator/thick 0 mm
+/geom/P20/scint6Li 0.00082
+/geom/muveto false
 #/geom/building/makeOpen
+/geom/PROSPECT20/waterbricks 1
 
 /run/initialize
 

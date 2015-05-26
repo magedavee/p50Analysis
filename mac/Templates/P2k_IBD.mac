@@ -4,11 +4,14 @@
 
 /geom/mode PROSPECT
 /geom/building/makeOpen
+#/geom/HFIR/corepos 2.5 0 -2.5 m
 
 /run/initialize
 
 /generator/module/IBD
 /generator/module/IBD/setAntinus true
+/generator/fissionAntinu/DwyerSpectrum true
+/generator/fissionAntinu/printParameters
 /generator/vertex/scintvol
 
 /run/beamOn %(nevents)i

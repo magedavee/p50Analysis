@@ -10,25 +10,29 @@ if __name__=="__main__":
     parser.add_option("--p20", dest="p20", action="store_true", default=False, help="PROSPECT-20 simulations");
     parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
     parser.add_option("--h5resp", dest="h5resp", action="store", type="string", help="HDF5-based detector response");
+    parser.add_option("--np", dest="np", action="store_true", default=False, help="non-parallel execution");
     
     options, args = parser.parse_args()
     if options.kill:
         os.system("killall -9 parallel")
         exit(0)
     
-    #if options.p20:
-    #    L = SB_MC_Launcher("P20_IBD", 2e4)
-    #    L.template = "Templates/P2k_IBD.mac"
-    #    L.settings["out_sfx"] = "h5"
-    #    L.launch_sims(40)
+    if options.p20:
+        # nBG: 2e5 in 50min in building+WB (=40s sim); 4e5 in 22min open building (=500s sim)
+        # muBG: 4e6 in 33min in building+WB (=37m sim); 1e7 in XX min open building (= sim)
+        L = SB_MC_Launcher("P20_muBG_bld", 4e6)
+        L.template = "Templates/P20_muBG.mac"
+        L.settings["out_sfx"] = "h5"
+        L.launch_sims(96*10)
         
     if options.p2k:
         # IBD: 1e4 = 15min
-        # 1e6 = ~15min for CRY, ~20min for neutrons
-        L = SB_MC_Launcher("P2k_IBD", 1e6)
-        L.template = "Templates/P2k_IBD.mac"
+        # 1e6 = ~15min for CRY
+        # nBG: 1e6 ~20min without building; ~4.4h with building (=138s sim)
+        L = SB_MC_Launcher("P2k_nBG_bld", 1e6)
+        L.template = "Templates/P2k_nBG.mac"
         L.settings["out_sfx"] = "h5"
-        L.launch_sims(36*10)
+        L.launch_sims(36*30)
         
     if options.dima:
         L = SB_MC_Launcher("DIMA-Co60", 1e6)
@@ -37,5 +41,5 @@ if __name__=="__main__":
         L.launch_sims(96)
     
     if options.h5resp:
-        L = H5_DetResponse_Launcher(options.h5resp)
+        L = H5_DetResponse_Launcher(options.h5resp, options.np)
         L.launch_converter()
