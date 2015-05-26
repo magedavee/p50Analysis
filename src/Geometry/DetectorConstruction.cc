@@ -9,6 +9,7 @@
 #include <G4Sphere.hh>
 
 #include <cassert>
+#include <SecParticleCounterSD.hh>
 
 DetectorConstruction::DetectorConstruction():
 ShellLayerBuilder("DetectorConstruction"), mode(PROSPECT),
@@ -17,7 +18,7 @@ modeCmd("/geom/mode",this),
 vetoCmd("/geom/muveto",this) {
     modeCmd.SetGuidance("Set geometry mode.");
     modeCmd.AvailableForStates(G4State_PreInit);
-    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT2B PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere");
+    modeCmd.SetCandidates("PROSPECT PROSPECT2 PROSPECT2B PROSPECT20 P20Inner P20Cell DIMA scintCell slab sphere layer");
     
     vetoCmd.SetGuidance("Set whether to build muon veto paddles.");
     vetoCmd.AvailableForStates(G4State_PreInit);
@@ -39,13 +40,14 @@ void DetectorConstruction::SetNewValue(G4UIcommand* command, G4String newValue) 
         else if(modeName == "scintCell") mode = TEST_CELL;
         else if(modeName == "slab") mode = SLAB;
         else if(modeName == "sphere") mode = SPHERE;
+        else if(modeName == "layer") mode = LAYER;
         else { modeName = "???"; G4cout << "Unknown mode '" << newValue << "'!" << G4endl; assert(false); }
     } else if(command == &vetoCmd) withVetos = vetoCmd.GetNewBoolValue(newValue);
     else G4cout << "Unknown command!" << G4endl;
 }
 
 ScintSegVol* DetectorConstruction::getScint() {
-    if(mode == PROSPECT) return &myPRShield.myDet.myTank;
+    if(mode == PROSPECT||mode == LAYER) return &myPRShield.myDet.myTank;
     else if(mode == PROSPECT20 || mode==P20INNER || mode==P20CELL) return &myPR20Cell;
     else if(mode == TEST_CELL || mode == PROSPECT2 || mode == PROSPECT2B) return &myTestCell;
     else if(mode == DIMA) return &myDIMA.myArray;
@@ -63,7 +65,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     
     G4cout << "Starting detector construction..." << G4endl;
     
-    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT2B || mode==PROSPECT20 || mode==P20INNER) ? &myBuilding
+    myContents = (  (mode==PROSPECT || mode==PROSPECT2 || mode==PROSPECT2B || mode==PROSPECT20 || mode==P20INNER||mode==LAYER) ? &myBuilding
                     : mode==SLAB ? &mySlab
                     : mode==TEST_CELL ? &myTestCell
                     : mode==P20CELL ? &myPR20Cell
@@ -74,7 +76,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         //worldShell.setThick(3*m);
     } else if(mode==SLAB) {
         worldShell.lthick[2] =  worldShell.uthick[2];
-    } else if(mode==PROSPECT) {
+    } else if(mode==PROSPECT||mode==LAYER) {
         myBuilding.myContents = &myPRShield;
     } else if(mode==SPHERE) {
         worldShell.setThick(0.5*m);
@@ -151,7 +153,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
             G4cout << "Placing gamma-blocker lead brick on DIMA, with top z =" << G4BestUnit(brick_z+myDIMA.brickDim[2]/2,"Length") << "\n";
         }
     }
-    
+   
     //G4cout << *(G4Material::GetMaterialTable()); // print list of all materials
     
     G4cout << "Detector construction complete." << G4endl;
@@ -159,11 +161,38 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     // world physical volume
     theWorld = new G4PVPlacement(NULL, G4ThreeVector(0.,0.,0.), main_log, "world_phys", NULL, false,  0);
     
+    if(mode==LAYER)
+    {
+	myScintLayerTop=new ScintLayer(400);
+	myScintLayerBot=new ScintLayer(300);
+	myScintLayerTop->construct();
+	myScintLayerBot->construct();
+	myTop=myScintLayerTop->main_log;
+	myBot=myScintLayerBot->main_log;
+	addChild(myScintLayerTop);
+	addChild(myScintLayerBot);
+	G4ThreeVector r0(0.0,0.0,1.55*m);
+	G4ThreeVector r1(0.0,0.0,-1.5*m);
+	new G4PVPlacement(NULL, r0, myTop, "myTop", main_log, false,  0);
+	new G4PVPlacement(NULL, r1, myBot, "myBot", main_log, false,  0);
+	ScintSD * layerTop=new ScintSD("Top",*myScintLayerTop,theWorld);
+	ScintSD * layerBot=new ScintSD("Bot",*myScintLayerBot,theWorld);
+	G4SDManager::GetSDMpointer()->AddNewDetector(layerTop);
+	G4SDManager::GetSDMpointer()->AddNewDetector(layerBot);
+	myScintLayerTop->scint_log->SetSensitiveDetector(layerTop);
+	myScintLayerBot->scint_log->SetSensitiveDetector(layerBot);
+
+    }
     // sensitive detectors
     if(getScint()) {
         myScintSD = new ScintSD("ScintSD", *getScint(), theWorld);
         G4SDManager::GetSDMpointer()->AddNewDetector(myScintSD);
         getScint()->setScintSD(myScintSD);
+		if ( mode==PROSPECT||mode==LAYER ) {
+			SecParticleCounterSD* myScintSecParticleSD = new SecParticleCounterSD("myScintSecParticleSD");
+			G4SDManager::GetSDMpointer()->AddNewDetector(myScintSecParticleSD);
+			getScint()->setScintSD(myScintSecParticleSD);
+		}
     }
     for(size_t i=0; i<myPR2Veto.size(); i++) {
         ScintSD* vetoSD = new ScintSD("VetoSD_"+to_str(i), *myPR2Veto[i], theWorld);
