@@ -34,7 +34,9 @@ bool EventAction::keepEvent() const {
     RunAction* run_action = (RunAction*)(G4RunManager::GetRunManager()->GetUserRunAction());
     G4int reclevel = run_action->GetRecordLevel();
     
-    if(reclevel == -1) return FileIO::GetPhoto().nParticles > 0;
+	//record everything in case the prim is photon for test
+    //if(reclevel == -1) return FileIO::GetSecondaryParticle().nParticles > 0;
+    if(reclevel == -1) return true;
     
     if(reclevel >= 5
         || (reclevel == 3 && FileIO::GetFlux().nParticles > 0)
@@ -57,6 +59,8 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
             ParticleVertex p;
             for(unsigned int j=0; j<3; j++) p.x[j] = v->GetPosition()[j];
             p.t = v->GetT0();
+			p.evt = anEvent->GetEventID();
+			
             for(G4int pn = 0; pn < v->GetNumberOfParticle(); pn++) {
                 const G4PrimaryParticle* pp = v->GetPrimary(pn);
                 assert(pp);
