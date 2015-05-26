@@ -35,6 +35,7 @@ class TrackInformation : public G4VUserTrackInformation
 		G4double              originalTime;
 
 		G4int                 sourcePID;
+		G4int                isSourceInsideSepx; // is the source (vertex) inside the sep box
 	public:
 		inline G4int GetOriginPID() const {return originPID;}
 		inline G4int GetOriginalTrackID() const {return originalTrackID;}
@@ -45,6 +46,7 @@ class TrackInformation : public G4VUserTrackInformation
 		inline G4double GetOriginalTime() const {return originalTime;}
 
 		inline G4int GetSourcePID() const {return sourcePID;}
+		inline G4int GetIsSourceInsideSepx() const {return isSourceInsideSepx;}
 };
 
 extern G4Allocator<TrackInformation> aTrackInformationAllocator;
