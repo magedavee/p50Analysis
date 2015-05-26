@@ -5,6 +5,8 @@
 #include <G4UnitsTable.hh>
 #include <G4Box.hh>
 #include <cassert>
+#include <SecParticleCounterSD.hh>
+#include <G4SDManager.hh>
 
 SeparatorBuilder::SeparatorBuilder(const string& uiname): Builder("Separator"),
 width(0), length(0), totalThick(1.5*mm), cfThick(0.5*mm), sep_vis(G4Colour(0.9,0.9,0.9)),
@@ -39,4 +41,9 @@ void SeparatorBuilder::construct() {
     G4Box* main_box = new G4Box("SeparatorMainBox", dim[0]/2., dim[1]/2., dim[2]/2.);    
     main_log = new G4LogicalVolume(main_box, MaterialsHelper::M().PMMA, "Separator_main_Log");
     main_log->SetVisAttributes(&sep_vis);
+
+    //SecParticleCounterSD* sep_SD = new SecParticleCounterSD("sep_SD");
+    //G4SDManager::GetSDMpointer()->AddNewDetector(sep_SD);
+    //main_log->SetSensitiveDetector(sep_SD);
+
 }

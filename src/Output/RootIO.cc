@@ -82,11 +82,11 @@ void RootIO::addVetoIoniBranch() {
     dataTree->Branch("VetoIoni",&pvetoIoni);
 }
 
-void RootIO::addOpticalBranch() {
-    if(poptPhotoCounter) return; // already set up
-    G4cout << "RootIO Setting up 'Optical' output branch...\n";
-    subObjs.push_back(poptPhotoCounter = &optPhotoCounter);
-    dataTree->Branch("Optical",&poptPhotoCounter);
+void RootIO::addSecParticleBranch() {
+    if(psecParticleCounter) return; // already set up
+    G4cout << "RootIO Setting up 'SecParticle' output branch...\n";
+    subObjs.push_back(psecParticleCounter = &secParticleCounter);
+    dataTree->Branch("SecParticle",&psecParticleCounter);
 }
 
 void RootIO::SetFileName(const string& filename) {
