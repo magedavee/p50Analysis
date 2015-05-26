@@ -12,6 +12,8 @@ ClassImp(IoniCluster)
 ClassImp(IoniClusterEvent)
 ClassImp(NCapt)
 ClassImp(NCaptEvent)
+ClassImp(SecondaryParticleVertex)
+ClassImp(SecondaryParticleEvent)
 ClassImp(Event)
 
 ////////////////////////////////////////////
@@ -162,3 +164,25 @@ HitTypeID classifyHit(const IoniCluster& h) {
     else if(0.1 < Eq && psd < psd_cut) return RECOIL_HIT;
     return IONI_HIT;
 }
+
+////////////////////////////////////////////
+//------------------------------------------
+////////////////////////////////////////////
+
+SecondaryParticleEvent::~SecondaryParticleEvent() {
+    if(particles) delete particles;
+}
+
+void SecondaryParticleEvent::Clear(Option_t*) {
+    if(!particles) { particles = new TClonesArray("SecondaryParticleVertex",100); }
+    particles->Clear("C");
+    nParticlesDet = 0;
+    nParticlesGen = 0;
+    nParticlesGenInsideSepx = 0;
+}
+
+void SecondaryParticleEvent::AddParticle(const SecondaryParticleVertex& P) {
+    assert(particles);
+    new((*particles)[nParticlesDet++]) SecondaryParticleVertex(P);
+}
+
