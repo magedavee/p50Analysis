@@ -30,7 +30,7 @@ public:
     /// Get reference for current event muon veto ionization
     static IoniClusterEvent& GetVetoIoni() { return GetInstance()->vetoIoni; }
     /// Get reference for current PMT/photon event
-    static ParticleEvent& GetPhoto() { return GetInstance()->optPhotoCounter; }
+    static SecondaryParticleEvent& GetSecondaryParticle() { return GetInstance()->secParticleCounter; }
     
     /// Open named output file
     virtual void SetFileName(const string& filename) = 0;
@@ -50,7 +50,7 @@ public:
     NCaptEvent scintNCapt;      ///< liquid scintillator neutron captures fill point
     IoniClusterEvent scintIoni; ///< liquid scintillator ionization fill point
     IoniClusterEvent vetoIoni;  ///< muon veto panels ionization fill point
-    ParticleEvent optPhotoCounter;      ///< optical photon counter for PMT response
+    SecondaryParticleEvent secParticleCounter;      ///< secondary particles like optical photon, e-.. counter for PMT response
     
     /// record event numbering
     virtual void addEvtBranch() { }
@@ -65,7 +65,7 @@ public:
     /// record muon veto ionization
     virtual void addVetoIoniBranch() { }
     /// record optical photons entering PMTs
-    virtual void addOpticalBranch() { }
+    virtual void addSecParticleBranch() { }
     
 protected:
     /// Constructor; protected for singleton instantiation
@@ -79,7 +79,7 @@ protected:
     NCaptEvent* pscintNCapt = NULL;     ///< pointer to scintNCapt, for TTree setup
     IoniClusterEvent* pscintIoni = NULL;///< pointer to scintIoni, for TTree setup
     IoniClusterEvent* pvetoIoni = NULL; ///< pointer to vetoIoni, for TTree setup
-    ParticleEvent* poptPhotoCounter = NULL; ///< pointer to optical photon counter, for TTree setup
+    SecondaryParticleEvent* psecParticleCounter = NULL; ///< pointer to optical photon counter, for TTree setup
     
     vector<TObject*> subObjs;           ///< list of pointers to write points to Clear()
 };
