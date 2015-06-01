@@ -44,7 +44,6 @@ void IoniSD::collectHitInfo(G4Step* aStep) {
     localPostPos = W2S.coordPtoC(worldPostPos);
     localMidPos = (localPrePos + localPostPos)*0.5;
     PID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    parenttrackID = aStep->GetTrack()->GetParentID();
 }
 
 IonisationHit* IoniSD::ProcessIoniHits(G4Step* aStep) {

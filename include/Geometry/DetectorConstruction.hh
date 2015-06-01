@@ -13,7 +13,6 @@
 #include "ScatterSlabBuilder.hh"
 #include "SphereShellBuilder.hh"
 #include "ScintSD.hh"
-#include "ScintLayer.hh"
 #include "HFIRCoreBuilder.hh"
 #include "DIMABuilder.hh"
 
@@ -53,8 +52,7 @@ public:
         DIMA,           ///< "DIMA" 16-channel scintillator array
         TEST_CELL,      ///< scintillator testing cell
         SLAB,           ///< material slab
-        SPHERE,          ///< concentric spheres
-	LAYER
+        SPHERE          ///< concentric spheres
     } mode;             ///< what kind of system to construct
     string modeName = "PROSPECT";       ///< name of active mode
     
@@ -80,10 +78,6 @@ public:
 protected:
     
     ScintSD* myScintSD = NULL;          ///< sensitive detector for scintillator volume
-    ScintLayer* myScintLayerTop=NULL;
-    ScintLayer* myScintLayerBot=NULL;
-    G4LogicalVolume* myTop;
-    G4LogicalVolume* myBot;
     G4UIdirectory geomDir;              ///< UI directory for construction geometry commands
     G4UIcmdWithAString modeCmd;         ///< UI command for setting construction mode
     G4UIcmdWithABool vetoCmd;           ///< UI command to enable/disable muon veto construction

@@ -61,10 +61,8 @@ void SteppingAction::CheckBoundaryStatus(G4OpBoundaryProcessStatus boundaryStatu
 
 void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     // check that computation limit is not exceeded (trapped events)
-	// 10 is too small, change to 100
     timeSpentSoFar = ((EventAction*)G4EventManager::GetEventManager()->GetUserEventAction())->getCPUTime();
-    int exitTime=10000;
-    if(timeSpentSoFar > exitTime && timeSpentSoFar>=0) {
+    if(timeSpentSoFar > 10) {
         if(!isTrapped) G4cout << "Tracking killed by computation time limit" << G4endl;
         aStep->GetTrack()->SetTrackStatus(fStopAndKill);
         isTrapped = true;

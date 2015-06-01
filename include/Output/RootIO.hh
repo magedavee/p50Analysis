@@ -35,7 +35,7 @@ public:
     /// record muon veto ionization
     virtual void addVetoIoniBranch();
     /// record optical photons entering PMTs
-    virtual void addSecParticleBranch();
+    virtual void addOpticalBranch();
     
 private:
     

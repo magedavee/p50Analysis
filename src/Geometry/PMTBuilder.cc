@@ -6,7 +6,7 @@
 #include <G4Tubs.hh>
 #include <G4Box.hh>
 #include <G4PVPlacement.hh>
-#include <SecParticleCounterSD.hh>
+#include <OptCounterSD.hh>
 #include <cmath>
 #include <G4SDManager.hh>
 PMTBuilder::PMTBuilder(): Builder("PMT"), block_width(0), block_length(20*cm),
@@ -35,9 +35,9 @@ void PMTBuilder::construct() {
     capsule_log->SetVisAttributes(&capsule_vis);
     new G4PVPlacement(NULL, G4ThreeVector(0,0,(length-capsule_length)/2.), capsule_log, "PMT_capsule_phys", tube_log, false, 0, true);
     
-    SecParticleCounterSD* pmt_capsule_tube_SecParticleSD = new SecParticleCounterSD("PMT_capsule_tube_SD");
-    G4SDManager::GetSDMpointer()->AddNewDetector(pmt_capsule_tube_SecParticleSD);
-    capsule_log->SetSensitiveDetector(pmt_capsule_tube_SecParticleSD);
+    OptCounterSD* pmt_capsule_tube_SD = new OptCounterSD("PMT_capsule_tube_SD");
+    G4SDManager::GetSDMpointer()->AddNewDetector(pmt_capsule_tube_SD);
+    capsule_log->SetSensitiveDetector(pmt_capsule_tube_SD);
     
     G4Tubs* pmt_vacuum_tube = new G4Tubs("pmt_vacuum_tube", 0, capsule_radius - capsule_thick, capsule_length/2.-capsule_thick, 0, 2*M_PI);
     G4LogicalVolume* vacuum_log = new G4LogicalVolume(pmt_vacuum_tube, MaterialsHelper::M().Vacuum, "PMT_vacuum_log");

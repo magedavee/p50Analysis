@@ -111,40 +111,6 @@ public:
     ClassDef(NCaptEvent,1);
 };
 
-/// secondary partilces like Optical photon , e- for ROOT output
-class SecondaryParticleVertex: public TObject, public s_SecondaryParticleVertex {
-public:
-    /// constructor
-    SecondaryParticleVertex() {}
-    ClassDef(SecondaryParticleVertex,1);
-};
-
-/// Event containing a list of secondary particles like optical photons, e- ..
-class SecondaryParticleEvent: public TObject {
-public:
-    /// Constructor
-  SecondaryParticleEvent(): nParticlesDet(0), nParticlesGen(0), nParticlesGenInsideSepx(0), particles(NULL) { Clear(""); }
-    /// Destructor
-    ~SecondaryParticleEvent();
-    
-    Int_t nParticlesDet;           ///< number of nParticles detected
-    Int_t nParticlesGen;           ///< number of nParticles generated in the scint
-    Int_t nParticlesGenInsideSepx;           ///< number of nParticles generated in the scint inside sep box
-    TClonesArray* particles;    ///< the particles
-    
-    /// Clear data for new event
-    void Clear(Option_t *option ="");
-    /// Add new detected particle data
-    void AddParticle(const SecondaryParticleVertex& P);
-	/// Add new generated particles
-	void AddParticleGen() { nParticlesGen++; }
-	/// Add new generated particles inside the sep box
-	void AddParticleGenInsideSepx() { nParticlesGenInsideSepx++; }
-    
-    ClassDef(SecondaryParticleEvent,1);
-};
-
-
 /// Basic event header information
 class Event: public TObject, public s_Event {
 public:

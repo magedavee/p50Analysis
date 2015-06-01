@@ -75,7 +75,6 @@ protected:
     G4ThreeVector localPrePos;  ///< pre-step position in scintillator coordinates
     G4ThreeVector localMidPos;  ///< mid-point of step in scintillator coordinates
     G4ThreeVector localPostPos; ///< post-step position in scintillator coordinates
-    int parenttrackID = 0;                ///< PDG particle ID
     
     map<const G4Track*,double> parent_dEdx;     ///< dE/dx of parent track, assigned to secondaries in same volume                           
 };

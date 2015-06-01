@@ -84,26 +84,6 @@ struct s_Event {
 };
 
 // ////////////////////////
-// mu- to e-, then e- to photon
-// then mu- is origin, e- is source
-/// Simulated optical photon vertex information
-struct s_SecondaryParticleVertex {
-    Int_t PID = 0;      ///< PDG particle ID code
-    Double_t x[3];      ///< vertex position [mm]
-    Double_t p[3];      ///< momentum direction
-    Double_t E = 0;     ///< kinetic energy [MeV]
-    Double_t t = 0;     ///< time [ns]
-    Int_t vol = -1;      ///< volume ID number (xy) (LS=0y,sep=1y,pmt=2y, y is copyno)
-    Int_t originPID = 0;      ///< origin PID (generator PID, like mu-, e-..)
-    Int_t sourcePID = 0;      ///< source PID (true source PID, like mu-, e-..)
-    Int_t isSourceInsideSepx = 0;      ///< is the source vertex inside the sep box
-    Int_t parenttrackID = -1;      ///< parent track ID 
-    Int_t trackID = -1;      ///< track ID
-    Int_t stepID = -1;      ///< step ID
-    Long64_t evt = -1;   ///< event number
-};
-
-// ////////////////////////
 // Data or Simulation types
 // ////////////////////////
 

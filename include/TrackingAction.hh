@@ -12,7 +12,7 @@ public:
     /// start-of-track routines (identify neutrons)
     virtual void PreUserTrackingAction(const G4Track* aTrack);
     /// end-of-track routines
-	virtual void PostUserTrackingAction(const G4Track*);
+    virtual void PostUserTrackingAction(const G4Track*) {}
 };
 
  #endif
