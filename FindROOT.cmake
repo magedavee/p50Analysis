@@ -82,6 +82,7 @@ find_package(GCCXML)
 #                                    LINKDEF linkdef1 ...
 #                                    OPTIONS opt1...)
 function(ROOT_GENERATE_DICTIONARY dictionary)
+  message("Generating ROOT dictionary ${dictionary}")
   CMAKE_PARSE_ARGUMENTS(ARG "" "" "LINKDEF;OPTIONS" "" ${ARGN})
   #---Get the list of include directories------------------
   get_directory_property(incdirs INCLUDE_DIRECTORIES)
@@ -92,6 +93,7 @@ function(ROOT_GENERATE_DICTIONARY dictionary)
   #---Get the list of header files-------------------------
   set(headerfiles)
   foreach(fp ${ARG_UNPARSED_ARGUMENTS})
+    message("\twith header file ${fp}")
     if(${fp} MATCHES "[*?]") # Is this header a globbing expression?
       file(GLOB files ${fp})
       foreach(f ${files})
@@ -108,14 +110,14 @@ function(ROOT_GENERATE_DICTIONARY dictionary)
   #---Get LinkDef.h file------------------------------------
   set(linkdefs)
   foreach( f ${ARG_LINKDEF})
+    message("\tusing linkdef file ${f}")
     find_file(linkFile ${f} PATHS ${incdirs})
     set(linkdefs ${linkdefs} ${linkFile})
     unset(linkFile CACHE)
   endforeach()
   #---call rootcint------------------------------------------
-  add_custom_command(OUTPUT ${dictionary}.cxx
-                     COMMAND ${ROOTCINT_EXECUTABLE} -cint -f  ${dictionary}.cxx
-                                          -c ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs}
+  add_custom_command(OUTPUT ${dictionary}
+                     COMMAND ${ROOTCINT_EXECUTABLE} ARGS -f ${dictionary} ${headerfiles} ${linkdefs}
                      DEPENDS ${headerfiles} ${linkdefs} VERBATIM)
 endfunction()
 

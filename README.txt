@@ -12,7 +12,7 @@ Geant4 (http://geant4.cern.ch); known to compile with versions 4.10.00, 4.10.01
 
 For visualization, it's also useful to have some of Geant4's optional graphics dependencies installed
 (see Geant4's install guides), e.g. OpenGL and Motif developer libraries.
-    Geant4 cmake flags: -DGEANT4_USE_QT=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_OPENGL_X11=ON
+    Geant4 cmake flags: -DGEANT4_USE_QT=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_OPENGL_X11=ON -DCMAKE_INSTALL_PREFIX=<install dir>
     
 ROOT (http://root.cern.ch); known to work with versions 5.34/18, v6-02-1, v6-03-1
 

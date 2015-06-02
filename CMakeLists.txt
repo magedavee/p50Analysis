@@ -69,11 +69,10 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 # TObject subclasses dictionary & ROOT objects shared library
 ###############
 
-set(SB_G4_LINKDEF ${PROJECT_SOURCE_DIR}/include/Output/EventLinkDef.h)
+set(SB_G4_LINKDEF EventLinkDef.h)
 set(SB_G4_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/EventLib_Dict.cxx)
-MESSAGE("Generating dictionary ${SB_G4_DICTIONARY}")
-set(DICTFILES "${PROJECT_SOURCE_DIR}/include/Output/Event.hh")
-ROOT_GENERATE_DICTIONARY("${DICTFILES}" "${SB_G4_LINKDEF}" "${SB_G4_DICTIONARY}" "")
+set(DICTFILES "Event.hh")
+ROOT_GENERATE_DICTIONARY("${SB_G4_DICTIONARY}" "${DICTFILES}" LINKDEF "${SB_G4_LINKDEF}" OPTIONS "")
 LIST(APPEND sources ${SB_G4_DICTIONARY})
 
 add_library(EventLib SHARED ${sources} ${headers})
@@ -87,7 +86,6 @@ SET(SB_G4_LIBRARY_PROPERTIES
 set_target_properties(EventLib PROPERTIES ${SB_G4_LIBRARY_PROPERTIES})
 install(TARGETS EventLib DESTINATION ${LIBRARY_OUTPUT_PATH})
 link_directories(${LIBRARY_OUTPUT_PATH})
-
 
 #################
 # Executables
