@@ -1,6 +1,7 @@
 /// \file SelectH5Events.hh \brief Selects HDF5 data from directory of simulations, based on directory of event listings, into one combined file.
 #include "HDF5Reader.hh"
 #include "XMLInfo.hh"
+#include <inttypes.h>
 
 // ./SelectH5Events P2k_nBG
 
@@ -34,7 +35,7 @@ int main(int argc, char** argv) {
         SES.transfer(inDir+"/Run_"+to_str(*it)+"_EvtList.txt");
         totalTime += ODL.getXML(*it)->getGenTime()*1e-9;
     }
-    printf("Selected %lli events from %.2f h simulated time.\n", SES.nTransferred, totalTime/3600);
+    printf("Selected %" PRId64 " events from %.2f h simulated time.\n", SES.nTransferred, totalTime/3600);
     SES.setTotalTime(totalTime);
     
     return 0;
