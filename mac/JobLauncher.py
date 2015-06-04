@@ -128,7 +128,8 @@ class H5_DetResponse_Launcher:
             if rnum > rmax:
                 rmax = rnum
 	rmin = 0
-        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(auxdir)s/../mac/Analysis/CalcDetectorResponse %(basedir)s/Run_%%(jobnum)s.h5 %(xargs)s; fi"%{"basedir":basedir, "auxdir":os.environ["PG4_AUX"], "xargs":self.settings["xargs"]}
+	cmdinfo = {"basedir":basedir, "p2xdir":os.environ["MPM_P2X_ANALYSIS"], "xargs":self.settings["xargs"]}
+        jcmd = "if test -f %(basedir)s/Run_%%(jobnum)s.h5.xml; then %(p2xdir)s/Examples/CalcDetectorResponse %(basedir)s/Run_%%(jobnum)s.h5 %(xargs)s; fi"%cmdinfo
         self.submitter.run_jobs(jcmd,rmin,rmax-rmin+1)
 
 def logrange(n,x0,x1):
