@@ -49,8 +49,7 @@ For locally-installed HDF5 builds, use cmake with the `-DHDF5_BUILD_HL_LIB=ON` o
     to generate the "high level" library libhdf5_hl.a;
     set environment variables to point to your HDF5 headers and build:
 
-export HDF5_SRCDIR=<HDF5 cmake source directory>/src/
-export HDF5_LIBDIR=<HDF5 cmake build directory>/bin/
+export HDF5_DIR=<HDF5 install directory>/share/cmake/
 
 Running
 =======

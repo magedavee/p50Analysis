@@ -15,15 +15,15 @@ LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lgsl
 #
 
 VPATH = ${MPM_P2X_ANALYSIS}:Common/:Private/:../../src/Output/
-objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o XMLInfo.o
+objects = AnaUtils.o FileKeeper.o GoldhagenSpectrum.o strutils.o PathUtils.o XMLInfo.o
 _examples = PlotFlux PlotPos PlotPrimaries TestCell
 
 # optional HDF5-dependent components
 ifeq ($(WITH_HDF5),true)
-	LDFLAGS += -L$(HDF5_LIBDIR) -lhdf5 -lhdf5_hl
-	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_SRCDIR) -I$(HDF5_SRCDIR)/../hl/src/
-	objects += HDF5Reader.o TimeStructure.o IoniTiming.o DetectorResponse.o
-	_examples += CalcDetectorResponse SelectH5Events
+	LDFLAGS += -L$(HDF5_INSTALL)/lib/ -lhdf5 -lhdf5_hl
+	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_INSTALL)/include/
+	objects += HDF5Reader.o TimeStructure.o IoniTiming.o
+	_examples += SelectH5Events
 endif
 
 all: $(objects)
