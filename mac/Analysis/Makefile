@@ -6,6 +6,15 @@
 .SUFFIXES:
 .SUFFIXES: .c .cc .cpp .o
 
+# check for necessary environment variables
+ifndef MPM_P2X_ANALYSIS
+$(error MPM_P2X_ANALYSIS is not set)
+endif
+ifndef PG4_LIB_DIR
+$(error PG4_LIB_DIR is not set)
+endif
+
+
 CXXFLAGS = -O3 --std=c++11 -fPIC `root-config --cflags` -pedantic -Wall -Wextra \
 	-I. -ICommon/ -I../../include/Output/ -I${MPM_P2X_ANALYSIS}
 LDFLAGS =  -L. -L$(PG4_LIB_DIR) -lEventLib `root-config --libs` -lMathMore -lgsl -lXMLIO
@@ -20,6 +29,9 @@ _examples = PlotFlux PlotPos PlotPrimaries TestCell
 
 # optional HDF5-dependent components
 ifeq ($(WITH_HDF5),true)
+ifndef HDF5_INSTALL
+$(error HDF5_INSTALL is not set)
+endif
 	LDFLAGS += -L$(HDF5_INSTALL)/lib/ -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_INSTALL)/include/
 	objects += HDF5Reader.o TimeStructure.o IoniTiming.o
