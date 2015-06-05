@@ -1,0 +1,15 @@
+# Example macro segment with basic commands for turning on visualization
+# /control/execute <PG4 code directory>/mac/Examples/enable_vis.mac
+
+# choose visualization driver, availability depending on Geant4 build options
+/vis/open OGLSQt
+#/vis/open OGLSXm
+#/vis/open OGLSX
+
+# draw detector geometry (assuming this is after /run/initialize)
+/vis/drawVolume
+
+# enable display of particle tracks
+/vis/scene/add/trajectories
+# accumulate tracks over all events, instead of clearing after each event
+/vis/scene/endOfEventAction accumulate -1

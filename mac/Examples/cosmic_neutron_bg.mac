@@ -1,0 +1,28 @@
+# Example of a fairly minimal macro for generating a cosmic neutron background simulation
+
+# Set a run number to determine random number generator seed.
+# For batch jobs with many "identical" simulations, change this for each one.
+/output/setRunNum 1
+
+# Output file name. ".h5" suffix assumes PG4 is compiled with HDF5 output;
+# change to ".root" if using that.
+/output/filename P2k_nBG.h5
+
+# Set what portion of events get saved to file. "2" is all events producing scinitllator ionization.
+/output/setRecordLevel 2
+
+# Set geometry mode: "baseline" PROSPECT-2k
+/geom/mode PROSPECT
+
+# Initialize run ("locks in" geometry settings)
+/run/initialize
+
+# Event generator module for cosmic neutron background
+/generator/module/CosN
+# Event generator vertex positioner:
+# cos^2.5(theta)-weighted flux from upper hemisphere
+# showering down on detector
+/generator/vertex/cosx 2.5
+
+# Generate some events.
+/run/beamOn 1000
