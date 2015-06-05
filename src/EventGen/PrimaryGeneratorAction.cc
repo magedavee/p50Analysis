@@ -98,10 +98,6 @@ dirFluxCmd("/generator/vertex/directional", this) {
     // Particle Guns
     particle_gun = new G4ParticleGun(1);
     particle_gun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-    particle_source = new G4GeneralParticleSource();
-    particle_source->SetNumberOfParticles(1);
-    particle_source->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-
 
     genDir.SetGuidance("Custom simulation settings.");
     
@@ -167,7 +163,6 @@ dirFluxCmd("/generator/vertex/directional", this) {
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
     delete particle_gun;
-    delete particle_source;
     
     if(myCRYModule) delete myCRYModule;
     if(myIBDModule) delete myIBDModule;

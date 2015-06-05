@@ -3,9 +3,6 @@
 #define GENPTCLMODULE_HH
 
 #include "PrimaryGeneratorAction.hh"
-#include <cassert>
-
-#include <G4UImessenger.hh>
 #include <G4GeneralParticleSource.hh>
 
 /// Event generator module providing G4GeneralParticleSource
@@ -18,9 +15,7 @@ public:
   void GeneratePrimaries(G4Event*);
     
 protected:
-    
-  //  G4GeneralParticleSource* mySrc;      ///< particle source
-    
+    G4GeneralParticleSource particle_source; ///< particle source
 };
 
 #endif

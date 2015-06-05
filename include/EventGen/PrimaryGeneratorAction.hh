@@ -76,7 +76,6 @@ public:
     void GeneratePrimaries(G4Event* anEvent);
 
     G4ParticleGun* GetParticleGun() const { return particle_gun; };
-    G4GeneralParticleSource* GetParticleSource() const { return particle_source; };
     DetectorConstruction* GetDetector() const { return detect; }
     VertexPositioner* GetPositioner() { return myPositioner; }
     /// Get (create if needed) CosineThrower positioner
@@ -135,7 +134,6 @@ protected:
     G4int verbose;                              ///< Verbosity (0 = silent, 1 = minimal, 2 = loud)
 
     G4ParticleGun* particle_gun;
-    G4GeneralParticleSource* particle_source;
     
     PrimaryGeneratorAction* generator;          ///< generator being controlled
     G4UIdirectory genDir;                       ///< UI directory for generator commands

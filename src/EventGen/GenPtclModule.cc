@@ -1,10 +1,9 @@
 #include "GenPtclModule.hh"
-#include <G4Geantino.hh>
 
 GenPtclModule::GenPtclModule(PrimaryGeneratorAction* P): PrimaryGeneratorModule(P, "GenPtclSrc") {
+    particle_source.SetNumberOfParticles(1);
 }
 
 void GenPtclModule::GeneratePrimaries(G4Event* anEvent) { 
-  G4GeneralParticleSource* mySrc = myPGA->GetParticleSource();
-  mySrc->GeneratePrimaryVertex(anEvent);
+   particle_source.GeneratePrimaryVertex(anEvent);
 }   
