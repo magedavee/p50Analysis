@@ -211,8 +211,8 @@ void HDF5_StructInfo::makeScIoniTable(hid_t outfile_id, int nchunk, int compress
     assert(err >= 0);
 }
 
-void HDF5_StructInfo::makePrimTable(hid_t outfile_id, int nchunk, int compress) const {
-    herr_t err = H5TBmake_table("Primary particles", outfile_id, "Prim",
+void HDF5_StructInfo::makePrimTable(hid_t outfile_id, int nchunk, int compress, const string& tname) const {
+    herr_t err = H5TBmake_table("Primary particles", outfile_id, tname.c_str(),
                                 n_ParticleVertex_fields, 0, sizeof(s_ParticleVertex),
                                 ParticleVertex_field_names, ParticleVertex_offsets, ParticleVertex_field_types,
                                 nchunk, NULL, compress, NULL);

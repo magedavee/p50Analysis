@@ -7,6 +7,8 @@
 #include "AnalysisTypes.hh"
 #include "hdf5.h"
 #include "hdf5_hl.h"
+#include <string>
+using std::string;
 
 /// Class providing struct information for HDF5 table structures
 class HDF5_StructInfo {
@@ -17,7 +19,7 @@ public:
     /// set up s_IoniCluster table
     void makeScIoniTable(hid_t outfile_id, int nchunk, int compress) const;
     /// set up s_ParticleVertex primaries table
-    void makePrimTable(hid_t outfile_id, int nchunk, int compress) const;
+    void makePrimTable(hid_t outfile_id, int nchunk, int compress, const string& tname = "Prim") const;
     /// set up s_NCapt table
     void makeNCaptTable(hid_t outfile_id, int nchunk, int compress) const;
     /// set up s_Event table

@@ -25,6 +25,8 @@ public:
     virtual void addPrimBranch();
     /// record neutron captures
     virtual void addNCaptBranch();
+    /// record fluxCounter contents
+    virtual void addFluxBranch();
     
     /// Open named output file
     virtual void SetFileName(const string& filename);
@@ -38,6 +40,7 @@ protected:
     HDF5_Table_Writer<s_Event> evt_writer;              ///< buffered output for s_Event
     HDF5_Table_Writer<s_IoniCluster> ioni_writer;       ///< cached output for s_IoniCluster
     HDF5_Table_Writer<s_ParticleVertex> prim_writer;    ///< cached output for primaries s_ParticleVertex
+    HDF5_Table_Writer<s_ParticleVertex> flux_writer;    ///< cached output for flux counter s_ParticleVertex
     HDF5_Table_Writer<s_NCapt> ncapt_writer;            ///< buffered output for s_NCapt
     
     hid_t outfile_id = 0;       ///< output HDF5 file ID

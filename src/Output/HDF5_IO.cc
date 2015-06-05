@@ -9,6 +9,7 @@ HDF5_IO::HDF5_IO():
 evt_writer("Evt", Event_offsets, Event_sizes, nchunk),
 ioni_writer("ScIoni", IoniCluster_offsets, IoniCluster_sizes, nchunk),
 prim_writer("Prim", ParticleVertex_offsets, ParticleVertex_sizes, nchunk),
+flux_writer("Flux", ParticleVertex_offsets, ParticleVertex_sizes, nchunk),
 ncapt_writer("NCapt", NCapt_offsets, NCapt_sizes, nchunk) {
     G4cout << "HDF5_IO initialized. Remember to specify output filename." << G4endl;
 }
@@ -59,6 +60,15 @@ void HDF5_IO::SaveEvent() {
         }
     }
     
+    if(pfluxCounter) {
+        Int_t n = pfluxCounter->particles->GetEntriesFast();
+        for(Int_t i=0; i<n; i++) {
+            ParticleVertex* x = (ParticleVertex*)pfluxCounter->particles->At(i);
+            x->evt = mcevent.N;
+            flux_writer.write(*x);
+        }
+    }
+    
     if(pscintNCapt) {
         Int_t n = pscintNCapt->nCapts->GetEntriesFast();
         for(Int_t i=0; i<n; i++) {
@@ -85,6 +95,15 @@ void HDF5_IO::addPrimBranch() {
     subObjs.push_back(pprimPtcls = &primPtcls);
         
     makePrimTable(outfile_id, nchunk, compress);
+}
+
+void HDF5_IO::addFluxBranch() {
+    if(pfluxCounter) return; // already set up
+    assert(outfile_id);
+    G4cout << "HDF5_IO Setting up 'Flux' output branch...\n";
+    subObjs.push_back(pfluxCounter = &fluxCounter);
+    
+    makePrimTable(outfile_id, nchunk, compress, "Flux");
 }
 
 void HDF5_IO::addNCaptBranch() {
