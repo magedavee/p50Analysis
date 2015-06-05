@@ -35,7 +35,7 @@ bool compare_hit_times(const IonisationHit* a, const IonisationHit* b) { return 
 
 ////////////////////////////////////////////////////////////////
 
-IoniSD::IoniSD(): time_gap(50*ns), edep_threshold(100*eV) { }
+IoniSD::IoniSD(): time_gap(5*ns), edep_threshold(100*eV) { }
 
 void IoniSD::collectHitInfo(G4Step* aStep) {
     worldPrePos = aStep->GetPreStepPoint()->GetPosition(); // track occurred in this volume

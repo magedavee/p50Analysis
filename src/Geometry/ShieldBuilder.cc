@@ -36,10 +36,11 @@ void ShieldBuilder::_construct() {
     construct_layers();
     
     // muon veto layer
+    int vetoNum = 1000;
     for(auto it = layers.begin(); it != layers.end(); it++) {
         if(it->mat == MaterialsHelper::M().PVT) {
-            FileIO::GetInstance()->addVetoIoniBranch();
             MuVetoSD* V = new MuVetoSD("MuVetoSD",main_log);
+            V->seg_id = vetoNum++;
             G4SDManager::GetSDMpointer()->AddNewDetector(V);
             main_log->SetSensitiveDetector(V);
         }

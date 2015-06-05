@@ -32,8 +32,6 @@ public:
     virtual void addNCaptBranch();
     /// record fluxCounter contents
     virtual void addFluxBranch();
-    /// record muon veto ionization
-    virtual void addVetoIoniBranch();
     /// record optical photons entering PMTs
     virtual void addOpticalBranch();
     

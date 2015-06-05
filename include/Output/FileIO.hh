@@ -27,8 +27,6 @@ public:
     static NCaptEvent& GetNCapt() { return GetInstance()->scintNCapt; }
     /// Get reference for current event scintillator ionization
     static IoniClusterEvent& GetScIoni() { return GetInstance()->scintIoni; }
-    /// Get reference for current event muon veto ionization
-    static IoniClusterEvent& GetVetoIoni() { return GetInstance()->vetoIoni; }
     /// Get reference for current PMT/photon event
     static ParticleEvent& GetPhoto() { return GetInstance()->optPhotoCounter; }
     
@@ -44,12 +42,11 @@ public:
     /// Get output filename
     string GetFileName() const { return fname; }
     
-    Event mcevent;              ///< event basic data fill point
-    ParticleEvent primPtcls;    ///< event primary particles fill point
-    ParticleEvent fluxCounter;  ///< (optional) flux counter fill point
-    NCaptEvent scintNCapt;      ///< liquid scintillator neutron captures fill point
-    IoniClusterEvent scintIoni; ///< liquid scintillator ionization fill point
-    IoniClusterEvent vetoIoni;  ///< muon veto panels ionization fill point
+    Event mcevent;                      ///< event basic data fill point
+    ParticleEvent primPtcls;            ///< event primary particles fill point
+    ParticleEvent fluxCounter;          ///< (optional) flux counter fill point
+    NCaptEvent scintNCapt;              ///< liquid scintillator neutron captures fill point
+    IoniClusterEvent scintIoni;         ///< scintillator ionizations fill point
     ParticleEvent optPhotoCounter;      ///< optical photon counter for PMT response
     
     /// record event numbering
@@ -62,8 +59,6 @@ public:
     virtual void addNCaptBranch() { }
     /// record fluxCounter contents
     virtual void addFluxBranch() { }
-    /// record muon veto ionization
-    virtual void addVetoIoniBranch() { }
     /// record optical photons entering PMTs
     virtual void addOpticalBranch() { }
     
@@ -71,17 +66,16 @@ protected:
     /// Constructor; protected for singleton instantiation
     FileIO() { }
     
-    string fname;                       ///< output file name
+    string fname;                               ///< output file name
     
-    Event* pmcevent = NULL;             ///< pointer to mcevent, for TTree setup
-    ParticleEvent* pprimPtcls = NULL;   ///< pointer to primPtcls, for TTree setup
-    ParticleEvent* pfluxCounter = NULL; ///< pointer to fluxCounter, for TTree setup
-    NCaptEvent* pscintNCapt = NULL;     ///< pointer to scintNCapt, for TTree setup
-    IoniClusterEvent* pscintIoni = NULL;///< pointer to scintIoni, for TTree setup
-    IoniClusterEvent* pvetoIoni = NULL; ///< pointer to vetoIoni, for TTree setup
-    ParticleEvent* poptPhotoCounter = NULL; ///< pointer to optical photon counter, for TTree setup
+    Event* pmcevent = NULL;                     ///< pointer to mcevent, for TTree setup
+    ParticleEvent* pprimPtcls = NULL;           ///< pointer to primPtcls, for TTree setup
+    ParticleEvent* pfluxCounter = NULL;         ///< pointer to fluxCounter, for TTree setup
+    NCaptEvent* pscintNCapt = NULL;             ///< pointer to scintNCapt, for TTree setup
+    IoniClusterEvent* pscintIoni = NULL;        ///< pointer to scintIoni, for TTree setup
+    ParticleEvent* poptPhotoCounter = NULL;     ///< pointer to optical photon counter, for TTree setup
     
-    vector<TObject*> subObjs;           ///< list of pointers to write points to Clear()
+    vector<TObject*> subObjs;                   ///< list of pointers to write points to Clear()
 };
 
 #endif

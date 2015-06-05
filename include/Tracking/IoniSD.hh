@@ -58,6 +58,7 @@ public:
     G4double time_gap;          ///< time gap for separating event clusters
     G4double edep_threshold;    ///< threshold for registering deposited energy hit
     G4double mat_n = 1;         ///< material electron density n/N_A/cm^3
+    int seg_id = 0;             ///< scintillator segment ID number recorded for ioni hits
     
 protected:
     /// get PID and position information for hit
@@ -68,7 +69,6 @@ protected:
     void makeClusters(vector<IonisationHit*>& hits, vector<IoniCluster>& clusts);
         
     int PID = 0;                ///< PDG particle ID
-    int seg_id = 0;             ///< scintillator segment ID number
     GeomHelper W2S;             ///< world-to-scintillator coordinates helper
     G4ThreeVector worldPrePos;  ///< pre-step position in world coordinates
     G4ThreeVector worldPostPos; ///< post-step position in world coordinates

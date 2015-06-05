@@ -6,7 +6,8 @@
 
 MuVetoSD::MuVetoSD(G4String name, G4LogicalVolume* V):
 G4VSensitiveDetector(name), myVol(V) {
-    FileIO::GetInstance()->addVetoIoniBranch();
+    seg_id = 1000;      // default to special segment number for veto
+    FileIO::GetInstance()->addScIoniBranch();
 }
 
 void MuVetoSD::Initialize(G4HCofThisEvent*) {
@@ -32,5 +33,5 @@ void MuVetoSD::EndOfEvent(G4HCofThisEvent*) {
     vector<IoniCluster> clusts;
     makeClusters(hit_history, clusts);
     std::sort(clusts.begin(), clusts.end(), compare_muioni_times);
-    for(auto it = clusts.begin(); it != clusts.end(); it++)  FileIO::GetVetoIoni().AddIoniCluster(*it);
+    for(auto it = clusts.begin(); it != clusts.end(); it++)  FileIO::GetScIoni().AddIoniCluster(*it);
 }

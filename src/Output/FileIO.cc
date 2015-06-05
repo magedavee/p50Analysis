@@ -17,7 +17,7 @@ FileIO* FileIO::GetInstance() {
     if (instance == NULL) {
 #ifdef WITH_HDF5
         G4cout << "Instantiating HDF5 output instance" << G4endl;
-        instance = new HDF5_IO(); //RootIO();
+        instance = new HDF5_IO();
 #else
         G4cout << "Instantiating ROOT output instance" << G4endl;
         instance = new RootIO();
