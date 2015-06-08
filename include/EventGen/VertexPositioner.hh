@@ -53,12 +53,15 @@ protected:
     int nAttempts = 0;                  ///< number of proposed throws
 };
 
+#include <G4UImessenger.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithADouble.hh>
+
 /// Vertex positioner for isotropic momenta from a fixed point
-class IsotPtPositioner: public VertexPositioner {
+class IsotPtPositioner: public VertexPositioner, public G4UImessenger {
 public:
     /// Constructor
-    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()):
-    VertexPositioner("IsotPtPositioner"), dxn(0,0,1) { setPos(x); }
+    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector());
     
     /// Set position, momentum for list of particles
     virtual bool tryVertex(vector<primaryPtcl>& v);
@@ -67,12 +70,18 @@ public:
     /// set origin position
     void setPos(G4ThreeVector x) { originPoint = pos = x; }
     
+    /// Respond to UI commands
+    void SetNewValue(G4UIcommand* command, G4String newValue);
+    
     G4ThreeVector dxn;          ///< direction to measure cos theta from
-    double costheta_min = 0;  ///< minimum direction cos theta
+    double costheta_min = -1;   ///< minimum direction cos theta
     
 protected:
     /// XML output contents
     virtual void fillNode(TXMLEngine& E);
+    
+    G4UIdirectory isotptDir;    ///< UI directory for IsotPtPositioner commands
+    G4UIcmdWithADouble cthCmd;  ///< UI command for costheta_min setting
 };
 
 #endif

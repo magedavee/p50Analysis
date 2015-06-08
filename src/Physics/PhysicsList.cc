@@ -81,7 +81,10 @@ void PhysicsList::SetCuts() {
         SetCutValue(rangecut, "gamma");
         SetCutValue(rangecut, "e-");
         SetCutValue(rangecut, "e+");
-    } else myHadronic->SetCuts();
+        //SetCutValue(0.01*rangecut, "alpha");
+    } else {
+        myHadronic->SetCuts();
+    }
 }
 
 

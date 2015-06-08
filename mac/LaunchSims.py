@@ -11,6 +11,7 @@ if __name__=="__main__":
     parser.add_option("--dima", dest="dima", action="store_true", default=False, help="DIMA detector");
     parser.add_option("--h5resp", dest="h5resp", action="store", type="string", help="HDF5-based detector response");
     parser.add_option("--np", dest="np", action="store_true", default=False, help="non-parallel execution");
+    parser.add_option("--misc", dest="misc", action="store_true", default=False, help="Miscellaneous sims");
     
     options, args = parser.parse_args()
     if options.kill:
@@ -39,6 +40,12 @@ if __name__=="__main__":
         L.template = "Templates/DIMA_Co60.mac"
         L.settings["out_sfx"] = "h5"
         L.launch_sims(96)
+
+    if options.misc:
+        L = SB_MC_Launcher("AlphaSi", 1e6)
+        L.template = "Analysis/Private/AlphaSi_Template.mac"
+        L.settings["out_sfx"] = "h5"
+        L.launch_sims(10*4) 
     
     if options.h5resp:
         L = H5_DetResponse_Launcher(options.h5resp, options.np)
