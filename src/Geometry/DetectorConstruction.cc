@@ -49,7 +49,7 @@ ScintSegVol* DetectorConstruction::getScint() {
     else if(mode == PROSPECT20 || mode==P20INNER || mode==P20CELL) return &myPR20Cell;
     else if(mode == TEST_CELL || mode == PROSPECT2 || mode == PROSPECT2B) return &myTestCell;
     else if(mode == DIMA) return &myDIMA.myArray;
-    else if(mode == SLAB) return &mySlab;
+    //else if(mode == SLAB) return &mySlab;
     else if(mode == SPHERE) return &mySphere;
     return NULL;
 }
@@ -74,6 +74,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         //worldShell.setThick(3*m);
     } else if(mode==SLAB) {
         worldShell.lthick[2] =  worldShell.uthick[2];
+        worldShell.mat = MaterialsHelper::M().Vacuum;
     } else if(mode==PROSPECT) {
         myBuilding.myContents = &myPRShield;
     } else if(mode==SPHERE) {

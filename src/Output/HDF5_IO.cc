@@ -139,6 +139,7 @@ void HDF5_IO::SetFileName(const string& filename) {
     ioni_writer.setFile(outfile_id);
     prim_writer.setFile(outfile_id);
     ncapt_writer.setFile(outfile_id);
+    flux_writer.setFile(outfile_id);
 }
 
 #endif
