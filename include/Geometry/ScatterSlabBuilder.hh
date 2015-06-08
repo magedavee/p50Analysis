@@ -4,6 +4,7 @@
 
 #include "Builder.hh"
 #include "ScintSegVol.hh"
+#include "FluxCounterBuilder.hh"
 
 #include <G4UImessenger.hh>
 #include <G4UIdirectory.hh>
@@ -26,7 +27,7 @@ public:
     double thick;       ///< slab thickness
     double width;       ///< slab width/height (close to "infinite")
     
-    G4LogicalVolume* slab_flux_log;     ///< particle flux counter
+    FluxCounterBuilder myFluxer;
     
 protected:
     /// XML output contents

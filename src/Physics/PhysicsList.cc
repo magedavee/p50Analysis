@@ -75,6 +75,7 @@ void PhysicsList::ConstructParticle() {
 
 void PhysicsList::SetCuts() {
     if(myEMPhys) {
+        printf("Setting cuts for precision EM physics list.\n");
         G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(250*eV, 1*GeV);
         double rangecut = 1*um;
         SetCutValue(rangecut, "gamma");

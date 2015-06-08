@@ -38,6 +38,8 @@ void ScatterSlabBuilder::construct() {
     if(!mat) mat = MaterialsHelper::M().Vacuum;
         
     double fluxthick = 1*mm;
+    myFluxer.setDimensions(G4ThreeVector(width,width,fluxthick));
+    myFluxer.construct();
     dim = G4ThreeVector(width, width, 2*(thick+fluxthick));
     
     G4Box* slab_vol_box = new G4Box("slab_vol_box", dim[0]/2., dim[1]/2., dim[2]/2.);
@@ -48,15 +50,9 @@ void ScatterSlabBuilder::construct() {
     scint_log->SetVisAttributes(new G4VisAttributes(G4Color(0,0,1)));
     scint_phys = new G4PVPlacement(NULL, G4ThreeVector(0,0,thick/2.), scint_log, "Slab_phys", main_log, false, 0, false);
     
-    G4Box* flux_box = new G4Box("slab_flux_box", dim[0]/2., dim[1]/2., fluxthick/2.);
-    slab_flux_log = new G4LogicalVolume(flux_box, MaterialsHelper::M().Vacuum, "Slab_flux_log");
-    slab_flux_log->SetVisAttributes(new G4VisAttributes(G4Color(1,0,0)));
-    new G4PVPlacement(NULL, G4ThreeVector(0,0,thick+fluxthick/2.), slab_flux_log, "Slab_fluxout_phys", main_log, false, 0, false);
-    new G4PVPlacement(NULL, G4ThreeVector(0,0,-thick-fluxthick/2.), slab_flux_log, "Slab_fluxback_phys", main_log, false, 0, false);
-    
-    FluxCounterSD* mySD = new FluxCounterSD("SlabFluxSD");
-    G4SDManager::GetSDMpointer()->AddNewDetector(mySD);
-    slab_flux_log->SetSensitiveDetector(mySD);
+    myFluxer.main_log->SetVisAttributes(new G4VisAttributes(G4Color(1,0,0)));
+    new G4PVPlacement(NULL, G4ThreeVector(0,0,thick+fluxthick/2.), myFluxer.main_log, "Slab_fluxout_phys", main_log, false, 0, false);
+    new G4PVPlacement(NULL, G4ThreeVector(0,0,-thick-fluxthick/2.), myFluxer.main_log, "Slab_fluxback_phys", main_log, false, 0, false);
 }
 
 void ScatterSlabBuilder::fillNode(TXMLEngine& E) {

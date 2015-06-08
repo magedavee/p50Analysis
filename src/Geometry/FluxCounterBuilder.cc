@@ -8,7 +8,16 @@
 #include <G4UnitsTable.hh>
 #include <G4Box.hh>
 
-FluxCounterBuilder::FluxCounterBuilder(): Builder("FluxCounter"), main_vis(G4Color(1.,0.,0.)) {
+FluxCounterBuilder::FluxCounterBuilder():
+Builder("FluxCounter"),
+main_vis(G4Color(1.,0.,0.)),
+fluxDir("/geom/flux/",this),
+ptclCmd("/geom/flux/particle",this) { 
+    fluxDir.SetGuidance("Flux counter settings");
+    fluxDir.AvailableForStates(G4State_Init, G4State_Idle);
+    
+    ptclCmd.SetGuidance("Specify particle ID to record");
+    ptclCmd.AvailableForStates(G4State_Init, G4State_Idle);
 }
 
 void FluxCounterBuilder::construct() {
@@ -19,7 +28,11 @@ void FluxCounterBuilder::construct() {
     main_log->SetVisAttributes(&main_vis);
     
     // assign sensitive detector to volume
-    FluxCounterSD* mySD = new FluxCounterSD("FluxSD");
+    mySD = new FluxCounterSD("FluxSD");
     G4SDManager::GetSDMpointer()->AddNewDetector(mySD);
     main_log->SetSensitiveDetector(mySD);
+}
+
+void FluxCounterBuilder::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command == &ptclCmd && mySD) mySD->record_PIDs.insert(ptclCmd.GetNewIntValue(newValue));
 }

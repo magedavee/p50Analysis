@@ -24,14 +24,20 @@ int VertexPositioner::setVertex(vector<primaryPtcl>& v) {
 //---------------------------
 
 bool IsotPtPositioner::tryVertex(vector<primaryPtcl>& v) {
+    int nPassCosTheta = 0;
     for(auto it = v.begin(); it != v.end(); it++) {
         it->pos = pos;
         if(!it->mom.mag2()) it->mom = randomDirection();
+        double cth = it->mom.dot(dxn);
+        nPassCosTheta += (cth >= costheta_min);
     }
     nAttempts++;
-    return true;
+    return nPassCosTheta;
 }
 
 void IsotPtPositioner::fillNode(TXMLEngine& E) {
     addAttr(E, "pos", G4BestUnit(pos,"Length"));
+    if(costheta_min > -1) {
+        addAttr(E, "costheta_min", costheta_min);
+    }
 }

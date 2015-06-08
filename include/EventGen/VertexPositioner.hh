@@ -57,7 +57,8 @@ protected:
 class IsotPtPositioner: public VertexPositioner {
 public:
     /// Constructor
-    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()): VertexPositioner("IsotPtPositioner") { setPos(x); }
+    IsotPtPositioner(const G4ThreeVector& x = G4ThreeVector()):
+    VertexPositioner("IsotPtPositioner"), dxn(0,0,1) { setPos(x); }
     
     /// Set position, momentum for list of particles
     virtual bool tryVertex(vector<primaryPtcl>& v);
@@ -65,6 +66,9 @@ public:
     virtual void proposePosition() { }
     /// set origin position
     void setPos(G4ThreeVector x) { originPoint = pos = x; }
+    
+    G4ThreeVector dxn;          ///< direction to measure cos theta from
+    double costheta_min = 0;  ///< minimum direction cos theta
     
 protected:
     /// XML output contents
