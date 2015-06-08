@@ -6,12 +6,20 @@
 #include <G4EventManager.hh>
 #include <G4Event.hh>
 
-
-SteppingAction::SteppingAction (): timeDir("/time/"),trapTime("/time/traptime",this),time(10) 
-{ 
+SteppingAction::SteppingAction (): calcTimeCmd("/run/maxCalcTime", this) {
+    
+    calcTimeCmd.SetGuidance("Set maximum time to calculate one event [s]");
+    calcTimeCmd.SetDefaultValue(maxCalcTime);
+    
     Reset();
 }
 
+void SteppingAction::SetNewValue(G4UIcommand* command, G4String newValue) {
+    if(command==&calcTimeCmd) {
+        maxCalcTime = calcTimeCmd.GetNewDoubleValue(newValue);
+        printf("Setting maximum calculation time to %g s.\n", maxCalcTime);
+    }
+}
 
 void SteppingAction::CheckBoundaryStatus(G4OpBoundaryProcessStatus boundaryStatus) {
     G4String outputstring;
@@ -69,7 +77,7 @@ void SteppingAction::CheckBoundaryStatus(G4OpBoundaryProcessStatus boundaryStatu
 void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     // check that computation limit is not exceeded (trapped events)
     timeSpentSoFar = ((EventAction*)G4EventManager::GetEventManager()->GetUserEventAction())->getCPUTime();
-    if(timeSpentSoFar > time) {
+    if(timeSpentSoFar > maxCalcTime) {
         if(!isTrapped) G4cout << "Tracking killed by computation time limit" << G4endl;
         aStep->GetTrack()->SetTrackStatus(fStopAndKill);
         isTrapped = true;
