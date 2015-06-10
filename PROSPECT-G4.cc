@@ -35,9 +35,6 @@ int main(int argc,char** argv) {
     // load event classes for ROOT
     gSystem->Load("libEventLib.so");
     
-    // Sets random engine as Ranecu Engine
-    CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine); 
-    
     // User Verbose Class
     G4VSteppingVerbose::SetInstance(new SteppingVerbose); 
     
