@@ -1,6 +1,5 @@
 #include "SphereShellBuilder.hh"
 
-#include "ScintCellBuilder.hh"
 #include "MaterialsHelper.hh"
 #include "FluxCounterSD.hh"
 #include "strutils.hh"

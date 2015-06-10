@@ -2,7 +2,6 @@
 
 #include "FileIO.hh"
 #include "RunAction.hh"
-#include "ScintTankBuilder.hh"
 
 #include <cassert>
 #include <vector>
