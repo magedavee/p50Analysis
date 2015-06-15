@@ -34,8 +34,7 @@ $(error HDF5_INSTALL is not set)
 endif
 	LDFLAGS += -L$(HDF5_INSTALL)/lib/ -lhdf5 -lhdf5_hl
 	CXXFLAGS += -DWITH_HDF5 -I$(HDF5_INSTALL)/include/
-	objects += HDF5Reader.o TimeStructure.o IoniTiming.o
-	_examples += SelectH5Events
+	objects += PG4_HDF5_Reader.o TimeStructure.o IoniTiming.o
 endif
 
 all: $(objects)
