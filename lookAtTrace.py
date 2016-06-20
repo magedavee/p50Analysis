@@ -7,7 +7,7 @@ import matplotlib.mlab as mlab
 from scipy.stats import norm 
 from array import array
 initROOT()
-name="s005_f00000_ts1459345732.root"
+name="../Data/p50/s005_f00000_ts1459345732.root"
 print "looking at "+name
 pmt=ROOT.PmtData(name)
 pmt.CalIntegral(0)
